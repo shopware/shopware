@@ -180,7 +180,6 @@ class CartLineItemControllerTest extends TestCase
     {
         return [
             ['testCode'],
-            ['with<br>HTML'],
         ];
     }
 

@@ -3,7 +3,7 @@ import type RuleConditionService from '../service/rule-condition.service';
 const { Application } = Shopware;
 
 /**
- * @package business-ops
+ * @package services-settings
  */
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService: RuleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
@@ -601,6 +601,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('orderDocumentType', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderDocumentTypeRule',
+        scopes: ['order'],
+        group: 'order',
+    });
+
+    ruleConditionService.addCondition('orderDocumentTypeSent', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderDocumentTypeSentRule',
         scopes: ['order'],
         group: 'order',
     });

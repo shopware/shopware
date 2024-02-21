@@ -40,9 +40,9 @@ active-rules = [
     "html-attribute-name-kebab-case",
     "twig-logic-and",
     "twig-logic-or",
-#    "twig-string-quotation",
+    "twig-string-quotation",
     "html-string-quotation",
-#    "twig-hash-key-no-quotes",
+    "twig-hash-key-no-quotes",
     "twig-prefer-shopware-extends",
 # maybe activate in the future? these are okay because shopware extends the twig syntax
 #    "twig-use-is-same-as",

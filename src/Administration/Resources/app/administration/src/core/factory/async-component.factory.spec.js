@@ -2664,4 +2664,44 @@ describe('core/factory/async-component.factory.ts', () => {
 
         expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
     });
+
+    describe('returns a component that overrides a method which is called multiple times with parameters', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '<div>Something</div>',
+            }),
+            B: () => ({
+                methods: {
+                    test(a) {
+                        return `test${a}`;
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    test(a) {
+                        return this.$super('test', '-') + a;
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('base-component', components.A());
+                ComponentFactory.extend('extension', 'base-component', components.B());
+                ComponentFactory.extend('override', 'extension', components.C());
+
+                const buildConfig = await ComponentFactory.build('override');
+
+                const wrapper = mount(buildConfig, {});
+
+                const resultOne = wrapper.vm.test(1);
+                const resultTwo = wrapper.vm.test(2);
+
+                expect(resultOne).toBe('test-1');
+                expect(resultTwo).toBe('test-2');
+
+                wrapper.unmount();
+            });
+        });
+    });
 });

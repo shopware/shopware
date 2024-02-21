@@ -15,13 +15,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(SetCustomerGroupCustomFieldAction::class)]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {

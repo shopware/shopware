@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LastNameRule::class)]
 class LastNameRuleTest extends TestCase
 {

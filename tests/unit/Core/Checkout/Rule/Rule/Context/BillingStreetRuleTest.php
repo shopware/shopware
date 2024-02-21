@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(BillingStreetRule::class)]
 class BillingStreetRuleTest extends TestCase
 {

@@ -147,7 +147,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_send %}
                 <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
+                    :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
                     @click="onSendDocument(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

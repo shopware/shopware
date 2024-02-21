@@ -1,0 +1,18 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderLineItemDownload": {
+                "type": "object",
+                "properties": {
+                    "media": {
+                        "$ref": "#/components/schemas/Media"
+                    }
+                },
+                "required": ["media"]
+            }
+        }
+    }
+}

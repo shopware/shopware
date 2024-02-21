@@ -48,5 +48,9 @@ export default {
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
         },
+
+        isLayoutSet() {
+            return this.landingPage.cmsPageId !== null;
+        },
     },
 };

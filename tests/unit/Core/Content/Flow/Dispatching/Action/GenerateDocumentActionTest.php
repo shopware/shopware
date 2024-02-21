@@ -14,13 +14,13 @@ use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(GenerateDocumentAction::class)]
 class GenerateDocumentActionTest extends TestCase
 {

@@ -11,6 +11,14 @@
         }
     }
 
+    .sw-settings-payment-detail-delete {
+        &__container {
+            display: flex;
+            align-items: center;
+            justify-content: end;
+        }
+    }
+
     /** @deprecated tag:v6.7.0 - Can be removed: with technical names now required, the hint is no longer needed */
     .sw-settings-payment-detail__field-technical-name.has--warning {
         .sw-block-field__block {

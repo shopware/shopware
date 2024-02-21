@@ -222,7 +222,8 @@
         "api_info_me": "Eigene API-Userinfo lesen",
         "api_info_ping": "API-Token erneuern",
         "system:clear:cache": "Cache leeren",
-        "api_proxy_switch-customer": "Im Namen eines Kunden handeln"
+        "api_proxy_switch-customer": "Im Namen eines Kunden handeln",
+        "api_feature_flag_toggle": "Merkmalskennzeichen umschalten"
       },
       "app": {
         "label": "Apps",

@@ -18,6 +18,7 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowLogEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -25,10 +26,9 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(FlowDispatcher::class)]
 class FlowDispatcherTest extends TestCase
 {

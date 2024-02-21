@@ -18,13 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(GrantDownloadAccessAction::class)]
 class GrantDownloadAccessActionTest extends TestCase
 {

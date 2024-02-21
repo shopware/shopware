@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @status ready
  * @description The <u>sw-rule-modal</u> component is used to create or modify a rule.
  * @example-type code-only

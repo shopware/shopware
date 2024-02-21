@@ -41,7 +41,7 @@ class ReviewFormEventTest extends TestCase
         $event = new ReviewFormEvent(
             Context::createDefaultContext(),
             'sales-channel-id',
-            new MailRecipientStruct(['foo', 'bar']),
+            new MailRecipientStruct(['foo' => 'bar']),
             new DataBag(['foo' => 'bar', 'bar' => 'baz']),
             'product-id',
             'customer-id'

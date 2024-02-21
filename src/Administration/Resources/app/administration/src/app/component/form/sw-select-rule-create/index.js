@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @status ready
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only

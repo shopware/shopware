@@ -636,16 +636,6 @@ parameters:
 			path: src/Core/Content/Cms/SalesChannel/Struct/ImageSliderStruct.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getSlotConfig\\(\\)\\.$#"
-			count: 3
-			path: src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
-
-		-
-			message: "#^Cannot call method getTranslated\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/ContactForm/SalesChannel/ContactFormRoute.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Aggregate\\\\FlowSequence\\\\FlowSequenceEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Aggregate/FlowSequence/FlowSequenceEntity.php
@@ -799,26 +789,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Command\\\\ImportEntityCommand\\:\\:profileByName\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\['shippingOrderAddress'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['lineItems'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\PrimaryKeyResolver\\:\\:getValueFromPath\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -1406,11 +1376,6 @@ parameters:
 			path: src/Core/Content/Media/Event/MediaIndexerEvent.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\:\\:addFlags\\(\\) has parameter \\$flags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaType/MediaType.php
@@ -1609,11 +1574,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductGatewayInterface\\:\\:get\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductGatewayInterface.php
-
-		-
-			message: "#^Anonymous variable in a `\\$product\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Product/Cms/CrossSellingCmsElementResolver.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\RatingAverageUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -2386,21 +2346,6 @@ parameters:
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$preferredFileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$fileExtension of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileUrlValidatorTest\\:\\:fileSourceProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileUrlValidatorTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php
@@ -2924,16 +2869,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExporterTest\\:\\:getSalesChannelDomain\\(\\) should return Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Service/ProductExporterTest.php
-
-		-
-			message: "#^Cannot call method filterByProperty\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\|null\\.$#"
-			count: 4
-			path: src/Core/Content/Test/ProductStream/ProductStreamRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductStream/ProductStreamRepositoryTest.php
 
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -3756,16 +3691,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:map\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:buildViolation\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
@@ -4104,66 +4029,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\FrameworkExtension\\:\\:addShopwareConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/FrameworkExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventRegistry\\:\\:addClasses\\(\\) has parameter \\$classes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventRegistry\\:\\:getClasses\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEventRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\DataMappingEvent\\:\\:__construct\\(\\) has parameter \\$output with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/DataMappingEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\DataMappingEvent\\:\\:getOutput\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/DataMappingEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\DataMappingEvent\\:\\:setOutput\\(\\) has parameter \\$output with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/DataMappingEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\MailRecipientStruct\\:\\:__construct\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/MailRecipientStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\MailRecipientStruct\\:\\:getRecipients\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/MailRecipientStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\MailRecipientStruct\\:\\:setRecipients\\(\\) has parameter \\$recipients with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/MailRecipientStruct.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\EventData\\\\ObjectType\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventData/ObjectType.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowLogEvent\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/FlowLogEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowLogEvent\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/FlowLogEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowLogEvent\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/FlowLogEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
@@ -5976,11 +5841,6 @@ parameters:
 			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\WriteConstraintViolationException\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/WriteConstraintViolationException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\\\HookableEventCollector\\:\\:getBusinessEventNamesWithPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/Hookable/HookableEventCollector.php
@@ -7106,16 +6966,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/SearchController.php
-
-		-
-			message: "#^Cannot call method getProductNumber\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Controller/SearchController.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\DependencyInjection\\\\StorefrontExtension\\:\\:addConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/DependencyInjection/StorefrontExtension.php
@@ -7550,10 +7400,6 @@ parameters:
 			count: 1
 			path: src/Storefront/Theme/ResolvedConfigLoader.php
 
-
-
-
-
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
 			count: 1
@@ -7755,46 +7601,6 @@ parameters:
 			path: tests/unit/Core/Content/Cms/DataResolver/Element/ElementDataCollectionTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Flow\\\\\\\\Api\\\\\\\\FlowActionCollectorResponse' and Shopware\\\\Core\\\\Content\\\\Flow\\\\Api\\\\FlowActionCollectorResponse will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Api/FlowActionCollectorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Api/FlowActionCollectorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Context' and Shopware\\\\Core\\\\Framework\\\\Context will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\DataAbstractionLayer\\\\\\\\Search\\\\\\\\Criteria' and Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Rule/OrderCreatedByAdminRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Rule/OrderTagRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Rule/OrderTrackingCodeRuleTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Mail/Service/MailTest.php
@@ -7808,11 +7614,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) with Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\SalesChannelProductEntity will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Product/Cms/ProductBoxCmsElementResolverTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\Detail\\\\\\\\ProductDetailRouteResponse' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\ProductDetailRouteResponse will always evaluate to true\\.$#"
-			count: 3
-			path: tests/unit/Core/Content/Product/SalesChannel/Detail/ProductDetailRouteTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Content\\\\\\\\Product\\\\\\\\SalesChannel\\\\\\\\FindVariant\\\\\\\\FoundCombination' and Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\FindVariant\\\\FoundCombination will always evaluate to true\\.$#"
@@ -7863,41 +7664,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with Symfony\\\\Component\\\\DependencyInjection\\\\Alias will always evaluate to true\\.$#"
 			count: 2
 			path: tests/unit/Core/Framework/DependencyInjection/CompilerPass/EntityCompilerPassTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\Builder\\\\\\\\TreeBuilder' and Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\TreeBuilder will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/DependencyInjection/ConfigurationTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/PackageTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/PackageTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Event\\\\\\\\PluginLifecycleEvent' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Event\\\\PluginPostDeactivationFailedEvent will always evaluate to true\\.$#"

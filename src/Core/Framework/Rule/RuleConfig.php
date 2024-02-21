@@ -41,7 +41,7 @@ final class RuleConfig extends Struct
     protected bool $isMatchAny = false;
 
     /**
-     * @var array<array<array<string>|string>|string>
+     * @var array<string, array{name: string, type: string, config: array<string, mixed>}>
      */
     protected array $fields = [];
 
@@ -138,9 +138,17 @@ final class RuleConfig extends Struct
      */
     public function field(string $name, string $type, array $config = []): self
     {
-        $this->fields[] = $this->getFieldTemplate($name, $type, $config);
+        $this->fields[$name] = $this->getFieldTemplate($name, $type, $config);
 
         return $this;
+    }
+
+    /**
+     * @return ?array{name: string, type: string, config: array<string, mixed>}
+     */
+    public function getField(string $name): ?array
+    {
+        return $this->fields[$name] ?? null;
     }
 
     /**
@@ -160,7 +168,7 @@ final class RuleConfig extends Struct
     /**
      * @param array<string, mixed> $config
      *
-     * @return array<string, mixed>
+     * @return array{name: string, type: string, config: array<string, mixed>}
      */
     private function getFieldTemplate(string $name, string $type, array $config): array
     {

@@ -39,11 +39,6 @@ initialisation
 */
 new ViewportDetection();
 
-// Necessary for the webpack hot module reloading server
-if (module.hot) {
-    module.hot.accept();
-}
-
 /*
 register plugins
 */

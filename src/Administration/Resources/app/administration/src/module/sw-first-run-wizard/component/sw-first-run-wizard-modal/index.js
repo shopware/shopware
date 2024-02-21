@@ -44,7 +44,12 @@ export default {
                     navigationIndex: 3,
                 },
                 'mailer.smtp': {
-                    name: 'sw.first.run.wizard.index.mailer.setup',
+                    name: 'sw.first.run.wizard.index.mailer.smtp',
+                    variant: 'large',
+                    navigationIndex: 3,
+                },
+                'mailer.local': {
+                    name: 'sw.first.run.wizard.index.mailer.local',
                     variant: 'large',
                     navigationIndex: 3,
                 },

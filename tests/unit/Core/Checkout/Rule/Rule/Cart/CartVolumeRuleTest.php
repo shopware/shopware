@@ -17,7 +17,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CartVolumeRule::class)]
 class CartVolumeRuleTest extends TestCase
 {
@@ -195,6 +195,6 @@ class CartVolumeRuleTest extends TestCase
         $result = $cartVolumeRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('volume', $result['fields'][0]['config']['unit']);
+        static::assertSame('volume', $result['fields']['volume']['config']['unit']);
     }
 }

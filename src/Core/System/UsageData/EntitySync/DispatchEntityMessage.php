@@ -7,14 +7,12 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 
 /**
  * @internal
- *
- * @phpstan-type PrimaryKeyList array<int, array<string, string>>
  */
 #[Package('data-services')]
 class DispatchEntityMessage implements LowPriorityMessageInterface
 {
     /**
-     * @param PrimaryKeyList $primaryKeys
+     * @param array<int, array<string, string>> $primaryKeys
      */
     public function __construct(
         public readonly string $entityName,

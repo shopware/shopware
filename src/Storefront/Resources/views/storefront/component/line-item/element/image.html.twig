@@ -5,13 +5,13 @@
                 {% sw_thumbnails 'line-item-img-thumbnails' with {
                     media: lineItem.cover,
                     sizes: {
-                        'default': '100px'
+                        default: '100px'
                     },
                     attributes: {
-                        'class': 'img-fluid line-item-img',
-                        'alt': (lineItem.cover.translated.alt ?: ''),
-                        'title': (lineItem.cover.translated.title ?: ''),
-                        'loading': 'lazy'
+                        class: 'img-fluid line-item-img',
+                        alt: (lineItem.cover.translated.alt ?: ''),
+                        title: (lineItem.cover.translated.title ?: ''),
+                        loading: 'lazy'
                     }
                 } %}
             {% endblock %}

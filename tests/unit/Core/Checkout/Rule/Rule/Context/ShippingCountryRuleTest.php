@@ -18,7 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(ShippingCountryRule::class)]
 class ShippingCountryRuleTest extends TestCase
 {

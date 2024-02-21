@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemDimensionLengthRule::class)]
 #[Group('rules')]
 class LineItemDimensionLengthRuleTest extends TestCase
@@ -272,7 +272,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
         $expectedOperatorSet = array_merge(RuleConfig::OPERATOR_SET_NUMBER, [Rule::OPERATOR_EMPTY]);
 
         static::assertSame($expectedOperatorSet, $result->getData()['operatorSet']['operators']);
-        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields'][0]['config']['unit']);
+        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
     private function createLineItemWithLength(?float $length): LineItem

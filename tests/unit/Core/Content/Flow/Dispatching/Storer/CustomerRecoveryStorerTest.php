@@ -15,13 +15,13 @@ use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(CustomerRecoveryStorer::class)]
 class CustomerRecoveryStorerTest extends TestCase
 {

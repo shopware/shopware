@@ -310,6 +310,7 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.availableGroups).toBeDefined();
+
                 expect(node.vm.availableGroups).toEqual([{
                     id: 'test-group',
                     name: 'test.group.name',
@@ -318,6 +319,38 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                     id: 'misc',
                     name: 'misc.group.name',
                     label: 'misc.group.name',
+                }]);
+            });
+
+            it('should sort "general" group to the start', async () => {
+                const conditionDataProviderService = new RuleConditionService();
+                conditionDataProviderService.getGroups = () => {
+                    return [{
+                        id: 'test-group',
+                        name: 'test.group.name',
+                    }, {
+                        id: 'general',
+                        name: 'general.group.name',
+                    }];
+                };
+
+                const wrapper = await createWrapper({
+                    initialConditions: createInitialOrContainer(),
+                    conditionDataProviderService,
+                });
+
+                const node = wrapper.getComponent(swConditionTreeNode);
+
+                expect(node.vm.availableGroups).toBeDefined();
+
+                expect(node.vm.availableGroups).toEqual([{
+                    id: 'general',
+                    name: 'general.group.name',
+                    label: 'general.group.name',
+                }, {
+                    id: 'test-group',
+                    name: 'test.group.name',
+                    label: 'test.group.name',
                 }]);
             });
 

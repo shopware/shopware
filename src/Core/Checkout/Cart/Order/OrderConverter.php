@@ -95,13 +95,16 @@ class OrderConverter
      */
     public function convertToOrder(Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext): array
     {
-        foreach ($cart->getDeliveries() as $delivery) {
-            if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
-                continue;
-            }
+        if ($conversionContext->shouldIncludeDeliveries()) {
+            foreach ($cart->getDeliveries() as $delivery) {
+                if ($delivery->getLocation()->getAddress() !== null || $delivery->hasExtensionOfType(self::ORIGINAL_ID, IdStruct::class)) {
+                    continue;
+                }
 
-            throw new DeliveryWithoutAddressException();
+                throw new DeliveryWithoutAddressException();
+            }
         }
+
         $data = CartTransformer::transform(
             $cart,
             $context,

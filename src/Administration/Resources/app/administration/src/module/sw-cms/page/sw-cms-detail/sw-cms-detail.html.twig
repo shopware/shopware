@@ -148,6 +148,11 @@
                 <sw-overlay v-if="page.locked" />
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_detail_loader %}
+                <sw-loader v-if="isLoading" />
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_detail_stage_form_view %}
                 <div
                     v-if="currentDeviceView === 'form'"
@@ -372,11 +377,6 @@
                     @modal-save="onSaveMissingElementModal"
                     @modal-dont-remind-change="onChangeDontRemindCheckbox"
                 />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_detail_loader %}
-                <sw-loader v-if="isLoading" />
                 {% endblock %}
             </div>
             {% endblock %}

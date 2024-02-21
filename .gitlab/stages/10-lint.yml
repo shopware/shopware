@@ -34,6 +34,20 @@ ESLint (Administration):
     after_script:
         - grep 'failure message' eslint.junit.xml
 
+ESLint (Acceptance Test Suite):
+    extends: .base-no-setup
+    stage: lint
+    image: node:lts-alpine
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - changes:
+              - 'tests/acceptance/**/*'
+    script:
+        - cd tests/acceptance
+        - npm clean-install
+        - npm run lint
+
 Check eslint parser (Administration):
     extends: .base-with-node
     stage: lint
@@ -193,7 +207,7 @@ Twig lint (storefront):
   stage: lint
   allow_failure: true
   image:
-    name: maltejanz/ludtwig:0.8.0
+    name: maltejanz/ludtwig:0.8.1
   rules:
     - changes:
       - 'src/Storefront/Resources/views/ludtwig-config.toml'

@@ -68,7 +68,7 @@ class UnusedMediaPurger
 
             /** @var array<string> $ids */
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-            $ids = $this->filterOutNewMedia($ids, $gracePeriodDays);
+            $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $ids = $this->dispatchEvent($ids);
 
             return yield $this->searchMedia($ids, $context);
@@ -77,7 +77,7 @@ class UnusedMediaPurger
         // otherwise, we need to iterate over the entire result set in batches
         $iterator = new RepositoryIterator($this->mediaRepo, $context, $criteria);
         while (($ids = $iterator->fetchIds()) !== null) {
-            $ids = $this->filterOutNewMedia($ids, $gracePeriodDays);
+            $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $unusedIds = $this->dispatchEvent($ids);
 
             if (empty($unusedIds)) {
@@ -105,8 +105,8 @@ class UnusedMediaPurger
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
         $idsToDelete = [];
-        foreach ($this->getUnusedMediaIds($limit, $offset, $folderEntity) as $idBatch) {
-            $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays);
+        foreach ($this->getUnusedMediaIds($limit, $offset, $folderEntity, $context) as $idBatch) {
+            $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays, $context);
 
             $idsToDelete = [...$idsToDelete, ...$idBatch];
         }
@@ -146,7 +146,7 @@ class UnusedMediaPurger
      *
      * @return array<string>
      */
-    private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays): array
+    private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
         if ($gracePeriodDays === 0) {
             return $mediaIds;
@@ -159,7 +159,7 @@ class UnusedMediaPurger
         $criteria->addFilter($rangeFilter);
 
         /** @var array<string> $ids */
-        $ids = $this->mediaRepo->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
         return $ids;
     }
@@ -167,10 +167,8 @@ class UnusedMediaPurger
     /**
      * @return \Generator<int, array<string>>
      */
-    private function getUnusedMediaIds(int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
+    private function getUnusedMediaIds(int $limit, ?int $offset = null, ?string $folderEntity = null, Context $context): \Generator
     {
-        $context = Context::createDefaultContext();
-
         $criteria = $this->createFilterForNotUsedMedia($folderEntity);
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);

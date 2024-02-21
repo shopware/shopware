@@ -50,11 +50,13 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
         $webhookId = $message->getWebhookId();
         $webhookEventLogId = $message->getWebhookEventId();
 
-        $this->markWebhookEventFailed($webhookEventLogId);
+        $context = Context::createDefaultContext();
+
+        $this->markWebhookEventFailed($webhookEventLogId, $context);
 
         /** @var WebhookEntity|null $webhook */
         $webhook = $this->webhookRepository
-            ->search(new Criteria([$webhookId]), Context::createDefaultContext())
+            ->search(new Criteria([$webhookId]), $context)
             ->get($webhookId);
 
         if ($webhook === null || !$webhook->isActive()) {
@@ -74,13 +76,13 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             ]);
         }
 
-        $this->webhookRepository->update([$params], Context::createDefaultContext());
+        $this->webhookRepository->update([$params], $context);
     }
 
-    private function markWebhookEventFailed(string $id): void
+    private function markWebhookEventFailed(string $id, Context $context): void
     {
         $this->webhookEventLogRepository->update([
             ['id' => $id, 'deliveryStatus' => WebhookEventLogDefinition::STATUS_FAILED],
-        ], Context::createDefaultContext());
+        ], $context);
     }
 }

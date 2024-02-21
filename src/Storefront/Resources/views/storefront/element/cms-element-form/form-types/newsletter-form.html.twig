@@ -8,7 +8,7 @@
             {% block cms_form_newsletter_select_action %}
                 <div class="form-group col-12">
                     <label class="form-label" for="newsletterAction">
-                        {{ "newsletter.labelActionSelect"|trans }} {{ "general.required"|trans }}
+                        {{ 'newsletter.labelActionSelect'|trans }} {{ 'general.required'|trans }}
                     </label>
 
                     <select name="option"
@@ -20,11 +20,11 @@
                             data-form-field-toggle-value="subscribe">
                         <option selected="selected"
                                 value="{{ constant('Shopware\\Storefront\\Controller\\FormController::SUBSCRIBE') }}">
-                            {{ "newsletter.subscribeOption"|trans }}
+                            {{ 'newsletter.subscribeOption'|trans }}
                         </option>
 
                         <option value="{{ constant('Shopware\\Storefront\\Controller\\FormController::UNSUBSCRIBE') }}">
-                            {{ "newsletter.unsubscribeOption"|trans }}
+                            {{ 'newsletter.unsubscribeOption'|trans }}
                         </option>
                     </select>
                 </div>

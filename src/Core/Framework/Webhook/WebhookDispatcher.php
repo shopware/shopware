@@ -73,13 +73,12 @@ class WebhookDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
-            $context = Context::createDefaultContext();
-            if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
-                $context = $event->getContext();
-            }
+        $context = Context::createDefaultContext();
 
-            $this->callWebhooks($hookable, $context);
+        foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
+            $useEventContext = $event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent;
+
+            $this->callWebhooks($hookable, $useEventContext ? $event->getContext() : $context);
         }
 
         // always return the original event and never our wrapped events

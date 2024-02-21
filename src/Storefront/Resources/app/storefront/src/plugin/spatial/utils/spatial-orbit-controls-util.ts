@@ -60,4 +60,18 @@ export default class SpatialOrbitControlsUtil {
     public reset(): void {
         this.controls.target.set(0, 0, 0);
     }
+
+    /**
+     * Enable the zoom
+     */
+    public enableZoom(): void {
+        this.controls.enableZoom = true;
+    }
+
+    /**
+     * Disable the zoom
+     */
+    public disableZoom(): void {
+        this.controls.enableZoom = false;
+    }
 }

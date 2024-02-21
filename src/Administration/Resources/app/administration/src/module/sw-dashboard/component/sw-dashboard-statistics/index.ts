@@ -376,6 +376,7 @@ export default Shopware.Component.wrapComponentConfig({
             const criteria = new Criteria(1, 10);
 
             criteria.addAssociation('currency');
+            criteria.addAssociation('stateMachineState');
 
             criteria.addFilter(Criteria.equals('orderDate', this.formatDateToISO(new Date())));
             criteria.addSorting(Criteria.sort(this.todayOrderDataSortBy, this.todayOrderDataSortDirection));

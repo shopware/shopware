@@ -128,6 +128,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 // delay is configured in seconds, symfony expects milliseconds
                 $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
             }
+
             $this->messageBus->dispatch(
                 new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
                 $stamps
@@ -208,11 +209,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         $scriptsDistFolders = [];
         foreach ($configurationCollection as $configuration) {
             $scripts = $configuration->getScriptFiles();
-            $technicalName = preg_replace('/(?<!^)[A-Z]/', '-$0', $configuration->getTechnicalName());
-            if ($technicalName !== null && $scripts->count() > 0) {
-                $outputFolder = strtolower($technicalName);
-                $scriptsDistFolders[$outputFolder] = $configuration->getBasePath();
+            if ($scripts->count() === 0) {
+                continue;
             }
+            $distPath = $configuration->getBasePath();
+            if (!str_contains($configuration->getBasePath(), $configuration->getTechnicalName())) {
+                $appPath = \DIRECTORY_SEPARATOR . $configuration->getTechnicalName() . \DIRECTORY_SEPARATOR . 'Resources';
+                $distPath = str_replace(\DIRECTORY_SEPARATOR . 'Resources', $appPath, $configuration->getBasePath());
+            }
+            $scriptsDistFolders[$configuration->getAssetName()] = $distPath;
         }
 
         return $scriptsDistFolders;

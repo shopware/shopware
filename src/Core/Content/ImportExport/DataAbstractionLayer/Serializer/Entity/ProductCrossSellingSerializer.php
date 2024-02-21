@@ -104,12 +104,14 @@ class ProductCrossSellingSerializer extends EntitySerializer
      */
     private function findAssignedProductsIds(array $assignedProducts): array
     {
+        $context = Context::createDefaultContext();
+
         foreach ($assignedProducts as $i => $assignedProduct) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('crossSellingId', $assignedProduct['crossSellingId']));
             $criteria->addFilter(new EqualsFilter('productId', $assignedProduct['productId']));
 
-            $id = $this->assignedProductsRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+            $id = $this->assignedProductsRepository->searchIds($criteria, $context)->firstId();
 
             if ($id) {
                 $assignedProduct['id'] = $id;

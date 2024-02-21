@@ -1,5 +1,6 @@
 import type { Object3D } from 'three';
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import type { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 /**
@@ -20,6 +21,14 @@ export default class SpatialObjectLoaderUtil {
     constructor(plugin?: { $emitter: NativeEventEmitter }) {
         // eslint-disable-next-line
         this.gltfLoader = new window.threeJsAddons.GLTFLoader();
+        
+        // create and bind draco loader for decompression of mesh data
+        // eslint-disable-next-line
+        const dracoLoader: DRACOLoader = new window.threeJsAddons.DRACOLoader();
+        // eslint-disable-next-line
+        dracoLoader.setDecoderPath(`${window.themeAssetsPublicPath}draco/`);
+        this.gltfLoader.setDRACOLoader(dracoLoader);
+
         this.loadStatus = new Map<string, number>();
         if (plugin?.$emitter instanceof NativeEventEmitter) {
             this.$emitter = plugin?.$emitter;
@@ -74,10 +83,10 @@ export default class SpatialObjectLoaderUtil {
         /* eslint-disable */
         const box = new window.threeJs.Box3().setFromObject(object);
         const cent = box.getCenter(new window.threeJs.Vector3());
-
+        
         object.position.copy(cent);
         object.position.multiplyScalar(-1);
-
+        
         const group = new window.threeJs.Group();
         group.name = 'centered';
         group.add(object);

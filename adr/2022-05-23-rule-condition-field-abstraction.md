@@ -1,7 +1,7 @@
 ---
 title: Rule condition field abstraction
 date: 2022-05-23
-area: business-ops
+area: services-settings
 tags: [rule, abstraction, administration]
 ---
 

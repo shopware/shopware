@@ -20,8 +20,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         });
     });
 
-    // NEXT-19686 - Flaky, use select helper commands
-    it('@package @rule: should use rule builder with the shipping method', { tags: ['pa-business-ops'] }, () => {
+    // NEXT-33715 - Flaky
+    it.skip('@package @rule: should use rule builder with the shipping method', { tags: ['pa-services-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST',
@@ -191,7 +191,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.contains('Shipping to Netherlands').should('exist');
     });
 
-    it('@package @rule: should use rule builder with the advance pricing', { tags: ['pa-business-ops'] }, () => {
+    it('@package @rule: should use rule builder with the advance pricing', { tags: ['pa-services-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST',

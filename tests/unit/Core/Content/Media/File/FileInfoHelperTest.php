@@ -16,16 +16,16 @@ class FileInfoHelperTest extends TestCase
 {
     public function testGetMimeTypeWithDetectableTypeByFileContentWillDetectByContent(): void
     {
-        static::assertEquals('image/png', FileInfoHelper::getMimeType(__DIR__ . '/_fixtures/image1x1.png', 'glb'));
+        static::assertSame('image/png', FileInfoHelper::getMimeType(__DIR__ . '/_fixtures/image1x1.png', 'glb'));
     }
 
     public function testGetMimeTypeWithNotDetectableTypeByFileContentWillDetectByExtension(): void
     {
-        static::assertEquals('model/gltf-binary', FileInfoHelper::getMimeType(__DIR__ . '/_fixtures/binary', 'glb'));
+        static::assertSame('model/gltf-binary', FileInfoHelper::getMimeType(__DIR__ . '/_fixtures/binary', 'glb'));
     }
 
     public function testGetMimeTypeWithNotDetectableTypeByFileContentAndByExtensionWillReturnCommonType(): void
     {
-        static::assertEquals('application/octet-stream', FileInfoHelper::getMimeType(__DIR__ . '/_fixtures/binary'));
+        static::assertSame('application/octet-stream', FileInfoHelper::getMimeType(__DIR__ . '/_fixtures/binary'));
     }
 }

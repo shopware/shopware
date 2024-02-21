@@ -23,7 +23,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 trait OrderFixture
 {
     use BasicTestDataBehaviour;

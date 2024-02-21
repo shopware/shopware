@@ -3,13 +3,16 @@
 namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\UnableToReadFile;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -25,6 +28,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -35,6 +39,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AdministrationControllerTest extends TestCase
 {
     private AdministrationController $administrationController;
+
+    private PrefixFilesystem&MockObject $fileSystemOperatorMock;
 
     private Context $context;
 
@@ -127,6 +133,60 @@ class AdministrationControllerTest extends TestCase
         $this->administrationController->checkCustomerEmailValid($request, $this->context);
     }
 
+    public function testPluginIndexReturnsNotFoundResponse(): void
+    {
+        $this->createInstance();
+
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('read')
+            ->with('bundles/foo/administration/index.html')
+            ->willThrowException(new UnableToReadFile());
+        $response = $this->administrationController->pluginIndex('foo');
+
+        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertEquals('Plugin index.html not found', $response->getContent());
+    }
+
+    public function testPluginIndexReturnsUnchangedFileIfNoReplaceableStringIsFound(): void
+    {
+        $this->createInstance();
+
+        $fileContent = '<html><head></head><body></body></html>';
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('read')
+            ->with('bundles/foo/administration/index.html')
+            ->willReturn($fileContent);
+        $response = $this->administrationController->pluginIndex('foo');
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals($fileContent, $response->getContent());
+    }
+
+    public function testPluginIndex(): void
+    {
+        $this->createInstance();
+
+        $fileContent = '<html><head><base href="__$ASSET_BASE_PATH$__" /></head><body></body></html>';
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('read')
+            ->with('bundles/foo/administration/index.html')
+            ->willReturn($fileContent);
+
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('publicUrl')
+            ->with('/')
+            ->willReturn('http://localhost/bundles/');
+
+        $response = $this->administrationController->pluginIndex('foo');
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringNotContainsString('__$ASSET_BASE_PATH$__', $content);
+        static::assertStringContainsString('http://localhost/bundles/', $content);
+    }
+
     private function mockSalesChannel(): SalesChannelEntity
     {
         $salesChannel = new SalesChannelEntity();
@@ -147,6 +207,7 @@ class AdministrationControllerTest extends TestCase
     private function createInstance(?CustomerCollection $collection = null, bool $isCustomerBoundToSalesChannel = false): void
     {
         $collection = $collection ?? new CustomerCollection();
+        $this->fileSystemOperatorMock = $this->createMock(PrefixFilesystem::class);
 
         $this->administrationController = new AdministrationController(
             $this->createMock(TemplateFinder::class),
@@ -164,7 +225,8 @@ class AdministrationControllerTest extends TestCase
             $this->createMock(ParameterBagInterface::class),
             new StaticSystemConfigService([
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
-            ])
+            ]),
+            $this->fileSystemOperatorMock,
         );
     }
 }

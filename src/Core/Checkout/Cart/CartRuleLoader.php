@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
@@ -86,10 +87,16 @@ class CartRuleLoader implements ResetInterface
             // save all rules for later usage
             $all = $rules;
 
-            $ids = $new ? $rules->getIds() : $cart->getRuleIds();
+            // For existing carts filter rules to only contain the rules from the current cart
+            if ($new === false) {
+                $rules = $rules->filter(
+                    fn (RuleEntity $rule) => \in_array($rule->getId(), $cart->getRuleIds(), true)
+                );
+            }
 
             // update rules in current context
-            $context->setRuleIds($ids);
+            $context->setRuleIds($rules->getIds());
+            $context->setAreaRuleIds($rules->getIdsByArea());
 
             $iteration = 1;
 
@@ -116,6 +123,7 @@ class CartRuleLoader implements ResetInterface
 
                 // update matching rules in context
                 $context->setRuleIds($rules->getIds());
+                $context->setAreaRuleIds($rules->getIdsByArea());
 
                 // calculate cart again
                 $cart = $this->processor->process($cart, $context, $behaviorContext);

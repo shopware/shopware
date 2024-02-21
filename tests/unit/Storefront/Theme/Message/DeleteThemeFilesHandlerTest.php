@@ -22,7 +22,7 @@ class DeleteThemeFilesHandlerTest extends TestCase
         $message = new DeleteThemeFilesMessage($currentPath, 'salesChannel', 'theme');
 
         $filesystem = $this->createMock(FilesystemOperator::class);
-        $filesystem->expects(static::once())->method('deleteDirectory')->with($currentPath);
+        $filesystem->expects(static::once())->method('deleteDirectory')->with('theme' . \DIRECTORY_SEPARATOR . $currentPath);
 
         $handler = new DeleteThemeFilesHandler(
             $filesystem,

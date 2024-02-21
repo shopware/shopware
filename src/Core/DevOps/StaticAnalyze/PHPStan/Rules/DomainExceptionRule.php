@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
+use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -60,6 +61,7 @@ class DomainExceptionRule implements Rule
      */
     private const REMAPPED_DOMAINS = [
         Kernel::class => FrameworkException::class,
+        Framework::class => FrameworkException::class,
         VarnishReverseProxyGateway::class => ReverseProxyException::class,
         FastlyReverseProxyGateway::class => ReverseProxyException::class,
         RedisReverseProxyGateway::class => ReverseProxyException::class,

@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Rule\Fixture;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class DaysSinceRuleFixture extends DaysSinceRule
 {
     final public const RULE_NAME = 'fixtureDaysSince';

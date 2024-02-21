@@ -18,7 +18,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemDimensionHeightRule::class)]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
@@ -261,6 +261,6 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $result = $lineItemDimensionHeightRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('dimension', $result['fields'][0]['config']['unit']);
+        static::assertSame('dimension', $result['fields']['amount']['config']['unit']);
     }
 }

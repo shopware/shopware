@@ -14,7 +14,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class Migration1688106315AddMissingTransactionMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;

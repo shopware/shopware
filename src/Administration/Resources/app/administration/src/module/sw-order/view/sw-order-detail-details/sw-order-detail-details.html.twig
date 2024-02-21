@@ -151,6 +151,8 @@
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
             :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
+            :error="orderOrderCustomerEmailError"
+            required
         />
         {% endblock %}
 

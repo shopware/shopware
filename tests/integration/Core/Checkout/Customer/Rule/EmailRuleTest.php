@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class EmailRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

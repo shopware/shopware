@@ -41,12 +41,5 @@ class ResponseHeaderListener implements EventSubscriberInterface
                 false
             );
         }
-        if (!$headersBag->has(PlatformRequest::HEADER_FRAME_OPTIONS)) {
-            $headersBag->set(
-                PlatformRequest::HEADER_FRAME_OPTIONS,
-                'deny',
-                false
-            );
-        }
     }
 }

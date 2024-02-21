@@ -3,10 +3,8 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = [], languageId = null) {
-    return mount(await wrapTestComponent('sw-settings-language-detail', {
-        sync: true,
-    }), {
+async function createWrapper(privileges = [], languageId = null, stubTranslationIsoField = true) {
+    const options = {
         props: {
             languageId,
         },
@@ -19,17 +17,52 @@ async function createWrapper(privileges = [], languageId = null) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
+                    create: (repositoryName) => ({
                         search: () => {
-                            return Promise.resolve(
-                                {
-                                    aggregations: {
-                                        usedLocales: {
-                                            buckets: [],
+                            switch (repositoryName) {
+                                case 'language':
+                                    return Promise.resolve({
+                                        aggregations: {
+                                            usedTranslationIds: {
+                                                buckets: [
+                                                    { key: '018d36e6165671b788b4811b31fdb2be' },
+                                                ],
+                                            },
                                         },
-                                    },
-                                },
-                            );
+                                    });
+                                case 'locale': {
+                                    return Promise.resolve([
+                                        {
+                                            id: '018d36e6165b702e8d73f463e7d38e87',
+                                            type: 'locale',
+                                            attributes: {
+                                                code: 'nr-ZA',
+                                                name: 'Southern Ndebele',
+                                                territory: 'South Africa',
+                                            },
+                                        },
+                                        {
+                                            id: '018d36e6165371a4b145cd683bf65869',
+                                            type: 'locale',
+                                            attributes: {
+                                                code: 'de-DE',
+                                                name: 'German',
+                                                territory: 'Germany',
+                                            },
+                                        },
+                                        {
+                                            id: '018d36e6165671b788b4811b31fdb2be',
+                                            type: 'locale',
+                                            attributes: {
+                                                code: 'bs-BA',
+                                                name: 'Bosnian',
+                                                territory: 'Bosnia and Herzegovina',
+                                            },
+                                        },
+                                    ]);
+                                }
+                                default: return Promise.resolve();
+                            }
                         },
 
                         create: () => {
@@ -95,7 +128,24 @@ async function createWrapper(privileges = [], languageId = null) {
                 'sw-inheritance-switch': true,
             },
         },
-    });
+    };
+
+    if (stubTranslationIsoField === false) {
+        options.global.stubs = {
+            ...options.global.stubs,
+            'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+            'sw-select-base': await wrapTestComponent('sw-select-base'),
+            'sw-block-field': await wrapTestComponent('sw-block-field'),
+            'sw-base-field': await wrapTestComponent('sw-base-field'),
+            'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+            'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+            'sw-select-result': await wrapTestComponent('sw-select-result'),
+            'sw-popover': await wrapTestComponent('sw-popover'),
+        };
+    }
+
+
+    return mount(await wrapTestComponent('sw-settings-language-detail', { sync: true }), options);
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
@@ -139,6 +189,8 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     it('should be able to save the language', async () => {
         const wrapper = await createWrapper([
             'language.editor',
+            null,
+            false,
         ]);
         await flushPromises();
 
@@ -190,5 +242,112 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(languageParentIdField.attributes().disabled).toBeTruthy();
         expect(languageTranslationCodeIdField.attributes().disabled).toBeTruthy();
         expect(languageLocaleIdField.attributes().disabled).toBeTruthy();
+    });
+
+    it('should disable selected iso code', async () => {
+        const wrapper = await createWrapper(
+            ['language.editor'],
+            Shopware.Context.api.systemLanguageId,
+            false,
+        );
+        await flushPromises();
+
+        const languageTranslationCodeIdField = wrapper.find(
+            '#iso-codes',
+        );
+
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-option--0').classes()).toContain('is--disabled');
+    });
+
+    it('should disable used iso codes', async () => {
+        const wrapper = await createWrapper(
+            ['language.editor'],
+            Shopware.Context.api.systemLanguageId,
+            false,
+        );
+        await flushPromises();
+
+        const languageTranslationCodeIdField = wrapper.find(
+            '#iso-codes',
+        );
+
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-option--2').classes()).toContain('is--disabled');
+    });
+
+    it('should re-enable no longer used iso codes', async () => {
+        const wrapper = await createWrapper(
+            ['language.editor'],
+            Shopware.Context.api.systemLanguageId,
+            false,
+        );
+        await flushPromises();
+
+        const languageTranslationCodeIdField = wrapper.find(
+            '#iso-codes',
+        );
+
+        // open menu
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+        expect(wrapper.find('.sw-select-option--1').classes()).not.toContain('is--disabled');
+        expect(wrapper.find('.sw-select-option--2').classes()).toContain('is--disabled');
+
+        // select option 1
+        await wrapper.find('.sw-select-option--1').trigger('click');
+        await flushPromises();
+
+        // open menu
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        // option 0 enabled
+        // option 1 disabled (because selected)
+        // option 2 disabled (because used by other lang)
+        expect(languageTranslationCodeIdField.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+        expect(languageTranslationCodeIdField.find('.sw-select-option--1').classes()).toContain('is--disabled');
+        expect(languageTranslationCodeIdField.find('.sw-select-option--2').classes()).toContain('is--disabled');
+
+        // open menu
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        // select option 0
+        await languageTranslationCodeIdField.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
+        // open menu
+        await languageTranslationCodeIdField.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        // option 0 disabled (because selected)
+        // option 1 enabled (because now unselected)
+        // option 2 disabled (because used by other lang)
+        expect(languageTranslationCodeIdField.find('.sw-select-option--0').classes()).toContain('is--disabled');
+        expect(languageTranslationCodeIdField.find('.sw-select-option--1').classes()).not.toContain('is--disabled');
+        expect(languageTranslationCodeIdField.find('.sw-select-option--2').classes()).toContain('is--disabled');
     });
 });

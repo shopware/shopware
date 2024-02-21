@@ -16,7 +16,7 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -39,7 +39,7 @@ class SnippetService
          * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
          */
         private readonly ContainerInterface $container,
-        private readonly ?SalesChannelThemeLoader $salesChannelThemeLoader = null
+        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
     }
 
@@ -313,12 +313,7 @@ class SnippetService
             return [StorefrontPluginRegistry::BASE_THEME_NAME];
         }
 
-        $saleChannelThemes = $this->salesChannelThemeLoader->load($salesChannelId);
-
-        $usedThemes = array_filter([
-            $saleChannelThemes['themeName'] ?? null,
-            $saleChannelThemes['parentThemeName'] ?? null,
-        ]);
+        $usedThemes = $this->salesChannelThemeLoader->load($salesChannelId);
 
         /** @var list<string> */
         return array_values(array_unique([

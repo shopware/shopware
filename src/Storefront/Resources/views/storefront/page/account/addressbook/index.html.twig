@@ -185,7 +185,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_address_overview_actions %}
-                                                    <div class="card-actions">
+                                                    <div class="card-actions {% if not feature('v6.7.0.0') %}row g-0 pt-2{% endif %}">
                                                         {% sw_include '@Storefront/storefront/page/account/addressbook/address-actions.html.twig' %}
                                                     </div>
                                                 {% endblock %}

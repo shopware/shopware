@@ -68,13 +68,13 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIds extends Mi
 
     private function migrateCategoryConfig(Connection $connection): void
     {
-        $categoryEntries = $connection->fetchAllAssociative(<<<SQL
+        $categoryEntries = $connection->fetchAllAssociative(<<<'SQL'
             SELECT category_id, category_version_id, language_id, slot_config
             FROM category_translation
             WHERE slot_config IS NOT NULL ;
         SQL);
 
-        $productListingSlotId = Uuid::fromBytesToHex($connection->fetchOne(<<<SQL
+        $productListingSlotId = Uuid::fromBytesToHex($connection->fetchOne(<<<'SQL'
             SELECT id FROM cms_slot WHERE type = 'product-listing';
         SQL));
 
@@ -97,7 +97,10 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIds extends Mi
 
             $slotConfig[$productListingSlotId] = $this->migrateDefaultSortingSlotConfig($connection, $sortingConfig);
 
-            $availableSortings = $sortingConfig['availableSortings']['value'];
+            $availableSortings = [];
+            if (\array_key_exists('availableSortings', $sortingConfig) && \array_key_exists('value', $sortingConfig['availableSortings'])) {
+                $availableSortings = $sortingConfig['availableSortings']['value'];
+            }
 
             $newAvailableSortings = [];
 
@@ -113,7 +116,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIds extends Mi
             $slotConfig[$productListingSlotId]['availableSortings']['value'] = $newAvailableSortings;
 
             $connection->executeStatement(
-                <<<SQL
+                <<<'SQL'
                     UPDATE category_translation
                     SET slot_config = :slotConfig
                     WHERE category_id = :categoryId
@@ -137,7 +140,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIds extends Mi
      */
     private function migrateDefaultSortingSlotConfig(Connection $connection, array $sortingConfig): array
     {
-        if (!\array_key_exists('defaultSorting', $sortingConfig) || !\array_key_exists('value', $sortingConfig['defaultSorting'])) {
+        if (!\array_key_exists('defaultSorting', $sortingConfig) || !\array_key_exists('value', $sortingConfig['defaultSorting']) || empty($sortingConfig['defaultSorting']['value'])) {
             return $sortingConfig;
         }
 

@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(OrderTrackingCodeRule::class)]
 #[Group('rules')]
 class OrderTrackingCodeRuleTest extends TestCase
@@ -52,13 +52,13 @@ class OrderTrackingCodeRuleTest extends TestCase
         $order = new OrderEntity();
         $order->setDeliveries($orderDeliveryCollection);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('token');
         $context = $this->createMock(SalesChannelContext::class);
 
         $match = $rule->match(new FlowRuleScope(
             $order,
             $cart,
-            $context
+            $this->createMock(SalesChannelContext::class)
         ));
         static::assertSame($expected, $match);
     }
@@ -107,11 +107,11 @@ class OrderTrackingCodeRuleTest extends TestCase
 
     public function testNoOrderDeliveries(): void
     {
-        $order = new OrderEntity();
-
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $scope = new FlowRuleScope($order, $cart, $context);
+        $scope = new FlowRuleScope(
+            new OrderEntity(),
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
 
         $this->rule->assign(['isSet' => true]);
         static::assertFalse($this->rule->match($scope));
@@ -143,7 +143,7 @@ class OrderTrackingCodeRuleTest extends TestCase
         static::assertEquals([
             'operatorSet' => null,
             'fields' => [
-                [
+                'isSet' => [
                     'name' => 'isSet',
                     'type' => 'bool',
                     'config' => [],

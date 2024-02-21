@@ -30,9 +30,7 @@ const context = {
         totalRounding: {
             decimals: 2,
         },
-        translated: {
-            shortName: 'EUR',
-        },
+        isoCode: 'EUR',
     },
 };
 

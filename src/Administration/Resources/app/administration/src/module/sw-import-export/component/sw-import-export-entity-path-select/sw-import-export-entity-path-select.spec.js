@@ -3,9 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
-
-async function createWrapper() {
+async function createWrapper(entityType = 'product') {
     return mount(await wrapTestComponent('sw-import-export-entity-path-select', { sync: true }), {
         global: {
             stubs: {
@@ -20,11 +18,12 @@ async function createWrapper() {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                transition: false,
             },
         },
         props: {
             value: null,
-            entityType: 'product',
+            entityType: entityType,
             customFieldSets: [
                 {
                     relations: [{ entityName: 'product' }],
@@ -40,144 +39,10 @@ async function createWrapper() {
 }
 
 describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        const mockEntitySchema = {
-            product: {
-                entity: 'product',
-                properties: {
-                    id: {
-                        type: 'uuid',
-                    },
-                    price: {
-                        type: 'json_object',
-                        properties: [],
-                    },
-                    parent: {
-                        type: 'association',
-                        relation: 'many_to_one',
-                        entity: 'product',
-                    },
-                    cover: {
-                        type: 'association',
-                        relation: 'many_to_one',
-                        entity: 'product_media',
-                    },
-                    name: {
-                        type: 'string',
-                    },
-                    manufacturer: {
-                        type: 'association',
-                        relation: 'many_to_one',
-                        entity: 'product_manufacturer',
-                    },
-                    translations: {
-                        type: 'association',
-                        relation: 'one_to_many',
-                        entity: 'product_translation',
-                    },
-                    visibilities: {
-                        type: 'association',
-                        relation: 'one_to_many',
-                        entity: 'product_visibilities',
-                    },
-                },
-            },
-            product_translation: {
-                entity: 'product_translation',
-                properties: {
-                    name: {
-                        type: 'string',
-                    },
-                    customFields: {
-                        type: 'json_object',
-                    },
-                },
-            },
-            product_manufacturer: {
-                entity: 'product_manufacturer',
-                properties: {
-                    id: {
-                        type: 'uuid',
-                    },
-                    name: {
-                        type: 'string',
-                    },
-                    media: {
-                        type: 'association',
-                        relation: 'many_to_one',
-                        entity: 'media',
-                    },
-                    products: {
-                        type: 'association',
-                        relation: 'one_to_many',
-                        entity: 'product',
-                    },
-                    translations: {
-                        type: 'association',
-                        relation: 'one_to_many',
-                        entity: 'product_manufacturer_translation',
-                    },
-                },
-            },
-            product_manufacturer_translation: {
-                entity: 'product_manufacturer_translation',
-                properties: {
-                    name: {
-                        type: 'string',
-                    },
-                    customFields: {
-                        type: 'json_object',
-                    },
-                },
-            },
-            product_media: {
-                entity: 'product_media',
-                properties: {
-                    id: {
-                        type: 'uuid',
-                    },
-                    media: {
-                        type: 'association',
-                        relation: 'many_to_one',
-                        entity: 'media',
-                    },
-                },
-            },
-            media: {
-                entity: 'media',
-                properties: {
-                    id: {
-                        type: 'uuid',
-                    },
-                    translations: {
-                        type: 'association',
-                        relation: 'one_to_many',
-                        entity: 'media_translation',
-                    },
-                },
-            },
-            media_translation: {
-                entity: 'media_translation',
-                properties: {
-                    title: {
-                        type: 'string',
-                    },
-                },
-            },
-        };
-
-        Shopware.EntityDefinition = EntityDefinitionFactory;
-        Object.keys(mockEntitySchema).forEach((entity) => {
-            Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
-        });
-
-        wrapper = await createWrapper();
-        await flushPromises();
-    });
-
     it('should return array when calling `actualPathParts` computed property', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: 'media.id.',
         });
@@ -186,6 +51,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid price properties on `getPriceProperties` with given currencies', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             currencies: [
                 { isoCode: 'EUR' },
@@ -229,6 +97,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid price properties on `getPriceProperties` with given currencies and path set', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             currencies: [
                 { isoCode: 'EUR' },
@@ -272,6 +143,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid price properties when getting price properties without given currencies', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const actual = wrapper.vm.getPriceProperties('');
         const expected = [
             { label: 'price.DEFAULT.net', value: 'price.DEFAULT.net' },
@@ -294,6 +168,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return valid visibility properties on `getVisibilityProperties` with given visibilities', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const actual = wrapper.vm.getVisibilityProperties('');
         const expected = [
             { label: 'visibilities.all', value: 'visibilities.all' },
@@ -310,6 +187,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'keywords',
             'description',
         ];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.setProps({
             languages: [
@@ -337,6 +217,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return media properties for product cover media value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: 'cover.media.',
             languages: [
@@ -367,10 +250,13 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'cover.media.translations.en-GB.title',
             },
         ];
-        expect(actual).toEqual(expected);
+        expected.forEach(value => expect(actual).toContainEqual(value));
     });
 
     it('should return product translation properties for product parent parent translation value', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: 'parent.parent.translations.name',
             languages: [
@@ -402,6 +288,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
 
     it('should return nothing for searching a invalid path', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: 'id.id',
         });
@@ -412,6 +301,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return filtered product properties when searching', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: 'parent.parent.',
             languages: [
@@ -485,6 +377,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should process translations, prices visibilities and remove property from properties array', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: '',
             languages: [
@@ -501,24 +396,74 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             path: '',
         };
 
-        expect(data.properties).toEqual(
-            ['id', 'price', 'parent', 'cover', 'name', 'manufacturer', 'translations', 'visibilities'],
-        );
+        [
+            'id',
+            'price',
+            'parent',
+            'cover',
+            'name',
+            'manufacturer',
+            'translations',
+            'visibilities',
+        ].forEach(property => expect(data.properties).toContain(property));
 
         data = wrapper.vm.processTranslations(data);
 
-        expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer', 'visibilities']);
+        [
+            'id',
+            'price',
+            'parent',
+            'cover',
+            'manufacturer',
+            'visibilities',
+        ].forEach(property => expect(data.properties).toContain(property));
         expect(data.options).toEqual([
+            { label: 'translations.DEFAULT.metaDescription', value: 'translations.DEFAULT.metaDescription' },
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'translations.DEFAULT.keywords', value: 'translations.DEFAULT.keywords' },
+            { label: 'translations.DEFAULT.description', value: 'translations.DEFAULT.description' },
+            { label: 'translations.DEFAULT.metaTitle', value: 'translations.DEFAULT.metaTitle' },
+            { label: 'translations.DEFAULT.packUnit', value: 'translations.DEFAULT.packUnit' },
+            { label: 'translations.DEFAULT.packUnitPlural', value: 'translations.DEFAULT.packUnitPlural' },
+            { label: 'translations.DEFAULT.customSearchKeywords', value: 'translations.DEFAULT.customSearchKeywords' },
+            { label: 'translations.DEFAULT.slotConfig', value: 'translations.DEFAULT.slotConfig' },
             { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
+            { label: 'translations.DEFAULT.createdAt', value: 'translations.DEFAULT.createdAt' },
+            { label: 'translations.DEFAULT.updatedAt', value: 'translations.DEFAULT.updatedAt' },
+            { label: 'translations.DEFAULT.productId', value: 'translations.DEFAULT.productId' },
+            { label: 'translations.DEFAULT.languageId', value: 'translations.DEFAULT.languageId' },
+            { label: 'translations.DEFAULT.product', value: 'translations.DEFAULT.product' },
+            { label: 'translations.DEFAULT.language', value: 'translations.DEFAULT.language' },
+            { label: 'translations.DEFAULT.productVersionId', value: 'translations.DEFAULT.productVersionId' },
         ]);
 
         data = wrapper.vm.processVisibilities(data);
 
-        expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer']);
+        [
+            'id',
+            'price',
+            'parent',
+            'cover',
+            'manufacturer',
+        ].forEach(property => expect(data.properties).toContain(property));
         expect(data.options).toEqual([
+            { label: 'translations.DEFAULT.metaDescription', value: 'translations.DEFAULT.metaDescription' },
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'translations.DEFAULT.keywords', value: 'translations.DEFAULT.keywords' },
+            { label: 'translations.DEFAULT.description', value: 'translations.DEFAULT.description' },
+            { label: 'translations.DEFAULT.metaTitle', value: 'translations.DEFAULT.metaTitle' },
+            { label: 'translations.DEFAULT.packUnit', value: 'translations.DEFAULT.packUnit' },
+            { label: 'translations.DEFAULT.packUnitPlural', value: 'translations.DEFAULT.packUnitPlural' },
+            { label: 'translations.DEFAULT.customSearchKeywords', value: 'translations.DEFAULT.customSearchKeywords' },
+            { label: 'translations.DEFAULT.slotConfig', value: 'translations.DEFAULT.slotConfig' },
             { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
+            { label: 'translations.DEFAULT.createdAt', value: 'translations.DEFAULT.createdAt' },
+            { label: 'translations.DEFAULT.updatedAt', value: 'translations.DEFAULT.updatedAt' },
+            { label: 'translations.DEFAULT.productId', value: 'translations.DEFAULT.productId' },
+            { label: 'translations.DEFAULT.languageId', value: 'translations.DEFAULT.languageId' },
+            { label: 'translations.DEFAULT.product', value: 'translations.DEFAULT.product' },
+            { label: 'translations.DEFAULT.language', value: 'translations.DEFAULT.language' },
+            { label: 'translations.DEFAULT.productVersionId', value: 'translations.DEFAULT.productVersionId' },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
             { label: 'visibilities.search', value: 'visibilities.search' },
@@ -526,10 +471,30 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
 
         data = wrapper.vm.processPrice(data);
 
-        expect(data.properties).toEqual(['id', 'parent', 'cover', 'manufacturer']);
+        [
+            'id',
+            'parent',
+            'cover',
+            'manufacturer',
+        ].forEach(property => expect(data.properties).toContain(property));
         expect(data.options).toEqual([
+            { label: 'translations.DEFAULT.metaDescription', value: 'translations.DEFAULT.metaDescription' },
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'translations.DEFAULT.keywords', value: 'translations.DEFAULT.keywords' },
+            { label: 'translations.DEFAULT.description', value: 'translations.DEFAULT.description' },
+            { label: 'translations.DEFAULT.metaTitle', value: 'translations.DEFAULT.metaTitle' },
+            { label: 'translations.DEFAULT.packUnit', value: 'translations.DEFAULT.packUnit' },
+            { label: 'translations.DEFAULT.packUnitPlural', value: 'translations.DEFAULT.packUnitPlural' },
+            { label: 'translations.DEFAULT.customSearchKeywords', value: 'translations.DEFAULT.customSearchKeywords' },
+            { label: 'translations.DEFAULT.slotConfig', value: 'translations.DEFAULT.slotConfig' },
             { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
+            { label: 'translations.DEFAULT.createdAt', value: 'translations.DEFAULT.createdAt' },
+            { label: 'translations.DEFAULT.updatedAt', value: 'translations.DEFAULT.updatedAt' },
+            { label: 'translations.DEFAULT.productId', value: 'translations.DEFAULT.productId' },
+            { label: 'translations.DEFAULT.languageId', value: 'translations.DEFAULT.languageId' },
+            { label: 'translations.DEFAULT.product', value: 'translations.DEFAULT.product' },
+            { label: 'translations.DEFAULT.language', value: 'translations.DEFAULT.language' },
+            { label: 'translations.DEFAULT.productVersionId', value: 'translations.DEFAULT.productVersionId' },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
             { label: 'visibilities.search', value: 'visibilities.search' },
@@ -551,6 +516,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should process assignedProducts and remove property from properties array', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: '',
             languages: [
@@ -579,6 +547,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should sort options', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const options = [
             { label: 'name', value: 'name' },
             { label: 'media', value: 'media' },
@@ -599,6 +570,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should return custom field options by entity name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         let actual = wrapper.vm.getCustomFields('product');
         let expected = {
             custom_field_product_1: { label: 'custom_field_product_1', value: 'custom_field_product_1' },
@@ -617,6 +591,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     it('should show custom field options if selected value is custom field', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             value: '',
             languages: [
@@ -669,5 +646,83 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ];
 
         expect(actual).toEqual(expected);
+    });
+
+    it('should show transactions of an order on search', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper('order');
+        await flushPromises();
+
+        await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-import-export-entity-path-select__selection-input').setValue('transactions');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
+
+        const selectResults = wrapper.findAll('.sw-select-result')
+            .map(element => element.text());
+        expect(selectResults).toStrictEqual([
+            'sw-import-export.profile.mapping.notMapped',
+            'transactions.amount',
+            'transactions.captures',
+            'transactions.createdAt',
+            'transactions.customFields',
+            'transactions.id',
+            'transactions.order',
+            'transactions.orderId',
+            'transactions.orderVersionId',
+            'transactions.paymentMethod',
+            'transactions.paymentMethodId',
+            'transactions.stateId',
+            'transactions.stateMachineState',
+            'transactions.updatedAt',
+            'transactions.versionId',
+        ]);
+
+        jest.clearAllTimers();
+    });
+
+    it('should show deliveries of an order on search', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper('order');
+        await flushPromises();
+
+        await wrapper.find('.sw-import-export-entity-path-select__selection-input').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-import-export-entity-path-select__selection-input').setValue('deliveries');
+        jest.advanceTimersByTime(300);
+        await flushPromises();
+
+        const selectResults = wrapper.findAll('.sw-select-result')
+            .map(element => element.text());
+        expect(selectResults).toStrictEqual([
+            'sw-import-export.profile.mapping.notMapped',
+            'deliveries.createdAt',
+            'deliveries.customFields',
+            'deliveries.id',
+            'deliveries.order',
+            'deliveries.orderId',
+            'deliveries.orderVersionId',
+            'deliveries.positions',
+            'deliveries.shippingCosts',
+            'deliveries.shippingDateEarliest',
+            'deliveries.shippingDateLatest',
+            'deliveries.shippingMethod',
+            'deliveries.shippingMethodId',
+            'deliveries.shippingOrderAddress',
+            'deliveries.shippingOrderAddressId',
+            'deliveries.shippingOrderAddressVersionId',
+            'deliveries.stateId',
+            'deliveries.stateMachineState',
+            'deliveries.trackingCodes',
+            'deliveries.updatedAt',
+            'deliveries.versionId',
+        ]);
+
+        jest.clearAllTimers();
     });
 });

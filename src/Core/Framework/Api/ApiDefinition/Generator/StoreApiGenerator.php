@@ -95,8 +95,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $loader = new OpenApiFileLoader($schemaPaths);
 
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
         /** @var OpenApiSpec $finalSpecs */
-        $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
+        $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
         return $finalSpecs;
     }
@@ -200,5 +201,26 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 ]);
             }
         }
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $specsFromDefinition
+     * @param array<string, array<string, mixed>> $specsFromStaticJsonDefinition
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
+    {
+        foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
+            if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required'])) {
+                $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
+                    = array_merge_recursive(
+                        $specsFromStaticJsonDefinition['components']['schemas'][$key]['required'],
+                        $specsFromDefinition['components']['schemas'][$key]['required']
+                    );
+            }
+        }
+
+        return $specsFromStaticJsonDefinition;
     }
 }

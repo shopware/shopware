@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemInProductStreamRule::class)]
 #[Group('rules')]
 class LineItemInProductStreamRuleTest extends TestCase

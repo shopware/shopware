@@ -7,7 +7,7 @@
                 {% set element = block.slots.getSlot('left-top') %}
 
                 <div class="left-top" data-cms-element-id="{{ element.id }}">
-                    {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
                 </div>
             {% endblock %}
 
@@ -15,7 +15,7 @@
                 {% set element = block.slots.getSlot('left-bottom') %}
 
                 <div class="left-bottom" data-cms-element-id="{{ element.id }}">
-                    {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
                 </div>
             {% endblock %}
         </div>
@@ -27,7 +27,7 @@
                 {% set element = block.slots.getSlot('right') %}
 
                 <div class="right" data-cms-element-id="{{ element.id }}">
-                    {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
                 </div>
             {% endblock %}
         </div>

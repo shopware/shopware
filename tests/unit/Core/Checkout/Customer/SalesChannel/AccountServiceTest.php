@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -46,17 +47,16 @@ class AccountServiceTest extends TestCase
         $customer->setEmail('foo@bar.de');
         $customer->setDoubleOptInRegistration(false);
 
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->expects(static::once())
-            ->method('search')
-            ->willReturn(new EntitySearchResult(
+        $customerRepository = new StaticEntityRepository([
+            new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
                 1,
                 new CustomerCollection([$customer]),
                 null,
                 new Criteria(),
                 $salesChannelContext->getContext()
-            ));
+            ),
+        ]);
 
         $loggedinSalesChannelContext = Generator::createSalesChannelContext();
         $cartRestorer = $this->createMock(CartRestorer::class);
@@ -99,6 +99,12 @@ class AccountServiceTest extends TestCase
         static::assertSame($loggedinSalesChannelContext->getToken(), $token);
         static::assertTrue($beforeLoginEventCalled);
         static::assertTrue($loginEventCalled);
+        static::assertCount(1, $customerRepository->updates);
+        static::assertCount(1, $customerRepository->updates[0]);
+        static::assertIsArray($customerRepository->updates[0][0]);
+        static::assertCount(2, $customerRepository->updates[0][0]);
+        static::assertSame($customer->getId(), $customerRepository->updates[0][0]['id']);
+        static::assertInstanceOf(\DateTimeImmutable::class, $customerRepository->updates[0][0]['lastLogin']);
     }
 
     public function testLoginFailsByInvalidCredentials(): void

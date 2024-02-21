@@ -26,7 +26,7 @@ After:
 ```
 └── custom/apps/
     └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
-        ├── example-app.js         <-- OLD: Please remove
+        ├── example-app.js         <-- OLD: Will be ignored (but should be removed for theme:compile)
         └── example-app/           <-- NEW: Please include everything in this folder in the release
             ├── example-app.js     
             ├── async-example-1.js 
@@ -63,6 +63,22 @@ After:
                 ├── async-example-1.js
                 └── async-example-2.js
 ```
+
+### File path pattern for scripts in theme.json file
+If the script file does not match the new file path pattern, it will be **ignored** (during getThemeScripts in Storefront, not during theme:compile).
+
+Example for a Theme called MyOldTheme (theme.json)
+```json
+...
+"script": [
+  "@Storefront",
+  "@AnotherTheme",
+  "app/storefront/dist/storefront/js/my-old-theme.js", // This file will be ignored (structure before 6.6)
+  "app/storefront/dist/storefront/js/my-old-theme/my-old-theme.js", // This file will be used (new structure)
+],
+...
+```
+We need to ignore the old files for multiple reasons. The main reason is that the old files are not compatible with the new async JavaScript and dynamic imports. Second it would throw an error for all themes that do not update their theme.json file.
 
 ### Re-compile your JavaScript
 

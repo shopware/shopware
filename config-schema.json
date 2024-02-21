@@ -641,7 +641,8 @@
                         },
                         "redis_url": {
                             "type": "string",
-                            "title": "Redis URL"
+                            "title": "Redis URL",
+                            "deprecationMessage": "Using Varnish with Redis is deprecated, consider switching to Varnish with xkeys support"
                         },
                         "purge_all": {
                             "type": [

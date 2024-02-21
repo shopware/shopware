@@ -11,12 +11,16 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - Will be removed without replacement
  */
 #[CoversClass(RedisReverseProxyGateway::class)]
+#[DisabledFeatures(features: ['v6_7_0_0'])]
 class RedisReverseProxyGatewayTest extends TestCase
 {
     private RedisReverseProxyGateway $gateway;

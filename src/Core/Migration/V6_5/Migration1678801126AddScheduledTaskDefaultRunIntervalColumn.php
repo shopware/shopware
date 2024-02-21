@@ -24,7 +24,7 @@ class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends Migrat
             return;
         }
 
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'scheduled_task',
             column: 'default_run_interval',

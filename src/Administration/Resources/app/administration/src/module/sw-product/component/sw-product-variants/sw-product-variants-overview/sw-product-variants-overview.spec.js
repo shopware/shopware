@@ -347,4 +347,26 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         wrapper.vm.$router.push.mockRestore();
     });
+
+    it('The price of variant should be set to null', async () => {
+        const wrapper = await createWrapper();
+
+        const variant = {
+            price: [
+                {
+                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    gross: '123',
+                    net: '123',
+                },
+            ],
+        };
+
+        const currency = {
+            id: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+        };
+
+        wrapper.vm.onInheritanceRestore(variant, currency);
+
+        expect(variant.price).toBeNull();
+    });
 });

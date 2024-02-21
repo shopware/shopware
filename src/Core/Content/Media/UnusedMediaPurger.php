@@ -105,7 +105,7 @@ class UnusedMediaPurger
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
         $idsToDelete = [];
-        foreach ($this->getUnusedMediaIds($limit, $offset, $folderEntity, $context) as $idBatch) {
+        foreach ($this->getUnusedMediaIds($context, $limit, $offset, $folderEntity) as $idBatch) {
             $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays, $context);
 
             $idsToDelete = [...$idsToDelete, ...$idBatch];
@@ -167,7 +167,7 @@ class UnusedMediaPurger
     /**
      * @return \Generator<int, array<string>>
      */
-    private function getUnusedMediaIds(int $limit, ?int $offset = null, ?string $folderEntity = null, Context $context): \Generator
+    private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
     {
         $criteria = $this->createFilterForNotUsedMedia($folderEntity);
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));

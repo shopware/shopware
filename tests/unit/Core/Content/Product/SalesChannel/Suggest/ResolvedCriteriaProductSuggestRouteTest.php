@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Suggest;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
@@ -31,15 +30,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSuggestRoute
  */
-#[CoversClass(ResolvedCriteriaProductSuggestRoute::class)]
 class ResolvedCriteriaProductSuggestRouteTest extends TestCase
 {
     /**
      * @param array<string, mixed> $query
      * @param array<string> $expected
+     *
+     * @dataProvider loadProvider
      */
-    #[DataProvider('loadProvider')]
     public function testRequestHandling(array $query, array $expected): void
     {
         $decorated = new SuggestRouteStub();

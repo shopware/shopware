@@ -86,6 +86,8 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
          */
         if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
             $this->keyValueStorage->set(ElasticsearchHelper::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
+        } else {
+            $this->keyValueStorage->remove(ElasticsearchHelper::ENABLE_MULTILINGUAL_INDEX_KEY);
         }
 
         $indices = $this->connection->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');

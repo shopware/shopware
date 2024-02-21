@@ -390,6 +390,9 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
                 chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
             },
+            resolve: {
+                modules: ['node_modules'],
+            },
             plugins: [
                 new WebpackBar({
                     name: plugin.name,

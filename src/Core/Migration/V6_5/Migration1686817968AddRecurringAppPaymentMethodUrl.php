@@ -19,7 +19,7 @@ class Migration1686817968AddRecurringAppPaymentMethodUrl extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'app_payment_method',
             column: 'recurring_url',

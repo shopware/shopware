@@ -19,7 +19,7 @@ class Migration1695732009AddConfigForMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'media',
             column: 'config',

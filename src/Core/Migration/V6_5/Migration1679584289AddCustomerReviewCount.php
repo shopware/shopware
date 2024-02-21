@@ -19,7 +19,7 @@ class Migration1679584289AddCustomerReviewCount extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'customer',
             column: 'review_count',

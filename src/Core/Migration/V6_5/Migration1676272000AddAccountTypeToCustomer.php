@@ -22,7 +22,7 @@ class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'customer',
             column: 'account_type',

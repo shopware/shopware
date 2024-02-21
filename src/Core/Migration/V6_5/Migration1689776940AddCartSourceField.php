@@ -19,7 +19,7 @@ class Migration1689776940AddCartSourceField extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'order',
             column: 'source',

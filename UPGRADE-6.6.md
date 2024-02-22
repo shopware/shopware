@@ -1527,3 +1527,64 @@ For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-1
 
 ## Removal of `blacklistIds` and `whitelistIds` in  `\Shopware\Core\Content\Product\ProductEntity`
 Two properties `blacklistIds` and `whitelistIds` were removed without replacement
+
+## Replace `@shopware-ag/admin-extension-sdk` with `@shopware-ag/meteor-admin-sdk`
+
+### Before
+```json
+{
+    "dependencies": {
+        "@shopware-ag/admin-extension-sdk": "^3.0.14"
+    }
+}
+```
+
+### After
+```json
+{
+    "dependencies": {
+        "@shopware-ag/meteor-admin-sdk": "^3.0.16"
+    }
+}
+```
+
+## Update `@shopware-ag/meteor-admin-sdk` to `^4.0.0`
+
+### Before
+```json
+{
+    "dependencies": {
+        "@shopware-ag/meteor-admin-sdk": "^3.0.17"
+    }
+}
+```
+
+### After
+```json
+{
+    "dependencies": {
+        "@shopware-ag/meteor-admin-sdk": "^4.0.0"
+    }
+}
+```
+
+## Administration tooltips no longer support components/ html
+Due to a Vue 3 limitation the `v-tooltip` directive no longer supports components or html.
+
+### Before
+```html
+<div
+    v-tooltip="{
+        message: 'For more information click <a href=\"https://shopware.com\">here</a>.',
+    }"
+</div>
+```
+
+### After
+```html
+<div
+    v-tooltip="{
+        message: 'For more information visit shopware.com',
+    }"
+</div>
+```

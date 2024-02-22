@@ -30,8 +30,4 @@ class Migration1663402950SetDoubleOptinCustomerActive extends MigrationStep
 
         $connection->executeStatement($query);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

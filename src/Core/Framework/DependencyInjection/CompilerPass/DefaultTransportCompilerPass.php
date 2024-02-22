@@ -27,8 +27,16 @@ class DefaultTransportCompilerPass implements CompilerPassInterface
             return;
         }
 
+        $mapped = [];
+        foreach ($config['messenger']['routing'] as $message => $transports) {
+            if (!\array_key_exists('senders', $transports)) {
+                continue;
+            }
+            $mapped[$message] = array_shift($transports['senders']);
+        }
+
         $container
             ->getDefinition('messenger.bus.shopware')
-            ->replaceArgument(1, $config['routing'] ?? []);
+            ->replaceArgument(1, $mapped);
     }
 }

@@ -36,22 +36,18 @@ class Migration1655697288AppFlowEvent extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $appFlowEventIdColumn = $connection->fetchOne(
-            'SHOW COLUMNS FROM `flow` WHERE `Field` LIKE :column;',
-            ['column' => 'app_flow_event_id']
+        $created = $this->addColumn(
+            connection: $connection,
+            table: 'flow',
+            column: 'app_flow_event_id',
+            type: 'BINARY(16)'
         );
 
-        if ($appFlowEventIdColumn === false) {
-            $connection->executeStatement('ALTER TABLE `flow` ADD COLUMN `app_flow_event_id` BINARY(16) DEFAULT null AFTER `id`');
+        if ($created) {
             $connection->executeStatement(
                 'ALTER TABLE `flow`
                 ADD CONSTRAINT `fk.flow.app_flow_event_id` FOREIGN KEY (`app_flow_event_id`) REFERENCES `app_flow_event` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;'
             );
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

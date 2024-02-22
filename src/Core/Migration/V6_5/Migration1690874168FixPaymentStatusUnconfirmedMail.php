@@ -40,10 +40,6 @@ class Migration1690874168FixPaymentStatusUnconfirmedMail extends MigrationStep
         $this->updateMailTemplateTypeTranslation($connection, $templateTypeId, $languageId);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function updateMailTemplateTranslation(Connection $connection, string $templateId, string $languageId): void
     {
         $connection->update(

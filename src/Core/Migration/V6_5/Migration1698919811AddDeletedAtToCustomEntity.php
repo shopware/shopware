@@ -19,15 +19,11 @@ class Migration1698919811AddDeletedAtToCustomEntity extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'custom_entity', 'deleted_at')) {
-            $connection->executeStatement(
-                'ALTER TABLE `custom_entity` ADD `deleted_at` DATETIME(3) NULL;'
-            );
-        }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
+        $this->addColumn(
+            connection: $connection,
+            table: 'custom_entity',
+            column: 'deleted_at',
+            type: 'DATETIME(3)'
+        );
     }
 }

@@ -25,11 +25,6 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIds extends Mi
         $this->migrateCategoryConfig($connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     private function migrateSystemConfig(Connection $connection): void
     {
         $systemConfigEntries = $connection->fetchAllKeyValue(

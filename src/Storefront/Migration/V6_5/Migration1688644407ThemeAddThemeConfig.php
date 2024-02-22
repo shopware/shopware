@@ -19,7 +19,12 @@ class Migration1688644407ThemeAddThemeConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `theme` ADD `theme_json` JSON NULL;');
+        $this->addColumn(
+            connection: $connection,
+            table: 'theme',
+            column: 'theme_json',
+            type: 'JSON',
+        );
     }
 
     public function updateDestructive(Connection $connection): void

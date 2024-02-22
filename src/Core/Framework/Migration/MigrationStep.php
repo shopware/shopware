@@ -28,7 +28,9 @@ abstract class MigrationStep
     /**
      * update destructive changes
      */
-    abstract public function updateDestructive(Connection $connection): void;
+    public function updateDestructive(Connection $connection): void
+    {
+    }
 
     public function removeTrigger(Connection $connection, string $name): void
     {
@@ -72,6 +74,23 @@ abstract class MigrationStep
         );
 
         return !empty($exists);
+    }
+
+    /**
+     * @return bool true if the column was created, false if it already exists or was not created
+     */
+    protected function addColumn(Connection $connection, string $table, string $column, string $type, ?bool $nullable = true, string $default = 'NULL'): bool
+    {
+        if ($this->columnExists($connection, $table, $column)) {
+            return false;
+        }
+
+        // don't allow AFTER statements, it causes temporary tables which are extrem slow, because mysql has to copy whole tables
+        $connection->executeStatement(
+            'ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $type . ' ' . ($nullable ? 'NULL' : 'NOT NULL') . ' DEFAULT ' . $default . ';'
+        );
+
+        return true;
     }
 
     protected function indexExists(Connection $connection, string $table, string $index): bool

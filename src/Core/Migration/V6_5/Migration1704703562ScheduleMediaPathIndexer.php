@@ -22,8 +22,4 @@ class Migration1704703562ScheduleMediaPathIndexer extends MigrationStep
         // schedule indexer again to fix media path and reindex the denormalized thumbnails
         $this->registerIndexer($connection, 'media.path.post_update');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

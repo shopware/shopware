@@ -173,7 +173,9 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_section_content_block_component %}
-                        <component :is="`sw-cms-block-${block.type}`">
+                        <component
+                            :is="`sw-cms-block-${block.type}`"
+                            :block="block">
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_section_content_block_component_slot %}
                             <template

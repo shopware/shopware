@@ -1,3 +1,5 @@
+import './app/app-renderer';
+
 import './text/text';
 import './text/text-hero';
 import './text/text-teaser';

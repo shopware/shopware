@@ -1,6 +1,6 @@
 ---
 title: SeoUrlPlaceholderHandler - removed unnecessary param from method call
-issue: 00000
+issue: NEXT-33918
 author: Matheus Gontijo
 author_email: matheus@matheusgontijo.com
 author_github: matheusgontijo

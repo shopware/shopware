@@ -93,8 +93,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
     },
 
     watch: {
-        value() {
-            this.checkInput(this.value || '');
+        value: {
+            handler() {
+                this.checkInput(this.value || '');
+            },
+            immediate: true,
         },
     },
 

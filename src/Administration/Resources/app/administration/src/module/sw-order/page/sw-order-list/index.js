@@ -107,7 +107,8 @@ export default {
             criteria.getAssociation('deliveries')
                 .addAssociation('stateMachineState')
                 .addAssociation('shippingOrderAddress')
-                .addAssociation('shippingMethod');
+                .addAssociation('shippingMethod')
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
 
             return criteria;
         },

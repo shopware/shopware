@@ -233,4 +233,15 @@ describe('components/form/sw-url-field', () => {
         expect(wrapper.vm.currentUrlValue).toBe(EXPECTED_URL);
         expect(wrapper.vm.errorUrl).toBeNull();
     });
+
+    it('should evaluate ssl protocol correctly at start', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                value: 'http://shopware.com',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.sslActive).toBe(false);
+    });
 });

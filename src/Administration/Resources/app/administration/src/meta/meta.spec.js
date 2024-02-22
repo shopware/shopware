@@ -91,6 +91,6 @@ describe('Administration meta tests', () => {
         expect(packageJson.engines.hasOwnProperty('node')).toBe(true);
         expect(packageJson.engines.node).toBe('^20.0.0');
         expect(packageJson.engines.hasOwnProperty('npm')).toBe(true);
-        expect(packageJson.engines.npm).toBe('^10.0.0');
+        expect(packageJson.engines.npm).toBe('>=10.0.0');
     });
 });

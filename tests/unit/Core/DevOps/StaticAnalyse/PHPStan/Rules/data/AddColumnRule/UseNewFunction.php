@@ -17,7 +17,7 @@ class UseNewFunction extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
+        $this->swAddColumn(
             connection: $connection,
             table: 'bar',
             column: 'foo',

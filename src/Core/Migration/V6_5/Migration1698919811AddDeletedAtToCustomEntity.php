@@ -19,11 +19,11 @@ class Migration1698919811AddDeletedAtToCustomEntity extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'custom_entity',
-            column: 'deleted_at',
-            type: 'DATETIME(3)'
+        $this->swAddColumn(
+            $connection,
+            'custom_entity',
+            'deleted_at',
+            'DATETIME(3)'
         );
     }
 }

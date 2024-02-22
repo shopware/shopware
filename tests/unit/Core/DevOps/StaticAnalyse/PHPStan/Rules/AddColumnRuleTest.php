@@ -4,15 +4,15 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AddColumnRule;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<AddColumnRule>
+ *
+ * @covers \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AddColumnRule
  */
-#[CoversClass(AddColumnRule::class)]
 class AddColumnRuleTest extends RuleTestCase
 {
     public function testRule(): void

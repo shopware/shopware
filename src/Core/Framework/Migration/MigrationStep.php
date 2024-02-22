@@ -77,9 +77,11 @@ abstract class MigrationStep
     }
 
     /**
+     * Renamed to addColumn in 6.6. `sw` prefixed used to not break plugin migrations which may also have this function
+     *
      * @return bool true if the column was created, false if it already exists or was not created
      */
-    protected function addColumn(Connection $connection, string $table, string $column, string $type, ?bool $nullable = true, string $default = 'NULL'): bool
+    protected function swAddColumn(Connection $connection, string $table, string $column, string $type, ?bool $nullable = true, string $default = 'NULL'): bool
     {
         if ($this->columnExists($connection, $table, $column)) {
             return false;

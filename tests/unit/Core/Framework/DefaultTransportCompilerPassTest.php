@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Adapter\Messenger\MessageBus;
@@ -12,8 +11,9 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass
  */
-#[CoversClass(DefaultTransportCompilerPass::class)]
 class DefaultTransportCompilerPassTest extends TestCase
 {
     public function testCompiler(): void

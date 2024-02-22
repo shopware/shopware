@@ -21,12 +21,13 @@ class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'theme',
-            column: 'active',
-            type: 'TINYINT(1)',
-            default: '1'
+        $this->swAddColumn(
+            $connection,
+            'theme',
+            'active',
+            'TINYINT(1)',
+            false,
+            '1'
         );
 
         $connection->executeStatement('

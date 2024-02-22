@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -185,7 +184,9 @@ class StockStorageTest extends TestCase
         yield 'None closeout, stock' => [1, false, 1];
     }
 
-    #[DataProvider('triggerProductNoLongerAvailableEventOnCreateProvider')]
+    /**
+     * @dataProvider triggerProductNoLongerAvailableEventOnCreateProvider
+     */
     public function testTriggerProductNoLongerAvailableEventOnCreate(int $stock, bool $closeout, int $triggered): void
     {
         $ids = new IdsCollection();
@@ -268,7 +269,9 @@ class StockStorageTest extends TestCase
         ];
     }
 
-    #[DataProvider('eventTriggeredOnAlterProvider')]
+    /**
+     * @dataProvider eventTriggeredOnAlterProvider
+     */
     public function testEventTriggeredOnAlter(int $stock, bool $closeout, int $after, int $triggered): void
     {
         $ids = new IdsCollection();

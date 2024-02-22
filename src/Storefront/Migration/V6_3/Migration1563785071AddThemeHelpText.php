@@ -21,11 +21,11 @@ class Migration1563785071AddThemeHelpText extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'theme_translation',
-            column: 'help_texts',
-            type: 'JSON',
+        $this->swAddColumn(
+            $connection,
+            'theme_translation',
+            'help_texts',
+            'JSON',
         );
     }
 

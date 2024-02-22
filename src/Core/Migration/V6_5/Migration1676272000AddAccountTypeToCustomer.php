@@ -22,13 +22,13 @@ class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'customer',
-            column: 'account_type',
-            type: 'VARCHAR(255)',
-            nullable: false,
-            default: '\'private\''
+        $this->swAddColumn(
+            $connection,
+            'customer',
+            'account_type',
+            'VARCHAR(255)',
+            false,
+            '\'private\''
         );
 
         $this->massUpdateAccountType($connection);

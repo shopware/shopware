@@ -19,13 +19,13 @@ class Migration1681382023AddCustomFieldAllowCartExpose extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'custom_field',
-            column: 'allow_cart_expose',
-            type: 'TINYINT(1)',
-            nullable: false,
-            default: '0',
+        $this->swAddColumn(
+            $connection,
+            'custom_field',
+            'allow_cart_expose',
+            'TINYINT(1)',
+            false,
+            '0',
         );
 
         $customFieldAllowList = $connection->fetchFirstColumn('SELECT JSON_UNQUOTE(JSON_EXTRACT(`value`, "$.renderedField.name")) as technical_name FROM rule_condition WHERE type = \'cartLineItemCustomField\';');

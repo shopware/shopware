@@ -19,7 +19,7 @@ class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $added = $this->addColumn(
+        $added = $this->swAddColumn(
             connection: $connection,
             table: 'category',
             column: 'custom_entity_type_id',

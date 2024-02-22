@@ -19,11 +19,11 @@ class Migration1689776940AddCartSourceField extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'order',
-            column: 'source',
-            type: 'VARCHAR(255)'
+        $this->swAddColumn(
+            $connection,
+            'order',
+            'source',
+            'VARCHAR(255)'
         );
     }
 }

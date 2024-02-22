@@ -10336,16 +10336,6 @@ parameters:
 			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
 
 		-
-			message: "#^Attribute class PHPUnit\\\\Framework\\\\Attributes\\\\CoversClass does not exist\\.$#"
-			count: 1
-			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
-			message: "#^Test classes must have @covers annotation$#"
-			count: 1
-			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/System/SystemConfig/Api/SystemConfigControllerTest.php

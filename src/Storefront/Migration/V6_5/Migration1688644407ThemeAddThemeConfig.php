@@ -19,11 +19,11 @@ class Migration1688644407ThemeAddThemeConfig extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'theme',
-            column: 'theme_json',
-            type: 'JSON',
+        $this->swAddColumn(
+            $connection,
+            'theme',
+            'theme_json',
+            'JSON',
         );
     }
 

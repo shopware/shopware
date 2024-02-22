@@ -19,18 +19,18 @@ class Migration1663402842AddPathToMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'media',
-            column: 'path',
-            type: 'VARCHAR(2048)'
+        $this->swAddColumn(
+            $connection,
+            'media',
+            'path',
+            'VARCHAR(2048)'
         );
 
-        $this->addColumn(
-            connection: $connection,
-            table: 'media_thumbnail',
-            column: 'path',
-            type: 'VARCHAR(2048)'
+        $this->swAddColumn(
+            $connection,
+            'media_thumbnail',
+            'path',
+            'VARCHAR(2048)'
         );
 
         $this->registerIndexer($connection, 'media.path.post_update');

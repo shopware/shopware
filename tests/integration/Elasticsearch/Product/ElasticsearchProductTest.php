@@ -266,7 +266,7 @@ class ElasticsearchProductTest extends TestCase
                 $exists = $this->client->indices()->exists(['index' => $index]);
                 static::assertTrue($exists, 'Expected elasticsearch indices present');
             } else {
-                $languages = $this->languageRepository->searchIds($criteria, $context);
+                $languages = $this->languageRepository->searchIds($criteria, Context::createDefaultContext());
 
                 foreach ($languages->getIds() as $languageId) {
                     \assert(\is_string($languageId));
@@ -2696,7 +2696,6 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame($ids->get('sort.glumanda'), $result->getIds()[1]);
         static::assertSame($ids->get('sort.bisasam'), $result->getIds()[2]);
     }
-
 
     /**
      * @depends testIndexing

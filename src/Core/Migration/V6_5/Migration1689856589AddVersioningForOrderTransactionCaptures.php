@@ -57,11 +57,11 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
 
     private function addBinaryColumnToTable(Connection $connection, string $newColumnName, string $tableName): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: $tableName,
-            column: $newColumnName,
-            type: 'BINARY(16)'
+        $this->swAddColumn(
+            $connection,
+            $tableName,
+            $newColumnName,
+            'BINARY(16)'
         );
     }
 

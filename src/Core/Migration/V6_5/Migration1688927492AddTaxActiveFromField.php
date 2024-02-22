@@ -19,11 +19,11 @@ class Migration1688927492AddTaxActiveFromField extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'tax_rule',
-            column: 'active_from',
-            type: 'DATETIME(3)'
+        $this->swAddColumn(
+            $connection,
+            'tax_rule',
+            'active_from',
+            'DATETIME(3)'
         );
     }
 }

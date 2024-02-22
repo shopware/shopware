@@ -19,11 +19,11 @@ class Migration1659425718AddFlagsToCustomEntities extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'custom_entity',
-            column: 'flags',
-            type: 'JSON'
+        $this->swAddColumn(
+            $connection,
+            'custom_entity',
+            'flags',
+            'JSON'
         );
     }
 }

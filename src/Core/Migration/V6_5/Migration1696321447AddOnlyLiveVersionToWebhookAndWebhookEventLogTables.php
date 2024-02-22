@@ -25,25 +25,25 @@ class Migration1696321447AddOnlyLiveVersionToWebhookAndWebhookEventLogTables ext
 
     private function addToWebhookTable(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'webhook',
-            column: 'only_live_version',
-            type: 'TINYINT(1) UNSIGNED',
-            nullable: false,
-            default: '0'
+        $this->swAddColumn(
+            $connection,
+            'webhook',
+            'only_live_version',
+            'TINYINT(1) UNSIGNED',
+            false,
+            '0'
         );
     }
 
     private function addToWebhookEventLogTable(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'webhook_event_log',
-            column: 'only_live_version',
-            type: 'TINYINT(1) UNSIGNED',
-            nullable: false,
-            default: '0'
+        $this->swAddColumn(
+            $connection,
+            'webhook_event_log',
+            'only_live_version',
+            'TINYINT(1) UNSIGNED',
+            false,
+            '0'
         );
     }
 }

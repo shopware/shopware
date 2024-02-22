@@ -28,22 +28,22 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            connection: $connection,
-            table: 'payment_method',
-            column: 'technical_name',
-            type: 'VARCHAR(255)'
+        $this->swAddColumn(
+            $connection,
+            'payment_method',
+            'technical_name',
+            'VARCHAR(255)'
         );
 
         if (!$this->indexExists($connection, PaymentMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
             $connection->executeStatement('ALTER TABLE `payment_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
-        $this->addColumn(
-            connection: $connection,
-            table: 'shipping_method',
-            column: 'technical_name',
-            type: 'VARCHAR(255)'
+        $this->swAddColumn(
+            $connection,
+            'shipping_method',
+            'technical_name',
+            'VARCHAR(255)'
         );
 
         if (!$this->indexExists($connection, ShippingMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {

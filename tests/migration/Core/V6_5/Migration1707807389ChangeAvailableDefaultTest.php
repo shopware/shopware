@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_6;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_6\Migration1707807389ChangeAvailableDefault;
+use Shopware\Core\Migration\V6_5\Migration1707807389ChangeAvailableDefault;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Migration\V6_5\Migration1707807389ChangeAvailableDefault
  */
-#[CoversClass(Migration1707807389ChangeAvailableDefault::class)]
 class Migration1707807389ChangeAvailableDefaultTest extends TestCase
 {
     public function testMigration(): void

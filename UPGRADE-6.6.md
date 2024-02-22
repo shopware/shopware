@@ -796,3 +796,24 @@ Two properties `blacklistIds` and `whitelistIds` were removed without replacemen
     }
 }
 ```
+
+## Administration tooltips no longer support components/ html
+Due to a Vue 3 limitation the `v-tooltip` directive no longer supports components or html.
+
+### Before
+```html
+<div
+    v-tooltip="{
+        message: 'For more information click <a href=\"https://shopware.com\">here</a>.',
+    }"
+</div>
+```
+
+### After
+```html
+<div
+    v-tooltip="{
+        message: 'For more information visit shopware.com',
+    }"
+</div>
+```

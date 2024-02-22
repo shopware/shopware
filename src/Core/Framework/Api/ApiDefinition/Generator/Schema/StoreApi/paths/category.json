@@ -33,6 +33,7 @@
                                 "schema": {
                                     "allOf": [
                                         {
+                                            "type": "object",
                                             "properties": {
                                                 "elements": {
                                                     "type": "array",
@@ -40,8 +41,7 @@
                                                         "$ref": "#/components/schemas/Category"
                                                     }
                                                 }
-                                            },
-                                            "type": "object"
+                                            }
                                         },
                                         {
                                             "$ref": "#/components/schemas/EntitySearchResult"
@@ -69,6 +69,15 @@
                 "description": "This endpoint returns information about the category, as well as a fully resolved (hydrated with mapping values) CMS page, if one is assigned to the category. You can pass slots which should be resolved exclusively.",
                 "operationId": "readCategory",
                 "parameters": [
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
                     {
                         "name": "navigationId",
                         "in": "path",

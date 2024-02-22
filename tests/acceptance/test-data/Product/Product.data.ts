@@ -8,7 +8,7 @@ export const ProductData = base.extend<FixtureTypes>({
 
         // Generate unique IDs
         const { id: productId, uuid: productUuid } = idProvider.getIdPair();
-        const productName = `Test_product_${productId}`;
+        const productName = `Product_test_${productId}`;
 
         // Create product
         const productResponse = await adminApiContext.post('./product?_response', {
@@ -18,7 +18,7 @@ export const ProductData = base.extend<FixtureTypes>({
                 taxId: storeBaseConfig.taxId,
                 id: productUuid,
                 name: productName,
-                productNumber: 'TEST-' + productId,
+                productNumber: 'Product-' + productId,
                 price: [
                     {
                         currencyId: storeBaseConfig.eurCurrencyId,

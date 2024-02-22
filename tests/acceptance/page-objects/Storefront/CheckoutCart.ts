@@ -8,6 +8,7 @@ export class CheckoutCartPage implements PageObject {
     public readonly grandTotalPrice: Locator;
     public readonly emptyCartAlert: Locator;
     public readonly stockReachedAlert: Locator;
+    public readonly cartLineItemImages: Locator;
 
     constructor(public readonly page: Page) {
         this.headline = page.getByRole('heading', { name: 'Shopping cart' });
@@ -16,6 +17,7 @@ export class CheckoutCartPage implements PageObject {
         this.grandTotalPrice = page.locator('dt:has-text("Grand total") + dd:visible');
         this.emptyCartAlert = page.getByText('Your shopping cart is empty.');
         this.stockReachedAlert = page.getByText('only available 1 times');
+        this.cartLineItemImages = page.locator('.line-item-img-link');
     }
 
     async goTo() {

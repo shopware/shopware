@@ -4,6 +4,7 @@ import { mergeTests } from '@playwright/test';
  * Account
  */
 import { Login } from './ShopCustomer/Account/Login';
+import { Logout } from './ShopCustomer/Account/Logout';
 import { Register } from './ShopCustomer/Account/Register';
 
 /**
@@ -29,8 +30,15 @@ import { SubmitOrder } from './ShopCustomer/Checkout/SubmitOrder';
 import { AddProductToCart } from './ShopCustomer/ProductDetail/AddProductToCart';
 import { ProceedFromProductToCheckout } from './ShopCustomer/ProductDetail/ProceedFromProductToCheckout';
 
+/**
+ * Search
+ */
+import { OpenSearchResultPage } from './ShopCustomer/Search/OpenSearchResultPage';
+import { OpenSearchSuggestPage } from './ShopCustomer/Search/OpenSearchSuggestPage';
+
 export const test = mergeTests(
     Login,
+    Logout,
     Register,
     AddPromotionCodeToCart,
     ProceedFromCartToCheckout,
@@ -43,4 +51,6 @@ export const test = mergeTests(
     SubmitOrder,
     AddProductToCart,
     ProceedFromProductToCheckout,
+    OpenSearchResultPage,
+    OpenSearchSuggestPage,
 );

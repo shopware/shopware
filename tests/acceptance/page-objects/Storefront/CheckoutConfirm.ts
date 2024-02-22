@@ -20,6 +20,11 @@ export class CheckoutConfirmPage implements PageObject {
     public readonly shippingStandard: Locator;
     public readonly shippingExpress: Locator;
 
+    /**
+     * Product details
+     */
+    public readonly cartLineItemImages: Locator;
+
     constructor(public readonly page: Page) {
         this.headline = page.getByRole('heading', { name: 'Complete order' });
         this.termsAndConditionsCheckbox = page.getByLabel('I have read and accepted the general terms and conditions.');
@@ -32,6 +37,8 @@ export class CheckoutConfirmPage implements PageObject {
 
         this.shippingStandard = page.getByLabel('Standard');
         this.shippingExpress = page.getByLabel('Express');
+
+        this.cartLineItemImages = page.locator('.line-item-img-link');
     }
 
     async goTo() {

@@ -7,26 +7,31 @@ export class ProductDetailPage implements PageObject {
     public readonly offCanvasCartTitle: Locator;
     public readonly offCanvasCart: Locator;
     public readonly offCanvasCartGoToCheckoutButton: Locator;
+    public readonly productSingleImage: Locator;
+    public readonly offCanvasLineItemImages: Locator;
     public readonly quantitySelect: Locator;
     public readonly offCanvasSummaryTotalPrice: Locator;
     public readonly offCanvas: Locator;
 
-    private readonly product;
+    private readonly productData;
 
-    constructor(public readonly page: Page, product) {
+    constructor(public readonly page: Page, productData) {
         this.addToCartButton = page.getByRole('button', { name: 'Add to shopping cart' });
-        this.offCanvasCartTitle = page.getByText('Shopping cart');
+        this.offCanvasCartTitle = page.getByText('Shopping cart', { exact: true });
         this.offCanvasCart = page.getByRole('dialog');
         this.offCanvasCartGoToCheckoutButton = page.getByRole('link', { name: 'Go to checkout' });
+        this.offCanvasLineItemImages = page.locator('.line-item-img-link');
         this.quantitySelect = page.getByLabel('Quantity', { exact: true });
         this.offCanvas = page.locator('offcanvas-body');
         this.offCanvasSummaryTotalPrice = page.locator('dt:has-text("Subtotal") + dd');
 
-        this.product = product;
+        this.productSingleImage = page.locator('.gallery-slider-single-image');
+
+        this.productData = productData;
     }
 
     async goTo() {
-        const url = `${this.product.translated.name.replaceAll('_', '-')}/${this.product.productNumber}`;
+        const url = `${this.productData.translated.name.replaceAll('_', '-')}/${this.productData.productNumber}`;
 
         await this.page.goto(url);
     }

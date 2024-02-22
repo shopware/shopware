@@ -26,9 +26,4 @@ class Migration1686817968AddRecurringAppPaymentMethodUrl extends MigrationStep
             type: 'VARCHAR(255)'
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

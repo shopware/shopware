@@ -24,9 +24,4 @@ class Migration1702479623RemoveEsMultilingualFlag extends MigrationStep
 
         $storage->remove('enable-multilingual-index');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

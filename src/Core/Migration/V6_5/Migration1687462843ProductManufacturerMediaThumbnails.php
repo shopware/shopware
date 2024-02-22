@@ -53,8 +53,4 @@ class Migration1687462843ProductManufacturerMediaThumbnails extends MigrationSte
 
         $this->registerIndexer($connection, 'media_folder_configuration.indexer');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

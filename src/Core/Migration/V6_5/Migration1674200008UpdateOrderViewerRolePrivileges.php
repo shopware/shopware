@@ -27,9 +27,4 @@ class Migration1674200008UpdateOrderViewerRolePrivileges extends MigrationStep
     {
         $this->addAdditionalPrivileges($connection, self::NEW_PRIVILEGES);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

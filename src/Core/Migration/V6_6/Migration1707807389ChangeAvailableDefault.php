@@ -21,9 +21,4 @@ class Migration1707807389ChangeAvailableDefault extends MigrationStep
     {
         $connection->executeStatement('ALTER TABLE `product` CHANGE `available` `available` tinyint(1) NOT NULL DEFAULT \'0\';');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

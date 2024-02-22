@@ -45,10 +45,6 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
         $this->reAddVersionedForeignKey($connection, 'order_transaction_capture_refund_position', 'order_transaction_capture_refund', 'refund');
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function reAddVersionedPrimaryKey(Connection $connection, string $tableName): void
     {
         $sqlStatement = sprintf('
@@ -61,14 +57,12 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
 
     private function addBinaryColumnToTable(Connection $connection, string $newColumnName, string $tableName): void
     {
-        if (!$this->columnExists($connection, $tableName, $newColumnName)) {
-            $sqlStatement = sprintf('
-                ALTER TABLE `%s`
-                ADD COLUMN `%s` BINARY(16) NOT NULL;
-            ', $tableName, $newColumnName);
-
-            $connection->executeStatement($sqlStatement);
-        }
+        $this->addColumn(
+            connection: $connection,
+            table: $tableName,
+            column: $newColumnName,
+            type: 'BINARY(16)'
+        );
     }
 
     private function reAddVersionedForeignKey(Connection $connection, string $tableName, string $referencedTableName, string $foreignKeyColumnSuffix): void

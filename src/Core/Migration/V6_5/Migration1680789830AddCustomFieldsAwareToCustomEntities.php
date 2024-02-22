@@ -19,14 +19,20 @@ class Migration1680789830AddCustomFieldsAwareToCustomEntities extends MigrationS
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'custom_entity', 'custom_fields_aware')) {
-            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `custom_fields_aware` TINYINT(1) DEFAULT 0;');
-            $connection->executeStatement('ALTER TABLE `custom_entity` ADD `label_property` VARCHAR(255) NULL;');
-        }
-    }
+        $this->addColumn(
+            connection: $connection,
+            table: 'custom_entity',
+            column: 'custom_fields_aware',
+            type: 'TINYINT(1)',
+            nullable: false,
+            default: '0'
+        );
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
+        $this->addColumn(
+            connection: $connection,
+            table: 'custom_entity',
+            column: 'label_property',
+            type: 'VARCHAR(255)'
+        );
     }
 }

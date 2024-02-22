@@ -50,9 +50,4 @@ class Migration1655697288AppFlowEvent extends MigrationStep
             );
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

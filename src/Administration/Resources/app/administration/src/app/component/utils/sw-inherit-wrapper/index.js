@@ -133,17 +133,16 @@ Component.register('sw-inherit-wrapper', {
             },
 
             set(newValue) {
-                if (this.isInherited && newValue !== this.inheritedValue) {
-                    this.removeInheritance(newValue);
+                if (this.isInherited && newValue === this.inheritedValue) {
                     return;
                 }
 
-                if (this.isInherited) {
-                    this.removeInheritance(newValue);
+                if (!this.isInherited && newValue !== this.inheritedValue) {
+                    this.updateValue(newValue, 'restore');
                     return;
                 }
 
-                this.updateValue(newValue, 'restore');
+                this.removeInheritance(newValue);
             },
         },
 

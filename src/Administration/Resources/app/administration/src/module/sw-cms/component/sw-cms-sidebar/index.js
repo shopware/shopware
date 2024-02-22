@@ -87,6 +87,71 @@ export default {
             return Object.fromEntries(blocks);
         },
 
+        cmsBlockCategories() {
+            const defaultCategories = [
+                {
+                    value: 'favorite',
+                    label: 'sw-cms.detail.label.blockCategoryFavorite',
+                },
+                {
+                    value: 'text',
+                    label: 'sw-cms.detail.label.blockCategoryText',
+                },
+                {
+                    value: 'image',
+                    label: 'sw-cms.detail.label.blockCategoryImage',
+                },
+                {
+                    value: 'video',
+                    label: 'sw-cms.detail.label.blockCategoryVideo',
+                },
+                {
+                    value: 'text-image',
+                    label: 'sw-cms.detail.label.blockCategoryTextImage',
+                },
+                {
+                    value: 'commerce',
+                    label: 'sw-cms.detail.label.blockCategoryCommerce',
+                },
+                {
+                    value: 'sidebar',
+                    label: 'sw-cms.detail.label.blockCategorySidebar',
+                },
+                {
+                    value: 'form',
+                    label: 'sw-cms.detail.label.blockCategoryForm',
+                },
+            ];
+
+            // Check if blocks with the category 'app' are available
+            if (Object.values(this.cmsService.getCmsBlockRegistry()).some(block => {
+                return block.category === 'app';
+            })) {
+                defaultCategories.push({
+                    value: 'app',
+                    label: 'sw-cms.detail.label.blockCategoryApp',
+                });
+            }
+
+            // Get all missing categories from the block registry
+            const categories = Object.values(this.cmsService.getCmsBlockRegistry()).map(block => block.category);
+            const uniqueCategories = [...new Set(categories)];
+
+            // Add all missing categories to the default categories
+            uniqueCategories.forEach(category => {
+                if (defaultCategories.some(defaultCategory => defaultCategory.value === category)) {
+                    return;
+                }
+
+                defaultCategories.push({
+                    value: category,
+                    label: `apps.sw-cms.detail.label.blockCategory.${category}`,
+                });
+            });
+
+            return defaultCategories;
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },

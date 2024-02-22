@@ -114,6 +114,8 @@
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
         "blockCategoryForm": "Form",
+        "blockCategoryHtml": "HTML",
+        "blockCategoryApp": "Apps",
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",

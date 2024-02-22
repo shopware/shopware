@@ -6,14 +6,24 @@ import { AccountLoginPage } from './Storefront/AccountLogin';
 import { CheckoutCartPage } from './Storefront/CheckoutCart';
 import { CheckoutConfirmPage } from './Storefront/CheckoutConfirm';
 import { CheckoutFinishPage } from './Storefront/CheckoutFinish';
+import { StorefrontHomePage } from './Storefront/StorefrontHome';
+import { CheckoutRegisterPage } from './Storefront/CheckoutRegister';
+import { SearchPage } from './Storefront/SearchPage';
+import { SearchSuggest } from './Storefront/SearchSuggest';
+import { AccountOrderPage } from './Storefront/AccountOrder';
 
 export interface StorefrontPages {
     productDetailPage: ProductDetailPage,
     accountPage: AccountPage,
     accountLoginPage: AccountLoginPage,
+    accountOrderPage: AccountOrderPage,
     checkoutCartPage: CheckoutCartPage,
     checkoutConfirmPage: CheckoutConfirmPage,
     checkoutFinishPage: CheckoutFinishPage,
+    storefrontHomePage: StorefrontHomePage,
+    checkoutRegisterPage: CheckoutRegisterPage,
+    searchPage: SearchPage,
+    searchSuggestPage: SearchSuggest,
 }
 
 export const test = base.extend<FixtureTypes>({
@@ -39,5 +49,25 @@ export const test = base.extend<FixtureTypes>({
 
     checkoutFinishPage: async ({ storefrontPage }, use) => {
         await use(new CheckoutFinishPage(storefrontPage));
+    },
+
+    storefrontHomePage: async ({ storefrontPage }, use) => {
+        await use(new StorefrontHomePage(storefrontPage));
+    },
+
+    checkoutRegisterPage: async ({ storefrontPage }, use) => {
+        await use(new CheckoutRegisterPage(storefrontPage));
+    },
+
+    searchPage: async ({ storefrontPage }, use) => {
+        await use(new SearchPage(storefrontPage));
+    },
+
+    searchSuggestPage: async ({ storefrontPage }, use) => {
+        await use(new SearchSuggest(storefrontPage));
+    },
+
+    accountOrderPage: async ({ storefrontPage }, use) => {
+        await use(new AccountOrderPage(storefrontPage));
     },
 });

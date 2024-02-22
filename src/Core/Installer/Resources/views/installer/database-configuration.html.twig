@@ -93,10 +93,15 @@
                     required="required"
                     onfocus="fetchDatabaseInformation();"
                 />
+                <button id="databaseRefresh" type="button" class="database-refresh is--hidden" href="#" onclick="refreshDatabases();" >{{ "shopware.installer.database-configuration_refresh_databases"|trans }}</button>
             </p>
             <div id="non-empty-db-warning" class="alert alert-warning is--hidden">
                 <span class="icon-warning"></span>
                 {{ "shopware.installer.database-configuration_non_empty_database"|trans }}
+            </div>
+            <div id="db-error" class="alert alert-error is--hidden">
+                <span class="icon-warning"></span>
+                <span class="error-text"></span>
             </div>
             <p>
                 <div class="custom-checkbox create_database">
@@ -131,34 +136,31 @@
 
     <script>
         async function fetchDatabaseInformation() {
-            const form = new FormData(document.getElementById('database-configuration'));
-            const response = await fetch('{{ url('installer.database-information') }}', {
-                method: 'POST',
-                body: form,
-            })
-
-            if (!response.ok) {
+            let dbs;
+            try {
+                dbs = await fetchDatabases();
+            } catch(e) {
                 return;
             }
 
-            const data = await response.json();
+            await createSelectFieldWithOptions(
+                dbs,
+                document.getElementById('databaseName').value
+            );
+        }
 
+        function createSelectFieldWithOptions(data, oldValue) {
             if (Object.entries(data).length === 0) {
                 return;
             }
 
-            const oldValue = document.getElementById('databaseName').value;
-
-            createSelectFieldWithOptions(data, oldValue);
-        }
-
-        function createSelectFieldWithOptions(data, oldValue) {
             const element = document.createElement('div');
             element.classList.add('select-wrapper');
 
             const select = document.createElement('select');
             select.id = 'databaseName';
             select.name = 'databaseName';
+            select.required = true;
             select.onchange = function(event) {
                 const selectedDatabase = event.target.value;
 
@@ -170,8 +172,40 @@
             };
             element.appendChild(select);
 
+            addDatabasesToSelect(select, data, oldValue);
+
+            select.dispatchEvent(new Event('change'));
+
+            document.getElementById('databaseName').replaceWith(element);
+            document.getElementById('databaseRefresh').classList.remove('is--hidden');
+        }
+
+        async function fetchDatabases() {
+            const dbError = document.getElementById('db-error');
+            dbError.classList.add('is--hidden');
+            document.getElementById('non-empty-db-warning').classList.add('is--hidden');
+
+            const form = new FormData(document.getElementById('database-configuration'));
+            const response = await fetch('{{ url('installer.database-information') }}', {
+                method: 'POST',
+                body: form,
+            })
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                dbError.querySelector('.error-text').innerText = data.error ?? {{ "shopware.installer.db_fetch_error"|trans }};
+                dbError.classList.remove('is--hidden');
+
+                throw new Error('Failed to fetch databases');
+            }
+
+            return data
+        }
+
+        function addDatabasesToSelect(select, dbs, oldValue) {
             let hasOldValue = false;
-            Object.entries(data).forEach(function([key, value]) {
+            Object.entries(dbs).forEach(function([key, value]) {
                 const option = document.createElement('option');
                 option.value = key;
                 option.text = key;
@@ -180,13 +214,13 @@
                     option.selected = true;
                 }
 
-                select.appendChild(option);
+                select.add(option);
             });
 
             // default to the first empty database
             if (!hasOldValue) {
                 for(const option of select.options) {
-                    if (data[option.value] !== undefined && !data[option.value]) {
+                    if (dbs[option.value] !== undefined && !dbs[option.value]) {
                         select.value = option.value;
                         break;
                     }
@@ -194,8 +228,25 @@
             }
 
             select.dispatchEvent(new Event('change'));
+        }
 
-            document.getElementById('databaseName').replaceWith(element);
+        async function refreshDatabases() {
+            const select = document.getElementById('databaseName');
+            const oldValue = document.getElementById('databaseName').value
+
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+
+
+            let dbs;
+            try {
+                dbs = await fetchDatabases();
+            } catch(e) {
+                return;
+            }
+
+            addDatabasesToSelect(select, dbs, oldValue);
         }
     </script>
 {% endblock %}

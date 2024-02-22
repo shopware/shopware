@@ -29,9 +29,4 @@ class Migration1690456899AddCustomFieldPrivilegeForSaleUnitViewer extends Migrat
     {
         $this->addAdditionalPrivileges($connection, self::NEW_PRIVILEGES);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

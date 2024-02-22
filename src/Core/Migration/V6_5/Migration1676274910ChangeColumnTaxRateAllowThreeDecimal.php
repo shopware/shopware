@@ -19,22 +19,18 @@ class Migration1676274910ChangeColumnTaxRateAllowThreeDecimal extends MigrationS
 
     public function update(Connection $connection): void
     {
-        $sqlUpdateToTaxTable = <<<SQL
+        $sqlUpdateToTaxTable = <<<'SQL'
             ALTER TABLE tax
             MODIFY COLUMN `tax_rate` DECIMAL(10,3);
         SQL;
 
         $connection->executeStatement($sqlUpdateToTaxTable);
 
-        $sqlUpdateToTaxRuleTable = <<<SQL
+        $sqlUpdateToTaxRuleTable = <<<'SQL'
             ALTER TABLE tax_rule
             MODIFY COLUMN `tax_rate` DOUBLE(10,3);
         SQL;
 
         $connection->executeStatement($sqlUpdateToTaxRuleTable);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

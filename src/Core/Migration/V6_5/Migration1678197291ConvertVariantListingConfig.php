@@ -49,8 +49,4 @@ class Migration1678197291ConvertVariantListingConfig extends MigrationStep
 
         $connection->executeStatement('DROP TABLE `product_tmp`');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

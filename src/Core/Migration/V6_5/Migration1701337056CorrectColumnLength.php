@@ -24,8 +24,4 @@ class Migration1701337056CorrectColumnLength extends MigrationStep
         $connection->executeStatement('ALTER TABLE `country_translation` MODIFY `address_format` JSON DEFAULT NULL;');
         $connection->executeStatement('ALTER TABLE `number_range_type_translation` MODIFY `type_name` VARCHAR(64) DEFAULT NULL;');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

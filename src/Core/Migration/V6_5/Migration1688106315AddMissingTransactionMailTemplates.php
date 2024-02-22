@@ -123,10 +123,6 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
         }
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function fetchLanguageIdByName(string $name, Connection $connection): ?string
     {
         try {

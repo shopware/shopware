@@ -91,10 +91,6 @@ class Migration1672931011ReviewFormMailTemplate extends MigrationStep
         $this->importTranslation('mail_template_translation', $translations, $connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function getMailTemplateContent(string $locale, bool $html): string
     {
         $enHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/review_form/en-html.html.twig');

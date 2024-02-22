@@ -1,29 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_5;
+namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\AddColumnRule;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
-#[Package('core')]
-class Migration1698919811AddDeletedAtToCustomEntity extends MigrationStep
+class UseNewFunction extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1698919811;
+        return 001;
     }
 
     public function update(Connection $connection): void
     {
         $this->addColumn(
             connection: $connection,
-            table: 'custom_entity',
-            column: 'deleted_at',
-            type: 'DATETIME(3)'
+            table: 'bar',
+            column: 'foo',
+            type: 'VARCHAR(255)'
         );
     }
 }

@@ -1831,11 +1831,6 @@ parameters:
 			path: src/Core/Content/Sitemap/ConfigHandler/File.php
 
 		-
-			message: "#^Anonymous variable in a `\\$category\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Provider/CategoryUrlProvider.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Sitemap\\\\Provider\\\\CategoryUrlProvider\\:\\:getCategories\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Provider/CategoryUrlProvider.php

@@ -63,10 +63,6 @@ class AddColumnRule implements Rule
             return [];
         }
 
-        if (!$scope->isInClass()) {
-            return [];
-        }
-
         $varType = $scope->getType($node->var);
 
         if (!$varType->isSuperTypeOf(new ObjectType(Connection::class))->yes()) {
@@ -94,20 +90,36 @@ class AddColumnRule implements Rule
             return [];
         }
 
-        if (!str_contains($arg->value, 'ADD COLUMN')) {
-            return [];
-        }
-
-        if (!str_contains($arg->value, 'ALTER TABLE')) {
-            return [];
-        }
-
         if (str_contains($arg->value, 'GENERATED ALWAYS AS')) {
             return [];
         }
 
-        return [
-            RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn instead')->build(),
-        ];
+        $pattern = '/ALTER TABLE .* ADD CONSTRAINT.*/m';
+        if (preg_match($pattern, $arg->value)) {
+            return [];
+        }
+
+        $pattern = '/ALTER TABLE .* ADD INDEX.*/m';
+        if (preg_match($pattern, $arg->value)) {
+            return [];
+        }
+
+        $pattern = '/ALTER TABLE .* ADD UNIQUE INDEX.*/m';
+        if (preg_match($pattern, $arg->value)) {
+            return [];
+        }
+        $pattern = '/ALTER TABLE .* ADD FOREIGN KEY.*/m';
+        if (preg_match($pattern, $arg->value)) {
+            return [];
+        }
+
+        $pattern = '/ALTER TABLE .* ADD .*/m';
+        if (preg_match($pattern, $arg->value)) {
+            return [
+                RuleErrorBuilder::message('Do not use `ALTER TABLE ... ADD COLUMN` in migration. Use MigrationStep::addColumn instead')->build(),
+            ];
+        }
+
+        return [];
     }
 }

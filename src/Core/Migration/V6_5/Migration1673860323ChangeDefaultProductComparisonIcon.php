@@ -21,8 +21,4 @@ class Migration1673860323ChangeDefaultProductComparisonIcon extends MigrationSte
     {
         $connection->executeStatement('UPDATE `sales_channel_type` SET `icon_name` = "regular-rocket" WHERE `icon_name` = "default-object-rocket"');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

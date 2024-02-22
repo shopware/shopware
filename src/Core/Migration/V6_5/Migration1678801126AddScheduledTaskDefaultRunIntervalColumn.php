@@ -38,10 +38,6 @@ class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends Migrat
         );
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function setMinRunInterval(Connection $connection): void
     {
         $tasks = $connection->fetchAllAssociative(

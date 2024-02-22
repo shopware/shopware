@@ -26,8 +26,4 @@ class Migration1689776940AddCartSourceField extends MigrationStep
             type: 'VARCHAR(255)'
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

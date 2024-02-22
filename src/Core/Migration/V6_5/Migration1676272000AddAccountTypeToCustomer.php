@@ -34,11 +34,6 @@ class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
         $this->massUpdateAccountType($connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     private function massUpdateAccountType(Connection $connection): void
     {
         $sql = 'UPDATE customer

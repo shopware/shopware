@@ -26,8 +26,4 @@ class Migration1695732009AddConfigForMedia extends MigrationStep
             type: 'JSON'
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

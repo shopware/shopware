@@ -1,24 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace %%namespace%%;
+namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\AddColumnRule;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
-#[Package('%%package%%')]
-class Migration%%timestamp%%%%name%% extends MigrationStep
+class UsePlainSql extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return %%timestamp%%;
+        return 001;
     }
 
     public function update(Connection $connection): void
     {
-
+        $connection->executeStatement('ALTER TABLE `bar` ADD COLUMN `foo` VARCHAR(255);');
     }
 }

@@ -47,8 +47,4 @@ class Migration1673426317ImproveStateMachineHistoryQueryPerformance extends Migr
             ');
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

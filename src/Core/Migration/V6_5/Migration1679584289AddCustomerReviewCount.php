@@ -45,9 +45,4 @@ class Migration1679584289AddCustomerReviewCount extends MigrationStep
             $offset += 1000;
         } while ($result > 0);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

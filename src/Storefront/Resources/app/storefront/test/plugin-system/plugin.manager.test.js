@@ -10,6 +10,10 @@ class AsyncPluginClass extends Plugin {
     init() {}
 }
 
+class SinglePlugin extends Plugin {
+    init() {}
+}
+
 class AsyncPluginClassWithMethods extends Plugin {
     init() {}
 
@@ -322,5 +326,181 @@ describe('Plugin manager', () => {
 
         PluginManager.deregister('AsyncCoreCart', '[data-async-cart]');
         jest.useRealTimers();
+    });
+
+    it('should initialize single sync plugin on string selector', async () => {
+        document.body.innerHTML = `
+            <div data-single="true"></div>
+        `;
+
+        PluginManager.register('SinglePlugin', SinglePlugin, '[data-single]');
+
+        await PluginManager.initializePlugin('SinglePlugin', '[data-single]', {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('SinglePlugin').length).toBe(1);
+        expect(PluginManager.getPluginInstances('SinglePlugin')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('SinglePlugin', '[data-single]');
+    });
+
+    it('should initialize single sync plugin on DOM node', async () => {
+        document.body.innerHTML = `
+            <div data-single="true"></div>
+        `;
+        const element = document.querySelector('[data-single]');
+
+        PluginManager.register('SingleDomPlugin', SinglePlugin, element);
+
+        await PluginManager.initializePlugin('SingleDomPlugin', element, {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('SingleDomPlugin').length).toBe(1);
+        expect(PluginManager.getPluginInstances('SingleDomPlugin')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('SingleDomPlugin', element);
+    });
+
+    it('should initialize single async plugin on string selector', async () => {
+        document.body.innerHTML = `
+            <div data-async-single="true"></div>
+        `;
+
+        const asyncImport = new Promise((resolve) => {
+            resolve({ default: SinglePlugin });
+        });
+
+        PluginManager.register('AsyncSinglePlugin', () => asyncImport, '[data-async-single]');
+
+        await PluginManager.initializePlugin('AsyncSinglePlugin', '[data-async-single]', {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('AsyncSinglePlugin').length).toBe(1);
+        expect(PluginManager.getPluginInstances('AsyncSinglePlugin')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('AsyncSinglePlugin', '[data-async-single]');
+    });
+
+    it('should initialize single async plugin on DOM node', async () => {
+        document.body.innerHTML = `
+            <div data-async-single="true"></div>
+        `;
+
+        const element = document.querySelector('[data-async-single]');
+
+        const asyncImport = new Promise((resolve) => {
+            resolve({ default: SinglePlugin });
+        });
+
+        PluginManager.register('AsyncSingleDomPlugin', () => asyncImport, element);
+
+        await PluginManager.initializePlugin('AsyncSingleDomPlugin', element, {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('AsyncSingleDomPlugin').length).toBe(1);
+        expect(PluginManager.getPluginInstances('AsyncSingleDomPlugin')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('AsyncSingleDomPlugin', element);
+    });
+
+    it('should not initialize single async plugin when selector is not found in the DOM', async () => {
+        document.body.innerHTML = `
+            <div class="i-am-not-the-plugin-selector"></div>
+        `;
+
+        const asyncImport = new Promise((resolve) => {
+            resolve({ default: SinglePlugin });
+        });
+
+        PluginManager.register('AsyncPluginWithoutFoundSelector', () => asyncImport, '[data-async-single]');
+
+        await PluginManager.initializePlugin('AsyncPluginWithoutFoundSelector', '[data-async-single]', {});
+
+        await new Promise(process.nextTick);
+
+        // No instance is found because the selector is not in the DOM
+        expect(PluginManager.getPluginInstances('AsyncPluginWithoutFoundSelector').length).toBe(0);
+
+        PluginManager.deregister('AsyncPluginWithoutFoundSelector', '[data-async-single]');
+    });
+
+    it('should initialize single async plugin on selector that differs from original register selector', async () => {
+        document.body.innerHTML = `
+            <div class="different-selector"></div>
+        `;
+
+        const asyncImport = new Promise((resolve) => {
+            resolve({ default: SinglePlugin });
+        });
+
+        // Plugin is registered with selector '[data-async-single]'
+        PluginManager.register('AsyncDifferentSelectorPlugin', () => asyncImport, '[data-async-single]');
+
+        // Plugin is then initialized with selector '.different-selector'
+        await PluginManager.initializePlugin('AsyncDifferentSelectorPlugin', '.different-selector', {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('AsyncDifferentSelectorPlugin').length).toBe(1);
+        expect(PluginManager.getPluginInstances('AsyncDifferentSelectorPlugin')[0]._initialized).toBe(true);
+
+        PluginManager.deregister('AsyncDifferentSelectorPlugin', '[data-async-single]');
+    });
+
+    it('should be able to modify the options when initializing a single async plugin', async () => {
+        document.body.innerHTML = `
+            <div data-async-single="true"></div>
+        `;
+
+        const asyncImport = new Promise((resolve) => {
+            resolve({ default: SinglePlugin });
+        });
+
+        PluginManager.register('AsyncPluginWithOpts', () => asyncImport, '[data-async-single]', {
+            displayText: 'The initial display text',
+        });
+
+        await PluginManager.initializePlugin('AsyncPluginWithOpts', '[data-async-single]', {
+            displayText: 'A different display text',
+            newOption: 'A new option',
+        });
+
+        await new Promise(process.nextTick);
+
+        // Verify that the options were correctly set
+        expect(PluginManager.getPluginInstances('AsyncPluginWithOpts')[0].options).toEqual({
+            displayText: 'A different display text',
+            newOption: 'A new option',
+        });
+
+        PluginManager.deregister('AsyncPluginWithOpts', '[data-async-single]');
+    });
+
+    it('should show console error when plugin initialization fails', async () => {
+        document.body.innerHTML = `
+            <div data-async-single-with-error="true"></div>
+        `;
+
+        // Cause some trouble by returning a non-class
+        const asyncImport = new Promise((resolve) => {
+            resolve({ default: 'NOT_A_CLASS' });
+        });
+
+        PluginManager.register('AsyncErrorPlugin', () => asyncImport, '[data-async-single-with-error]', {});
+
+        await PluginManager.initializePlugin('AsyncErrorPlugin', '[data-async-single-with-error]', {});
+
+        await new Promise(process.nextTick);
+
+        expect(console.error).toHaveBeenCalled();
+        expect(console.error.mock.calls[0][0].message).toContain('The passed plugin is not a function or a class.');
+
+        expect(PluginManager.getPluginInstances('AsyncErrorPlugin').length).toBe(0);
+
+        PluginManager.deregister('AsyncErrorPlugin', '[data-async-single-with-error]');
     });
 });

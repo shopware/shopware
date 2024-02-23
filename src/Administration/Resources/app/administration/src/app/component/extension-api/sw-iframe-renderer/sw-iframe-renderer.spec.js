@@ -50,6 +50,7 @@ async function createWrapper({
                 $route: $routeMock,
                 $router: $routerMock,
             },
+            attachTo: window.document,
         },
     });
 }
@@ -306,5 +307,17 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         expect($routerMock.replace).not.toHaveBeenCalled();
+    });
+
+    it('should add full screen class to iframe', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                fullScreen: true,
+            },
+        });
+        await flushPromises();
+
+        const iframeRenderer = wrapper.find('.sw-iframe-renderer.sw-iframe-renderer--full-screen');
+        expect(iframeRenderer.element instanceof HTMLElement).toBe(true);
     });
 });

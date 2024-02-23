@@ -212,6 +212,12 @@
             <argument type="tagged" tag="shopware.es.definition"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Framework\ElasticsearchStagingHandler">
+            <argument>%shopware.staging.elasticsearch.check_for_existence%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
+        </service>
+
         <service id="Shopware\Elasticsearch\Product\ElasticsearchProductDefinition">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

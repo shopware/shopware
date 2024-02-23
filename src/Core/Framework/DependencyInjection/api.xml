@@ -167,9 +167,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier"/>
             <argument type="service" id="router"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector" on-invalid="null"/>
-            <argument>%shopware.media.enable_url_upload_feature%</argument>
-            <argument>%shopware.security.csp_templates%</argument>
+            <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

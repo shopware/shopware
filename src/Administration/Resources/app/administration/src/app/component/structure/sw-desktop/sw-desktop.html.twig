@@ -4,6 +4,11 @@
     class="sw-desktop"
     :class="desktopClasses"
 >
+    <div
+        v-if="isStaging"
+        class="sw-staging-bar">
+        {{ $tc('global.sw-desktop.stagingBarText') }}
+    </div>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_desktop_sidebar %}

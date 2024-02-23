@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,6 +51,7 @@ class InfoControllerTest extends TestCase
                 ['shopware.admin_worker.enable_admin_worker', true],
                 ['kernel.shopware_version', '6.6.0.0-dev'],
                 ['kernel.shopware_version_revision', 'PHPUnit'],
+                ['shopware.media.enable_url_upload_feature', true],
             ]);
 
         $this->kernelMock->method('getBundles')
@@ -140,6 +142,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(AppUrlVerifier::class),
             $this->routerMock,
             $this->createMock(FlowActionCollector::class),
+            new StaticSystemConfigService()
         );
     }
 }

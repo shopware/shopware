@@ -57,6 +57,9 @@
       "noMessage": "Message is not defined",
       "notificationLoadingDataErrorMessage": "Error loading data"
     },
+    "sw-desktop": {
+      "stagingBarText": "The Shop is in staging mode."
+    },
     "notification-center": {
       "title": "Notifications",
       "emptyText": "Nothing going on lately.",

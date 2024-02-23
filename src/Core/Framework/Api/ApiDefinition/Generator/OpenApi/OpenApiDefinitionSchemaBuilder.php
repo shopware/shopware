@@ -226,7 +226,6 @@ class OpenApiDefinitionSchemaBuilder
     private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
     {
         if ($field->getPropertyName() === 'translations'
-            || $field->getPropertyName() === 'id'
             || preg_match('#translations$#i', $field->getPropertyName())) {
             return false;
         }

@@ -4,13 +4,20 @@
     "paths": {
         "/product-listing/{categoryId}": {
             "post": {
-                "tags": [
-                    "Product"
-                ],
+                "tags": ["Product"],
                 "summary": "Fetch a product listing by category",
                 "description": "Fetches a product listing for a specific category. It also provides filters, sortings and property aggregations, analogous to the /search endpoint.",
                 "operationId": "readProductListing",
                 "parameters": [
+                    {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Determines if the response must contain a SeoUrl entity for a product entity",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
                     {
                         "name": "categoryId",
                         "in": "path",

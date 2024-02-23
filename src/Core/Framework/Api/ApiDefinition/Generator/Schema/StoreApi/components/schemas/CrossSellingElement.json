@@ -1,0 +1,32 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CrossSellingElement": {
+                "type": "object",
+                "properties": {
+                    "crossSelling": {
+                        "$ref": "#\/components\/schemas\/ProductCrossSelling"
+                    },
+                    "products": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Product"
+                        }
+                    },
+                    "total": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                },
+                "required": [
+                    "crossSelling",
+                    "products",
+                    "total"
+                ]
+            }
+        }
+    }
+}

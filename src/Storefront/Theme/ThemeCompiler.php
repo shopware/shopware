@@ -172,15 +172,15 @@ class ThemeCompiler implements ThemeCompilerInterface
         string $themePrefix
     ): void {
         $scriptsDist = $this->getScriptDistFolders($configurationCollection);
-        $themePath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
-        $distRelativePath = 'Resources' . \DIRECTORY_SEPARATOR . 'app' . \DIRECTORY_SEPARATOR . 'storefront' . \DIRECTORY_SEPARATOR . 'dist' . \DIRECTORY_SEPARATOR . 'storefront';
+        $themePath = 'theme/' . $themePrefix;
+        $distRelativePath = 'Resources/app/storefront/dist/storefront';
 
         foreach ($scriptsDist as $folderName => $basePath) {
             // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
-            $path = str_replace(\DIRECTORY_SEPARATOR . 'Resources', '', $basePath);
-            $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . $folderName;
+            $path = str_replace('/Resources', '', $basePath);
+            $pathToJsFiles = $path . '/' . $distRelativePath . '/js/' . $folderName;
             if ($folderName === 'storefront') {
-                $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath;
+                $pathToJsFiles = $path . '/' . $distRelativePath;
             }
 
             $files = $this->getScriptDistFiles($this->themeFileImporter->getRealPath($pathToJsFiles));
@@ -188,10 +188,10 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $targetPath = $themePath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . $folderName;
+            $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
                 $fileName = $file->getFilename();
-                $completeTargetPath = $targetPath . \DIRECTORY_SEPARATOR . $fileName;
+                $completeTargetPath = $targetPath . '/' . $fileName;
                 $content = file_get_contents($file->getRealPath());
                 if ($content !== false && $file->getRealPath() !== false) {
                     $this->filesystem->write($completeTargetPath, $content);
@@ -212,10 +212,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
             $distPath = $configuration->getBasePath();
-            if (!str_contains($configuration->getBasePath(), $configuration->getTechnicalName())) {
-                $appPath = \DIRECTORY_SEPARATOR . $configuration->getTechnicalName() . \DIRECTORY_SEPARATOR . 'Resources';
-                $distPath = str_replace(\DIRECTORY_SEPARATOR . 'Resources', $appPath, $configuration->getBasePath());
+            $isShopwareBundle = str_contains($configuration->getBasePath(), 'vendor/shopware/');
+            if (!$isShopwareBundle && !str_contains($configuration->getBasePath(), $configuration->getTechnicalName())) {
+                $appPath = '/' . $configuration->getTechnicalName() . '/Resources';
+                $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
             }
+
             $scriptsDistFolders[$configuration->getAssetName()] = $distPath;
         }
 

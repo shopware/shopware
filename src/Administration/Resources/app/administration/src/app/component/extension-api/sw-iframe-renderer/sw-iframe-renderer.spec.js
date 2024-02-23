@@ -271,4 +271,16 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
         expect($routerMock.replace).not.toHaveBeenCalled();
     });
+
+    it('should add full screen class to iframe', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                fullScreen: true,
+            },
+        });
+        await flushPromises();
+
+        const iframeRenderer = wrapper.find('.sw-iframe-renderer.sw-iframe-renderer--full-screen');
+        expect(iframeRenderer.element instanceof HTMLElement).toBe(true);
+    });
 });

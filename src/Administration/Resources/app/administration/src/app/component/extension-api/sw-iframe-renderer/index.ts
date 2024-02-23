@@ -26,6 +26,11 @@ Shopware.Component.register('sw-iframe-renderer', {
             type: String,
             required: true,
         },
+        fullScreen: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data(): {
@@ -137,6 +142,13 @@ Shopware.Component.register('sw-iframe-renderer', {
             }
 
             return '100%';
+        },
+
+        classes(): { [key: string]: boolean } {
+            return {
+                'sw-iframe-renderer': true,
+                'sw-iframe-renderer--full-screen': this.fullScreen,
+            };
         },
     },
 

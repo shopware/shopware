@@ -46,10 +46,6 @@ class Migration1689257577AddMissingTransactionMailFlow extends MigrationStep
         $this->registerIndexer($connection, 'flow.indexer');
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     /**
      * @param array{mailTemplateId: string|null, flowName: string, event: string} $mailTemplate
      *

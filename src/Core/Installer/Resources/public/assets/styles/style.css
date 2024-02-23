@@ -217,6 +217,11 @@ textarea:disabled {
     box-shadow: none;
 }
 
+details > summary::marker,
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
 /* Custom select
    ========================================================================== */
 
@@ -1104,10 +1109,6 @@ table .notice-text td p {
     color: var(--color-gray-900);
 }
 
-details[open] .icon-chevron-down::before {
-    content: "\f077"
-}
-
 .requirement-info-text {
     margin: 0;
     padding: 12px 14px;
@@ -1182,6 +1183,16 @@ details[open] .icon-chevron-down::before {
 
 .database-import-count {
     margin-bottom: 8px;
+}
+
+.database-refresh {
+    color: var(--color-shopware-brand-500);
+    text-decoration: underline;
+    margin-top: 8px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding-left: 0;
 }
 
 /* Step: Cleanup

@@ -34,9 +34,4 @@ class Migration1701688920FixDownloadLinkMail extends MigrationStep
 
         $this->updateMail($update, $connection);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

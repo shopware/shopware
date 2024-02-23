@@ -51,8 +51,4 @@ class Migration1692254551FixMailTranslation extends MigrationStep
         );
         $this->updateMail($updateUnconfirmedMail, $connection);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

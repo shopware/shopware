@@ -87,6 +87,8 @@
 
         <service id="Shopware\Storefront\Framework\Twig\TemplateDataExtension">
             <argument type="service" id="request_stack"/>
+            <argument>%shopware.staging.storefront.show_banner%</argument>
+
             <tag name="twig.extension"/>
         </service>
 

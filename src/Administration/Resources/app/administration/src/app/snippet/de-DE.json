@@ -57,6 +57,9 @@
       "noMessage": "Eine Nachricht wurde nicht definiert",
       "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
+    "sw-desktop": {
+      "stagingBarText": "The Shop befindet sich im Staging mode."
+    },
     "notification-center": {
       "title": "Mitteilungen",
       "emptyText": "Nicht viel los hier.",

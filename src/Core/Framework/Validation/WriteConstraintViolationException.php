@@ -2,34 +2,26 @@
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('core')]
-class WriteConstraintViolationException extends ShopwareHttpException implements WriteFieldException, ConstraintViolationExceptionInterface
+class WriteConstraintViolationException extends DataAbstractionLayerException implements WriteFieldException, ConstraintViolationExceptionInterface
 {
     public function __construct(
         private readonly ConstraintViolationList $constraintViolationList,
         private string $path = '',
-        private readonly int $statusCode = Response::HTTP_BAD_REQUEST
+        int $statusCode = Response::HTTP_BAD_REQUEST
     ) {
         parent::__construct(
+            $statusCode,
+            'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
             'Caught {{ count }} constraint violation errors.',
             ['count' => $constraintViolationList->count()]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION';
-    }
-
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
     }
 
     public function getViolations(): ConstraintViolationList
@@ -47,6 +39,14 @@ class WriteConstraintViolationException extends ShopwareHttpException implements
         return $this->path;
     }
 
+    /**
+     * @return list<array{
+     *     message: string|\Stringable,
+     *     messageTemplate: string,
+     *     parameters: array<string, string>,
+     *     propertyPath: string
+     * }>
+     */
     public function toArray(): array
     {
         $result = [];

@@ -899,6 +899,48 @@ The JavaScript for the Storefront can be compiled as usual using the composer sc
 Re-compiling your App/Plugin is a good starting point to ensure compatibility.
 If your App/Plugin mainly adds new JS-Plugins and does not override existing JS-Plugins, chances are that this is all you need to do in order to be compatible.
 
+### JavaScript build separation of apps/plugin with webpack MultiCompiler
+
+With 6.6 we use webpack [MultiCompiler](https://webpack.js.org/api/node/#multicompiler) to build the default storefront as well as apps and plugins.
+Each app/plugin will generate its own webpack config in the background and will be built in a separate build process to enhance JS-bundle stability.
+
+You can still extend the webpack config of the default storefront with your own config like in 6.5, for example to add a new alias.
+Due to the build process separation, your modified webpack config will only take effect in your current app/plugin but will no longer effect other apps/plugins.
+
+Let's imagine two apps "App1" and "App2". "App1" is now extending the webpack config with a custom alias. 
+In the example below, your will have access to all "alias" from the default storefront, as well as the additional alias "ExampleAlias" in "App1":
+
+```js
+// App 1 webpack config
+// custom/apps/App1/Resources/app/storefront/build/webpack.config.js
+module.exports = function (params) {
+    return {
+        resolve: {
+            alias: {
+                // The alias "ExampleAlias" can only be used within App1
+                ExampleAlias: `${params.basePath}/Resources/app/storefront/src/example-dir`,
+            }
+        }
+    };
+};
+```
+
+Now the alias can be used within "App1":
+```js
+// custom/apps/App1/Resources/app/storefront/src/main.js
+import MyComponent from 'ExampleAlias/example-module'; // <-- ✅ Can be resolved
+```
+
+If the alias is used within "App2", you will get an error because the import cannot be resolved:
+```js
+// custom/apps/App2/Resources/app/storefront/src/main.js
+import MyComponent from 'ExampleAlias/example-module'; // <-- ❌ Cannot be resolved
+```
+
+If you need the alias `ExampleAlias` or another config from "App1", you need to explicitly add the alias to "App2".
+Apps/plugins should no longer be able to influence each other during the build process for stability reasons.
+Your App/plugins webpack config only inherits the core webpack config but no other webpack configs.
+
 ### Registering async JS-plugins (optional)
 
 To prevent all JS-plugins from being present on every page, we will offer the possibility to fetch the JS-plugins on-demand.

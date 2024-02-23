@@ -80,7 +80,7 @@ class SyncFkResolver
     }
 
     /**
-     * @param array<int, array<string, mixed>> $payload
+     * @param array<int, array<string|int, mixed>> $payload
      *
      * @return array<string, array<FkReference>>
      */
@@ -93,6 +93,8 @@ class SyncFkResolver
             $current = implode('/', [$pointer, (string) $key]);
 
             foreach ($row as $fieldName => &$value) {
+                $fieldName = (string) $fieldName;
+
                 if (\is_array($value) && isset($value['resolver']) && isset($value['value'])) {
                     $definition = $this->registry->getByEntityName($entity);
 

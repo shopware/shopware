@@ -19,13 +19,11 @@ class Migration1695732009AddConfigForMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'media', 'config')) {
-            return;
-        }
-        $connection->executeStatement('ALTER TABLE `media` ADD COLUMN `config` JSON NULL');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
+        $this->addColumn(
+            connection: $connection,
+            table: 'media',
+            column: 'config',
+            type: 'JSON'
+        );
     }
 }

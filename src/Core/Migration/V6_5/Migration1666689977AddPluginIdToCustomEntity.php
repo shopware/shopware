@@ -29,9 +29,4 @@ class Migration1666689977AddPluginIdToCustomEntity extends MigrationStep
                     ON UPDATE CASCADE');
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

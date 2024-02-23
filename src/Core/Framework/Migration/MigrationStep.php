@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class MigrationStep
 {
+    use AddColumnTrait;
+
     final public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
     /**
@@ -28,7 +30,9 @@ abstract class MigrationStep
     /**
      * update destructive changes
      */
-    abstract public function updateDestructive(Connection $connection): void;
+    public function updateDestructive(Connection $connection): void
+    {
+    }
 
     public function removeTrigger(Connection $connection, string $name): void
     {

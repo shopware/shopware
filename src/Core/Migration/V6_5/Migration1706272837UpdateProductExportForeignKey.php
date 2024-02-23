@@ -29,8 +29,4 @@ class Migration1706272837UpdateProductExportForeignKey extends MigrationStep
 SQL
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

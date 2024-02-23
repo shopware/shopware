@@ -24,8 +24,11 @@ class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends Migrat
             return;
         }
 
-        $connection->executeStatement(
-            'ALTER TABLE `scheduled_task` ADD COLUMN `default_run_interval` INT(11) NULL AFTER `run_interval`;'
+        $this->addColumn(
+            connection: $connection,
+            table: 'scheduled_task',
+            column: 'default_run_interval',
+            type: 'INT(11)'
         );
 
         $this->setMinRunInterval($connection);
@@ -33,10 +36,6 @@ class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends Migrat
         $connection->executeStatement(
             'ALTER TABLE `scheduled_task` MODIFY COLUMN `default_run_interval` INT(11) NOT NULL;'
         );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function setMinRunInterval(Connection $connection): void

@@ -3751,16 +3751,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:map\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ManyToManyAssociationFieldSerializer\\:\\:map\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ManyToManyAssociationFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\PriceDefinitionFieldSerializer\\:\\:buildViolation\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php
@@ -5969,11 +5959,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\Exception\\\\ConstraintViolationException\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\WriteConstraintViolationException\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/WriteConstraintViolationException.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\\\HookableEventCollector\\:\\:getBusinessEventNamesWithPrivileges\\(\\) return type has no value type specified in iterable type array\\.$#"

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class Migration1692277552FixCustomerReviewCount extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -36,10 +36,5 @@ class Migration1692277552FixCustomerReviewCount extends MigrationStep
             ', ['offset' => $offset], ['offset' => \PDO::PARAM_INT]);
             $offset += 1000;
         } while ($result > 0);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

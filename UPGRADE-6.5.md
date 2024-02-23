@@ -158,175 +158,7 @@ We deprecated all Http cache warmer, because they will be not usable with the ne
 They are also not suitable for the new cache rework or for systems which have a reverse proxy or a load balancer in front of the shopware system.
 Therefore, we marked them as deprecated and will remove them in the next major version.
 You should use instead a real website crawler to warmup your desired sites, which is much more suitable and realistic for your system.
-## Storefront async JavaScript and all.js removal
 
-With the upcoming major version v6.6.0 we want to get rid of the `all.js` in the Storefront and also allow async JavaScript with dynamic imports.
-Our current webpack compiling for JavaScript alongside the `all.js` does not consider asynchronous imports.
-
-### New distribution of App/Plugin "dist" JavaScript
-
-The merging of your App/Plugin JavaScript into an `all.js` will no longer take place. Each App/Plugin will get its own JavaScript served by a separate `<script>` tag instead.
-Essentially, all JavaScript inside your "dist" folder (`ExampleApp/src/Resources/app/storefront/dist/storefront/js`) will be distributed into the `public/theme` directory as it is.
-Each App/Plugin will get a separate subdirectory which matches the App/Plugin technical name as snake-case, for example `public/theme/<theme-hash>/js/example-app/`.
-
-This subdirectory will be added automatically during `composer build:js:storefront`. Please remove outdated generated JS files from the old location from your "dist" folder.
-Please also include all additional JS files which might have been generated due to dynamic imports in your release:
-
-Before:
-```
-└── custom/apps/
-    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
-        └── example-app.js
-```
-
-After:
-```
-└── custom/apps/
-    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
-        ├── example-app.js         <-- OLD: Please remove
-        └── example-app/           <-- NEW: Please include everything in this folder in the release
-            ├── example-app.js     
-            ├── async-example-1.js 
-            └── async-example-2.js 
-```
-
-The distributed version in `/public/theme/<theme-hash>/js/` will look like below.
-
-**Just to illustrate, you don't need to change anything manually here!**
-
-Before:
-```
-└── public/theme/
-    └── 6c7abe8363a0dfdd16929ca76c02aa35/
-        ├── css/
-        │   └── all.css
-        └── js/
-            └── all.js  
-```
-
-After:
-```
-└── public/theme/
-    └── 6c7abe8363a0dfdd16929ca76c02aa35/
-        ├── css/
-        │   └── all.css
-        └── js/
-            ├── storefront/
-            │   ├── storefront.js (main bundle of "storefront", generates <script>)
-            │   ├── cross-selling_plugin.js
-            │   └── listing_plugin.js
-            └── example-app/
-                ├── example-app (main bundle of "my-listing", generates <script>)
-                ├── async-example-1.js
-                └── async-example-2.js
-```
-
-### Re-compile your JavaScript
-
-Because of the changes in the JavaScript compiling process and dynamic imports, it is not possible to have pre-compiled JavaScript (`ExampleApp/src/Resources/app/storefront/dist/storefront/js`)
-to be cross-compatible with the current major lane v6.5.0 and v6.6.0 at the same time.
-
-Therefore, we recommend to release a new App/Plugin version which is compatible with v6.6.0 onwards.
-The JavaScript for the Storefront can be compiled as usual using the composer script `composer build:js:storefront`.
-
-**The App/Plugin entry point for JS `main.js` and the general way to compile the JS remains the same!**
-
-Re-compiling your App/Plugin is a good starting point to ensure compatibility.
-If your App/Plugin mainly adds new JS-Plugins and does not override existing JS-Plugins, chances are that this is all you need to do in order to be compatible.
-
-### Registering async JS-plugins (optional)
-
-To prevent all JS-plugins from being present on every page, we will offer the possibility to fetch the JS-plugins on-demand.
-This is done by the `PluginManager` which determines if the selector from `register()` is present in the current document. Only if this is the case the JS-plugin will be fetched.
-
-The majority of the platform Storefront JS-plugin will be changed to async.
-
-**The general API to register JS-plugin remains the same!**
-
-If you pass an arrow function with a dynamic import instead of a normal import,
-your JS-plugin will be async and also generate an additional `.js` file in your `/dist` folder.
-
-Before:
-```js
-import ExamplePlugin from './plugins/example.plugin';
-
-window.PluginManager.register('Example', ExamplePlugin, '[data-example]');
-```
-After:
-```js
-window.PluginManager.register('Example', () => import('./plugins/example.plugin'), '[data-example]');
-```
-
-The "After" example above will generate:
-```
-└── custom/apps/
-    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
-        └── example-app/           
-            ├── example-app.js                 <-- The main app JS-bundle
-            └── src_plugins_example_plugin.js  <-- Auto generated by the dynamic import
-```
-
-### Override async JS-plugins
-
-If a platform Storefront plugin is async, the override class needs to be async as well.
-
-Before:
-```js
-import MyListingExtensionPlugin from './plugin-extensions/listing/my-listing-extension.plugin';
-
-window.PluginManager.override(
-    'Listing', 
-    MyListingExtensionPlugin, 
-    '[data-listing]'
-);
-```
-After:
-```js
-window.PluginManager.override(
-    'Listing', 
-    () => import('./plugin-extensions/listing/my-listing-extension.plugin'),
-    '[data-listing]',
-);
-```
-
-### Avoid import from PluginManager
-
-Because the PluginManager is a singleton class which also assigns itself to the `window` object,
-it should be avoided to import the PluginManager. It can lead to unintended side effects.
-
-Use the existing `window.PluginManager` instead.
-
-Before:
-```js
-import PluginManager from 'src/plugin-system/plugin.manager';
-
-PluginManager.getPluginInstances('SomePluginName');
-```
-After:
-```js
-window.PluginManager.getPluginInstances('SomePluginName');
-```
-
-### Avoid import from Plugin base class
-
-The import of the `Plugin` class can lead to code-duplication of the Plugin class in every App/Plugin.
-
-Use `window.PluginBaseClass` instead.
-
-Before:
-```js
-import Plugin from 'src/plugin-system/plugin.class';
-
-export default class MyPlugin extends Plugin {
-    // Plugin code...
-};
-```
-After:
-```js
-export default class MyPlugin extends window.PluginBaseClass {
-    // Plugin code...
-};
-```
 If you are relying on the `sales_channel.analytics` association, please associate the definition directly with the criteria because we will remove autoload from version 6.6.0.0.
 
 # 6.5.7.0
@@ -670,7 +502,7 @@ shopware:
 ```
 
 # 6.5.5.0
-Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](../../adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
+Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
 
 It is disabled by default, but you can opt in to the new system by enabling the `STOCK_HANDLING` feature flag.
 
@@ -1110,47 +942,7 @@ If you are relying on the association `import_export_log.file`, please associate
 * Renamed error code from `FRAMEWORK__STORE_CANNOT_DOWNLOAD_PLUGIN_MANAGED_BY_SHOPWARE` to `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED`
 
 # 6.5.1.0
-## Changes to data-attribute selector names
 
-We want to change several data-attribute selector names to be more aligned with the JavaScript plugin name which is initialized on the data-attribute selector.
-When you use one of the selectors listed below inside HTML/Twig, JavaScript or CSS, please change the selector to the new selector.
-
-## HTML/Twig example
-
-### Before
-
-```twig
-<div 
-    data-offcanvas-menu="true" {# <<< Did not match options attr #}
-    data-off-canvas-menu-options='{ ... }'
->
-</div>
-```
-
-### After
-
-```twig
-<div 
-    data-off-canvas-menu="true" {# <<< Now matches options attr #}
-    data-off-canvas-menu-options='{ ... }'
->
-</div>
-```
-
-_The options attribute is automatically generated using the camelCase JavaScript plugin name._
-
-## Full list of selectors
-
-| old                             | new                              |
-|:--------------------------------|:---------------------------------|
-| `data-search-form`              | `data-search-widget`             |
-| `data-offcanvas-cart`           | `data-off-canvas-cart`           |
-| `data-collapse-footer`          | `data-collapse-footer-columns`   |
-| `data-offcanvas-menu`           | `data-off-canvas-menu`           |
-| `data-offcanvas-account-menu`   | `data-account-menu`              |
-| `data-offcanvas-tabs`           | `data-off-canvas-tabs`           |
-| `data-offcanvas-filter`         | `data-off-canvas-filter`         |
-| `data-offcanvas-filter-content` | `data-off-canvas-filter-content` |
 If you are relying on these associations:
  `order.stateMachineState`
  `order_transaction.stateMachineState`
@@ -1437,7 +1229,7 @@ Since v6.6.0.0, `ContextTokenResponse` class won't return the contextToken value
 ## Changed `HttpCache`, `Entity` and `NoStore` configurations for routes
 
 The Route-level configurations for `HttpCache`, `Entity` and `NoStore` where changed from custom annotations to `@Route` defaults.
-The reasons for those changes are outlined in this [ADR](../../adr/api/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
+The reasons for those changes are outlined in this [ADR](/adr/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
 Now we also change the handling for the last three annotations to be consistent and to allow the removal of the abandoned `sensio/framework-extra-bundle`.
 
 This means the `@HttpCache`, `@Entity`, `@NoStore` annotations are deprecated and have no effect anymore, the configuration no needs to be done as `defaults` in the `@Route` annotation.
@@ -2363,7 +2155,7 @@ Additionally, the default implementation for `\Shopware\Storefront\Theme\Abstrac
 Obsolete compiled theme files are now deleted with a delay, whenever a new theme compilation created new files.
 The delay time can be configured in the `shopware.yaml` file with the new `storefront.theme.file_delete_delay` option, by default it is set to 900 seconds (15 min), if the old theme files should be deleted immediately you can set the value to 0.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Selector to open an ajax modal
 The JavaScript plugin `AjaxModal` is able to open a Bootstrap modal and fetching content via ajax.

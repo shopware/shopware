@@ -1,7 +1,7 @@
 {% block component_privacy_notice %}
     <div class="form-text privacy-notice">
         {% block component_privacy_title %}
-            <strong>{{ "general.privacyTitle"|trans|sw_sanitize }}</strong><br>
+            <strong>{{ 'general.privacyTitle'|trans|sw_sanitize }}</strong><br>
         {% endblock %}
 
         {% block component_privacy_dpi %}
@@ -20,12 +20,12 @@
                     {% block component_privacy_dpi_label %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
-                            {{ "general.privacyNoticeText"|trans({
+                            {{ 'general.privacyNoticeText'|trans({
                                 '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
                             })|raw }}
 
-                            {{ "general.required"|trans|sw_sanitize }}
+                            {{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
                 </div>
@@ -33,7 +33,7 @@
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
                         <label>
-                            {{ "general.privacyNoticeText"|trans({
+                            {{ 'general.privacyNoticeText'|trans({
                                 '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
                                 '%tosUrl%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
                             })|raw }}

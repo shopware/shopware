@@ -21,9 +21,4 @@ class Migration1702982372FixProductCrossSellingSortByPrice extends MigrationStep
     {
         $connection->executeStatement('UPDATE product_cross_selling SET sort_by = "cheapestPrice" WHERE sort_by = "price"');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

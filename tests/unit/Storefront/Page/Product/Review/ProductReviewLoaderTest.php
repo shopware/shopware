@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Product\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -37,22 +38,26 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @deprecated tag:v6.7.0 - Remove the `RunClassInSeparateProcess` attribute.
+ * It is only need as long as the class `Shopware\Storefront\Page\Product\Review\ReviewLoaderResult` is loaded based on a feature flag.
+ * Removing the attribute before 6.7 will cause flaky tests, as the class will be loaded with or without deprecations depending on which test is executed first.
+ *
  * @internal
  */
 #[CoversClass(ProductReviewLoader::class)]
+#[RunClassInSeparateProcess]
 class ProductReviewLoaderTest extends TestCase
 {
     public function testExceptionWithoutProductId(): void
     {
-        $productId = Uuid::randomHex();
         $request = new Request([], [], []);
         $salesChannelContext = $this->getSalesChannelContext();
 
-        $productReviewLoader = $this->getProductReviewLoader($productId, null, $request, $salesChannelContext);
+        $productReviewLoader = $this->getProductReviewLoader(null, $request, $salesChannelContext);
 
-        static::expectException(RoutingException::class);
+        $this->expectException(RoutingException::class);
 
-        $result = $productReviewLoader->load($request, $salesChannelContext);
+        $productReviewLoader->load($request, $salesChannelContext);
     }
 
     public function testItLoadsReviewsWithProductId(): void
@@ -68,7 +73,7 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewLoader = $this->getProductReviewLoader($productId, $reviews, $request, $salesChannelContext);
+        $productReviewLoader = $this->getProductReviewLoader($reviews, $request, $salesChannelContext);
 
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
@@ -91,7 +96,7 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewLoader = $this->getProductReviewLoader($productId, $reviews, $request, $salesChannelContext);
+        $productReviewLoader = $this->getProductReviewLoader($reviews, $request, $salesChannelContext);
 
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
@@ -115,7 +120,7 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewLoader = $this->getProductReviewLoader($productId, $reviews, $request, $salesChannelContext);
+        $productReviewLoader = $this->getProductReviewLoader($reviews, $request, $salesChannelContext);
 
         $result = $productReviewLoader->load($request, $salesChannelContext);
 
@@ -124,7 +129,7 @@ class ProductReviewLoaderTest extends TestCase
         static::assertCount(1, $result);
     }
 
-    public function getReviewEntity(string $reviewId): ProductReviewEntity
+    private function getReviewEntity(string $reviewId): ProductReviewEntity
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -136,8 +141,11 @@ class ProductReviewLoaderTest extends TestCase
         return $review;
     }
 
-    private function getProductReviewLoader(string $productId, ?ProductReviewCollection $reviews, Request $request, SalesChannelContext $salesChannelContext): ProductReviewLoader
-    {
+    private function getProductReviewLoader(
+        ?ProductReviewCollection $reviews,
+        Request $request,
+        SalesChannelContext $salesChannelContext
+    ): ProductReviewLoader {
         $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
 
         $criteria = $this->createCriteria($request, $salesChannelContext);

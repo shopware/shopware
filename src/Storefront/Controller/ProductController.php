@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -54,8 +55,6 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductPageLoadedHook($page, $context));
 
-        $ratingSuccess = $request->get('success');
-
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
 
@@ -64,12 +63,15 @@ class ProductController extends StorefrontController
     {
         $switchedGroup = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
 
-        /** @var array<mixed>|null $options */
-        $options = json_decode($request->query->get('options', ''), true);
+        try {
+            $options = json_decode($request->query->get('options', '[]'), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            $options = [];
+        }
 
         $variantRequestData = [
             'switchedGroup' => $switchedGroup,
-            'options' => $options ?? [],
+            'options' => $options,
         ];
 
         $variantRequest = $request->duplicate($variantRequestData);
@@ -145,7 +147,7 @@ class ProductController extends StorefrontController
     }
 
     #[Route(path: '/product/{productId}/reviews', name: 'frontend.product.reviews', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
-    public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
+    public function loadReviews(Request $request, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);
 
@@ -167,7 +169,7 @@ class ProductController extends StorefrontController
         $showReview = $this->systemConfigService->get('core.listing.showReview', $context->getSalesChannel()->getId());
 
         if (!$showReview) {
-            throw new ReviewNotActiveExeption();
+            throw StorefrontException::reviewNotActive();
         }
     }
 }

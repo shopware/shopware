@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class Migration1679584289AddCustomerReviewCount extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,9 +19,14 @@ class Migration1679584289AddCustomerReviewCount extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'customer', 'review_count')) {
-            $connection->executeStatement('ALTER TABLE `customer` ADD COLUMN review_count INT DEFAULT 0;');
-        }
+        $this->addColumn(
+            connection: $connection,
+            table: 'customer',
+            column: 'review_count',
+            type: 'INT',
+            nullable: false,
+            default: '0'
+        );
 
         $offset = 0;
         do {
@@ -39,10 +44,5 @@ class Migration1679584289AddCustomerReviewCount extends MigrationStep
             ', ['offset' => $offset], ['offset' => \PDO::PARAM_INT]);
             $offset += 1000;
         } while ($result > 0);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

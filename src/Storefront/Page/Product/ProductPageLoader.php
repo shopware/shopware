@@ -3,18 +3,24 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
+use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -59,9 +65,7 @@ class ProductPageLoader
         $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();
 
-        if ($product->getMedia()) {
-            $product->getMedia()->sort(fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition());
-        }
+        $product->getMedia()?->sort(fn (ProductMediaEntity $a, ProductMediaEntity $b) => $a->getPosition() <=> $b->getPosition());
 
         if ($product->getMedia() && $product->getCover()) {
             $product->setMedia(new ProductMediaCollection(array_merge(
@@ -87,6 +91,8 @@ class ProductPageLoader
 
         $this->loadOptions($page);
         $this->loadMetaData($page);
+
+        $this->addDeprecatedData($page);
 
         $this->eventDispatcher->dispatch(
             new ProductPageLoadedEvent($page, $context, $request)
@@ -150,5 +156,36 @@ class ProductPageLoader
         $metaTitleParts[] = $page->getProduct()->getProductNumber();
 
         $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed as the data is not used anymore
+     */
+    private function addDeprecatedData(ProductPage $page): void
+    {
+        if (Feature::isActive('v6.7.0.0')) {
+            return;
+        }
+
+        $blocks = $page->getCmsPage()?->getSections()?->first()?->getBlocks();
+        if ($blocks === null) {
+            return;
+        }
+
+        $descriptionReviewsStruct = $blocks->filterByProperty('type', ProductDescriptionReviewsCmsElementResolver::TYPE)->first()?->getSlots()?->first()?->getData();
+        if ($descriptionReviewsStruct instanceof ProductDescriptionReviewsStruct) {
+            $productReviewResult = $descriptionReviewsStruct->getReviews();
+            if ($productReviewResult !== null) {
+                $page->setReviews(ReviewLoaderResult::createFrom($productReviewResult));
+            }
+        }
+
+        $crossSellingStruct = $blocks->filterByProperty('type', CrossSellingCmsElementResolver::TYPE)->first()?->getSlots()?->first()?->getData();
+        if ($crossSellingStruct instanceof CrossSellingStruct) {
+            $crossSelling = $crossSellingStruct->getCrossSellings();
+            if ($crossSelling !== null) {
+                $page->setCrossSellings($crossSelling);
+            }
+        }
     }
 }

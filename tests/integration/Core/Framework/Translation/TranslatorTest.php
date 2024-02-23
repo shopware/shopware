@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
@@ -309,7 +309,7 @@ class TranslatorTest extends TestCase
         $translator = $this->getContainer()->get(Translator::class);
         $themeService = $this->getContainer()->get(ThemeService::class);
         $themeRepo = $this->getContainer()->get('theme.repository');
-        $themeLoader = $this->getContainer()->get(SalesChannelThemeLoader::class);
+        $themeLoader = $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class);
 
         // Install the app
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/theme');
@@ -344,6 +344,8 @@ class TranslatorTest extends TestCase
 
         $themeService->assignTheme($themeId, $salesChannelContext->getSalesChannelId(), $salesChannelContext->getContext(), true);
 
+        $themeLoader->reset();
+
         $translator->injectSettings(
             $salesChannelContext->getSalesChannelId(),
             $salesChannelContext->getLanguageId(),
@@ -354,6 +356,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('Swag Theme serviceDateNotice EN', $translator->trans('document.serviceDateNotice'));
 
         $translator->reset();
+        $themeLoader->reset();
 
         // In reset, we ignore all theme snippets and use the default ones
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));

@@ -1,3 +1,6 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+{# Extend `src/Storefront/Resources/views/storefront/component/product/description.html.twig` instead #}
+
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_content %}
@@ -5,7 +8,7 @@
         <div class="product-detail-description tab-pane-container">
             {% block page_product_detail_description_title %}
                 <div class="h3 product-detail-description-title">
-                    {{ "detail.descriptionTitle"|trans|sw_sanitize }} "{{ page.product.translated.name }}"
+                    {{ 'detail.descriptionTitle'|trans|sw_sanitize }} "{{ page.product.translated.name }}"
                 </div>
             {% endblock %}
 

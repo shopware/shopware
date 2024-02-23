@@ -51,7 +51,6 @@ export default {
             required: false,
             default: 'value',
         },
-
         searchFunction: {
             type: Function,
             required: false,
@@ -65,7 +64,6 @@ export default {
                 });
             },
         },
-
         currencies: {
             type: Array,
             required: false,
@@ -73,7 +71,6 @@ export default {
                 return [{ isoCode: 'DEFAULT' }];
             },
         },
-
         languages: {
             type: Array,
             required: false,
@@ -81,7 +78,6 @@ export default {
                 return [{ locale: 'DEFAULT' }];
             },
         },
-
         customFieldSets: {
             type: Array,
             required: false,
@@ -150,6 +146,7 @@ export default {
                     return this.getKey(option, this.valueProperty) === this.currentValue;
                 });
             },
+
             set(newValue) {
                 if (newValue === null) {
                     newValue = '';
@@ -302,6 +299,7 @@ export default {
                 this.processAssignedProducts,
                 this.processPrice,
                 this.processLineItems,
+                this.processTransactions,
                 this.processDeliveries,
                 this.processProperties,
             ];
@@ -566,6 +564,38 @@ export default {
             return [{ label: name, value: name }];
         },
 
+        processTransactions({ definition, options, properties, path }) {
+            const transactionsProperty = definition.properties.transactions;
+
+            if (!transactionsProperty || transactionsProperty.relation !== 'one_to_many') {
+                return { definition, options, properties, path };
+            }
+
+            const transactionDefinition = Shopware.EntityDefinition.get(transactionsProperty.entity);
+            const transactionProperties = Object.keys(transactionDefinition.properties);
+
+            const newOptions = [...options, ...this.generateTransactionsProperties(path, transactionProperties)];
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'transactions';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        generateTransactionsProperties(path, properties) {
+            return properties.reduce((accumulator, propertyName) => {
+                const name = `${path}transactions.${propertyName}`;
+                accumulator.push({ value: name, label: name });
+
+                return accumulator;
+            }, []);
+        },
+
         processDeliveries({ definition, options, properties, path }) {
             const deliveryProperty = definition.properties.deliveries;
 
@@ -590,15 +620,12 @@ export default {
         },
 
         generateDeliveryProperties(path, properties) {
-            const options = [];
-
-            properties.forEach(propertyName => {
+            return properties.reduce((accumulator, propertyName) => {
                 const name = `${path}deliveries.${propertyName}`;
+                accumulator.push({ value: name, label: name });
 
-                options.push({ value: name, label: name });
-            });
-
-            return options;
+                return accumulator;
+            }, []);
         },
 
         processProperties({ definition, options, properties, path }) {
@@ -641,14 +668,12 @@ export default {
         },
 
         getVisibilityProperties(path) {
-            const options = [];
-
-            this.visibilityProperties.forEach(property => {
+            return this.visibilityProperties.reduce((accumulator, property) => {
                 const name = `${path}visibilities.${property}`;
-                options.push({ label: name, value: name });
-            });
+                accumulator.push({ label: name, value: name });
 
-            return options;
+                return accumulator;
+            }, []);
         },
 
         processMedia({ definition, options, properties, path }) {

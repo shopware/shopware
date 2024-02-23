@@ -1,0 +1,6 @@
+.sf-toolbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    pointer-events: none !important;
+}

@@ -87,51 +87,6 @@ const coreConfig = {
     experiments: {
         topLevelAwait: true,
     },
-    devServer: (() => {
-        if (isHotMode) {
-            return {
-                static: {
-                    directory: path.resolve(__dirname, 'dist'),
-                },
-                open: false,
-                devMiddleware: {
-                    publicPath: `${hostName}/`,
-                    stats: {
-                        colors: true,
-                    },
-                },
-                hot: true,
-                compress: false,
-                allowedHosts: 'all',
-                port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
-                host: '127.0.0.1',
-                client: {
-                    webSocketURL: {
-                        hostname: '0.0.0.0',
-                        protocol: 'ws',
-                        port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
-                    },
-                    logging: 'warn',
-                    overlay: {
-                        warnings: false,
-                        errors: true,
-                    },
-                },
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                },
-                watchFiles: {
-                    paths: [`${themeFiles.basePath}/**/*.twig`],
-                    options: {
-                        persistent: true,
-                        cwd: projectRootPath,
-                        ignorePermissionErrors: true,
-                    },
-                },
-            }
-        }
-        return {};
-    })(),
     devtool: (() => {
         if (isDevMode || isHotMode) {
             return 'eval-cheap-module-source-map';
@@ -149,7 +104,7 @@ const coreConfig = {
         if (isHotMode) {
             return {
                 entry: {
-                    app: [],
+                    css: [],
                     storefront: [],
                 },
             };
@@ -292,7 +247,6 @@ const coreConfig = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: './storefront/[name].js',
-        // publicPath: 'auto',
         chunkFilename: './storefront/[name].js',
     },
     performance: {
@@ -315,28 +269,6 @@ const coreConfig = {
             }
 
             return []
-        })(),
-        /**
-         * We hard-code the relocation of the core storefront.js from the configured webpack output directory
-         * to /dist/storefront/js/ to avoid breaking changes in the current theme.json which requires this location.
-         */
-        new (class SwCopyAfterBuildPlugin {
-            apply(compiler) {
-                compiler.hooks.done.tap('sw-copy-after-build', () => {
-                    const from = path.resolve(__dirname, 'dist/js/storefront.js');
-                    const to = path.resolve(__dirname, 'dist/storefront/js/storefront.js');
-
-                    if (!fs.existsSync(from)) {
-                        return;
-                    }
-
-                    // Create output directory
-                    fs.mkdirSync(path.resolve(__dirname, 'dist/storefront/js'), { recursive: true });
-
-                    // Move file to new location which is used by theme.json
-                    fs.renameSync(from, to);
-                });
-            }
         })(),
     ],
     resolve: {
@@ -415,7 +347,7 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    coreConfig.entry.app = [scssEntryFilePath];
+    coreConfig.entry.css = [scssEntryFilePath];
 
     coreConfig.entry.storefront = [...themeFiles.script].map((file) => {
         return file.filepath;
@@ -429,6 +361,7 @@ const pluginConfigs = pluginEntries.map((plugin) => {
     let customPluginConfig = {};
 
     if (plugin.webpackConfig) {
+        // eslint-disable-next-line no-console
         console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
 
         const pluginWebpackConfigFn = require(path.resolve(plugin.webpackConfig));
@@ -452,9 +385,10 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 [plugin.technicalName]: plugin.filePath,
             },
             output: {
-                path: path.resolve(plugin.path, '../dist/storefront'),
-                filename: `./js/${plugin.technicalName}/[name].js`,
-                chunkFilename: `./js/${plugin.technicalName}/[name].js`,
+                // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
+                path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
+                filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
+                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
             },
             plugins: [
                 new WebpackBar({
@@ -474,6 +408,51 @@ const pluginConfigs = pluginEntries.map((plugin) => {
 const mergedCoreConfig = merge([
     coreConfig,
     {
+        devServer: (() => {
+            if (isHotMode) {
+                return {
+                    static: {
+                        directory: path.resolve(__dirname, 'dist'),
+                    },
+                    open: false,
+                    devMiddleware: {
+                        publicPath: `${hostName}/`,
+                        stats: {
+                            colors: true,
+                        },
+                    },
+                    hot: false,
+                    compress: false,
+                    allowedHosts: 'all',
+                    port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                    host: '127.0.0.1',
+                    client: {
+                        webSocketURL: {
+                            hostname: '0.0.0.0',
+                            protocol: 'ws',
+                            port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                        },
+                        logging: 'warn',
+                        overlay: {
+                            warnings: false,
+                            errors: true,
+                        },
+                    },
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    watchFiles: {
+                        paths: [`${themeFiles.basePath}/**/*.twig`],
+                        options: {
+                            persistent: true,
+                            cwd: projectRootPath,
+                            ignorePermissionErrors: true,
+                        },
+                    },
+                }
+            }
+            return {};
+        })(),
         entry: {
             storefront: `${path.resolve('src')}/main.js`,
         },

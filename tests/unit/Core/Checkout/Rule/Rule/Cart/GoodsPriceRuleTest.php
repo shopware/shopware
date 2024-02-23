@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(GoodsPriceRule::class)]
 class GoodsPriceRuleTest extends TestCase
 {

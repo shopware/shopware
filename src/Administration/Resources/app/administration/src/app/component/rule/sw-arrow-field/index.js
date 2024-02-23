@@ -4,7 +4,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Component.register('sw-arrow-field', {
 

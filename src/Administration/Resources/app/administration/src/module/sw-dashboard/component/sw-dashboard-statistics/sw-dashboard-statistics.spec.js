@@ -5,7 +5,14 @@ const hasOrderTodayMock = [
     {},
 ];
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], repository = {}) {
+    const repositoryMock = {
+        search: () => Promise.resolve([]),
+        buildHeaders: () => {
+        },
+        ...repository,
+    };
+
     return mount(await wrapTestComponent('sw-dashboard-statistics', { sync: true }), {
         global: {
             stubs: {
@@ -34,15 +41,14 @@ async function createWrapper(privileges = []) {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve([]),
-                        buildHeaders: () => {},
-                    }),
+                    create: () => (repositoryMock),
                 },
                 stateStyleDataProviderService: {},
                 acl: {
                     can: (identifier) => {
-                        if (!identifier) { return true; }
+                        if (!identifier) {
+                            return true;
+                        }
 
                         return privileges.includes(identifier);
                     },
@@ -115,6 +121,49 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         expect(orderToday.exists()).toBeFalsy();
         expect(statisticsCount.exists()).toBeTruthy();
         expect(statisticsSum.exists()).toBeTruthy();
+    });
+
+
+    it('should show the todays stats', async () => {
+        const orderSearchResult = {
+            search: () => Promise.resolve([
+                {
+                    id: '1a2b3c',
+                    orderNumber: '12345',
+                    amountTotal: 123.45,
+                    stateMachineState: {
+                        name: 'open',
+                    },
+                },
+                {
+                    id: '1b2a3c',
+                    orderNumber: '23456',
+                    amountTotal: 19.45,
+                    stateMachineState: {
+                        name: 'closed',
+                    },
+                },
+            ]),
+        };
+
+        orderSearchResult.criteris = { page: 1 };
+        wrapper = await createWrapper(['order.viewer'], orderSearchResult);
+        await flushPromises();
+
+        const orderToday = wrapper.find('.sw-dashboard-statistics__intro-stats-today');
+
+        expect(orderToday.exists()).toBeTruthy();
+    });
+
+    it('should call fetchTodayData and add stateMachineState association', async () => {
+        const orderSearchResult = {
+            search: jest.fn().mockResolvedValue([]),
+        };
+
+        wrapper = await createWrapper(['order.viewer'], orderSearchResult);
+        await wrapper.vm.fetchTodayData();
+
+        expect(orderSearchResult.search.mock.lastCall[0].associations[1].association).toBe('stateMachineState');
     });
 
     it('should not exceed decimal places of two', async () => {

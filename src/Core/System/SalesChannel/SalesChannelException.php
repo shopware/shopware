@@ -28,6 +28,8 @@ class SalesChannelException extends HttpException
 
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
 
+    final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
+
     public static function salesChannelNotFound(string $salesChannelId): self
     {
         return new self(
@@ -117,5 +119,16 @@ class SalesChannelException extends HttpException
     public static function unknownPaymentMethod(string $paymentMethodId): ShopwareHttpException
     {
         return PaymentException::unknownPaymentMethodById($paymentMethodId);
+    }
+
+    public static function salesChannelDomainInUse(?\Throwable $previous = null): ShopwareHttpException
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_DOMAIN_IN_USE,
+            'The sales channel domain cannot be deleted because it is still referenced in product exports.',
+            [],
+            $previous
+        );
     }
 }

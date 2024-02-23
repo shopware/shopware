@@ -7,22 +7,22 @@
     {% if type == 'half' %}
         <div class="point-container">
             <div class="point-rating point-partial-placeholder">
-                {% sw_icon 'star' style { 'color': 'light', 'size': size, 'pack': 'solid' } %}
+                {% sw_icon 'star' style { color: 'light', size: size, pack: 'solid' } %}
             </div>
             <div class="point-rating point-partial" style="clip-path: inset(0 {{ (1 - left) * 100 }}% 0 0)">
-                {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
+                {% sw_icon 'star' style { color: 'review', size: size, pack: 'solid' } %}
             </div>
         </div>
     {% elseif type == 'blank' %}
         <div class="point-container">
             <div class="point-rating point-blank">
-                {% sw_icon 'star' style { 'size': size, 'pack': 'solid' } %}
+                {% sw_icon 'star' style { size: size, pack: 'solid' } %}
             </div>
         </div>
     {% else %}
         <div class="point-container">
             <div class="point-rating point-full">
-                {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
+                {% sw_icon 'star' style { color: 'review', size: size, pack: 'solid' } %}
             </div>
         </div>
     {% endif %}

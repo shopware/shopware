@@ -62,7 +62,7 @@ class PromotionLineItemRuleTest extends TestCase
                 'isMatchAny' => true,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [

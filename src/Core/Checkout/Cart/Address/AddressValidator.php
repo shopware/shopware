@@ -101,11 +101,10 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return $this->available[$countryId];
         }
 
-        $criteria = new Criteria([$countryId]);
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('countryId', $countryId));
 
-        $salesChannelCountryIds = $this->repository->searchIds($criteria, $context->getContext());
-
-        return $this->available[$countryId] = $salesChannelCountryIds->has($countryId);
+        return $this->available[$countryId] = $this->repository->searchIds($criteria, $context->getContext())->getTotal() !== 0;
     }
 }

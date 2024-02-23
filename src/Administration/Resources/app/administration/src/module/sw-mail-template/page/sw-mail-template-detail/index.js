@@ -163,6 +163,14 @@ export default {
         hasTemplateData() {
             return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
         },
+
+        lacksEmailSendPermission() {
+            return !this.acl.can('api_send_email');
+        },
+
+        isSendButtonDisabled() {
+            return this.isLoading || !this.testMailRequirementsMet || this.lacksEmailSendPermission;
+        },
     },
 
     watch: {

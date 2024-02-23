@@ -461,14 +461,14 @@
         },
         "element": {
           "label": {
-            "action": "Action",
+            "action": "Action*",
             "email": "Email address*",
             "firstName": "First name*",
             "lastName": "Last name*",
             "message": "Your message*",
             "newsletterSubmit": "Continue",
-            "phone": "Phone number",
-            "privacy": "Privacy",
+            "phone": "Phone number*",
+            "privacy": "Privacy*",
             "salutation": "Salutation*",
             "salutationUndisclosed": "Prefer not to disclose",
             "send": "Send",
@@ -486,6 +486,13 @@
           "helpText": {
             "privacy": "I have read the data protection information.",
             "requiredFields": "Fields marked with * are required"
+          },
+          "newsletter": {
+            "label": {
+              "firstName": "First name",
+              "lastName": "Last name",
+              "salutation": "Salutation"
+            }
           }
         },
         "preview": {

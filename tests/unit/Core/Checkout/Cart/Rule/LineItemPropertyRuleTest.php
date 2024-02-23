@@ -17,7 +17,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemPropertyRule::class)]
 class LineItemPropertyRuleTest extends TestCase
 {

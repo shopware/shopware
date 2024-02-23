@@ -14,7 +14,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class Migration1688106315AddMissingTransactionMailTemplates extends MigrationStep
 {
     use UpdateMailTrait;
@@ -121,10 +121,6 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
             $this->insertMailTemplateData($templateTypeId, $mail, $connection);
             $this->updateMailTemplateContent($typeName, $mail, $connection);
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function fetchLanguageIdByName(string $name, Connection $connection): ?string

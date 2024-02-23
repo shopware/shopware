@@ -1,5 +1,5 @@
 <div class="js-pseudo-modal-template">
-    <div class="modal fade"
+    <div class="modal modal-lg fade"
          tabindex="-1"
          role="dialog">
         <div class="modal-dialog"
@@ -20,5 +20,15 @@
                 </div>
             </div>
         </div>
+        <template class="js-pseudo-modal-back-btn-template">
+            {# Back button will be rendered by `AjaxModalPlugin` if a `data-prev-url` is given in order to toggle between modals. #}
+            {# Attributes `data-url` and `href` will be set automatically by `AjaxModalPlugin`. #}
+            {% block component_pseudo_modal_back_btn %}
+                <button class="js-pseudo-modal-back-btn btn btn-outline-primary" data-ajax-modal="true" data-url="#" href="#">
+                    {% sw_icon 'arrow-left' style { size: 'sm', class: 'me-1' } %}
+                    {{ 'general.back'|trans }}
+                </button>
+            {% endblock %}
+        </template>
     </div>
 </div>

@@ -83,10 +83,6 @@ class Migration1698682149MakeTranslatableFieldsNullable extends MigrationStep
         }
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function getFieldType(Connection $connection, string $table, string $column): string
     {
         /** @var array{Type: string} $row */

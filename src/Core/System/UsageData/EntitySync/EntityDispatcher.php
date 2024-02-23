@@ -47,6 +47,10 @@ class EntityDispatcher
             return;
         }
 
+        if (empty($entities)) {
+            return;
+        }
+
         $payload = json_encode([
             'batch_id' => Uuid::randomHex(),
             'dispatch_date' => $this->clock->now()->format(\DateTimeInterface::ATOM),

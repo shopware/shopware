@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @public
- * @package business-ops
+ * @package services-settings
  * @description Customer custom item for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only

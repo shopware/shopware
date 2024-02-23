@@ -1,8 +1,9 @@
 {% block cms_form_contact %}
     <form action="{{ path(action) }}"
           method="post"
-          data-form-validation="true">
-
+          data-form-validation="true"
+          data-form-preserver="true"
+          id="cms-form-contact">
         <div class="form-content">
         <div class="row g-2">
             {% block cms_form_contact_select_salutation %}
@@ -110,9 +111,10 @@
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig'
-                with { 'requiresTermsOfService': false }
-            %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' with {
+                requiresTermsOfService: false,
+                prevUrl: app.request.isXmlHttpRequest() ? path('frontend.cms.page', { id: config('core.basicInformation.contactPage') }) : '',
+            } %}
         {% endblock %}
 
         {% block cms_form_contact_submit %}

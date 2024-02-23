@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\CustomFieldRule;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CustomFieldRule::class)]
 #[Group('rules')]
 class CustomFieldRuleTest extends TestCase

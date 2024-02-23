@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "esModuleInterop": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures/*": ["fixtures/*"],
+      "@page-objects/*": ["page-objects/*"],
+      "@tasks/*": ["tasks/*"],
+      "@data/*": ["test-data/*"],
+    }
+  }
+}

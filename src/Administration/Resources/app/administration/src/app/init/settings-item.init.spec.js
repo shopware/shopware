@@ -65,6 +65,7 @@ describe('src/app/init/settings-item.init.ts', () => {
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: expect.any(String),
+                    back: 'sw.settings.index.system',
                 },
             },
         });
@@ -101,6 +102,7 @@ describe('src/app/init/settings-item.init.ts', () => {
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: expect.any(String),
+                    back: 'sw.settings.index.plugins',
                 },
             },
         });
@@ -138,6 +140,7 @@ describe('src/app/init/settings-item.init.ts', () => {
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: expect.any(String),
+                    back: 'sw.settings.index.plugins',
                 },
             },
         });

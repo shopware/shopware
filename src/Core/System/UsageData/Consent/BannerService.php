@@ -57,10 +57,12 @@ class BannerService
 
     public function resetIsBannerHiddenForAllUsers(): void
     {
+        $context = Context::createDefaultContext();
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
 
-        $userConfigs = $this->userConfigRepository->search($criteria, Context::createDefaultContext());
+        $userConfigs = $this->userConfigRepository->search($criteria, $context);
         if ($userConfigs->getTotal() === 0) {
             return;
         }
@@ -77,6 +79,6 @@ class BannerService
             ];
         }
 
-        $this->userConfigRepository->upsert($updates, Context::createDefaultContext());
+        $this->userConfigRepository->upsert($updates, $context);
     }
 }

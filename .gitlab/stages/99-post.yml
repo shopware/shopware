@@ -1,23 +1,45 @@
+# this job creates an environment just so we can define a job that runs after the MR is merged
+# the actual backport script is run in the __backport__ job
+# we can always run this, because only the job in the pipeline of the latest "deployment" is executed
+# that job will do nothing, if the MR status is not "merged"
 backport:
-  extends: .base-with-node
-  # run after all other stages have succeeded
+  extends: .base
   stage: .post
   variables:
     GIT_STRATEGY: none
-  before_script: []
   rules:
-    # automatic creation in merge train
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-.*/ && $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-    # in rare cases it's possible that there are multiple successful runs of the merge train without a merge.
-    # In that case the branch already exists, so we don't want to fail the train
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-*/'
       allow_failure: true
-    # manual in MR pipelines
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-*/ && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
-      when: manual
+  environment:
+    name: backport/$CI_COMMIT_REF_SLUG
+    on_stop: __backport__
+  before_script: []
+  script:
+    - echo 'fake env for backport'
+  after_script: []
+
+__backport__:
+  extends: .base-with-node
+  stage: .post
+  rules:
+    - when: manual
       allow_failure: true
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: backport/$CI_COMMIT_REF_SLUG
+    action: stop
+  before_script: []
   script:
     - 'BACKPORT_BRANCH=$(echo $CI_MERGE_REQUEST_LABELS | tr , \\n | grep backport- | sed -e "s/backport-//g" | tr \\n , | sed "s/,\$//")'
+    - |
+      MR_STATE=$(curl --header "Private-Token: $CI_GITLAB_API_TOKEN" $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID | jq .state -r)
+      if [[ $MR_STATE != "merged" ]]; then
+        echo "MR status not merged. Status=$MR_STATE"
+        exit 1
+      fi
     - 'echo "Backport branches: $BACKPORT_BRANCH"'
     - npm install -g @kie/git-backporting
     - 'MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"'
     - git-backporting -tb ${BACKPORT_BRANCH} -pr $MR_URL -a "${CI_GITLAB_API_TOKEN}" --labels backport --comments "Backport of $MR_URL"
+  after_script: []

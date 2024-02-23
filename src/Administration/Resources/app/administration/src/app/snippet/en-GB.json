@@ -490,19 +490,19 @@
       "labelGenerateThumbnails": "Generate thumbnails for this folder",
       "labelThumbnailQuality": "Thumbnail quality",
       "labelThumbnailSize": "Thumbnail size",
-      "labelEditList": "Edit list",
-      "labelStopEdit": "Stop editing",
       "labelKeepProportions": "Keep aspect ratio",
       "notification": {
         "success": {
           "message": "Settings have been saved."
         },
         "error": {
-          "message": "Error while saving settings."
+          "message": "Error while saving settings.",
+          "messageThumbnailSizeExisted": "The thumbnail size already exists."
         }
       },
       "labelDefaultFolder": "Default media location for",
-      "placeholderDefaultFolder": "Select entity..."
+      "placeholderDefaultFolder": "Select entity...",
+      "tooltipCanNotDeleteThumbnailSize": "This thumbnail size cannot be deleted because it is currently in use."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximum size"
@@ -707,6 +707,7 @@
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
         "orderDocumentTypeRule": "Order with document",
+        "orderDocumentTypeSentRule": "Order with sent document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -799,6 +800,21 @@
       }
     },
     "sw-condition-generic": {
+      "customerDaysSinceLastLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceFirstLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceLastOrder": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
@@ -849,7 +865,7 @@
         }
       },
       "promotionCodeOfType": {
-        "promotionCodeOfType": {
+        "promotionCodeType": {
           "options": {
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
@@ -1571,15 +1587,6 @@
   },
   "sw-ai-copilot-warning": {
     "text": "AI responses can be inaccurate or misleading."
-  },
-  "sw-usage-data": {
-    "sw-settings-usage-data-intro": {
-      "title": "Usage data",
-      "headline": "Improving Shopware collectively",
-      "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
-      "learnMore": "Learn more",
-      "learnMoreUrl": "https://shopware.com/en/privacy/"
-    }
   },
   "help-center": {
     "sidebar": {

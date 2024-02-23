@@ -27,12 +27,4 @@ class Migration1695778183UpdateStreetOfTableCustomerAddressToNotNull extends Mig
 
         $connection->executeStatement('ALTER TABLE `customer_address` MODIFY COLUMN `street` varchar(255) NOT NULL');
     }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

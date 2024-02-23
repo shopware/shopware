@@ -14,7 +14,7 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -960,7 +960,7 @@ json
             $this->getContainer()->get('snippet_set.repository'),
             $this->getContainer()->get(SnippetFilterFactory::class),
             $this->getContainer(),
-            $this->getContainer()->has(SalesChannelThemeLoader::class) ? $this->getContainer()->get(SalesChannelThemeLoader::class) : null
+            $this->getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class) : null
         );
     }
 

@@ -64,11 +64,6 @@ class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale extends Migrat
         }
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         $langId = $connection->fetchOne(

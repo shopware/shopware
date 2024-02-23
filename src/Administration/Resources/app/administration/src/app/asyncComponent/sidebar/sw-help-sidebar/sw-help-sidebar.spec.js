@@ -1,11 +1,31 @@
 /**
  * @package buyers-experience
  */
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 async function createWrapper() {
+    delete config.global.mocks.$router;
+    delete config.global.mocks.$route;
+
+    const router = createRouter({
+        history: createWebHashHistory(),
+        routes: [
+            {
+                path: '/sw/dashboard/index',
+                name: 'sw.dashboard.index',
+            },
+            {
+                path: '/sw/settings/index',
+                name: 'sw.settings.index',
+            },
+        ],
+    });
+    router.push({ name: 'sw.dashboard.index' });
+
     return mount(await wrapTestComponent('sw-help-sidebar', { sync: true }), {
         global: {
+            plugins: [router],
             stubs: {
                 'sw-extension-component-section': true,
             },
@@ -65,7 +85,7 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
     });
 
-    it('should closes the sidebar if the user presses the escape key', async () => {
+    it('should close the sidebar if the user presses the escape key', async () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
 
         const helpSidebarContainer = wrapper.find('.sw-help-sidebar__container');
@@ -76,6 +96,14 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
 
         await helpSidebarContainer.trigger('focus');
         await helpSidebarContainer.trigger('keyup.Escape');
+
+        expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
+    });
+
+    it('should close the sidebar if route changes', async () => {
+        expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
+
+        await wrapper.vm.$router.push({ name: 'sw.settings.index' });
 
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
     });

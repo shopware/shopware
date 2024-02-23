@@ -10,7 +10,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class Migration1690874168FixPaymentStatusUnconfirmedMail extends MigrationStep
 {
     use UpdateMailTrait;
@@ -38,10 +38,6 @@ class Migration1690874168FixPaymentStatusUnconfirmedMail extends MigrationStep
 
         $this->updateMailTemplateTranslation($connection, $templateId, $languageId);
         $this->updateMailTemplateTypeTranslation($connection, $templateTypeId, $languageId);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function updateMailTemplateTranslation(Connection $connection, string $templateId, string $languageId): void

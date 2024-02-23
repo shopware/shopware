@@ -109,7 +109,28 @@ parameters:
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
         - '#Class Shopware\\Tests\\Integration\\Elasticsearch\\Product\\EsAwareCriteria extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\Criteria\.#'
 
-        - # dynamic hydrator performance
+        # Route scopes for controllers
+        -
+           message: '#.* has no route scope defined.*#'
+           paths:
+            - **/*Test.php
+            - src/WebInstaller
+            - src/Core/Installer
+            - src/Core/Checkout/Payment/Controller/PaymentController.php
+
+        # Namespace rules
+
+        -
+           message: '#Namespace must start with Shopware#'
+           paths:
+            - tests/
+
+        -
+           message: '#No global Command directories allowed, put your commands in the right domain directory#'
+           path: src/Administration/
+
+        # dynamic hydrator performance
+        -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
             path: src/*/*Hydrator.php
         -
@@ -265,6 +286,18 @@ parameters:
             count: 2
             path: src/Core/Framework/Validation/HappyPathValidator.php
 
+        # NEXT-33380 - Add support for dbal/doctrine 3.8.0, add profiling to get sql query parts from query builder without using deprecated methods getQueryPart or getQueryParts https://github.com/doctrine/dbal/pull/6179
+        - """
+            #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
+            The query parts are implementation details and should not be relied upon\\.$#
+        """
+
+        # NEXT-33380 - Add support for dbal/doctrine 3.8.0
+        - """
+            #^Call to deprecated method resetQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
+            Use the dedicated reset\\*\\(\\) methods instead\\.$#
+        """
+
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
@@ -298,3 +331,4 @@ rules:
     - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule

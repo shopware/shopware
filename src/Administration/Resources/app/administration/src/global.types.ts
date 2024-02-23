@@ -30,7 +30,9 @@ import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { App } from 'vue';
 import type { I18n } from 'vue-i18n';
 import type { Slots } from '@vue/runtime-core';
-import type { Store } from 'vuex';
+import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import type * as mapErrors from 'src/app/service/map-errors.service';
+import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -86,6 +88,7 @@ import type PrivilegesService from './app/service/privileges.service';
 import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
+import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 
 // trick to make it an "external module" to support global type extension
 
@@ -138,15 +141,34 @@ declare global {
     type $TSDangerUnknownObject = {[key: string|symbol]: unknown};
 
     /**
+     * Mark some properties as required
+     */
+    type Require<T, K extends keyof T> = T&{[P in K]-?: T[P]};
+
+    /**
+     * Mark some properties as optional
+     */
+    type Optional<T, K extends keyof T> = T&{[P in K]?: T[P]};
+
+    /**
+     * Mark some properties as optional
+     */
+    type Remove<T, K extends keyof T> = T&{[P in K]?: never};
+
+    /**
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
+
+    interface CustomShopwareProperties {}
+
     interface Window {
         Shopware: ShopwareClass;
         _features_: {
             [featureName: string]: boolean
         };
         processingInactivityLogout?: boolean;
+        _sw_extension_component_collection: DevtoolComponent[];
     }
 
     const _features_: {
@@ -165,7 +187,7 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService,
         cmsPageTypeService: CmsPageTypeService,
         acl: AclService,
-        jsonApiParserService: $TSFixMe,
+        jsonApiParserService: typeof JsonApiParserService,
         validationService: $TSFixMe,
         entityValidationService: EntityValidationService,
         timezoneService: $TSFixMe,
@@ -272,6 +294,17 @@ declare global {
         truncate: $TSFixMeFunction,
         'unicode-uri': $TSFixMeFunction,
         [key: string]: ((...args: any[]) => any)|undefined,
+    }
+
+    interface ComponentHelper {
+        mapState: typeof mapState,
+        mapMutations: typeof mapMutations,
+        mapGetters: typeof mapGetters,
+        mapActions: typeof mapActions,
+        mapPropertyErrors: typeof mapErrors.mapPropertyErrors,
+        mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors,
+        mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors,
+        mapPageErrors: typeof mapErrors.mapPageErrors,
     }
 
     /**

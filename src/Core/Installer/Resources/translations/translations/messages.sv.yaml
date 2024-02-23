@@ -71,6 +71,11 @@ shopware.installer:
     database-configuration-create_new_database: 'Skapa ny databas'
     database-configuration_non_empty_database: 'Den valda databasen innehåller redan data. Välj en tom databas eller skapa en ny.'
     database-configuration_error_required_fields: 'Vänligen fyll i alla fält.'
+    database-configuration_fetch_error: 'Ett fel uppstod när databasinformationen hämtades'
+    database-configuration_access_denied: 'Åtkomst nekad, autentiseringsuppgifterna är felaktiga'
+    database-configuration_host_not_found: 'Kunde inte ansluta till databasservern'
+    database-configuration_invalid_requirements: 'Shopware 6 kräver minst MySQL 8.0.17 eller MariaDB 10.11'
+    database-configuration_refresh_databases: 'Uppdatera databaser'
     database-import_header: Installation
     database-import_skip_import: 'Hoppa över'
     database-import_progress: 'Gå vidare: '

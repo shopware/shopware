@@ -40,7 +40,7 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "@shopware-ag/meteor-admin-sdk": "^3.0.17",
+    "@shopware-ag/meteor-admin-sdk": "^4.0.3",
     "@shopware-ag/meteor-icon-kit": "5.2.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",
@@ -74,7 +74,7 @@
     "fork-ts-checker-webpack-plugin": "9.0.0",
     "fs-extra": "11.1.1",
     "html-loader": "0.5.5",
-    "html-webpack-plugin": "5.5.3",
+    "html-webpack-plugin": "5.6.0",
     "html2canvas": "1.4.1",
     "inter-ui": "3.19.3",
     "less": "4.2.0",
@@ -206,7 +206,7 @@
   },
   "engines": {
     "node": "^20.0.0",
-    "npm": "^10.0.0"
+    "npm": ">=10.0.0"
   },
   "overrides": {
     "vue": "3.3.4",

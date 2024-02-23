@@ -12,6 +12,8 @@ use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,24 +38,15 @@ class VarnishReverseProxyGatewayTest extends TestCase
 
     public function testDecorated(): void
     {
-        $gateway = new VarnishReverseProxyGateway([], 0, $this->client);
+        $gateway = new VarnishReverseProxyGateway([], 0, $this->client, new NullLogger());
 
         static::expectException(DecorationPatternException::class);
         $gateway->getDecorated();
     }
 
-    public function testTagggingMissingResponse(): void
-    {
-        $gateway = new VarnishReverseProxyGateway([], 0, $this->client);
-        static::expectException(\ArgumentCountError::class);
-        static::expectExceptionMessage('Too few arguments to function Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway::tag()');
-        /** @phpstan-ignore-next-line  */
-        $gateway->tag([], 'https://example.com');
-    }
-
     public function testTagggingMissingResponseWithResponse(): void
     {
-        $gateway = new VarnishReverseProxyGateway([], 0, $this->client);
+        $gateway = new VarnishReverseProxyGateway([], 0, $this->client, new NullLogger());
 
         $response = new Response();
 
@@ -64,11 +57,12 @@ class VarnishReverseProxyGatewayTest extends TestCase
 
     public function testInvalidate(): void
     {
-        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client);
+        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client, new NullLogger());
 
         $this->mockHandler->append(new GuzzleResponse(200, [], ''));
 
         $gateway->invalidate(['tag-1', 'tag-2']);
+        $gateway->flush();
 
         $request = $this->mockHandler->getLastRequest();
         static::assertNotNull($request);
@@ -81,19 +75,24 @@ class VarnishReverseProxyGatewayTest extends TestCase
     #[DataProvider('providerExceptions')]
     public function testInvalidateFails(\Throwable $e, string $message): void
     {
-        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client, $logger);
 
         $this->mockHandler->append($e);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage($message);
+        $logger
+            ->expects(static::once())
+            ->method('critical')
+            ->with('Error while flushing varnish cache', ['error' => $message, 'tags' => ['tag-1', 'tag-2']]);
 
         $gateway->invalidate(['tag-1', 'tag-2']);
+        $gateway->flush();
     }
 
     public function testBan(): void
     {
-        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client);
+        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client, new NullLogger());
 
         $this->mockHandler->append(new GuzzleResponse(200, [], ''));
 
@@ -110,12 +109,16 @@ class VarnishReverseProxyGatewayTest extends TestCase
     #[DataProvider('providerExceptions')]
     public function testBanFails(\Throwable $e, string $message): void
     {
-        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client, $logger);
 
         $this->mockHandler->append($e);
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage($message);
+        $logger
+            ->expects(static::once())
+            ->method('critical')
+            ->with('Error while flushing varnish cache', ['error' => $message, 'urls' => ['/']]);
 
         $gateway->ban(['/']);
     }

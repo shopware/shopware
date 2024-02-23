@@ -17,7 +17,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CartAmountRule::class)]
 class CartAmountRuleTest extends TestCase
 {
@@ -191,6 +191,6 @@ class CartAmountRuleTest extends TestCase
         $data = (new CartAmountRule())->getConfig()->getData();
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $data['operatorSet']['operators']);
-        static::assertSame('amount', $data['fields'][0]['name']);
+        static::assertSame('amount', $data['fields']['amount']['name']);
     }
 }

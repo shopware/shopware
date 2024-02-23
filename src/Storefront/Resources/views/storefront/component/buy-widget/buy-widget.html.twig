@@ -100,10 +100,10 @@
 
                     {% block buy_widget_tax %}
                         <div class="product-detail-tax-container">
-                            {% if context.taxState == "gross" %}
-                                {% set taxText = "general.grossTaxInformation"|trans|sw_sanitize %}
+                            {% if context.taxState == 'gross' %}
+                                {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
                             {% else %}
-                                {% set taxText = "general.netTaxInformation"|trans|sw_sanitize %}
+                                {% set taxText = 'general.netTaxInformation'|trans|sw_sanitize %}
                             {% endif %}
 
                             <p class="product-detail-tax">
@@ -125,13 +125,13 @@
 
                             {% if remoteClickOptions is not defined %}
                                 {% set remoteClickOptions = {
-                                    selector: "#review-tab-" ~ product.id,
+                                    selector: '#review-tab-' ~ product.id,
                                     scrollToElement: true
                                 } %}
                             {% endif %}
 
                             {% if reviewTabHref is not defined %}
-                                {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
+                                {% set reviewTabHref = '#review-tab-' ~ product.id ~ '-pane' %}
                             {% endif %}
 
                             <div class="product-detail-reviews">
@@ -150,7 +150,7 @@
                                     aria-controls="review-tab-pane"
                                 >
                                     {{ totalReviews }}
-                                    {{ "detail.reviewLinkText"|trans({'%count%': totalReviews})|sw_sanitize }}
+                                    {{ 'detail.reviewLinkText'|trans({'%count%': totalReviews})|sw_sanitize }}
                                 </a>
                             </div>
                         {% endif %}
@@ -196,7 +196,7 @@
                 <div class="product-detail-ordernumber-container">
                     {% block buy_widget_ordernumber_label %}
                         <span class="product-detail-ordernumber-label">
-                            {{ "detail.productNumberLabel"|trans|sw_sanitize }}
+                            {{ 'detail.productNumberLabel'|trans|sw_sanitize }}
                         </span>
                     {% endblock %}
 

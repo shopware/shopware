@@ -13,27 +13,10 @@ $sw-media-modal-folder-settings-delete-color: $color-crimson-500;
         }
     }
 
-    &.sw-media-modal-folder-settings--shows-overflow .sw-modal__body {
-        overflow-y: unset;
-    }
-
     .sw-media-modal-folder-settings__thumbnails-list-caption {
         display: flex;
         justify-content: space-between;
-
-        .sw-media-modal-folder-settings__switch-mode {
-            padding: 0;
-            margin-right: 0;
-            line-height: 0;
-            border: 0 none;
-            color: $sw-media-modal-folder-settings-color-switch-mode;
-            background: none;
-            font-weight: normal;
-
-            &.sw-button--disabled {
-                color: $sw-media-modal-folder-settings-color-disabled-switch-mode;
-            }
-        }
+        margin-bottom: 8px;
     }
 
     .sw-media-modal-folder-settings__thumbnails-list-container {
@@ -69,6 +52,11 @@ $sw-media-modal-folder-settings-delete-color: $color-crimson-500;
             color: $sw-media-modal-folder-settings-delete-color;
             cursor: pointer;
             outline: none;
+        }
+
+        .sw-media-modal-folder-settings__delete-thumbnail[disabled] {
+            color: $color-gray-300;
+            cursor: not-allowed;
         }
     }
 }

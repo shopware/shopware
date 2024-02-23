@@ -31,12 +31,10 @@ export default class CmsGdprVideoElement extends Plugin {
      * @returns {void|boolean}
      */
     init() {
-        document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this._replaceElementWithVideo.bind(this));
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this.checkConsentAndReplaceVideo.bind(this));
         document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
 
-        if (CookieStorageHelper.getItem(this.options.cookieName)) {
-            this._replaceElementWithVideo();
-        }
+        this.checkConsentAndReplaceVideo();
 
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
@@ -132,5 +130,14 @@ export default class CmsGdprVideoElement extends Plugin {
         parentNode.removeChild(this.el);
 
         return true;
+    }
+
+    /**
+     * Checks for user consent for the video cookie and replaces the video element if consent is given.
+     */
+    checkConsentAndReplaceVideo() {
+        if (CookieStorageHelper.getItem(this.options.cookieName)) {
+            this._replaceElementWithVideo();
+        }
     }
 }

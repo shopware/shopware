@@ -19,7 +19,7 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CustomerCustomFieldRule::class)]
 #[Group('rules')]
 class CustomerCustomFieldRuleTest extends TestCase

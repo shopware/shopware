@@ -23,4 +23,9 @@ class ErrorPage extends Page
     {
         $this->cmsPage = $cmsPage;
     }
+
+    public function isErrorPage(): bool
+    {
+        return true;
+    }
 }

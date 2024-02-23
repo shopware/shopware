@@ -28,6 +28,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-type ImageSize array{width: int, height: int}
+ */
 #[Package('buyers-experience')]
 class ThumbnailService
 {
@@ -41,6 +44,7 @@ class ThumbnailService
         private readonly EntityRepository $mediaFolderRepository,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly EntityIndexer $indexer,
+        private readonly ThumbnailSizeCalculator $thumbnailSizeCalculator,
         private readonly Connection $connection
     ) {
     }
@@ -325,7 +329,7 @@ class ThumbnailService
     }
 
     /**
-     * @return array{width: int, height: int}
+     * @return ImageSize
      */
     private function getOriginalImageSize(\GdImage $image): array
     {
@@ -336,9 +340,9 @@ class ThumbnailService
     }
 
     /**
-     * @param array{width: int, height: int} $imageSize
+     * @param ImageSize $imageSize
      *
-     * @return array{width: int, height: int}
+     * @return ImageSize
      */
     private function calculateThumbnailSize(
         array $imageSize,
@@ -346,56 +350,19 @@ class ThumbnailService
         MediaFolderConfigurationEntity $config
     ): array {
         if (!$config->getKeepAspectRatio()) {
-            $calculatedWidth = $preferredThumbnailSize->getWidth();
-            $calculatedHeight = $preferredThumbnailSize->getHeight();
-
-            $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
-
-            return $useOriginalSizeInThumbnails ? [
-                'width' => $imageSize['width'],
-                'height' => $imageSize['height'],
-            ] : [
-                'width' => $calculatedWidth,
-                'height' => $calculatedHeight,
-            ];
+            return $this->thumbnailSizeCalculator->determineValidSize(
+                $imageSize,
+                $preferredThumbnailSize->getWidth(),
+                $preferredThumbnailSize->getHeight()
+            );
         }
 
-        if ($imageSize['width'] >= $imageSize['height']) {
-            $factor = $preferredThumbnailSize->getWidth() / $imageSize['width'];
-
-            $calculatedWidth = $preferredThumbnailSize->getWidth();
-            $calculatedHeight = (int) ceil($imageSize['height'] * $factor);
-
-            $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
-
-            return $useOriginalSizeInThumbnails ? [
-                'width' => $imageSize['width'],
-                'height' => $imageSize['height'],
-            ] : [
-                'width' => $calculatedWidth,
-                'height' => $calculatedHeight,
-            ];
-        }
-
-        $factor = $preferredThumbnailSize->getHeight() / $imageSize['height'];
-
-        $calculatedWidth = (int) ceil($imageSize['width'] * $factor);
-        $calculatedHeight = $preferredThumbnailSize->getHeight();
-
-        $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
-
-        return $useOriginalSizeInThumbnails ? [
-            'width' => $imageSize['width'],
-            'height' => $imageSize['height'],
-        ] : [
-            'width' => $calculatedWidth,
-            'height' => $calculatedHeight,
-        ];
+        return $this->thumbnailSizeCalculator->calculate($imageSize, $preferredThumbnailSize);
     }
 
     /**
-     * @param array{width: int, height: int} $originalImageSize
-     * @param array{width: int, height: int} $thumbnailSize
+     * @param ImageSize $originalImageSize
+     * @param ImageSize $thumbnailSize
      */
     private function createNewImage(\GdImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): \GdImage
     {

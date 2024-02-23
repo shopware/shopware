@@ -268,6 +268,7 @@ PHP Full:
                   - "php8.3"
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+            -   MYSQL_IMAGE: mysql:8.0.17
             -   MYSQL_IMAGE: mariadb:10.11
             -   MYSQL_IMAGE: mariadb:10.11
                 PREFER_LOWEST: 'prefer lowest'
@@ -310,6 +311,7 @@ PHP Full:
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php
                 sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
+                rm -rf src/Administration/Controller
                 rm -rf tests/integration/Administration
                 rm -rf tests/integration/Elasticsearch
                 rm -rf tests/integration/Storefront
@@ -397,7 +399,7 @@ Jest Coverage per Area (Administration):
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
+      - PRODUCT_AREA: [ "admin", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
   artifacts:
     when: always
     paths:

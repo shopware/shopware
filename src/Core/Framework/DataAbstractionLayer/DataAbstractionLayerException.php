@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +42,7 @@ class DataAbstractionLayerException extends HttpException
     public const FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
     public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
+    public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -269,6 +275,54 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     *
+     * @param class-string $definitionClass
+     */
+    public static function fkFieldByStorageNameNotFound(string $definitionClass, string $storageName): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \RuntimeException(
+                sprintf(
+                    'Could not find FK field "%s" from definition "%s"',
+                    $storageName,
+                    $definitionClass,
+                )
+            );
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Can not detect FK field with storage name %s in definition %s', $storageName, $definitionClass)
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     *
+     * @param class-string $definitionClass
+     */
+    public static function languageFieldByStorageNameNotFound(string $definitionClass, string $storageName): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \RuntimeException(
+                sprintf(
+                    'Could not find language field "%s" in definition "%s"',
+                    $storageName,
+                    $definitionClass
+                )
+            );
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Can not detect language field with storage name %s in definition %s', $storageName, $definitionClass)
+        );
+    }
+
     public static function invalidWriteInput(string $message): self
     {
         return new self(
@@ -276,5 +330,55 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_WRITE_INPUT,
             $message,
         );
+    }
+
+    public static function expectedArray(string $path): self
+    {
+        return new ExpectedArrayException($path);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function decodeHandledByHydrator(Field $field): self|DecodeByHydratorException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new DecodeByHydratorException($field);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DECODE_HANDLED_BY_HYDRATOR,
+            'Decoding of {{ fieldClass }} is handled by the entity hydrator.',
+            ['fieldClass' => $field::class]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:remove-exception - Use self::referenceFieldByStorageNameNotFound instead
+     *
+     * @param class-string $definitionClass
+     */
+    public static function definitionFieldDoesNotExist(string $definitionClass, string $field): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \RuntimeException(sprintf(
+                'Could not find reference field "%s" from definition "%s"',
+                $field,
+                $definitionClass
+            ));
+        }
+
+        return self::referenceFieldByStorageNameNotFound($definitionClass, $field);
+    }
+
+    public static function missingSystemTranslation(string $path): self
+    {
+        return new MissingSystemTranslationException($path);
+    }
+
+    public static function missingTranslation(string $path, int $index): self
+    {
+        return new MissingTranslationLanguageException($path, $index);
     }
 }

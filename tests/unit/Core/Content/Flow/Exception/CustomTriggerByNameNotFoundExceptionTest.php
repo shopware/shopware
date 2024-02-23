@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CustomTriggerByNameNotFoundException::class)]
 class CustomTriggerByNameNotFoundExceptionTest extends TestCase
 {

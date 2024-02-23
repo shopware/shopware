@@ -34,16 +34,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(RuleAreaUpdater::class)]
 class RuleAreaUpdaterTest extends TestCase
 {
@@ -196,10 +196,9 @@ class RuleAreaUpdaterTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaDefinitionTest extends RuleDefinition
 {
     public function getEntityName(): string
@@ -220,10 +219,9 @@ class RuleAreaDefinitionTest extends RuleDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestOneToOne extends EntityDefinition
 {
     public function getEntityName(): string
@@ -240,10 +238,9 @@ class RuleAreaTestOneToOne extends EntityDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestOneToMany extends EntityDefinition
 {
     public function getEntityName(): string
@@ -261,10 +258,9 @@ class RuleAreaTestOneToMany extends EntityDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestManyToOne extends EntityDefinition
 {
     public function getEntityName(): string
@@ -281,10 +277,9 @@ class RuleAreaTestManyToOne extends EntityDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestManyToMany extends EntityDefinition
 {
     public function getEntityName(): string

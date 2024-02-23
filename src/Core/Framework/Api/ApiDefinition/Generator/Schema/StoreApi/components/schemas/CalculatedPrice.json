@@ -40,11 +40,13 @@
                         }
                     },
                     "referencePrice": {
-                        "$ref": "#/components/schemas/ReferencePrice",
+                        "oneOf": [
+                            { "$ref": "#/components/schemas/ReferencePrice" }
+                        ],
                         "nullable": true
                     },
                     "listPrice": {
-                        "$ref": "#/components/schemas/ListPrice",
+                        "oneOf": [{ "$ref": "#/components/schemas/ListPrice" }],
                         "nullable": true
                     },
                     "regulationPrice": {

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,6 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1697112043;
@@ -28,25 +31,26 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $manager = $connection->createSchemaManager();
-        $columns = $manager->listTableColumns(PaymentMethodDefinition::ENTITY_NAME);
-
-        if (!\array_key_exists('technical_name', $columns)) {
-            $connection->executeStatement('ALTER TABLE `payment_method` ADD COLUMN `technical_name` VARCHAR(255) NULL');
-        }
+        $this->addColumn(
+            $connection,
+            'payment_method',
+            'technical_name',
+            'VARCHAR(255)'
+        );
 
         if (!$this->indexExists($connection, PaymentMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
-            $connection->executeStatement('ALTER TABLE `payment_method` ADD  CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
+            $connection->executeStatement('ALTER TABLE `payment_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
-        $columns = $manager->listTableColumns(ShippingMethodDefinition::ENTITY_NAME);
-
-        if (!\array_key_exists('technical_name', $columns)) {
-            $connection->executeStatement('ALTER TABLE `shipping_method` ADD COLUMN `technical_name` VARCHAR(255) NULL');
-        }
+        $this->addColumn(
+            $connection,
+            'shipping_method',
+            'technical_name',
+            'VARCHAR(255)'
+        );
 
         if (!$this->indexExists($connection, ShippingMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
-            $connection->executeStatement('ALTER TABLE `shipping_method` ADD  CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
+            $connection->executeStatement('ALTER TABLE `shipping_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
         // set technical name for existing payment methods
@@ -67,10 +71,6 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
         $this->updateShippingMethodName('Standard', $connection);
         $this->updateShippingMethodName('Express', $connection);
         $this->updateAppShippingMethods($connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function updateShippingMethodName(string $name, Connection $connection): void

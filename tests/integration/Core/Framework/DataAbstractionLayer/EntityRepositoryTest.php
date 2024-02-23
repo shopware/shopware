@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -32,6 +33,19 @@ class EntityRepositoryTest extends TestCase
         parent::tearDown();
 
         $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
+    }
+
+    public function testReverseVersionJoin(): void
+    {
+        $repository = $this->getContainer()->get('product_visibility.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.orderLineItems.order.id', Uuid::randomHex()));
+        $criteria->addFilter(new EqualsFilter('product.orderLineItems.type', LineItem::PRODUCT_LINE_ITEM_TYPE));
+
+        $result = $repository->search($criteria, Context::createDefaultContext());
+
+        static::assertEquals(0, $result->count());
     }
 
     /**

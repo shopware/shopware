@@ -370,7 +370,10 @@ class ElasticsearchIndexer
 
             $this->indexCreator->createIndex($definition, $index, $alias, $context);
 
-            $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
+            $iterator = $definition->getIterator();
+            if (!$iterator) {
+                $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
+            }
 
             // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
             if ($hasAlias) {

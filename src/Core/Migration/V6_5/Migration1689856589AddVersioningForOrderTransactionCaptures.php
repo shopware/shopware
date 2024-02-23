@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class Migration1689856589AddVersioningForOrderTransactionCaptures extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1689856589;
@@ -22,31 +25,27 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
     public function update(Connection $connection): void
     {
         // adjusting "order_transaction_capture" table
-        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture', 'id');
+        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture');
         $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture', 'version_id');
         $this->reAddVersionedPrimaryKey($connection, 'order_transaction_capture');
 
         // adjusting "order_transaction_capture_refund" table
-        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture_refund', 'id');
+        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture_refund');
         $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund', 'version_id');
         $this->reAddVersionedPrimaryKey($connection, 'order_transaction_capture_refund');
 
-        $this->addBinaryColumnToTable($connection, 'capture_version_id', 'order_transaction_capture_refund', 'capture_id');
+        $this->addBinaryColumnToTable($connection, 'capture_version_id', 'order_transaction_capture_refund');
         $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund', 'capture_version_id');
         $this->reAddVersionedForeignKey($connection, 'order_transaction_capture_refund', 'order_transaction_capture', 'capture');
 
         // adjusting "order_transaction_capture_refund_position" table
-        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture_refund_position', 'id');
+        $this->addBinaryColumnToTable($connection, 'version_id', 'order_transaction_capture_refund_position');
         $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund_position', 'version_id');
         $this->reAddVersionedPrimaryKey($connection, 'order_transaction_capture_refund_position');
 
-        $this->addBinaryColumnToTable($connection, 'refund_version_id', 'order_transaction_capture_refund_position', 'refund_id');
+        $this->addBinaryColumnToTable($connection, 'refund_version_id', 'order_transaction_capture_refund_position');
         $this->setLiveVersionValueOnNewVersionColumn($connection, 'order_transaction_capture_refund_position', 'refund_version_id');
         $this->reAddVersionedForeignKey($connection, 'order_transaction_capture_refund_position', 'order_transaction_capture_refund', 'refund');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function reAddVersionedPrimaryKey(Connection $connection, string $tableName): void
@@ -59,16 +58,14 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
         $connection->executeStatement($sqlStatement);
     }
 
-    private function addBinaryColumnToTable(Connection $connection, string $newColumnName, string $tableName, string $afterColumn): void
+    private function addBinaryColumnToTable(Connection $connection, string $newColumnName, string $tableName): void
     {
-        if (!$this->columnExists($connection, $tableName, $newColumnName)) {
-            $sqlStatement = sprintf('
-                ALTER TABLE `%s`
-                ADD COLUMN `%s` BINARY(16) NOT NULL AFTER `%s`;
-            ', $tableName, $newColumnName, $afterColumn);
-
-            $connection->executeStatement($sqlStatement);
-        }
+        $this->addColumn(
+            $connection,
+            $tableName,
+            $newColumnName,
+            'BINARY(16)'
+        );
     }
 
     private function reAddVersionedForeignKey(Connection $connection, string $tableName, string $referencedTableName, string $foreignKeyColumnSuffix): void

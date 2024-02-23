@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\System\StateMachine\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
@@ -16,9 +15,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\System\StateMachine\Api\StateMachineActionController
  */
 #[Package('checkout')]
-#[CoversClass(StateMachineActionController::class)]
 class StateMachineActionControllerTest extends TestCase
 {
     public function testTransitionWithoutPrivileges(): void

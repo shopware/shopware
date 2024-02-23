@@ -21,9 +21,4 @@ class Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNulla
     {
         $connection->executeStatement('ALTER TABLE `shipping_method` MODIFY COLUMN `availability_rule_id` BINARY(16) DEFAULT NULL');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

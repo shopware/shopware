@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1564385960;
@@ -21,7 +24,15 @@ class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `theme` ADD `active` TINYINT(1) NOT NULL DEFAULT 1 AFTER `config_values`;');
+        $this->addColumn(
+            $connection,
+            'theme',
+            'active',
+            'TINYINT(1)',
+            false,
+            '1'
+        );
+
         $connection->executeStatement('
             UPDATE `media_default_folder` SET `association_fields` = \'[\"media\"]\' WHERE `entity` = \'theme\';
         ');

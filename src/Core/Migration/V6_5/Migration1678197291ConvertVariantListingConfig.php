@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('inventory')]
 class Migration1678197291ConvertVariantListingConfig extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1678197291;
@@ -30,7 +33,13 @@ class Migration1678197291ConvertVariantListingConfig extends MigrationStep
 
         $connection->executeStatement('INSERT INTO `product_tmp` (SELECT `id`, `version_id`, `variant_listing_config` FROM `product` WHERE variant_listing_config IS NOT NULL)');
         $connection->executeStatement('ALTER TABLE `product` DROP COLUMN `variant_listing_config`');
-        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `variant_listing_config` JSON NULL DEFAULT NULL');
+
+        $this->addColumn(
+            $connection,
+            'product',
+            'variant_listing_config',
+            'JSON'
+        );
 
         do {
             $result = $connection->executeStatement(
@@ -42,9 +51,5 @@ class Migration1678197291ConvertVariantListingConfig extends MigrationStep
         } while ($result > 0);
 
         $connection->executeStatement('DROP TABLE `product_tmp`');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

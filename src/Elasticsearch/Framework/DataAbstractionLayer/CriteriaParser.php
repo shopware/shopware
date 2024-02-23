@@ -168,6 +168,12 @@ class CriteriaParser
             return new CountSort($accessor, $sorting->getDirection());
         }
 
+        $path = $this->getNestedPath($definition, $sorting->getField());
+
+        if ($path) {
+            return new FieldSort($accessor, $sorting->getDirection(), null, ['nested' => ['path' => $path]]);
+        }
+
         return new FieldSort($accessor, $sorting->getDirection());
     }
 

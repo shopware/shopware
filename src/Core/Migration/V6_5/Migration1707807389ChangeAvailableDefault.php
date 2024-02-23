@@ -4,29 +4,21 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
 #[Package('core')]
-class Migration1689776940AddCartSourceField extends MigrationStep
+class Migration1707807389ChangeAvailableDefault extends MigrationStep
 {
-    use AddColumnTrait;
-
     public function getCreationTimestamp(): int
     {
-        return 1689776940;
+        return 1707807389;
     }
 
     public function update(Connection $connection): void
     {
-        $this->addColumn(
-            $connection,
-            'order',
-            'source',
-            'VARCHAR(255)'
-        );
+        $connection->executeStatement('ALTER TABLE `product` CHANGE `available` `available` tinyint(1) NOT NULL DEFAULT \'0\';');
     }
 }

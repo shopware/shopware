@@ -24,7 +24,7 @@
                         "enum": ["cart_price_reference"]
                     },
                     "listPrice": {
-                        "$ref": "#/components/schemas/ListPrice",
+                        "oneOf": [{ "$ref": "#/components/schemas/ListPrice" }],
                         "nullable": true
                     },
                     "regulationPrice": {

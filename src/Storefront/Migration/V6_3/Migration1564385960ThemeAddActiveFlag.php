@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1564385960;
@@ -21,7 +24,7 @@ class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'theme',
             'active',

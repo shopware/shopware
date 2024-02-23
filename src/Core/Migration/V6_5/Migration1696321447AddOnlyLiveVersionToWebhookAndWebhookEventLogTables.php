@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1696321447AddOnlyLiveVersionToWebhookAndWebhookEventLogTables extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1696321447;
@@ -25,7 +28,7 @@ class Migration1696321447AddOnlyLiveVersionToWebhookAndWebhookEventLogTables ext
 
     private function addToWebhookTable(Connection $connection): void
     {
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'webhook',
             'only_live_version',
@@ -37,7 +40,7 @@ class Migration1696321447AddOnlyLiveVersionToWebhookAndWebhookEventLogTables ext
 
     private function addToWebhookEventLogTable(Connection $connection): void
     {
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'webhook_event_log',
             'only_live_version',

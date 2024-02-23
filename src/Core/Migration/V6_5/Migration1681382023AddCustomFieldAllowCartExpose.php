@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1681382023AddCustomFieldAllowCartExpose extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1681382023;
@@ -19,7 +22,7 @@ class Migration1681382023AddCustomFieldAllowCartExpose extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'custom_field',
             'allow_cart_expose',

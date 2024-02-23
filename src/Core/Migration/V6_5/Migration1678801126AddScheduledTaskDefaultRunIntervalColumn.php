@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1678801126;
@@ -24,7 +27,7 @@ class Migration1678801126AddScheduledTaskDefaultRunIntervalColumn extends Migrat
             return;
         }
 
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'scheduled_task',
             'default_run_interval',

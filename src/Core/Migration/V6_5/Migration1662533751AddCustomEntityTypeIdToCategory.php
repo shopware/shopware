@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('content')]
 class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1662533751;
@@ -19,7 +22,7 @@ class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $added = $this->swAddColumn(
+        $added = $this->addColumn(
             connection: $connection,
             table: 'category',
             column: 'custom_entity_type_id',

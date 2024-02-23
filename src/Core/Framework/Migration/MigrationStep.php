@@ -76,25 +76,6 @@ abstract class MigrationStep
         return !empty($exists);
     }
 
-    /**
-     * Renamed to addColumn in 6.6. `sw` prefixed used to not break plugin migrations which may also have this function
-     *
-     * @return bool true if the column was created, false if it already exists or was not created
-     */
-    protected function swAddColumn(Connection $connection, string $table, string $column, string $type, ?bool $nullable = true, string $default = 'NULL'): bool
-    {
-        if ($this->columnExists($connection, $table, $column)) {
-            return false;
-        }
-
-        // don't allow AFTER statements, it causes temporary tables which are extrem slow, because mysql has to copy whole tables
-        $connection->executeStatement(
-            'ALTER TABLE `' . $table . '` ADD COLUMN `' . $column . '` ' . $type . ' ' . ($nullable ? 'NULL' : 'NOT NULL') . ' DEFAULT ' . $default . ';'
-        );
-
-        return true;
-    }
-
     protected function indexExists(Connection $connection, string $table, string $index): bool
     {
         $exists = $connection->fetchOne(

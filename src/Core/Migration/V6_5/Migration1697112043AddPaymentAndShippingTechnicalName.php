@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,6 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1697112043;
@@ -28,7 +31,7 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'payment_method',
             'technical_name',
@@ -39,7 +42,7 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
             $connection->executeStatement('ALTER TABLE `payment_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             'shipping_method',
             'technical_name',

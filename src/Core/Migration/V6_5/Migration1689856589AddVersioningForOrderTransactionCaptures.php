@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\AddColumnTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class Migration1689856589AddVersioningForOrderTransactionCaptures extends MigrationStep
 {
+    use AddColumnTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1689856589;
@@ -57,7 +60,7 @@ class Migration1689856589AddVersioningForOrderTransactionCaptures extends Migrat
 
     private function addBinaryColumnToTable(Connection $connection, string $newColumnName, string $tableName): void
     {
-        $this->swAddColumn(
+        $this->addColumn(
             $connection,
             $tableName,
             $newColumnName,

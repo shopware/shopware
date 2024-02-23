@@ -4,22 +4,20 @@
     "paths": [],
     "components": {
         "schemas": {
-            "WishlistLoadRouteResponse": {
+            "Document": {
                 "type": "object",
                 "properties": {
-                    "wishlist": {
+                    "config": {
                         "type": "object",
                         "properties": {
-                            "customerId": {
+                            "name": {
                                 "type": "string"
                             },
-                            "salesChannelId": {
+                            "title": {
                                 "type": "string"
                             }
-                        }
-                    },
-                    "products": {
-                        "$ref": "#/components/schemas/ProductListingResult"
+                        },
+                        "required": ["name", "title"]
                     }
                 }
             }

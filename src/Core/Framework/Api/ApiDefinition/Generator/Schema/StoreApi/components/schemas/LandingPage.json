@@ -4,14 +4,13 @@
     "paths": [],
     "components": {
         "schemas": {
-            "CartItems": {
+            "LandingPage": {
+                "required": ["apiAlias"],
                 "type": "object",
                 "properties": {
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/LineItem"
-                        }
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["landing_page"]
                     }
                 }
             }

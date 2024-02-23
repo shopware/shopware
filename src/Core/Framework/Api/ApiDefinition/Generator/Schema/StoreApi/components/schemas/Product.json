@@ -1,0 +1,110 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Product": {
+                "type": "object",
+                "description": "Represents a product along with detailed information required to display a variant selection.",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["product"]
+                    },
+                    "seoCategory": {
+                        "$ref": "#/components/schemas/Category"
+                    },
+                    "variantListingConfig": {
+                        "nullable": true,
+                        "type": "object",
+                        "properties": {
+                            "displayParent": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "calculatedPrice": {
+                        "$ref": "#/components/schemas/CalculatedPrice"
+                    },
+                    "calculatedPrices": {
+                        "type": "array",
+                        "items": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/CalculatedPrice"
+                                }
+                            ]
+                        }
+                    },
+                    "calculatedCheapestPrice": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CalculatedPrice"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "unitPrice": {
+                                        "type": "number"
+                                    },
+                                    "quantity": {
+                                        "type": "number"
+                                    },
+                                    "totalPrice": {
+                                        "type": "number"
+                                    },
+                                    "referencePrice": {
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/components/schemas/ReferencePrice"
+                                            }
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "listPrice": {
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/components/schemas/ListPrice"
+                                            }
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "regulationPrice": {
+                                        "type": "object",
+                                        "properties": {
+                                            "price": {
+                                                "type": "number"
+                                            }
+                                        },
+                                        "required": ["price"],
+                                        "nullable": true
+                                    },
+                                    "hasRange": {
+                                        "type": "boolean"
+                                    },
+                                    "variantId": {
+                                        "type": "string",
+                                        "format": "",
+                                        "nullable": true
+                                    },
+
+                                    "apiAlias": {
+                                        "type": "string",
+                                        "enum": ["calculated_cheapest_price"]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "calculatedPrice",
+                    "calculatedPrices",
+                    "seoCategory"
+                ]
+            }
+        }
+    }
+}

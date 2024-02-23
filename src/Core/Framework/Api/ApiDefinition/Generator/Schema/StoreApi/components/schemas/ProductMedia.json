@@ -4,14 +4,11 @@
     "paths": [],
     "components": {
         "schemas": {
-            "CartItems": {
+            "ProductMedia": {
                 "type": "object",
                 "properties": {
-                    "items": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/LineItem"
-                        }
+                    "thumbnails": {
+                        "$ref": "#/components/schemas/MediaThumbnail"
                     }
                 }
             }

@@ -1,5 +1,5 @@
 ---
-title: fix rule builder unit conversion calculation when no input is given
+title: Fix rule builder unit conversion calculation when no input is given
 issue: NEXT-33461
 author: Lars Kemper
 author_email: l.kemper@shopware.com

@@ -1,5 +1,5 @@
 ---
-title: Make sure exists the defaultCurrency
+title: Make sure the defaultCurrency exists
 issue: NEXT-31588
 author: kyle
 ---

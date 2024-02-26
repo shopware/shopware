@@ -1,5 +1,5 @@
 ---
-title: no og tags on error pages
+title: No og tags on error pages
 issue: NEXT-28228
 ---
 # Storefront

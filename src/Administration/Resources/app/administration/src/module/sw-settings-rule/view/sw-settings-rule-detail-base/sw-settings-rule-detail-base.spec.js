@@ -2,6 +2,10 @@ import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
+/**
+ * @package services-settings
+ */
+
 const swConditionTree = {
     props: ['initial-conditions'],
     template: '<div class="sw-condition-tree"></div>',

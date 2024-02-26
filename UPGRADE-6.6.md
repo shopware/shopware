@@ -190,9 +190,11 @@ window.PluginManager.override(
 );
 ```
 
-### Async plugin initialization with `PluginManager.initializePlugins()`
+### Async plugin initialization with `PluginManager.initializePlugins()` and `PluginManager.initializePlugin()`
 
-The method `PluginManager.initializePlugins()` is now async and will return a Promise because it also downloads all async JS-plugins before their initialization.
+* The method `PluginManager.initializePlugins()` is now async and will return a Promise because it also downloads all async JS-plugins before their initialization.
+* The method `PluginManager.initializePlugin()` to initialize a single JS-plugin is now async as well and will download the single plugin if was not downloaded beforehand.
+
 If you need access to newly created JS-Plugin instances (for example after a dynamic DOM-update with new JS-Plugin selectors), you need to wait for the Promise to resolve.
 
 Before:
@@ -224,7 +226,7 @@ window.PluginManager.initializePlugins().then(() => {
 ```
 
 If you don't need direct access to newly created JS-plugin instances via `getPluginInstanceFromElement()`, and you only want to "re-init" all JS-plugins,
-you do not need to wait for the Promise of `initializePlugins()` because `initializePlugins()` already downloads and initializes the JS-plugins.
+you do not need to wait for the Promise of `initializePlugins()` or `initializePlugin()` because `initializePlugins()` and `initializePlugin()` already download and initialize the JS-plugins.
 
 ### Avoid import from PluginManager
 

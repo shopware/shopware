@@ -31,7 +31,6 @@ class ElementDataCollectionTest extends TestCase
             Context::createDefaultContext()
         ));
 
-        static::assertInstanceOf(\IteratorAggregate::class, $collection);
         static::assertCount(1, $collection);
         static::assertContainsOnly(EntitySearchResult::class, $collection);
     }

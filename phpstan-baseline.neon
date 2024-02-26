@@ -7591,11 +7591,6 @@ parameters:
 			path: tests/migration/Core/V6_5/Migration1673263104RemoveCartNameColumnTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'IteratorAggregate' and Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\Element\\\\ElementDataCollection will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Cms/DataResolver/Element/ElementDataCollectionTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Mail/Service/MailTest.php

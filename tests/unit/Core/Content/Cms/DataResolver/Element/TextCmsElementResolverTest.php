@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
+namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -13,7 +14,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,15 +21,15 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class TextTypeDataResolverTest extends TestCase
+#[CoversClass(TextCmsElementResolver::class)]
+class TextCmsElementResolverTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     private TextCmsElementResolver $textResolver;
 
     protected function setUp(): void
     {
-        $this->textResolver = new TextCmsElementResolver($this->getContainer()->get(HtmlSanitizer::class));
+        $htmlSanitizer = new HtmlSanitizer(null, false, ['basic' => ['tags' => ['h1']]]);
+        $this->textResolver = new TextCmsElementResolver($htmlSanitizer);
     }
 
     public function testType(): void
@@ -39,12 +39,9 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = $this->createResolverContext();
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig(new FieldConfigCollection());
 
         $criteriaCollection = $this->textResolver->collect($slot, $resolverContext);
@@ -54,18 +51,14 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = $this->createResolverContext();
         $result = new ElementDataCollection();
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig(new FieldConfigCollection());
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertNull($textStruct->getContent());
@@ -73,43 +66,35 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContent(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = $this->createResolverContext();
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, 'lorem ipsum dolor'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('lorem ipsum dolor', $textStruct->getContent());
     }
 
-    public function testWithUnsanitizedStaticContent(): void
+    public function testWithContaminatedStaticContent(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = $this->createResolverContext();
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, 'lorem<script>console.log("ipsum dolor")</script>'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('lorem', $textStruct->getContent());
@@ -120,21 +105,17 @@ class TextTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setDescription('foobar loo');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_MAPPED, 'product.description'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame($product->getDescription(), $textStruct->getContent());
@@ -145,21 +126,17 @@ class TextTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setTranslated(['description' => 'fallback foo']);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_MAPPED, 'product.description'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('fallback foo', $textStruct->getContent());
@@ -171,21 +148,17 @@ class TextTypeDataResolverTest extends TestCase
         $product->setDescription('foobar loo');
         $product->setTranslated(['description' => 'fallback foo']);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_MAPPED, 'product.description'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame($product->getDescription(), $textStruct->getContent());
@@ -193,25 +166,20 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContentAndMappedCustomFieldVariable(): void
     {
-        $product = new ProductEntity();
-        $product->setName('TextProduct');
-        $product->setCustomFields(['testfield' => 'testing123']);
+        $product = $this->createProductEntity();
+        $product->setCustomFields(['testField' => 'testing123']);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.customFields.testfield }}</h1>'));
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.customFields.testField }}</h1>'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('<h1>Title testing123</h1>', $textStruct->getContent());
@@ -219,24 +187,19 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContentAndMappedVariable(): void
     {
-        $product = new ProductEntity();
-        $product->setName('TextProduct');
+        $product = $this->createProductEntity();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.name }}</h1>'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('<h1>Title ' . $product->getName() . '</h1>', $textStruct->getContent());
@@ -244,24 +207,19 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContentAndMappedVariableNotFound(): void
     {
-        $product = new ProductEntity();
-        $product->setName('TextProduct');
+        $product = $this->createProductEntity();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.unknownProperty }}</h1>'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('<h1>Title {{ product.unknownProperty }}</h1>', $textStruct->getContent());
@@ -269,24 +227,19 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContentAndNullValue(): void
     {
-        $product = new ProductEntity();
-        $product->setName('TextProduct');
+        $product = $this->createProductEntity();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, null));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('', $textStruct->getContent());
@@ -294,24 +247,19 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithStaticContentAndEmptyValue(): void
     {
-        $product = new ProductEntity();
-        $product->setName('TextProduct');
+        $product = $this->createProductEntity();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = $this->createResolverContextWithProduct($product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, ''));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         static::assertSame('', $textStruct->getContent());
@@ -320,26 +268,21 @@ class TextTypeDataResolverTest extends TestCase
     public function testWithStaticContentAndDateTimeValue(): void
     {
         $releaseDate = new \DateTime('2023-06-28T14:27:29');
-        $product = new ProductEntity();
-        $product->setName('TextProduct');
+        $product = $this->createProductEntity();
         $product->setReleaseDate($releaseDate);
         $request = new Request();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), $request, $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), $request, new ProductDefinition(), $product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '{{ product.releaseDate }}'));
 
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('text');
-        $slot->setConfig([]);
+        $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
         $this->textResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
         $content = $textStruct->getContent();
@@ -350,5 +293,33 @@ class TextTypeDataResolverTest extends TestCase
         $actualReleaseDate->setTimestamp((int) $formatter->parse($content));
 
         static::assertEquals($releaseDate, $actualReleaseDate);
+    }
+
+    private function createSlot(): CmsSlotEntity
+    {
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+
+        return $slot;
+    }
+
+    private function createResolverContextWithProduct(ProductEntity $product): EntityResolverContext
+    {
+        return new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
+    }
+
+    private function createProductEntity(): ProductEntity
+    {
+        $product = new ProductEntity();
+        $product->setName('TextProduct');
+
+        return $product;
+    }
+
+    private function createResolverContext(): ResolverContext
+    {
+        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
     }
 }

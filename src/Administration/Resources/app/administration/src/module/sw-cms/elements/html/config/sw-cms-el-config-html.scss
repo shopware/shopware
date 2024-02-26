@@ -1,0 +1,24 @@
+.sw-cms-el-config-html {
+    .sw-code-editor {
+        .sw-field {
+            margin-bottom: 22px;
+
+            .sw-code-editor__editor {
+                height: 643px;
+            }
+        }
+    }
+
+    .sw-alert {
+        margin-bottom: 0;
+
+        .sw-icon {
+            left: 15px;
+            top: 12px;
+        }
+
+        &__body {
+            padding: 10px 10px 10px 50px;
+        }
+    }
+}

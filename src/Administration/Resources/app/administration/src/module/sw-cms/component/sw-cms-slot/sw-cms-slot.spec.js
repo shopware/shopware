@@ -120,6 +120,23 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(wrapper.vm.tooltipDisabled.disabled).toBe(false);
     });
 
+    it('has modalVariant "large" if element type is not "html"', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.modalVariant).toBe('large');
+    });
+
+    it('has modalVariant "full" if element type is "html"', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            element: {
+                type: 'html',
+            },
+        });
+
+        expect(wrapper.vm.modalVariant).toBe('full');
+    });
+
     it('test onSelectElement', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.element).toEqual({

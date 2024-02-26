@@ -321,29 +321,70 @@ class PluginManagerSingleton {
     }
 
     /**
+     * @param {Object} pluginFromRegistry
+     * @param {String|NodeList|HTMLElement} selector
+     * @return {Promise<void>}
+     * @private
+     */
+    async _fetchAsyncPlugin(pluginFromRegistry, selector) {
+        if (!pluginFromRegistry.get('async')) {
+            return;
+        }
+
+        let needsFetch = false;
+        if (DomAccess.isNode(selector)) {
+            needsFetch = true;
+        }
+
+        if (typeof selector === 'string') {
+            selector = PluginManagerSingleton._queryElements(selector);
+            needsFetch = !!selector.length;
+        }
+
+        if (!needsFetch) {
+            return;
+        }
+
+        const pluginClassPromise = pluginFromRegistry.get('class')();
+        const fetchedPlugin = await pluginClassPromise;
+        const pluginClass = fetchedPlugin.default;
+
+        pluginFromRegistry.set('async', false);
+        pluginFromRegistry.set('class', pluginClass);
+    }
+
+    /**
      * Initializes a single plugin.
      *
-     * @param {Object} pluginName
+     * @param {string} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      */
-    initializePlugin(pluginName, selector, options) {
+    async initializePlugin(pluginName, selector, options) {
         let plugin;
         let pluginClass;
         let mergedOptions;
 
         if (this._registry.has(pluginName, selector)) {
             plugin = this._registry.get(pluginName, selector);
+            await this._fetchAsyncPlugin(plugin, selector);
             const registrationOptions = plugin.get('registrations').get(selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
         } else {
             plugin = this._registry.get(pluginName);
+            await this._fetchAsyncPlugin(plugin, selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }
 
-        this._initializePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
+        try {
+            this._initializePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
+        } catch (failure) {
+            console.error(failure);
+        }
+
+        return Promise.resolve();
     }
 
     /**
@@ -591,12 +632,13 @@ export default class PluginManager {
     /**
      * Initializes a single plugin.
      *
-     * @param {Object} pluginName
+     * @param {string} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
+     * @returns {Promise<void>}
      */
     static initializePlugin(pluginName, selector, options) {
-        PluginManagerInstance.initializePlugin(pluginName, selector, options);
+        return PluginManagerInstance.initializePlugin(pluginName, selector, options);
     }
 }
 

@@ -89,7 +89,6 @@ PHP integration:
             --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
             --testsuite integration
             --order-by default
-            --order-by default
 
 PHP bench:
     extends: .base-no-setup
@@ -322,9 +321,9 @@ PHP Full:
         - >
             for SUITE in $TEST_SUITES; do
                 if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined;
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never;
                 else
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined || FAILED=1
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
                 fi
             done
         - '[[ $FAILED -eq 0 ]]'

@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
+use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -161,12 +164,33 @@ class ProductPageLoader
     }
 
     /**
-     * @@deprecated tag:v6.6.0 - will be removed because cms page id will always be set
+     * @deprecated tag:v6.6.0 - will be removed because cms page id will always be set
      */
     private function loadDefaultAdditions(SalesChannelProductEntity $product, ProductPage $page, Request $request, SalesChannelContext $context): void
     {
         if ($cmsPage = $product->getCmsPage()) {
             $page->setCmsPage($cmsPage);
+
+            $blocks = $page->getCmsPage()?->getSections()?->first()?->getBlocks();
+            if ($blocks === null) {
+                return;
+            }
+
+            $descriptionReviewsStruct = $blocks->filterByProperty('type', 'product-description-reviews')->first()?->getSlots()?->first()?->getData();
+            if ($descriptionReviewsStruct instanceof ProductDescriptionReviewsStruct) {
+                $productReviewResult = $descriptionReviewsStruct->getReviews();
+                if ($productReviewResult !== null) {
+                    $page->setReviews(ReviewLoaderResult::createFrom($productReviewResult));
+                }
+            }
+
+            $crossSellingStruct = $blocks->filterByProperty('type', 'cross-selling')->first()?->getSlots()?->first()?->getData();
+            if ($crossSellingStruct instanceof CrossSellingStruct) {
+                $crossSelling = $crossSellingStruct->getCrossSellings();
+                if ($crossSelling !== null) {
+                    $page->setCrossSellings($crossSelling);
+                }
+            }
 
             return;
         }

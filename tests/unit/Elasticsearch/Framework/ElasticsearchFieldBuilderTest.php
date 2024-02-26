@@ -25,6 +25,7 @@ class ElasticsearchFieldBuilderTest extends TestCase
     {
         $deLanguageId = Uuid::randomHex();
         $enLanguageId = Uuid::randomHex();
+        $enInheritedLanguageId = Uuid::randomHex();
 
         $languageLoader = new StaticLanguageLoader([
             $deLanguageId => [
@@ -36,6 +37,12 @@ class ElasticsearchFieldBuilderTest extends TestCase
                 'id' => $enLanguageId,
                 'parentId' => 'parentId',
                 'code' => 'en-GB',
+            ],
+            $enInheritedLanguageId => [
+                'id' => $enLanguageId,
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+                'parentCode' => 'en-GB',
             ],
         ]);
 
@@ -75,6 +82,18 @@ class ElasticsearchFieldBuilderTest extends TestCase
                     ],
                 ],
                 $enLanguageId => [
+                    'fields' => [
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_english_analyzer',
+                        ],
+                        'ngram' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_ngram_analyzer',
+                        ],
+                    ],
+                ],
+                $enInheritedLanguageId => [
                     'fields' => [
                         'search' => [
                             'type' => 'text',

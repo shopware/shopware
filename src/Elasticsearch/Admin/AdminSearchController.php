@@ -35,10 +35,10 @@ final class AdminSearchController
             throw ElasticsearchAdminException::esNotEnabled();
         }
 
-        $term = trim((string) $request->get('term', ''));
+        $term = trim($request->request->getString('term'));
         $entities = $request->request->all('entities');
 
-        if (empty($term)) {
+        if ($term === '') {
             throw ElasticsearchAdminException::missingTermParameter();
         }
 

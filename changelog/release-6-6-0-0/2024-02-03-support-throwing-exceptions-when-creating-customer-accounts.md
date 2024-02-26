@@ -1,5 +1,5 @@
 ---
-title: Support throwing exception when create customer
+title: Support throwing exceptions when creating customer accounts
 issue: NEXT-32021
 ---
 # Administration

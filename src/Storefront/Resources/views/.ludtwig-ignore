@@ -37,6 +37,7 @@
 /storefront/page/account/order-history/order-detail-document.html.twig
 /storefront/component/listing/filter-panel.html.twig
 /storefront/element/cms-element-cross-selling.html.twig
+/storefront/component/product/card/price-unit.html.twig
 
 # Twig whitespace support https://github.com/MalteJanz/ludtwig/issues/56
 /storefront/utilities/icon.html.twig

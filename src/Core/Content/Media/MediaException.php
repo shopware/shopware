@@ -109,7 +109,7 @@ class MediaException extends HttpException
     public static function cannotCopyMedia(): self
     {
         return new self(
-            Response::HTTP_CONFLICT,
+            Response::HTTP_BAD_REQUEST,
             self::MEDIA_CANNOT_COPY_MEDIA,
             'Error while copying media from source.'
         );
@@ -175,7 +175,7 @@ class MediaException extends HttpException
     public static function duplicatedMediaFileName(string $fileName, string $fileExtension): self
     {
         return new self(
-            Response::HTTP_CONFLICT,
+            Response::HTTP_BAD_REQUEST,
             self::MEDIA_DUPLICATED_FILE_NAME,
             'A file with the name "{{ fileName }}.{{ fileExtension }}" already exists.',
             ['fileName' => $fileName, 'fileExtension' => $fileExtension]
@@ -235,7 +235,7 @@ class MediaException extends HttpException
     public static function couldNotRenameFile(string $mediaId, string $oldFileName): self
     {
         return new self(
-            Response::HTTP_CONFLICT,
+            Response::HTTP_BAD_REQUEST,
             self::MEDIA_COULD_NOT_RENAME_FILE,
             'Could not rename file for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
             ['mediaId' => $mediaId, 'oldFileName' => $oldFileName]
@@ -292,7 +292,7 @@ class MediaException extends HttpException
     public static function thumbnailCouldNotBeSaved(string $url): self
     {
         return new self(
-            Response::HTTP_CONFLICT,
+            Response::HTTP_BAD_REQUEST,
             self::MEDIA_THUMBNAIL_NOT_SAVED,
             'Thumbnail could not be saved to location: {{ location }}.',
             ['location' => $url]

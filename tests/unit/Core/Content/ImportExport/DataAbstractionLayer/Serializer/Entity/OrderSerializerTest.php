@@ -19,6 +19,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Or
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -119,6 +120,27 @@ class OrderSerializerTest extends TestCase
             ]),
             'expected' => self::getExpected([
                 'transactions' => [],
+            ]),
+        ];
+
+        yield 'with order item rounding and total rounding' => [
+            'entity' => self::createOrderEntity([
+                'itemRounding' => self::createItemRounding(),
+                'totalRounding' => self::createTotalRounding(),
+            ]),
+            'expected' => self::getExpected([
+                'itemRounding' => [
+                    'extensions' => [],
+                    'decimals' => 2,
+                    'interval' => 0.01,
+                    'roundForNet' => true,
+                ],
+                'totalRounding' => [
+                    'extensions' => [],
+                    'decimals' => 2,
+                    'interval' => 0.1,
+                    'roundForNet' => false,
+                ],
             ]),
         ];
 
@@ -544,8 +566,8 @@ class OrderSerializerTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => null,
+            'totalRounding' => null,
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
@@ -575,9 +597,17 @@ class OrderSerializerTest extends TestCase
             'billingAddressVersionId' => null,
         ];
 
-        $data = array_merge_recursive($rawData, $data);
+        $mergedData = array_merge_recursive($rawData, $data);
 
-        return (new OrderEntity())->assign($data);
+        if (isset($data['itemRounding'])) {
+            $mergedData['itemRounding'] = $data['itemRounding'];
+        }
+
+        if (isset($data['totalRounding'])) {
+            $mergedData['totalRounding'] = $data['totalRounding'];
+        }
+
+        return (new OrderEntity())->assign($mergedData);
     }
 
     private static function createLineItems(): OrderLineItemCollection
@@ -703,8 +733,8 @@ class OrderSerializerTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => null,
+            'totalRounding' => null,
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
@@ -816,5 +846,15 @@ class OrderSerializerTest extends TestCase
         ]);
 
         return new OrderTransactionCollection([$transaction1, $transaction2]);
+    }
+
+    private static function createItemRounding(): CashRoundingConfig
+    {
+        return new CashRoundingConfig(2, 0.01, true);
+    }
+
+    private static function createTotalRounding(): CashRoundingConfig
+    {
+        return new CashRoundingConfig(2, 0.1, false);
     }
 }

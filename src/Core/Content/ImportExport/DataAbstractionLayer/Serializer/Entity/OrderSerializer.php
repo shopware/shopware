@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -68,6 +69,14 @@ class OrderSerializer extends EntitySerializer
             if (!empty($entity['transactions']['stateMachineState']) && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
                 $entity['transactions']['stateMachineState'] = $entity['transactions']['stateMachineState']->jsonSerialize();
             }
+        }
+
+        if (isset($entity['itemRounding']) && $entity['itemRounding'] instanceof CashRoundingConfig) {
+            $entity['itemRounding'] = $entity['itemRounding']->jsonSerialize();
+        }
+
+        if (isset($entity['totalRounding']) && $entity['totalRounding'] instanceof CashRoundingConfig) {
+            $entity['totalRounding'] = $entity['totalRounding']->jsonSerialize();
         }
 
         yield from $entity;

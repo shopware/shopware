@@ -522,7 +522,9 @@
             "@stylelint:storefront src/**/*.scss"
         ],
         "stylelint:admin": "@npm:admin run lint:scss",
+        "stylelint:admin:fix": "@npm:admin run lint:scss-fix",
         "stylelint:storefront": "@npm:storefront run lint:scss",
+        "stylelint:storefront:fix": "@npm:storefront run lint:scss-fix",
         "watch:admin": [
             "Composer\\Config::disableProcessTimeout",
             "@php bin/console feature:dump",

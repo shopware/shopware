@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -90,41 +88,55 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
             return [];
         }
 
-        $query = new QueryBuilder($this->connection);
-        $query->setTitle('seo_url::replacement');
-        $query->addSelect(['seo_path_info', 'path_info', 'sales_channel_id']);
+        $subqueryParts = '';
+        $params = [];
 
-        $query->from('seo_url');
-        $query->andWhere('seo_url.is_canonical = 1');
-        $query->andWhere('seo_url.path_info IN (:pathInfo)');
-        $query->andWhere('seo_url.language_id = :languageId');
-        $query->andWhere('seo_url.sales_channel_id = :salesChannelId OR seo_url.sales_channel_id IS NULL');
-        $query->andWhere('seo_url.is_deleted = 0');
-        $query->setParameter('pathInfo', $mapping, ArrayParameterType::STRING);
-        $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
-        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
+        $languageId = Uuid::fromHexToBytes($context->getLanguageId());
+        $salesChannelId = Uuid::fromHexToBytes($context->getSalesChannelId());
 
-        $seoUrls = $query->executeQuery()->fetchAllAssociative();
+        foreach ($mapping as $key => $value) {
+            $subqueryParts .= '(SELECT id FROM seo_url WHERE path_info = ? AND language_id = ? AND is_canonical = 1 AND is_deleted = 0 AND sales_channel_id = ? LIMIT 1) UNION ALL ';
+            $params[] = $value;
+            $params[] = $languageId;
+            $params[] = $salesChannelId;
+        }
 
-        $mapped = [];
+        $seoUrls = $this->connection->fetchAllKeyValue($this->getSeoQuery($subqueryParts), $params);
 
-        foreach ($seoUrls as $seoUrl) {
-            $key = self::DOMAIN_PLACEHOLDER . $seoUrl['path_info'] . '#';
+        $missing = [];
+        $subqueryParts = '';
+        $params = [];
 
-            // prefer sales channel specific seo urls
-            if ($seoUrl['sales_channel_id'] === null && isset($mapped[$key])) {
-                continue;
+        foreach ($mapping as $key => $value) {
+            if (isset($seoUrls[$value])) {
+                $mapping[$key] = $seoUrls[$value];
+            } else {
+                $missing[$key] = $value;
+                $subqueryParts .= '(SELECT id FROM seo_url WHERE path_info = ? AND language_id = ? AND is_canonical = 1 AND is_deleted = 0 AND sales_channel_id IS NULL LIMIT 1) UNION ALL ';
+                $params[] = $value;
+                $params[] = $languageId;
             }
+        }
 
-            $seoPathInfo = trim((string) $seoUrl['seo_path_info']);
-            if ($seoPathInfo === '') {
-                continue;
-            }
-            $mapping[$key] = $seoPathInfo;
-            $mapped[$key] = true;
+        if (empty($missing)) {
+            return $mapping;
+        }
+
+        $seoUrls = $this->connection->fetchAllKeyValue($this->getSeoQuery($subqueryParts), $params);
+
+        foreach ($missing as $key => $value) {
+            $mapping[$key] = $seoUrls[$value] ?? $value;
         }
 
         return $mapping;
+    }
+
+    private function getSeoQuery(string $subqueryParts): string
+    {
+        $subqueryParts = rtrim($subqueryParts, 'UNION ALL ');
+
+        return '# seo_url::replacement
+        SELECT path_info,seo_path_info FROM seo_url WHERE id IN (SELECT id FROM (' . $subqueryParts . ') as ids)';
     }
 
     private function removePrefix(string $subject, string $prefix): string

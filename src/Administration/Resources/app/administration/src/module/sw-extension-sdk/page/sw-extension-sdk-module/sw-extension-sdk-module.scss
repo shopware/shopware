@@ -1,0 +1,10 @@
+@import "~scss/variables";
+
+.sw-extension-sdk-module {
+    .sw-page__back-btn-container {
+        a {
+            margin-left: 20px;
+            color: $color-gray-700;
+        }
+    }
+}

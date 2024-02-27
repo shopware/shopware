@@ -489,7 +489,7 @@ export default {
                 this.$delete(variant.price, foundVariantIndex);
             }
 
-            if (variant.price.length <= 0) {
+            if (variant.price.length <= 0 || Object.keys(variant.price).length <= 0) {
                 variant.price = null;
             }
         },

@@ -198,7 +198,7 @@ class SendMailActionTest extends TestCase
             static::assertFalse($oldDocument->getSent());
 
             // new document with new version id, old document with old version id
-            static::assertEquals($mailFilterEvent->getContext()->getVersionId(), $newDocument->getOrderVersionId());
+            static::assertEquals($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
             static::assertEquals($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
         }
     }

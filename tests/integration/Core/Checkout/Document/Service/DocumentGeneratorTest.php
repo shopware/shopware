@@ -870,6 +870,39 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($media);
     }
 
+    public function testGenerateAndKeepOrderVersionId(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId);
+
+        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($documentStruct);
+        static::assertTrue(Uuid::isValid($documentStruct->getId()));
+
+        $criteria = new Criteria([$documentStruct->getId()]);
+        $criteria->addAssociation('documentType');
+
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository
+            ->search($criteria, $this->context)
+            ->get($documentStruct->getId());
+
+        $versionContext = $this->context->createWithVersionId($document->getOrderVersionId());
+        static::assertSame($versionContext->getVersionId(), $document->getOrderVersionId());
+
+        // Update the document and keep the orderVersionId value intact
+        $this->documentRepository->upsert([[
+            'id' => $document->getId(),
+            'sent' => true,
+        ]], $versionContext);
+
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository
+            ->search($criteria, $this->context)
+            ->get($documentStruct->getId());
+
+        static::assertSame($versionContext->getVersionId(), $document->getOrderVersionId());
+    }
+
     public static function readDocumentDataProvider(): \Generator
     {
         yield 'read static document' => [

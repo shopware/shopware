@@ -76,19 +76,40 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         if ($data->getValue() !== null || $definition === $reference) {
             // parent inheritance with versioning
             $value = $data->getValue() ?? Defaults::LIVE_VERSION;
-        } elseif ($context->has($reference->getEntityName(), 'versionId')) {
+
+            yield $field->getStorageName() => Uuid::fromHexToBytes($value);
+
+            return;
+        }
+
+        if ($context->has($reference->getEntityName(), 'versionId')) {
             // if the reference is already written, use the version id of the written entity
             $value = $context->get($reference->getEntityName(), 'versionId');
-        } elseif ($definition->getParentDefinition() === $reference && $context->has($definition->getEntityName(), 'versionId')) {
+
+            yield $field->getStorageName() => Uuid::fromHexToBytes($value);
+
+            return;
+        }
+
+        if ($definition->getParentDefinition() === $reference && $context->has($definition->getEntityName(), 'versionId')) {
             // if the current entity is a sub entity (e.g. order -> line-item)
             // and the version id isn't set, use the same version id of the own entity
             // this is the case, if a entity is created over a sub api call
             $value = $context->get($definition->getEntityName(), 'versionId');
-        } else {
-            $value = Defaults::LIVE_VERSION;
+
+            yield $field->getStorageName() => Uuid::fromHexToBytes($value);
+
+            return;
         }
 
-        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
+        if (!$definition->isVersionAware() && $data->isDefault() && $existence->exists()) {
+            // we have a special handling for this situation for order.documents
+            // document entity is not version-aware, but the reference is required
+            // in this case, an update would fallback to the live version, but we want to keep the existing
+            return;
+        }
+
+        yield $field->getStorageName() => Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
     }
 
     public function decode(Field $field, mixed $value): ?string

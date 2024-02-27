@@ -1,5 +1,5 @@
 import initActionButtons from 'src/app/init/action-button.init';
-import { add } from '@shopware-ag/meteor-admin-sdk/es/ui/actionButton';
+import { add } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
 import actionButtonStore from '../state/action-button.store';
 
 describe('src/app/init/action-button.init.ts', () => {

@@ -26,7 +26,7 @@
                 path: tabExtension.componentSectionId
             } : ''"
         >
-            {{ tabExtension.label }}
+            {{ $tc(tabExtension.label ?? '') }}
         </sw-tabs-item>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

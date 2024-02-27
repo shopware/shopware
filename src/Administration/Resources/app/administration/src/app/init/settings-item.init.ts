@@ -35,10 +35,7 @@ export default function initializeSettingItems(): void {
                 group: group,
                 icon: settingsItemConfig.icon,
                 id: settingsItemConfig.locationId,
-                label: {
-                    translated: true,
-                    label: settingsItemConfig.label,
-                },
+                label: settingsItemConfig.label,
                 name: settingsItemConfig.locationId,
                 to: {
                     name: 'sw.extension.sdk.index',

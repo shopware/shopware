@@ -155,6 +155,7 @@ commercial trunk:
   trigger:
     project: shopware/6/product/commercial
     strategy: depend
+    branch: '6.6.0.0'
 
 commercial tag:
   extends: .downstream-job

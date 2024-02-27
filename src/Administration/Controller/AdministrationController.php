@@ -3,6 +3,8 @@
 namespace Shopware\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Administration\Events\PreResetExcludedSearchTermEvent;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
@@ -65,7 +67,8 @@ class AdministrationController extends AbstractController
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         ParameterBagInterface $params,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly FilesystemOperator $fileSystem,
     ) {
         // param is only available if the elasticsearch bundle is enabled
         $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')
@@ -127,6 +130,28 @@ class AdministrationController extends AbstractController
         }
 
         return new JsonResponse(['ips' => $ips]);
+    }
+
+    #[Route(path: '/%shopware_administration.path_name%/{pluginName}/index.html', name: 'administration.plugin.index', defaults: ['auth_required' => false], methods: ['GET'])]
+    public function pluginIndex(string $pluginName): Response
+    {
+        try {
+            $webpackIndexHtml = $this->fileSystem->read('bundles/' . $pluginName . '/administration/index.html');
+            $publicAssetBaseUrl = $this->fileSystem->publicUrl('/');
+        } catch (FilesystemException $e) {
+            return new Response('Plugin index.html not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $webpackIndexHtml = str_replace('__$ASSET_BASE_PATH$__', $publicAssetBaseUrl, $webpackIndexHtml);
+
+        $response = new Response($webpackIndexHtml, Response::HTTP_OK, [
+            'Content-Type' => 'text/html',
+            'Content-Security-Policy' => 'script-src * \'unsafe-eval\' \'unsafe-inline\'',
+            PlatformRequest::HEADER_FRAME_OPTIONS => 'sameorigin',
+        ]);
+        $response->setSharedMaxAge(3600);
+
+        return $response;
     }
 
     #[Route(path: '/api/_admin/reset-excluded-search-term', name: 'api.admin.reset-excluded-search-term', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]

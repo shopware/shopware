@@ -7,7 +7,7 @@
         :key="modal.locationId"
     >
         <sw-modal
-            :title="modal.title"
+            :title="$tc(modal.title ?? '')"
             :closable="modal.closable"
             :show-header="modal.showHeader"
             :variant="modal.variant"
@@ -27,7 +27,7 @@
                     :square="buttonProps(button).square"
                     @click="() => buttonProps(button).method()"
                 >
-                    {{ button.label }}
+                    {{ $tc(button.label ?? '') }}
                 </sw-button>
             </template>
         </sw-modal>

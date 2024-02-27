@@ -74,7 +74,7 @@
     "fork-ts-checker-webpack-plugin": "9.0.0",
     "fs-extra": "11.1.1",
     "html-loader": "0.5.5",
-    "html-webpack-plugin": "5.5.3",
+    "html-webpack-plugin": "5.6.0",
     "html2canvas": "1.4.1",
     "inter-ui": "3.19.3",
     "less": "4.2.0",

@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\RouterInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
@@ -45,9 +46,10 @@ class InfoController extends AbstractController
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
         private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly RouterInterface $router,
         private readonly ?FlowActionCollector $flowActionCollector = null,
         private readonly bool $enableUrlFeature = true,
-        private readonly array $cspTemplates = []
+        private readonly array $cspTemplates = [],
     ) {
     }
 
@@ -286,9 +288,18 @@ class InfoController extends AbstractController
             return null;
         }
 
-        $url = 'bundles/' . $bundleDirectoryName . '/' . $defaultEntryFile;
-
-        return $package->getUrl($url);
+        // exception is possible as the administration is an optional dependency
+        try {
+            return $this->router->generate(
+                'administration.plugin.index',
+                [
+                    'pluginName' => \mb_strtolower($bundle->getName()),
+                ],
+                RouterInterface::ABSOLUTE_URL
+            );
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

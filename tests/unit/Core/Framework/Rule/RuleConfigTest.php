@@ -49,4 +49,34 @@ class RuleConfigTest extends TestCase
         static::assertEquals('foo', $field['name']);
         static::assertEquals('string', $field['type']);
     }
+
+    public function testNumberFieldDefaultDigits(): void
+    {
+        $ruleConfig = new RuleConfig();
+
+        $ruleConfig->numberField('foo', []);
+
+        $field = $ruleConfig->getField('foo');
+
+        static::assertNotNull($field);
+        static::assertEquals('foo', $field['name']);
+        static::assertEquals('float', $field['type']);
+        static::assertEquals(RuleConfig::DEFAULT_DIGITS, $field['config']['digits']);
+    }
+
+    public function testNotOverrideNumberFieldDigits(): void
+    {
+        $ruleConfig = new RuleConfig();
+
+        $ruleConfig->numberField('foo', [
+            'digits' => 5,
+        ]);
+
+        $field = $ruleConfig->getField('foo');
+
+        static::assertNotNull($field);
+        static::assertEquals('foo', $field['name']);
+        static::assertEquals('float', $field['type']);
+        static::assertEquals(5, $field['config']['digits']);
+    }
 }

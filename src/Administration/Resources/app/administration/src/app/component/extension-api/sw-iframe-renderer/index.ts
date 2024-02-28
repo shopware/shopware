@@ -117,9 +117,11 @@ Shopware.Component.register('sw-iframe-renderer', {
 
         extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
+            const srcWithoutSearchParameters = new URL(this.src).origin + new URL(this.src).pathname;
 
             return Object.values(extensions).find((ext) => {
-                return ext.baseUrl === this.src;
+                const extensionBaseUrlWithoutSearchParameters = new URL(ext.baseUrl).origin + new URL(ext.baseUrl).pathname;
+                return extensionBaseUrlWithoutSearchParameters === srcWithoutSearchParameters;
             });
         },
 
@@ -129,11 +131,7 @@ Shopware.Component.register('sw-iframe-renderer', {
 
         iFrameSrc(): string {
             const urlObject = new URL(this.src, window.location.origin);
-
             urlObject.searchParams.append('location-id', this.locationId);
-            if (this.extension) {
-                urlObject.searchParams.append('privileges', JSON.stringify(this.extension.permissions));
-            }
 
             return urlObject.toString();
         },

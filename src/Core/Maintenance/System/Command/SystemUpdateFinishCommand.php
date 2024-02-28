@@ -70,7 +70,7 @@ class SystemUpdateFinishCommand extends Command
         /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = $this->container->get('event_dispatcher');
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $systemConfigService = $this->container->get(SystemConfigService::class);
         $oldVersion = $systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
 

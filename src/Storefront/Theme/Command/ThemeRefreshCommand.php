@@ -25,7 +25,7 @@ class ThemeRefreshCommand extends Command
     public function __construct(private readonly ThemeLifecycleService $themeLifecycleService)
     {
         parent::__construct();
-        $this->context = Context::createDefaultContext();
+        $this->context = Context::createCLIContext();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

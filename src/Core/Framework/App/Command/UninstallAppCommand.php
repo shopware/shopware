@@ -48,7 +48,7 @@ class UninstallAppCommand extends Command
             throw new \InvalidArgumentException('Argument $name must be an string');
         }
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $app = $this->getAppByName($name, $context);
 
         if (!$app) {

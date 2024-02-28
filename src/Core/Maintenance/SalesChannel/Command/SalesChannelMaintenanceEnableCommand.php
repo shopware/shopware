@@ -51,7 +51,7 @@ class SalesChannelMaintenanceEnableCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $criteria = new Criteria();
 
         if (!$input->getOption('all')) {

@@ -29,6 +29,6 @@ final class DeleteUnusedGuestCustomerHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $this->unusedGuestCustomerService->deleteUnusedCustomers(Context::createDefaultContext());
+        $this->unusedGuestCustomerService->deleteUnusedCustomers(Context::createCLIContext());
     }
 }

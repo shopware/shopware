@@ -30,6 +30,6 @@ final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $this->deleteExpiredFilesService->deleteFiles(Context::createDefaultContext());
+        $this->deleteExpiredFilesService->deleteFiles(Context::createCLIContext());
     }
 }

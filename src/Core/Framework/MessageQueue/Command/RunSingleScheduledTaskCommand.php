@@ -33,7 +33,7 @@ class RunSingleScheduledTaskCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->taskRunner->runSingleTask($input->getArgument('taskName'), Context::createDefaultContext());
+        $this->taskRunner->runSingleTask($input->getArgument('taskName'), Context::createCLIContext());
 
         return self::SUCCESS;
     }

@@ -64,7 +64,7 @@ class SalesChannelListCommand extends Command
         $criteria = new Criteria();
         $criteria->addAssociations(['language', 'languages', 'currency', 'currencies', 'domains']);
         /** @var SalesChannelCollection $salesChannels */
-        $salesChannels = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $salesChannels = $this->salesChannelRepository->search($criteria, Context::createCLIContext())->getEntities();
 
         $data = [];
         foreach ($salesChannels as $salesChannel) {

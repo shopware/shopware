@@ -87,7 +87,7 @@ class CreateAppCommand extends Command
             $this->appLifecycle->install(
                 Manifest::createFromXmlFile($dir . '/manifest.xml'),
                 true,
-                Context::createDefaultContext()
+                Context::createCLIContext()
             );
 
             $io->success(sprintf('App %s has been successfully installed.', $details['name']));

@@ -34,7 +34,7 @@ class DeleteExpiredFilesCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $count = $this->deleteExpiredFilesService->countFiles($context);
 

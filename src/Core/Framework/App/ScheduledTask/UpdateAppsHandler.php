@@ -30,6 +30,6 @@ final class UpdateAppsHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $this->appUpdater->updateApps(Context::createDefaultContext());
+        $this->appUpdater->updateApps(Context::createCLIContext());
     }
 }

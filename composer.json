@@ -535,6 +535,7 @@
         ],
         "watch:storefront": [
             "Composer\\Config::disableProcessTimeout",
+            "@php bin/console bundle:dump",
             "@php bin/console feature:dump",
             "@php bin/console theme:dump",
             "@npm:storefront run hot-proxy"

@@ -1,88 +1,5 @@
 # 6.6.0.0
 
-## Introduced in 6.6.0.0
-* In the previous implementation, each system language has its own index, but with the new implementation, every languages share the same index. This leads to the following changes in the next major: 
-  * Old ES indexes is deprecated and will be removed since the next major. 
-  * If you have custom elasticsearch definitions, you also need to write your own SearchQueryBuilder (Reference: \Shopware\Elasticsearch\Product\EsProductDefinition::buildTermQuery)
-## sw-text-field default event:
-* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
-## sw-boolean-radio-groups default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-bulk-edit-change-type default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-custom-entity-input-field default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-entity-many-to-many-select default event:
-* Change event listeners from `@change="onChange"` to `@update:entityCollection="onChange"`
-## sw-entity-multi-id-select default event:
-* Change event listeners from `@change="onChange"` to `@update:ids="onChange"`
-## sw-extension-rating-stars default event:
-* Change event listeners from `@rating-changed="onChange"` to `@update:rating="onChange"`
-## sw-extension-select-rating default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-file-input default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-gtc-checkbox default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-many-to-many-assignment-card default event:
-* Change event listeners from `@change="onChange"` to `@update:entityCollection="onChange"`
-## sw-meteor-single-select default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-multi-select default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-multi-tag-select default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-price-field default event:
-* Change event listeners from `@change="onChange"` to `@update:price="onChange"`
-## sw-radio-panel default event:
-* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
-## Breaking Change 1:
-* Change `sw-select-field` change listeners `@change="onChange"` to `@update:value="onChange"`
-## sw-select-number-field default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-single-select default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-tagged-field default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-textarea-field default event:
-* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
-## Breaking Change 1:
-* Change `sw-url-field` input listeners `@input="onIput"` to `@update:value="onInput"`
-## sw-button-process default event:
-* Change event listeners from `@process-finish="onFinish"` to `@update:processSuccess="onFinish"`
-## sw-import-export-entity-path-select default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-inherit-wrapper default event:
-* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
-## sw-media-breadcrumbs default event:
-* Change event listeners from `@media-folder-change="onChange"` to `@update:currentFolderId="onChange"`
-## sw-media-library default event:
-* Change event listeners from `@media-selection-change="onChange"` to `@update:selection="onChange"`
-## sw-multi-snippet-drag-and-drop default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-order-customer-address-select default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-order-select-document-type-modal default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## sw-password-field default event:
-* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
-## sw-promotion-v2-rule-select default event:
-* Change event listeners from `@change="onChange"` to `@update:collection="onChange"`
-## sw-radio-field default event:
-* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
-## Removal of vue-meta:
-* `vue-meta` will be removed. We use our own implementation which only supports the `title` inside `metaInfo`.
-* If you use other properties than title they will no longer work.
-* If your `metaInfo` option is a object, rewrite it to a function returning an object.
-
-## Main categories are now available in seo url templates
-We added the `mainCategories` association in the `\Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute::prepareCriteria` method. 
-This association is filtered by the current sales channel id. You can now use the main categories in your seo url templates for product detail pages. 
-
-```
-{{ product.mainCategories.first.category.translated.name }}
-```
-
 # New System Requirements and Configuration Changes
 ## New System requirements
 We upgraded some system requirements according to this [proposal](https://github.com/shopware/shopware/discussions/3359).
@@ -414,6 +331,48 @@ Please refer to the [Webpack 5 migration guide](https://webpack.js.org/migrate/5
 
 Cross-compatibility with older shopware versions is not possible because we upgraded the build system, e.g. admin extensions built for shopware 6.6 with webpack 5 will not work with shopware 6.5 (and webpack 4) or lower.
 When you want to have a single version of your admin extension, you should consider switching to the [`meteor-admin-sdk`](https://shopware.github.io/meteor-admin-sdk/) as that lets you control your extensions runtime environment.
+
+## Removal of vue-meta:
+* `vue-meta` will be removed. We use our own implementation which only supports the `title` inside `metaInfo`.
+* If you use other properties than title they will no longer work.
+* If your `metaInfo` option is a object, rewrite it to a function returning an object.
+
+## Admin event name changes
+Some generic `@change` or `@input` event names from admin components were changed to be more specific.
+See the complete list of changes below:
+* Change `sw-text-field` event listeners from `@input="onInput"` to `@update:value="onInput"`
+* Change `sw-boolean-radio-groups` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-bulk-edit-change-type` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-custom-entity-input-field` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-entity-many-to-many-select` event listeners from `@change="onChange"` to `@update:entityCollection="onChange"`
+* Change `sw-entity-multi-id-select` event listeners from `@change="onChange"` to `@update:ids="onChange"`
+* Change `sw-extension-rating-stars` event listeners from `@rating-changed="onChange"` to `@update:rating="onChange"`
+* Change `sw-extension-select-rating` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-file-input` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-gtc-checkbox` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-many-to-many-assignment-card` event listeners from `@change="onChange"` to `@update:entityCollection="onChange"`
+* Change `sw-meteor-single-select` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-multi-select` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-multi-tag-select` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-price-field` event listeners from `@change="onChange"` to `@update:price="onChange"`
+* Change `sw-radio-panel` event listeners from `@input="onInput"` to `@update:value="onInput"`
+* Change `sw-select-field` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-select-number-field` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-single-select` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-tagged-field` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-textarea-field` event listeners from `@input="onInput"` to `@update:value="onInput"`
+* Change `sw-url-field` event listeners from `@input="onIput"` to `@update:value="onInput"`
+* Change `sw-button-process` event listeners from `@process-finish="onFinish"` to `@update:processSuccess="onFinish"`
+* Change `sw-import-export-entity-path-select` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-inherit-wrapper` event listeners from `@input="onInput"` to `@update:value="onInput"`
+* Change `sw-media-breadcrumbs` event listeners from `@media-folder-change="onChange"` to `@update:currentFolderId="onChange"`
+* Change `sw-media-library` event listeners from `@media-selection-change="onChange"` to `@update:selection="onChange"`
+* Change `sw-multi-snippet-drag-and-drop` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-order-customer-address-select` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-order-select-document-type-modal` event listeners from `@change="onChange"` to `@update:value="onChange"`
+* Change `sw-password-field` event listeners from `@input="onInput"` to `@update:value="onInput"`
+* Change `sw-promotion-v2-rule-select` event listeners from `@change="onChange"` to `@update:collection="onChange"`
+* Change `sw-radio-field` event listeners from `@change="onChange"` to `@update:value="onChange"`
 
 # General Storefront Breaking Changes
 
@@ -803,6 +762,16 @@ $processor->process($criteria, $request);
 
 // $criteria->getLimit() === 5
 // $criteria->getLimit() === 10 (if no limit is set in the request)
+```
+
+## Introduced in 6.6.0.0
+
+### Main categories are now available in seo url templates
+We added the `mainCategories` association in the `\Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute::prepareCriteria` method.
+This association is filtered by the current sales channel id. You can now use the main categories in your seo url templates for product detail pages.
+
+```
+{{ product.mainCategories.first.category.translated.name }}
 ```
 
 ## Introduced in 6.5.8.0

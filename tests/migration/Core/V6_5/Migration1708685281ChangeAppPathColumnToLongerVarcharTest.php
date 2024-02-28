@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1708685281ChangeAppPathColumnToLongerVarchar;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1708685281ChangeAppPathColumnToLongerVarchar
  */
+#[CoversClass(Migration1708685281ChangeAppPathColumnToLongerVarchar::class)]
 class Migration1708685281ChangeAppPathColumnToLongerVarcharTest extends TestCase
 {
     private Connection $connection;

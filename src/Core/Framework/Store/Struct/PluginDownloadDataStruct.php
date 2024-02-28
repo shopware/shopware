@@ -21,13 +21,32 @@ class PluginDownloadDataStruct extends Struct
      */
     protected $type;
 
-    protected ?int $size = null;
-
-    protected ?string $sha1 = null;
-
     protected ?string $binaryVersion = null;
 
     protected ?string $manifestLocation = null;
+
+    protected ?string $name = null;
+
+    protected ?string $sha1 = null;
+
+    protected ?int $size = null;
+
+    protected ?string $region = null;
+
+    protected ?string $bucket = null;
+
+    /**
+     * @param array<string, mixed> $arr
+     */
+    public static function fromArray(array $arr): self
+    {
+        return (new self())->assign($arr);
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'store_download_data';
+    }
 
     public function getLocation(): string
     {
@@ -39,8 +58,38 @@ class PluginDownloadDataStruct extends Struct
         return $this->type;
     }
 
-    public function getApiAlias(): string
+    public function getManifestLocation(): ?string
     {
-        return 'store_download_data';
+        return $this->manifestLocation;
+    }
+
+    public function getBucket(): ?string
+    {
+        return $this->bucket;
+    }
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function getBinaryVersion(): ?string
+    {
+        return $this->binaryVersion;
+    }
+
+    public function getSha1(): ?string
+    {
+        return $this->sha1;
     }
 }

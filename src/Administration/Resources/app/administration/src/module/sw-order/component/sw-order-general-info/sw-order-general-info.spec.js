@@ -12,6 +12,7 @@ const orderMock = {
     id: '123',
     orderNumber: 10000,
     orderCustomer: {
+        customerId: 'orderID',
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@doe.dev',
@@ -186,9 +187,13 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
     it('should show correct summary header', async () => {
         const summary = wrapper.find('.sw-order-general-info__summary-main-header');
+        const link = wrapper.find('.sw-order-general-info__summary-main-header-link');
 
         expect(summary.exists()).toBeTruthy();
-        expect(summary.text()).toBe('10000 - John Doe (john@doe.dev)');
+        expect(link.exists()).toBeTruthy();
+        expect(summary.text()).toContain('10000');
+        expect(summary.text()).toContain('John Doe');
+        expect(summary.text()).toContain('john@doe.dev');
     });
 
     it('should not mutate the original of the order\'s tags when removing tag', async () => {

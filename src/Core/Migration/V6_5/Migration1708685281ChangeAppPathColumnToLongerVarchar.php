@@ -23,11 +23,4 @@ class Migration1708685281ChangeAppPathColumnToLongerVarchar extends MigrationSte
 
         $connection->executeStatement($sql);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        $sql = 'ALTER TABLE `app` MODIFY COLUMN `path` VARCHAR(255);';
-
-        $connection->executeStatement($sql);
-    }
 }

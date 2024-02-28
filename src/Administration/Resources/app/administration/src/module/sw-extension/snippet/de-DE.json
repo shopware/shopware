@@ -631,7 +631,10 @@
       }
     },
     "additional_privileges": {
-      "title": "Zusätzliche Berechtigungen"
+      "title": "Zusätzliche Berechtigungen",
+      "entities": {
+        "api_feature_flag_toggle": "API feature flag toggle"
+      }
     }
   },
   "sw-privileges": {

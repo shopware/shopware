@@ -1,4 +1,10 @@
 # 6.7.0.0
+
+## Introduced in 6.6.0.0
+
+## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
+* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+
 ## AccountService refactoring
 
 The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.

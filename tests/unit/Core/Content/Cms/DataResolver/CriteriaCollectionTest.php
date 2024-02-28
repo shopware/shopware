@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\SlotDataResolver;
+namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 /**
  * @internal
  */
+#[CoversClass(CriteriaCollection::class)]
 class CriteriaCollectionTest extends TestCase
 {
     public function testAddSingleCriteria(): void

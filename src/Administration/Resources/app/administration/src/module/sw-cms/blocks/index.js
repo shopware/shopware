@@ -40,3 +40,5 @@ import './commerce/product-description-reviews';
 import './commerce/cross-selling';
 
 import './form/form';
+
+import './html/html';

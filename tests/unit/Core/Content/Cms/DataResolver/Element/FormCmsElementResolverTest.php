@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Cms\SlotDataResolver\Type;
+namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -10,7 +11,6 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
@@ -23,15 +23,14 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class FormTypeDataResolverTest extends TestCase
+#[CoversClass(FormCmsElementResolver::class)]
+class FormCmsElementResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testType(): void
     {
-        $formCmsElementResolver = $this->getContainer()->get(FormCmsElementResolver::class);
+        $formCmsElementResolver = new FormCmsElementResolver($this->createMock(AbstractSalutationRoute::class));
 
-        static::assertEquals('form', $formCmsElementResolver->getType());
+        static::assertSame('form', $formCmsElementResolver->getType());
     }
 
     public function testResolverUsesAbstractSalutationsRouteToEnrichSlot(): void
@@ -63,12 +62,12 @@ class FormTypeDataResolverTest extends TestCase
             new ElementDataCollection()
         );
 
-        /** @var SalutationCollection $enrichedCollection */
         $enrichedCollection = $formElement->getData();
+        static::assertInstanceOf(SalutationCollection::class, $enrichedCollection);
 
         $sortedKeys = array_values($enrichedCollection->map(static fn (SalutationEntity $salutation) => $salutation->getSalutationKey()));
 
-        static::assertEquals(['d', 'c', 'b', 'a'], $sortedKeys);
+        static::assertSame(['d', 'c', 'b', 'a'], $sortedKeys);
     }
 
     private function getCmsFormElement(): CmsSlotEntity

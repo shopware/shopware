@@ -114,6 +114,7 @@
         "blockCategoryCommerce": "Commerce",
         "blockCategoryVideo": "Video",
         "blockCategoryForm": "Form",
+        "blockCategoryHtml": "HTML",
         "buttonElementSettingsConfirm": "Done",
         "buttonElementChangeAbort": "Cancel",
         "blockNameField": "Block name",
@@ -567,6 +568,11 @@
       },
       "productName": {
         "label": "Product Name"
+      },
+      "html": {
+        "config": {
+          "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
+        }
       }
     },
     "blocks": {
@@ -701,6 +707,11 @@
       "form": {
         "form": {
           "label": "Form"
+        }
+      },
+      "html": {
+        "html": {
+          "label": "HTML"
         }
       },
       "blockDisableState": "This block is not visible on any device. You can edit the block but the changes will not be visible in your shop. Edit this layout in shopping experiences module to change the block visibility."

@@ -19,7 +19,7 @@
     "postinstall": "patch-package",
     "lighthouse": "node lighthouse-tests.js",
     "lint": "eslint --ext .js,.ts,.vue,.html.twig src test --cache",
-    "lint-fix": "eslint --fix --ext .js,.vue,.html.twig src test",
+    "lint-fix": "eslint --fix --ext .js,.ts,.vue,.html.twig src test",
     "lint:all": "npm run lint:types && npm run lint",
     "lint:deprecations": "eslint --rule '\"sw-new-core-rules/private-feature-declarations\": \"error\"' $(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}')",
     "lint:fix": "npm run lint -- --fix",

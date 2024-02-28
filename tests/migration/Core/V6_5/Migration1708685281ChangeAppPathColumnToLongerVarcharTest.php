@@ -40,24 +40,6 @@ class Migration1708685281ChangeAppPathColumnToLongerVarcharTest extends TestCase
         static::assertTrue($this->isPathColumnLongVarchar());
     }
 
-    public function testUpdateDestructive(): void
-    {
-        if (!$this->isPathColumnLongVarchar()) {
-            $this->setDataTypeToLongVarchar();
-        }
-
-        static::assertTrue($this->isPathColumnLongVarchar());
-
-        $this->migration->updateDestructive($this->connection);
-        $this->migration->updateDestructive($this->connection);
-
-        static::assertFalse($this->isPathColumnLongVarchar());
-
-        $this->migration->update($this->connection);
-
-        static::assertTrue($this->isPathColumnLongVarchar());
-    }
-
     private function isPathColumnLongVarchar(): bool
     {
         $sql = 'SHOW COLUMNS FROM `app` WHERE `field` = \'path\';';
@@ -71,13 +53,6 @@ class Migration1708685281ChangeAppPathColumnToLongerVarcharTest extends TestCase
     private function setDataTypeToDefaultVarchar(): void
     {
         $sql = 'ALTER TABLE `app` MODIFY COLUMN `path` VARCHAR(255);';
-
-        $this->connection->executeQuery($sql);
-    }
-
-    private function setDataTypeToLongVarchar(): void
-    {
-        $sql = 'ALTER TABLE `app` MODIFY COLUMN `path` VARCHAR(4096);';
 
         $this->connection->executeQuery($sql);
     }

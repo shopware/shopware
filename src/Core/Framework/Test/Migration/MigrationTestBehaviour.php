@@ -53,6 +53,13 @@ trait MigrationTestBehaviour
             )
         );
 
+        $loader->addSource(
+            new MigrationSource(
+                '_test_migrations_valid_recursively',
+                [__DIR__ . '/_test_migrations_valid_recursively' => 'Shopware\Core\Framework\Test\Migration\_test_migrations_valid_recursively']
+            )
+        );
+
         $this->getContainer()->get(MigrationCollectionLoader::class)->addSource(
             new MigrationSource(
                 self::INTEGRATION_IDENTIFIER(),

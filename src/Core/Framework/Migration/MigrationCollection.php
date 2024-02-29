@@ -163,21 +163,22 @@ class MigrationCollection
                 continue;
             }
 
-            $classFiles = scandir($directory, \SCANDIR_SORT_ASCENDING);
+            $classFiles = $this->scanDirectory($directory);
+
             if (!$classFiles) {
                 continue;
             }
 
-            foreach ($classFiles as $classFileName) {
-                $path = $directory . '/' . $classFileName;
-                $className = $namespace . '\\' . pathinfo($classFileName, \PATHINFO_FILENAME);
+            foreach ($classFiles as $filePath) {
+                $namespace = $this->extractNamespace($filePath);
+                $className = $namespace . '\\' . pathinfo($filePath, \PATHINFO_FILENAME);
 
-                if (pathinfo($path, \PATHINFO_EXTENSION) !== 'php') {
+                if (pathinfo($filePath, \PATHINFO_EXTENSION) !== 'php') {
                     continue;
                 }
 
                 if (!class_exists($className) && !trait_exists($className) && !interface_exists($className)) {
-                    throw new InvalidMigrationClassException($className, $path);
+                    throw new InvalidMigrationClassException($className, $filePath);
                 }
 
                 if (!is_subclass_of($className, MigrationStep::class, true)) {
@@ -189,5 +190,42 @@ class MigrationCollection
         }
 
         return $migrations;
+    }
+
+    private function scanDirectory($dir)
+    {
+        $result = [];
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $path) {
+            $result[$path->getFilename()] = $path->getPathname();
+        }
+
+        sort($result);
+
+        return $result;
+    }
+
+    private function extractNamespace($file)
+    {
+        $ns = null;
+        $handle = fopen($file, 'rb');
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                if (str_starts_with($line, 'namespace')) {
+                    $parts = explode(' ', $line);
+                    $ns = rtrim(trim($parts[1]), ';');
+
+                    break;
+                }
+            }
+            fclose($handle);
+        }
+
+        return $ns;
     }
 }

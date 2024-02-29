@@ -101,6 +101,16 @@ class MigrationLoaderTest extends TestCase
         static::assertEquals(2, $migrations[1]);
     }
 
+    public function testItGetsCorrectMigrationRecursivelyTimestamps(): void
+    {
+        $collection = $this->loader->collect('_test_migrations_valid_recursively');
+        $migrations = $collection->getActiveMigrationTimestamps();
+
+        static::assertCount(2, $migrations);
+        static::assertEquals(1, $migrations[0]);
+        static::assertEquals(2, $migrations[1]);
+    }
+
     public function testThatInvalidMigrationClassesThrowOnLazyInit(): void
     {
         $collection = $this->loader->collect('_test_migrations_invalid_namespace');

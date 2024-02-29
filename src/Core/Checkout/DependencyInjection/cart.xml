@@ -38,7 +38,7 @@
         <service id="Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument>%shopware.cart.expire_days%</argument>
             <tag name="messenger.message_handler"/>
         </service>

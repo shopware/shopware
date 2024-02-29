@@ -94,7 +94,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
         $salesChannelId = Uuid::fromHexToBytes($context->getSalesChannelId());
 
-        foreach ($mapping as $key => $value) {
+        foreach ($mapping as $value) {
             $subqueryParts .= '(SELECT id FROM seo_url WHERE path_info = ? AND language_id = ? AND is_canonical = 1 AND is_deleted = 0 AND sales_channel_id = ? LIMIT 1) UNION ALL ';
             $params[] = $value;
             $params[] = $languageId;

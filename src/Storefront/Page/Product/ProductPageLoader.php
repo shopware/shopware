@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
 use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
@@ -183,9 +184,7 @@ class ProductPageLoader
         $crossSellingStruct = $blocks->filterByProperty('type', CrossSellingCmsElementResolver::TYPE)->first()?->getSlots()?->first()?->getData();
         if ($crossSellingStruct instanceof CrossSellingStruct) {
             $crossSelling = $crossSellingStruct->getCrossSellings();
-            if ($crossSelling !== null) {
-                $page->setCrossSellings($crossSelling);
-            }
+            $page->setCrossSellings($crossSelling ?? new CrossSellingElementCollection());
         }
     }
 }

@@ -192,7 +192,7 @@ class MigrationCollection
         return $migrations;
     }
 
-    private function scanDirectory($dir)
+    private function scanDirectory($dir): array
     {
         $result = [];
 
@@ -210,7 +210,7 @@ class MigrationCollection
         return $result;
     }
 
-    private function extractNamespace($file)
+    private function extractNamespace($file): string
     {
         $ns = null;
         $handle = fopen($file, 'rb');

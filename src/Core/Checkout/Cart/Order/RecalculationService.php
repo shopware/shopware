@@ -60,14 +60,14 @@ class RecalculationService
      * @throws EmptyCartException
      * @throws InconsistentCriteriaIdsException
      */
-    public function recalculateOrder(string $orderId, Context $context): void
+    public function recalculateOrder(string $orderId, Context $context, array $options = []): void
     {
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
         \assert($order instanceof OrderEntity);
 
-        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context, $options);
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 

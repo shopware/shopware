@@ -702,7 +702,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
         <sw-multi-tag-ip-select
-            v-model:value="maintenanceIpWhitelist"
+            v-model:value="maintenanceIpAllowlist"
             :is-loading="isLoading"
             :disabled="!acl.can('sales_channel.editor')"
             class="sw-order-user-card__tag-select"

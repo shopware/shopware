@@ -1,6 +1,6 @@
 ---
 title: Add new block in analytics template
-issue: NEXT-00000
+issue: NEXT-34102
 author: Wanne Van Camp
 author_email: info@campit.be
 author_github: wannevancamp

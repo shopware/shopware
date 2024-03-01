@@ -12,7 +12,6 @@ const selector = {
  */
 describe('pseudo-modal.util tests', () => {
     let pseudoModal = null;
-    const spyInsertAdjacentElement = jest.fn();
 
     function initialModal() {
         return new PseudoModalUtil(ModalContentTemplate);
@@ -20,7 +19,11 @@ describe('pseudo-modal.util tests', () => {
 
     beforeEach(() => {
         document.body.innerHTML = PseudoModalTemplate;
-        document.body.insertAdjacentElement = spyInsertAdjacentElement;
+
+        // Mock implementation of insertAdjacentElement because it is currently not supported by jsdom
+        document.body.insertAdjacentElement = jest.fn().mockImplementation((position, html) => {
+            document.body.appendChild(html);
+        });
 
         jest.useFakeTimers();
         pseudoModal = initialModal();
@@ -82,5 +85,26 @@ describe('pseudo-modal.util tests', () => {
         const titleElement = modal.querySelectorAll(selector.templateTitle);
 
         expect(titleElement).toHaveLength(1);
+    });
+
+    test('it closes existing modal before opening new modal', () => {
+        pseudoModal.open();
+        jest.runAllTimers();
+
+        // Ensure first modal is opened
+        const openedModal = document.querySelector('.js-pseudo-modal .modal.fade.show');
+        expect(openedModal.querySelector('.modal-body').innerHTML).toContain('<div>Modal content</div>');
+
+        // While the first modal is still open, some other modal is opened with new instance of PseudoModalUtil
+        const newPseudoModal = new PseudoModalUtil('<div>New modal content</div>');
+        newPseudoModal.open();
+        jest.runAllTimers();
+
+        // Ensure new modal is opened with new content
+        const newModal = document.querySelector('.js-pseudo-modal .modal.fade.show');
+        expect(newModal.querySelector('.modal-body').innerHTML).toContain('<div>New modal content</div>');
+
+        // Ensure only a single backdrop exists
+        expect(document.querySelectorAll('.modal-backdrop').length).toBe(1);
     });
 });

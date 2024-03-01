@@ -5,7 +5,7 @@ import { components } from '@shopware/api-client/admin-api-types';
 import { getCurrencyFactor, getSalutationId, getStateMachineId, getStateMachineStateId } from '@fixtures/Helper';
 
 export const OrderData = base.extend<FixtureTypes>({
-    orderData: async ({idProvider, adminApiContext, storeBaseConfig, defaultStorefront, productData}, use) => {
+    orderData: async ({ idProvider, adminApiContext, storeBaseConfig, defaultStorefront, productData }, use) => {
 
         //Create Requests
         const requests = {
@@ -23,8 +23,8 @@ export const OrderData = base.extend<FixtureTypes>({
         const mrSalutationId = await requests.mrSalutationId;
         const orderStateId = await requests.orderStateId;
         const currencyFactorEUR = await requests.currencyFactorEUR;
-        const orderTransactionStateId = await  requests.orderTransactionStateId;
-        const orderDeliveryStateId = await  requests.orderDeliveryStateId;
+        const orderTransactionStateId = await requests.orderTransactionStateId;
+        const orderDeliveryStateId = await requests.orderDeliveryStateId;
         const orderStateStateMachineStateId = await getStateMachineStateId(orderStateId, adminApiContext);
         const orderTransactionStateIdMachineStateId = await getStateMachineStateId(orderTransactionStateId, adminApiContext);
         const orderDeliveryStateIdMachineStateId = await getStateMachineStateId(orderDeliveryStateId, adminApiContext);
@@ -45,7 +45,7 @@ export const OrderData = base.extend<FixtureTypes>({
                     interval: 0.01,
                     roundForNet: true,
                 },
-                totalRounding:{
+                totalRounding: {
                     decimals: 2,
                     interval: 0.01,
                     roundForNet: true,

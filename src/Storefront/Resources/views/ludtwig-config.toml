@@ -35,7 +35,7 @@ active-rules = [
     "whitespace-between-line-breaks",
     "line-ending",
 #    "indentation",
-#    "twig-block-line-breaks",
+    "twig-block-line-breaks",
     "twig-block-name-snake-case",
     "html-attribute-name-kebab-case",
     "twig-logic-and",

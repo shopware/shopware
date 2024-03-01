@@ -20,6 +20,7 @@
             {% block component_basic_captcha_image %}
                 <div class="basic-captcha-content-code">
                     <div class="basic-captcha-content-image" id="{{ formId }}-basic-captcha-content-image"></div>
+
                     {% block component_basic_captcha_refresh_icon %}
                         <a class="btn btn-outline-primary basic-captcha-content-refresh-icon" id="{{ formId }}-basic-captcha-content-refresh-icon">
                             {% sw_icon 'arrow-switch' %}
@@ -27,6 +28,7 @@
                     {% endblock %}
                 </div>
             {% endblock %}
+
             {% block component_basic_captcha_fields_title_label %}
                 <label class="form-label">
                     {{ 'captcha.basicCaptchaLabel'|trans|sw_sanitize }}

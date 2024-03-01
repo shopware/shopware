@@ -5,16 +5,12 @@
          tabindex="-1"
          role="dialog"
          aria-hidden="true">
-
         {% block page_checkout_aside_cancel_order_modal_dialog %}
             <div class="modal-dialog" role="dialog">
-
                 {% block page_checkout_aside_cancel_order_modal_content %}
                     <div class="modal-content">
-
                         {% block page_checkout_aside_cancel_order_modal_header %}
                             <div class="modal-header">
-
                                 {% block page_checkout_aside_cancel_order_modal_header_title %}
                                     <h5 class="modal-title">{{ 'account.editOrderCancelOrderModalHeader'|trans|sw_sanitize }}</h5>
                                 {% endblock %}
@@ -32,7 +28,6 @@
 
                         {% block page_checkout_aside_cancel_order_modal_body %}
                             <div class="modal-body">
-
                                 {% block page_checkout_aside_cancel_order_modal_body_text %}
                                     <p>{{ 'account.editOrderCancelOrderModalBodyText'|trans|sw_sanitize }}</p>
                                 {% endblock %}
@@ -45,7 +40,6 @@
 
                         {% block page_checkout_aside_cancel_order_modal_footer %}
                             <div class="modal-footer">
-
                                 {% block page_checkout_aside_cancel_order_modal_footer_form %}
                                     <form action="{{ path('frontend.account.order.cancel') }}"
                                           method="post">

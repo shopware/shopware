@@ -14,7 +14,6 @@
                       action="{{ path('frontend.account.login') }}"
                       method="post"
                       data-form-validation="true">
-
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -83,6 +82,7 @@
                                             {{ 'account.loginPasswordLabel'|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
+
                                     {% block component_account_login_form_password_input %}
                                         <input type="password"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"

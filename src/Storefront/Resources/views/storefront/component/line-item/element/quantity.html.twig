@@ -24,7 +24,6 @@
 
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
-
             {% block component_line_item_quantity_label %}
                 <div class="line-item-quantity-label">
                     {{ 'checkout.cartHeaderQuantity'|trans|sw_sanitize }}
@@ -47,7 +46,6 @@
                                   data-form-auto-submit-options="{{ autoSubmitOptions|json_encode }}"
                                   {% endif %}
                             >
-
                                 {% block component_line_item_quantity_redirect %}
                                     <input type="hidden"
                                            name="redirectTo"
@@ -59,6 +57,7 @@
 
                                 {# @deprecated tag:v6.7.0 - Unused variable selectQuantityThreshold will be removed without replacement #}
                                 {% set selectQuantityThreshold = 100 %}
+
                                 {% block component_line_item_quantity_select %}
                                     {% block component_line_item_quantity_select_input %}
                                         <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">

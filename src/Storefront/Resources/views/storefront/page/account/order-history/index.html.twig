@@ -39,6 +39,7 @@
                                 {% endblock %}
                             </div>
                         {% endblock %}
+
                         {% block page_account_orders_paging %}
                             {% if not feature('v6.7.0.0') %}
                                 {% set criteria = page.orders.criteria %}

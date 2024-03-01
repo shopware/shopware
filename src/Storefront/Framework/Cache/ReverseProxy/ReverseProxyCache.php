@@ -4,9 +4,11 @@ namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Cache\CacheStore;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
@@ -84,7 +86,11 @@ class ReverseProxyCache implements StoreInterface
 
         $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, \implode(',', $states));
 
-        $this->gateway->tag(\array_values($tags), $request->getPathInfo(), $response);
+        if (KernelFactory::$active) {
+            $this->gateway->tag(\array_values($tags), $request->getPathInfo(), $response);
+        } else {
+            $this->gateway->tag(\array_values($tags), $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI), $response);
+        }
 
         return '';
     }

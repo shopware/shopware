@@ -251,6 +251,7 @@ class ModuleLoaderTest extends TestCase
         $this->validateSource($loadedModules[0]['modules'][1]['source'] ?? '', 'https://first.app.com/second', $this->defaultSecret);
         unset($loadedModules[0]['modules'][1]['source']);
 
+        static::assertArrayHasKey('source', $loadedModules[1]['modules'][0]);
         static::assertNull($loadedModules[1]['modules'][0]['source']);
         unset($loadedModules[1]['modules'][0]['source']);
     }

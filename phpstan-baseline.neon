@@ -7636,11 +7636,6 @@ parameters:
 			path: tests/unit/Core/Framework/Plugin/Event/PluginPostDeactivationFailedEventTest.php
 
 		-
-			message: "#^Offset 1 does not exist on array\\<0, mixed\\>&list\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Update/Api/UpdateControllerTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Update\\\\\\\\Steps\\\\\\\\ValidResult' and Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\ValidResult will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Update/Steps/DeactivateExtensionsStepTest.php
@@ -7784,11 +7779,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$actualCmsAwareFields\\['sw_title'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
-			count: 4
-			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"

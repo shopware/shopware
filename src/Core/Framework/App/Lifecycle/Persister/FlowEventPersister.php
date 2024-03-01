@@ -73,7 +73,7 @@ class FlowEventPersister
 
         $ids = array_map(static function (string $id): array {
             return ['id' => $id];
-        }, array_values($ids));
+        }, $ids);
 
         $this->flowEventsRepository->delete($ids, $context);
     }

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Action;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Actions;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -26,6 +25,6 @@ class ActionsTest extends TestCase
 
         $action = Actions::fromXml($actions);
         static::assertCount(1, $action->getActions());
-        static::assertInstanceOf(Action::class, $action->getActions()[0]);
+        static::assertSame('abc.cde.ccc', $action->getActions()[0]->getMeta()->getName());
     }
 }

@@ -59,7 +59,7 @@ add assets to split repositories:
     GIT_COMMITTER_NAME: 'shopwareBot'
   script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront; do
         .gitlab/bin/split.sh copy_assets "${package}"
       done
     - .gitlab/bin/split.sh check_assets
@@ -72,11 +72,11 @@ finalize split repos (tag):
     - !reference [ .rules, split, rules-tag ]
   script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront Elasticsearch; do
         .gitlab/bin/split.sh require_core_version "${package}" "${CI_COMMIT_TAG}"
       done
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront Elasticsearch; do
         .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_TAG} (+ assets)"
       done
     - >
@@ -90,11 +90,11 @@ finalize split repos (protected branch):
     - !reference [ .rules, split, rules-scheduled ]
   script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront Elasticsearch; do
         .gitlab/bin/split.sh require_core_version "${package}" "dev-${CI_COMMIT_REF_NAME}"
       done
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront Elasticsearch; do
         .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_REF_NAME} (+ assets)"
       done
 
@@ -104,11 +104,11 @@ finalize split repos (merge request):
     - !reference [ .rules, split, rules-label ]
   script:
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront Elasticsearch; do
           .gitlab/bin/split.sh require_core_version "${package}" "dev-tmp-${CI_COMMIT_SHORT_SHA}"
       done
     - >
-      for package in Administration Storefront Core Elasticsearch; do
+      for package in Administration Storefront Elasticsearch; do
         .gitlab/bin/split.sh commit "${package}" "tmp-${CI_COMMIT_SHORT_SHA} (+ assets)"
       done
     - >

@@ -71,9 +71,6 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            [
-                'url' => 'http://en.test',
-            ]
         );
 
         $rendered = $renderer->renderHeader($productExport, $this->context);
@@ -114,7 +111,6 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            []
         );
 
         static::expectException(ProductExportException::class);
@@ -157,9 +153,6 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            [
-                'url' => 'http://en.test',
-            ]
         );
 
         $rendered = $renderer->renderFooter($productExport, $this->context);
@@ -195,83 +188,11 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            [
-                'url' => 'http://en.test',
-            ]
         );
 
         $rendered = $renderer->renderBody($productExport, $this->context, $data);
 
         static::assertEquals($expected, $rendered);
-    }
-
-    public function testRenderUsingRequestFallback(): void
-    {
-        $expected = 'this is a Baz that has URL: http://de.test/abc/xyz' . \PHP_EOL . 'Also another URL: http://de.test/media/xyz' . \PHP_EOL;
-        $productExport = new ProductExportEntity();
-        $productExport->setId(Uuid::randomHex());
-        $productExport->setBodyTemplate('this is a {{ foo.baz }} that has URL: {{ foo.bar }}' . \PHP_EOL . 'Also another URL: {{ url }}');
-
-        $domain = new SalesChannelDomainEntity();
-        $domain->setUrl('http://de.test');
-
-        $productExport->setSalesChannelDomain($domain);
-
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $environment = new Environment(new ArrayLoader());
-
-        $twigRenderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
-        $seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
-        $seoUrlPlaceholderHandler->method('replace')->with(
-            $expected,
-            'http://de.test',
-            $this->context
-        )->willReturn($expected);
-
-        $renderer = new ProductExportRenderer(
-            $twigRenderer,
-            $dispatcher,
-            $seoUrlPlaceholderHandler,
-            []
-        );
-
-        $originalAppUrl = $_SERVER['APP_URL'] ?? null;
-        $originalHost = $_SERVER['HTTP_HOST'] ?? null;
-
-        $_SERVER['HTTP_HOST'] = 'en.test';
-
-        $rendered = $renderer->renderBody($productExport, $this->context, [
-            'foo' => [
-                'baz' => 'Baz',
-                'bar' => 'http://en.test/abc/xyz',
-            ],
-            'url' => 'http://en.test/media/xyz',
-        ]);
-
-        static::assertEquals($expected, $rendered);
-
-        // Or fallback to APP_URL
-        unset($_SERVER['HTTP_HOST']);
-        $_SERVER['APP_URL'] = 'http://en.test';
-
-        $rendered = $renderer->renderBody($productExport, $this->context, [
-            'foo' => [
-                'baz' => 'Baz',
-                'bar' => 'http://en.test/abc/xyz',
-            ],
-            'url' => 'http://en.test/media/xyz',
-        ]);
-
-        static::assertEquals($expected, $rendered);
-
-        if ($originalHost) {
-            $_SERVER['HTTP_HOST'] = $originalHost;
-        }
-
-        if ($originalAppUrl) {
-            $_SERVER['APP_URL'] = $originalAppUrl;
-        }
     }
 
     public function testRenderFooterError(): void
@@ -307,7 +228,6 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            []
         );
 
         static::expectException(ProductExportException::class);
@@ -330,7 +250,6 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            []
         );
 
         static::expectException(ProductExportException::class);
@@ -366,7 +285,6 @@ class ProductExportRendererTest extends TestCase
             $twigRenderer,
             $dispatcher,
             $seoUrlPlaceholderHandler,
-            []
         );
 
         static::expectException(ProductExportException::class);
@@ -422,32 +340,6 @@ class ProductExportRendererTest extends TestCase
             'this is a with http://de.test in template' . \PHP_EOL,
             [],
             'http://en.test',
-        ];
-
-        yield 'with default url in template' => [
-            'this is a with https://cdn.example/media/abc in template',
-            'this is a with https://cdn.example/media/abc in template' . \PHP_EOL,
-            [],
-            'https://cdn.example',
-        ];
-
-        yield 'with multiple default url in template' => [
-            'this is a with https://cdn.example/media/abc in template' . \PHP_EOL . 'another https://cdn.example/media/xyz',
-            'this is a with https://cdn.example/media/abc in template' . \PHP_EOL . 'another https://cdn.example/media/xyz' . \PHP_EOL,
-            [],
-            'https://cdn.example',
-        ];
-
-        yield 'with data' => [
-            'this is a {{ foo.baz }} that has URL: {{ foo.bar }}' . \PHP_EOL . 'Also another URL: {{ url }}',
-            'this is a Baz that has URL: http://en.test/abc/xyz' . \PHP_EOL . 'Also another URL: http://en.test/media/xyz' . \PHP_EOL,
-            [
-                'foo' => [
-                    'baz' => 'Baz',
-                    'bar' => 'http://en.test/abc/xyz',
-                ],
-                'url' => 'http://en.test/media/xyz',
-            ],
         ];
     }
 }

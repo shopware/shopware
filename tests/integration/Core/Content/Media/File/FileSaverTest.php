@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -626,7 +626,7 @@ class FileSaverTest extends TestCase
         $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
 
         static::assertInstanceOf(MediaEntity::class, $updatedMedia);
-        static::assertEquals($png->getFileName(), $updatedMedia->getFileName());
+        static::assertSame($png->getFileName(), $updatedMedia->getFileName());
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
     }
 

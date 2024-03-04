@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -18,8 +17,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('buyers-experience')]
-#[CoversClass(FileFetcher::class)]
-#[Group('needsWebserver')]
 class FileFetcherTest extends TestCase
 {
     final public const TEST_IMAGE = __DIR__ . '/../../../../../../src/Core/Content/Test/Media/fixtures/shopware-logo.png';
@@ -73,7 +70,7 @@ class FileFetcherTest extends TestCase
             );
             $mimeType = mime_content_type($tempFile);
 
-            static::assertEquals('image/png', $mimeType);
+            static::assertSame('image/png', $mimeType);
             static::assertFileExists($tempFile);
         } finally {
             unlink($tempFile);
@@ -167,6 +164,16 @@ class FileFetcherTest extends TestCase
         } finally {
             unlink($tempFile);
         }
+    }
+
+    public function testCleanUpFileAfterFetching(): void
+    {
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false);
+        $mediaFile = $fileFetcher->fetchBlob('myBlob', 'png', 'image/png');
+        static::assertFileExists($mediaFile->getFileName());
+
+        $fileFetcher->cleanUpTempFile($mediaFile);
+        static::assertFileDoesNotExist($mediaFile->getFileName());
     }
 
     public function testFetchFileFromUrlWithNoUrlGiven(): void
@@ -343,13 +350,13 @@ class FileFetcherTest extends TestCase
         $request->query->set('extension', 'png');
         $request->request->set('url', $url);
 
-        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 5000);
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false, 1);
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Source file exceeds maximum file size limit.');
 
         $mediaFile = $fileFetcher->fetchFileFromURL($request, $tempFile);
-        static::assertEquals(0, $mediaFile->getFileSize());
+        static::assertSame(0, $mediaFile->getFileSize());
         static::assertFileDoesNotExist($tempFile);
     }
 

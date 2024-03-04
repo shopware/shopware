@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.6
+*  [NEXT-31342 - Add main category](./changelog/release-6-5-8-6/2024-01-16-add-main-category.md)
+*  [NEXT-32024 - Fix customer language reset to default after login](./changelog/release-6-5-8-6/2024-01-30-fix-customer-language-reset-to-default-after-login.md)
+*  [NEXT-33423 - Validate email when unsubcribing newsletter](./changelog/release-6-5-8-6/2024-01-31-validate-email-when-unsubcribe-newsletter.md)
+*  [NEXT-32925 - Add Google Consent V2](./changelog/release-6-5-8-6/2024-02-08-add-google-consent-v2.md)
+*  [NEXT-33701 - Fix variant name not visible in dynamic product](./changelog/release-6-5-8-6/2024-02-15-fix-variant-name-not-visible-in-dynamic-product.md)
+
 ## 6.5.8.5
 *  [NEXT-33516 - Moved DRACO loader to correct assets folder.](./changelog/release-6-5-8-5/2024-02-14-moved-draco-loader-to-correct-assets-folder.md)
 *  [NEXT-25538 - Replace media to any file type](./changelog/release-6-5-8-5/2023-06-16-replace-to-any-media.md) ([Ivan Ananev](https://github.com/DrUlysses))

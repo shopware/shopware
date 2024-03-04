@@ -2,7 +2,7 @@
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",
-      "placeholderSearchBar": "Search themes...",
+      "placeholderSearchBar": "Search for available themes...",
       "descriptionTextModule": "Manage themes here.",
       "mainMenuHeader": "Your themes",
       "captionMediaUpload": "Upload an image",
@@ -116,8 +116,9 @@
     },
     "themeModal": {
       "actionCancel": "Cancel",
-      "actionConfirm": "Save",
+      "actionConfirm": "Change theme",
       "modalTitle": "Select theme",
+      "modalSubtitle": "Changing your theme may alter the visualisation of your shop.",
       "headline": "Available themes"
     }
   },

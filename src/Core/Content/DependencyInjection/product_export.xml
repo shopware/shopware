@@ -16,7 +16,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
-            <argument>%shopware.filesystem.public%</argument>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExporter" public="true">

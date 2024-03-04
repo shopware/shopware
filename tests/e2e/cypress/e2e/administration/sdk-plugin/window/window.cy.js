@@ -93,5 +93,6 @@ describe('SDK Tests: Window', ()=> {
             .contains('Push route')
             .click();
 
+        cy.contains('.sw-card__title', 'Orders');
     });
 });

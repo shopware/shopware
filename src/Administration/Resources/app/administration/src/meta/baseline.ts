@@ -549,7 +549,6 @@ const missingTests = [
     'src/module/sw-product/component/sw-product-settings-form/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-restriction-selection/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-prices/index.js',
-    'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-restrictions/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-price-field/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-listing/index.js',
     'src/module/sw-product/component/sw-product-visibility-select/index.js',

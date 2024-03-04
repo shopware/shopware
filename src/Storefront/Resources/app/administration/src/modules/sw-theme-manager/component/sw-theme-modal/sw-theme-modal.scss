@@ -1,22 +1,10 @@
 @import '~scss/variables';
 
 .sw-theme-modal {
-
-    .sw-theme-modal__header {
-        display: grid;
-        grid-template-columns: 1fr 250px;
-        align-items: center;
-        padding: 24px 30px;
-        border-bottom: 1px solid $color-gray-300;
-
-        .sw-theme-modal__header-title {
-            font-size: 18px;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
-        .sw-simple-search-field {
-            margin-bottom: 0;
+    &__header {
+        &-search {
+            background-color: $color-gray-100;
+            border-bottom: 1px solid $color-gray-200;
         }
     }
 

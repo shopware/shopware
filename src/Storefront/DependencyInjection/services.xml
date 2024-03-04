@@ -182,6 +182,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%session.storage.options%</argument>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="kernel.reset" method="reset"/>

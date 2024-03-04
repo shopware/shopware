@@ -42,10 +42,13 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private bool $handled = false;
 
+    private string $sessionName;
+
     /**
      * @internal
      *
      * @param AbstractCacheTracer<Response> $cacheTracer
+     * @param array{name?: string} $sessionOptions
      */
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
@@ -55,8 +58,10 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         private readonly AbstractCacheTracer $cacheTracer,
         private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        array $sessionOptions = []
     ) {
+        $this->sessionName = $sessionOptions['name'] ?? 'session-';
     }
 
     public static function getSubscribedEvents(): array
@@ -121,6 +126,13 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
             if ($response instanceof StorefrontResponse && !Feature::isActive('v6.6.0.0')) {
                 $response->setData([]);
                 $response->setContext(null);
+            }
+
+            // Remove session cookie from 404 pages, injected by the Symfony session listener
+            foreach ($response->headers->getCookies() as $cookie) {
+                if ($cookie->getName() === $this->sessionName) {
+                    $response->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
+                }
             }
 
             return $response;

@@ -152,19 +152,9 @@
                                                                             {% if minHeight and (displayMode == "cover" or displayMode == "contain") %} style="min-height: {{ minHeight }}"{% endif %}
                                                                             {% if (displayMode == "standard" and image.isSpatialObject()) %} style="min-height: 240px"{% endif %}>
                                                                             {% set attributes = {
-                                                                                'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
-                                                                                'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                'title': (image.translated.title ?: fallbackImageTitle),
-                                                                                'data-full-image': image.url
+                                                                                class: 'img-fluid gallery-slider-image',
+                                                                                title: (image.translated.title ?: fallbackImageTitle)
                                                                             } %}
-
-                                                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                                                            {% endif %}
-
-                                                                            {% if isProduct %}
-                                                                                {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
-                                                                            {% endif %}
 
                                                                             {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                             {% block element_image_gallery_inner_item_spatial %}
@@ -199,9 +189,35 @@
                                                                                             {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                                         {% endif %}
                                                                                     </div>
+                                                                                {% elseif image.mimeType starts with 'video/' %}
+                                                                                    {% set attributes = attributes|merge({ controls: true }) %}
+
+                                                                                    {% if isProduct %}
+                                                                                        {% set attributes = attributes|merge({ itemprop: 'video' }) %}
+                                                                                    {% endif %}
+
+                                                                                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                                        media: image,
+                                                                                        attributes: attributes
+                                                                                    } %}
                                                                                 {% else %}
+                                                                                    {% set attributes = attributes|merge({
+                                                                                        class: attributes.class ~ ' magnifier-image js-magnifier-image',
+                                                                                        alt: (image.translated.alt ?: fallbackImageTitle),
+                                                                                        'data-full-image': image.url
+                                                                                    }) %}
+
+                                                                                    {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                                                        {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                                                    {% endif %}
+
+                                                                                    {% if isProduct %}
+                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                    {% endif %}
+
                                                                                     {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                                                        media: image
+                                                                                        media: image,
+                                                                                        attributes: attributes
                                                                                     } %}
                                                                                 {% endif %}
                                                                             {% endblock %}
@@ -245,19 +261,9 @@
                                                 <div class="gallery-slider-single-image is-{{ displayMode }} js-magnifier-container"{% if minHeight %} style="min-height: {{ minHeight }}"{% endif %}>
                                                     {% if imageCount > 0 %}
                                                         {% set attributes = {
-                                                            'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
-                                                            'alt': (mediaItems|first.translated.alt ?: fallbackImageTitle),
-                                                            'title': (mediaItems|first.translated.title ?: fallbackImageTitle),
-                                                            'data-full-image': mediaItems|first.url
+                                                            class: 'img-fluid gallery-slider-image',
+                                                            title: (mediaItems|first.translated.title ?: fallbackImageTitle)
                                                         } %}
-
-                                                        {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                                            {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                                        {% endif %}
-
-                                                        {% if isProduct %}
-                                                            {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
-                                                        {% endif %}
 
                                                         {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                         {% block element_image_gallery_inner_single_spatial %}
@@ -293,9 +299,35 @@
                                                                             {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
                                                                         {% endif %}
                                                                     </div>
+                                                                {% elseif mediaItems|first.mimeType starts with 'video/' %}
+                                                                    {% set attributes = attributes|merge({ controls: true }) %}
+
+                                                                    {% if isProduct %}
+                                                                        {% set attributes = attributes|merge({ itemprop: 'video' }) %}
+                                                                    {% endif %}
+
+                                                                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                        media: mediaItems|first,
+                                                                        attributes: attributes
+                                                                    } %}
                                                                 {% else %}
+                                                                    {% set attributes = attributes|merge({
+                                                                        class: attributes.class ~ ' magnifier-image js-magnifier-image',
+                                                                        alt: (mediaItems|first.translated.alt ?: fallbackImageTitle),
+                                                                        'data-full-image': mediaItems|first.url
+                                                                    }) %}
+
+                                                                    {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                                        {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                                    {% endif %}
+
+                                                                    {% if isProduct %}
+                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                    {% endif %}
+
                                                                     {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                         media: mediaItems|first,
+                                                                        attributes: attributes
                                                                     } %}
                                                                 {% endif %}
                                                             {% endfor %}
@@ -346,14 +378,9 @@
                                                                 {% block element_image_gallery_inner_thumbnails_item_inner %}
                                                                     <div class="gallery-slider-thumbnails-item-inner">
                                                                         {% set attributes = {
-                                                                            'class': 'gallery-slider-thumbnails-image',
-                                                                            'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                            'title': (image.translated.title ?: fallbackImageTitle)
+                                                                            class: 'gallery-slider-thumbnails-image',
+                                                                            title: (image.translated.title ?: fallbackImageTitle)
                                                                         } %}
-
-                                                                        {% if isProduct %}
-                                                                            {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
-                                                                        {% endif %}
 
                                                                         {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_spatial %}
@@ -362,12 +389,32 @@
                                                                                     'size': 'fluid'
                                                                                 } %}
                                                                                 <span class="badge bg-secondary m-1 position-absolute bottom-0 end-0">3D</span>
+                                                                            {% elseif image.mimeType starts with 'video/' %}
+                                                                                {% if isProduct %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'video' }) %}
+                                                                                {% endif %}
+
+                                                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                                    media: image,
+                                                                                    attributes: attributes
+                                                                                } %}
+
+                                                                                <div class="gallery-slider-thumbnails-play-button"></div>
                                                                             {% else %}
+                                                                                {% set attributes = attributes|merge({
+                                                                                    alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                }) %}
+
+                                                                                {% if isProduct %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
+                                                                                {% endif %}
+
                                                                                 {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
                                                                                     media: image,
                                                                                     sizes: {
-                                                                                        'default': '200px'
-                                                                                    }
+                                                                                        default: '200px'
+                                                                                    },
+                                                                                    attributes: attributes
                                                                                 } %}
                                                                             {% endif %}
                                                                         {% endblock %}
@@ -483,7 +530,12 @@
                                                                                         <div class="gallery-slider-item">
                                                                                             {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container %}
                                                                                                 <div class="image-zoom-container"
-                                                                                                     data-image-zoom="true">
+                                                                                                     {% if not (image.mimeType starts with 'video/') %}data-image-zoom="true"{% endif %}>
+                                                                                                    {% set attributes = {
+                                                                                                        class: 'gallery-slider-image',
+                                                                                                        title: (image.translated.title ?: fallbackImageTitle)
+                                                                                                    } %}
+
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
                                                                                                         {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                                                         {% block element_image_gallery_inner_zoom_modal_slider_item_image_spatial %}
@@ -499,14 +551,22 @@
                                                                                                                     loadOriginalImage: true,
                                                                                                                     autoColumnSizes: false
                                                                                                                 } %}
+                                                                                                            {% elseif image.mimeType starts with 'video/' %}
+                                                                                                                {% set attributes = attributes|merge({ controls: true }) %}
+
+                                                                                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                                                                    media: image,
+                                                                                                                    attributes: attributes
+                                                                                                                } %}
                                                                                                             {% else %}
+                                                                                                                {% set attributes = attributes|merge({
+                                                                                                                    class: attributes.class ~ ' js-image-zoom-element js-load-img',
+                                                                                                                    alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                                                }) %}
+
                                                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                                                     media: image,
-                                                                                                                    attributes: {
-                                                                                                                        'class': 'gallery-slider-image js-image-zoom-element js-load-img',
-                                                                                                                        'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                                                        'title': (image.translated.title ?: fallbackImageTitle)
-                                                                                                                    },
+                                                                                                                    attributes: attributes,
                                                                                                                     load: false,
                                                                                                                     loadOriginalImage: true,
                                                                                                                     autoColumnSizes: false
@@ -615,6 +675,11 @@
                                                                                             <div class="gallery-slider-thumbnails-item">
                                                                                                 {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner %}
                                                                                                     <div class="gallery-slider-thumbnails-item-inner">
+                                                                                                        {% set attributes = {
+                                                                                                            class: 'gallery-slider-thumbnails-image',
+                                                                                                            title: (image.translated.title ?: fallbackImageTitle)
+                                                                                                        } %}
+
                                                                                                         {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_spatial %}
                                                                                                             {% if image.isSpatialObject() %}
@@ -623,17 +688,25 @@
                                                                                                                     'class': ''
                                                                                                                 } %}
                                                                                                                 <span class="badge bg-secondary m-1 position-absolute bottom-0 end-0">3D</span>
+                                                                                                            {% elseif image.mimeType starts with 'video/' %}
+                                                                                                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                                                                    media: image,
+                                                                                                                    attributes: attributes
+                                                                                                                } %}
+
+                                                                                                                <div class="gallery-slider-thumbnails-play-button"></div>
                                                                                                             {% else %}
+                                                                                                                {% set attributes = attributes|merge({
+                                                                                                                    class: attributes.class ~ ' js-load-img',
+                                                                                                                    alt: (image.translated.alt ?: fallbackImageTitle)
+                                                                                                                }) %}
+
                                                                                                                 {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
                                                                                                                     media: image,
                                                                                                                     sizes: {
-                                                                                                                        'default': '200px'
+                                                                                                                        default: '200px'
                                                                                                                     },
-                                                                                                                    attributes: {
-                                                                                                                        'class': 'gallery-slider-thumbnails-image js-load-img',
-                                                                                                                        'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                                                        'title': (image.translated.title ?: fallbackImageTitle)
-                                                                                                                    },
+                                                                                                                    attributes: attributes,
                                                                                                                     load: false
                                                                                                                 } %}
                                                                                                             {% endif %}

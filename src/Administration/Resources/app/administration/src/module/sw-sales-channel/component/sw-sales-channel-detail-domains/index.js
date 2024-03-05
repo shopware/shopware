@@ -64,7 +64,7 @@ export default {
         },
 
         currentDomainModalTitle() {
-            if (this.currentDomain.isNew()) {
+            if (this.currentDomain?.isNew()) {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
@@ -74,7 +74,7 @@ export default {
         },
 
         currentDomainModalButtonText() {
-            if (this.currentDomain.isNew()) {
+            if (this.currentDomain?.isNew()) {
                 return this.$t('sw-sales-channel.detail.buttonAddDomain');
             }
             return this.$t('sw-sales-channel.detail.buttonEditDomain');

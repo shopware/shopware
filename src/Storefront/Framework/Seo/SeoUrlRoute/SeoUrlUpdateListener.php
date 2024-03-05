@@ -70,7 +70,11 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_merge(array_values($event->getIds()), $this->getCategoryChildren($event->getIds()));
+        $ids = array_values($event->getIds());
+
+        if (!$event->isFullIndexing) {
+            $ids = array_merge($ids, $this->getCategoryChildren($ids));
+        }
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
     }

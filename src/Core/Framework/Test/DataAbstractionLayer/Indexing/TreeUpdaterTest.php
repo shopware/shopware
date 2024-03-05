@@ -112,7 +112,7 @@ class TreeUpdaterTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $treeUpdater->batchUpdate($ids->getList(['r', 'a', 'b', 'aa', 'ab']), 'test_tree', $context);
+        $treeUpdater->batchUpdate($ids->getList(['r', 'a', 'b', 'aa', 'ab']), 'test_tree', $context, true);
 
         $r = $this->fetch($ids->getBytes('r'), 'test_tree');
         static::assertSame('1', $r['test_level']);
@@ -164,7 +164,7 @@ class TreeUpdaterTest extends TestCase
         $treeUpdater = new TreeUpdater($registry, $this->getContainer()->get(Connection::class));
         $context = Context::createDefaultContext();
 
-        $treeUpdater->batchUpdate($ids->getList(['r', 'a', 'b', 'aa', 'ab']), 'test_tree_without_version', $context);
+        $treeUpdater->batchUpdate($ids->getList(['r', 'a', 'b', 'aa', 'ab']), 'test_tree_without_version', $context, true);
 
         $r = $this->fetch($ids->getBytes('r'), 'test_tree_without_version');
         static::assertSame('1', $r['test_level']);

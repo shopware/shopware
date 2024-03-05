@@ -30,6 +30,10 @@
 </head>
 
 <body>
+{% set redirect = url(schemaUrl, {'version': apiVersion})|replace({'openapi3.json': 'stoplightio.html'}) %}
+<div style="display: flex; justify-content: center; background-color: lightyellow;">
+    <div style='font-size: large; font-family: sans-serif'>This view is deprecated, checkout <a href="{{ redirect }}">Stoplight Elements</a>.</div>
+</div>
 <div id="swagger-ui"></div>
 
 <script nonce="{{ cspNonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.1/swagger-ui-bundle.js" integrity="sha512-SGn/6ZFgyfmSIMLa/hIO3srJ9gKJouzVFfuS/RwrfVpElt/rMv+O8Ikuym7vZUiuHshWjl7NOnCcFoMUgMe6oQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

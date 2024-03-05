@@ -53,6 +53,9 @@ class StoreApiInfoController
     }
 
     #[Route(path: '/store-api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.swagger', methods: ['GET'])]
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use store-api.info.stoplightio instead
+     */
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);

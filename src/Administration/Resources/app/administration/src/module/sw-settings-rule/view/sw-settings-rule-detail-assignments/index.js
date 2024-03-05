@@ -97,6 +97,7 @@ export default {
 
         disableAdd(entity) {
             const association = entity.associationName ?? null;
+
             if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
                 return true;
             }
@@ -221,7 +222,7 @@ export default {
 
         async loadNotAssignedDataTotals(item, api) {
             if (!item.deleteContext && !item.addContext) {
-                return Promise.resolve(true);
+                return Promise.resolve(item.notAssignedDataTotal);
             }
 
             const criteria = new Criteria(1, 1);

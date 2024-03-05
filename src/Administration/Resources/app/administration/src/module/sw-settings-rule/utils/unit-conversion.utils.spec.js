@@ -1,5 +1,8 @@
 import convertUnit from './unit-conversion.utils';
 
+/**
+ * @package services-settings
+ */
 describe('src/module/sw-promotion/utils/unit-conversion.utils.js', () => {
     describe('weights', () => {
         it('should convert 1 kg to 1000 g', () => {

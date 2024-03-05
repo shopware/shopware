@@ -5,7 +5,7 @@ import { AdminOrderDetailPage } from './Administration/OrderDetail';
 
 export interface AdministrationPages {
     adminProductDetailPage: AdminProductDetailPage,
-    adminOrderDetailPage: AdminProductDetailPage,
+    adminOrderDetailPage: AdminOrderDetailPage,
 }
 
 export const test = base.extend<FixtureTypes>({

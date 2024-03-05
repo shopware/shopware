@@ -51,7 +51,7 @@ class VersionTest extends TestCase
             'Route should be protected. (URL: /api/oauth/token)'
         );
 
-        $content = (string)$this->unauthorizedClient->getResponse()->getContent();
+        $content = (string) $this->unauthorizedClient->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEquals('false', $content);

@@ -317,6 +317,7 @@ PHP Full:
                 composer dump-autoload -o
             fi
         - unset SHOPWARE_CACHE_ID
+        - "sed -i -e 's|opcache.enable_cli = 1|opcache.enable_cli = 0|' /usr/local/etc/php/conf.d/docker.ini"
         - FAILED=0
         - >
             for SUITE in $TEST_SUITES; do

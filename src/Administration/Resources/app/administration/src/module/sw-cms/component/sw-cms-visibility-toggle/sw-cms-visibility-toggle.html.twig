@@ -1,0 +1,43 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_cms_visibility_toggle %}
+<div class="sw-cms-visibility-toggle-wrapper">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_cms_visibility_toggle_inner %}
+    <div class="sw-cms-visibility-toggle">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_visibility_toggle_icon %}
+        <sw-icon
+            name="regular-eye-slash"
+            size="24"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_visibility_toggle_text %}
+        <span class="sw-cms-visibility-toggle__text">{{ $tc('sw-cms.detail.label.visibilityParagraph') }}</span>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_visibility_toggle_button %}
+        <button
+            class="sw-cms-visibility-toggle__button"
+            @click="$emit('toggle')"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_visibility_toggle_button_text %}
+            <span>{{ text }}</span>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_cms_visibility_toggle_button_icon %}
+            <sw-icon
+                :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
+                size="10"
+            />
+            {% endblock %}
+        </button>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

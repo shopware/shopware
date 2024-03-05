@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.7
+*  [NEXT-34113 - Clear cookies on 404 pages](./changelog/release-6-5-8-7/2024-03-04-clear-cookies-on-404-pages.md)
+
 ## 6.5.8.6
 *  [NEXT-31342 - Add main category](./changelog/release-6-5-8-6/2024-01-16-add-main-category.md)
 *  [NEXT-32024 - Fix customer language reset to default after login](./changelog/release-6-5-8-6/2024-01-30-fix-customer-language-reset-to-default-after-login.md)

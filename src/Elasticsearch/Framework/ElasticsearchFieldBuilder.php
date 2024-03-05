@@ -35,7 +35,8 @@ class ElasticsearchFieldBuilder
 
         $languageFields = [];
 
-        foreach ($languages as $languageId => ['code' => $code]) {
+        foreach ($languages as $languageId => $language) {
+            $code = $language['code'] ?? $language['parentCode'];
             $parts = explode('-', $code);
             $locale = $parts[0];
 

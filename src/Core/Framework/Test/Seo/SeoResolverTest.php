@@ -124,6 +124,36 @@ class SeoResolverTest extends TestCase
         static::assertEquals(1, $resolved['isCanonical']);
     }
 
+    public function testResolveSeoPathWithCanonicalIsNull(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/1234',
+                'seoPathInfo' => 'awesome-product',
+                'isCanonical' => null,
+            ],
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/1234',
+                'seoPathInfo' => 'awesome-product/',
+                'isCanonical' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $resolved = $this->seoResolver->resolve($context->getLanguageId(), $salesChannelId, '/awesome-product/');
+        static::assertEquals('/detail/1234', $resolved['pathInfo']);
+        static::assertEquals(1, $resolved['isCanonical']);
+    }
+
     public function testResolveCanonMultiLang(): void
     {
         $salesChannelDeId = Uuid::randomHex();

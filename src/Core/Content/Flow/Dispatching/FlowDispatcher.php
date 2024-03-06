@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Doctrine\DBAL\Connection;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
@@ -26,7 +27,8 @@ class FlowDispatcher implements EventDispatcherInterface
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         private readonly LoggerInterface $logger,
-        private readonly FlowFactory $flowFactory
+        private readonly FlowFactory $flowFactory,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -138,6 +140,16 @@ class FlowDispatcher implements EventDispatcherInterface
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
                 );
+
+                if ($e->getPrevious() && $this->isInNestedTransaction()) {
+                    /**
+                     * If we are already in a nested transaction, that does not have save points enabled, we must inform the caller of the rollback.
+                     * We do this via an exception, so that the outer transaction can also be rolled back.
+                     *
+                     * Otherwise, when it attempts to commit, it would fail.
+                     */
+                    throw $e->getPrevious();
+                }
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
@@ -170,5 +182,10 @@ class FlowDispatcher implements EventDispatcherInterface
         }
 
         return $result;
+    }
+
+    private function isInNestedTransaction(): bool
+    {
+        return $this->connection->getTransactionNestingLevel() !== 1 && !$this->connection->getNestTransactionsWithSavepoints();
     }
 }

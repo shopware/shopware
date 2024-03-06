@@ -3,16 +3,16 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Dispatching\TransactionalAction;
+use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\StateMachineException;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * @internal
  */
 #[Package('services-settings')]
-class SetOrderStateAction extends FlowAction implements DelayableAction
+class SetOrderStateAction extends FlowAction implements DelayableAction, TransactionalAction
 {
     final public const FORCE_TRANSITION = 'force_transition';
 
@@ -37,7 +37,6 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly LoggerInterface $logger,
         private readonly OrderService $orderService
     ) {
     }
@@ -77,29 +76,18 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
             $context->addState(self::FORCE_TRANSITION);
         }
 
-        $this->connection->beginTransaction();
+        $transitions = array_filter([
+            self::ORDER => $config[self::ORDER] ?? null,
+            self::ORDER_DELIVERY => $config[self::ORDER_DELIVERY] ?? null,
+            self::ORDER_TRANSACTION => $config[self::ORDER_TRANSACTION] ?? null,
+        ]);
 
         try {
-            $transitions = array_filter([
-                self::ORDER => $config[self::ORDER] ?? null,
-                self::ORDER_DELIVERY => $config[self::ORDER_DELIVERY] ?? null,
-                self::ORDER_TRANSACTION => $config[self::ORDER_TRANSACTION] ?? null,
-            ]);
-
             foreach ($transitions as $machine => $toPlace) {
                 $this->transitState((string) $machine, $orderId, (string) $toPlace, $context);
             }
-
-            $this->connection->commit();
-        } catch (ShopwareHttpException $e) {
-            $this->logger->error($e->getMessage());
-            $this->connection->rollBack();
-            // Silently rolling back a transaction is only safe when it is the top level transaction or transactions are
-            // nested with save points instead of emulating nested transactions. In case a transaction is not the top
-            // level transaction, we need to rethrow the error such that the outer transactions can be rolled back.
-            if ($this->connection->getTransactionNestingLevel() !== 1 && !$this->connection->getNestTransactionsWithSavepoints()) {
-                throw $e;
-            }
+        } catch (StateMachineException $e) {
+            throw TransactionFailedException::because($e);
         } finally {
             $context->removeState(self::FORCE_TRANSITION);
         }

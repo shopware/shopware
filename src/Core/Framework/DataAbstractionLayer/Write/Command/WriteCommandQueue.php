@@ -74,7 +74,7 @@ class WriteCommandQueue
                     continue;
                 }
 
-                $key = self::createPrimaryHash($entity, $this->getDecodedPrimaryKey($registry, $command));
+                $key = $this->createPrimaryHash($entity, $this->getDecodedPrimaryKey($registry, $command));
 
                 $mapping[$key] = true;
             }
@@ -99,7 +99,7 @@ class WriteCommandQueue
                         continue;
                     }
 
-                    $key = self::createPrimaryHash($definition, $this->getDecodedPrimaryKey($registry, $command));
+                    $key = $this->createPrimaryHash($definition, $this->getDecodedPrimaryKey($registry, $command));
                     unset($mapping[$key]);
 
                     $order[] = $command;
@@ -146,7 +146,6 @@ class WriteCommandQueue
     {
         $decodedPrimaryKey = [];
         foreach ($primaryKey as $fieldName => $fieldValue) {
-            /** @var Field|null $field */
             $field = $definition->getFields()->get($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
             $decodedPrimaryKey[$fieldName] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
         }
@@ -171,9 +170,7 @@ class WriteCommandQueue
 
         $decoded = [];
         foreach ($primaryKey as $fieldValue) {
-            /** @var string|false $fieldName */
             $fieldName = array_search($fieldValue, $command->getPrimaryKey(), true);
-            /** @var Field|null $field */
             $field = null;
             if ($fieldName) {
                 $field = $definition->getFields()->get($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
@@ -185,7 +182,7 @@ class WriteCommandQueue
     }
 
     /**
-     * @return array<string, string>
+     * @return list<string>
      */
     private function getDecodedPrimaryKey(DefinitionInstanceRegistry $registry, WriteCommand $command): array
     {
@@ -194,7 +191,6 @@ class WriteCommandQueue
         $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
 
         $mapped = [];
-        /** @var Field $key */
         foreach ($definition->getPrimaryKeys() as $key) {
             if ($key instanceof VersionField || $key instanceof ReferenceVersionField) {
                 continue;
@@ -203,10 +199,8 @@ class WriteCommandQueue
                 throw new \RuntimeException();
             }
 
-            $mapped[$key->getStorageName()] = $key->getSerializer()->decode($key, $primaryKey[$key->getStorageName()]);
+            $mapped[] = (string) $key->getSerializer()->decode($key, $primaryKey[$key->getStorageName()]);
         }
-
-        sort($mapped);
 
         return $mapped;
     }
@@ -232,7 +226,6 @@ class WriteCommandQueue
                 continue;
             }
 
-            /** @var FkField $fk */
             $fk = $fks[$key];
             // check if the payload field is a foreign key which we have to consider
             if (!$fk instanceof FkField || $value === null) {
@@ -244,9 +237,9 @@ class WriteCommandQueue
             }
 
             // create a hash for the foreign key which are used for the mapping
-            $primary = [$fk->getReferenceField() => $fk->getSerializer()->decode($fk, $value)];
+            $primary = [$fk->getSerializer()->decode($fk, $value)];
 
-            $hash = self::createPrimaryHash((string) $fk->getReferenceEntity(), $primary);
+            $hash = $this->createPrimaryHash((string) $fk->getReferenceEntity(), $primary);
 
             // check if the hash/primary isn't persisted yet
             if (isset($mapping[$hash])) {
@@ -258,9 +251,9 @@ class WriteCommandQueue
     }
 
     /**
-     * @param array<string, string> $primary
+     * @param list<string> $primary
      */
-    private static function createPrimaryHash(string $entity, array $primary): string
+    private function createPrimaryHash(string $entity, array $primary): string
     {
         sort($primary);
 

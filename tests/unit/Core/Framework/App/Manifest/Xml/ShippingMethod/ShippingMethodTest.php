@@ -46,7 +46,6 @@ class ShippingMethodTest extends TestCase
         ];
 
         foreach ($shippingMethods as $i => $shippingMethod) {
-            static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
             static::assertSame($shippingMethod->getIdentifier(), $expectedValues[$i]['identifier']);
             static::assertSame($shippingMethod->getName(), $expectedValues[$i]['name']);
         }

@@ -19,19 +19,19 @@ class ActionTest extends TestCase
         static::assertCount(1, $flowActions->getActions()->getActions());
 
         $firstAction = $flowActions->getActions()->getActions()[0];
-        static::assertNotNull($firstAction->getMeta());
-        static::assertNotNull($firstAction->getHeaders());
-        static::assertNotNull($firstAction->getParameters());
-        static::assertNotNull($firstAction->getConfig());
 
         static::assertSame('abc.cde.ccc', $firstAction->getMeta()->getName());
-        static::assertEquals(['order', 'customer'], $firstAction->getMeta()->getRequirements());
-        static::assertEquals(
+        static::assertSame(['order', 'customer'], $firstAction->getMeta()->getRequirements());
+        static::assertSame(
             [
                 'en-GB' => 'First action app',
                 'de-DE' => 'First action app DE',
             ],
             $firstAction->getMeta()->getLabel()
         );
+
+        static::assertSame('string', $firstAction->getHeaders()->getParameters()[0]->getType());
+        static::assertSame('string', $firstAction->getParameters()->getParameters()[0]->getType());
+        static::assertSame('text', $firstAction->getConfig()->getConfig()[0]->getType());
     }
 }

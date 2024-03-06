@@ -174,7 +174,6 @@ async function createWrapper(
                     getRestrictedRules: () => Promise.resolve([]),
                 },
             },
-
             mocks: {
                 $route: { params: param, query: query },
             },
@@ -194,9 +193,7 @@ async function createWrapper(
                         </div>
                     `,
                 },
-                'sw-card-view': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
                 'router-view': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
@@ -375,6 +372,32 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         wrapper.vm.createNotificationWarning.mockRestore();
     });
 
+    it('should set route for card tabs when creating a new flow', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper({}, {
+            eventName: 'checkout.customer',
+            sequences: [{
+                id: 'sequence-id',
+                config: {},
+            }],
+        });
+        await flushPromises();
+
+        const tabs = {
+            general: wrapper.findComponent('.sw-flow-detail__tab-general'),
+            flow: wrapper.findComponent('.sw-flow-detail__tab-flow'),
+        };
+
+        expect(tabs.general.vm.route).toStrictEqual({
+            name: 'sw.flow.create.general',
+        });
+
+        expect(tabs.flow.vm.route).toStrictEqual({
+            name: 'sw.flow.create.flow',
+        });
+    });
+
     it('should be able to create flow from flow template', async () => {
         global.activeAclRoles = ['flow.editor'];
 
@@ -395,6 +418,36 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         expect(saveButton.attributes().disabled).toBeUndefined();
+    });
+
+    it('should set flowTemplateId in route for card tabs when creating flow from flow template', async () => {
+        global.activeAclRoles = ['flow.editor'];
+
+        const wrapper = await createWrapper({}, {
+            eventName: 'checkout.customer',
+            sequences: [{
+                id: 'sequence-id',
+                config: {},
+            }],
+        }, null, true, {
+            flowTemplateId: ID_FLOW_TEMPLATE,
+        });
+        await flushPromises();
+
+        const tabs = {
+            general: wrapper.findComponent('.sw-flow-detail__tab-general'),
+            flow: wrapper.findComponent('.sw-flow-detail__tab-flow'),
+        };
+
+        expect(tabs.general.vm.route).toStrictEqual({
+            name: 'sw.flow.create.general',
+            params: { flowTemplateId: ID_FLOW_TEMPLATE },
+        });
+
+        expect(tabs.flow.vm.route).toStrictEqual({
+            name: 'sw.flow.create.flow',
+            params: { flowTemplateId: ID_FLOW_TEMPLATE },
+        });
     });
 
     it('should be able to build sequence collection from config of flow template', async () => {
@@ -429,7 +482,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         });
         await flushPromises();
 
-        const alertElement = wrapper.findComponent('.sw-flow-detail__template');
+        const alertElement = wrapper.find('.sw-flow-detail__template');
         expect(alertElement.exists()).toBe(true);
     });
 

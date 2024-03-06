@@ -35,7 +35,7 @@
         "padaliyajay/php-autoprefixer": "^1.4",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
-        "symfony/cache": "~7.0.0",
+        "symfony/cache": "~7.0.4",
         "symfony/cache-contracts": "~3.3.0",
         "symfony/console": "~7.0.0",
         "symfony/config": "~7.0.0",
@@ -52,7 +52,7 @@
         "symfony/mime": "~7.0.0",
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3"
+        "twig/twig": "^3.8.0"
     },
     "require-dev": {
         "symfony/css-selector": "~7.0.0",

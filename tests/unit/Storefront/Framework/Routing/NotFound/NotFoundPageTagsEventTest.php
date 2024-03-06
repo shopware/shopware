@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Routing\NotFound;
+namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

@@ -10,7 +10,7 @@ include:
       destination-image: "${CI_REGISTRY_IMAGE}/ci-e2e"
       destination-tag: "$CI_PIPELINE_ID"
       additional-tags: "${EXTRA_BUILD_TAGS}"
-      dockerfile: .gitlab/Dockerfile
+      dockerfile: .gitlab/docker/dev/Dockerfile
       enable-scan: "false"
       cache: "false"
 

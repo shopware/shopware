@@ -86,6 +86,7 @@ function getPluginProjects() {
         });
 }
 
+const installRegex = /@install/;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -109,7 +110,7 @@ export default defineConfig({
         baseURL: process.env['APP_URL'],
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-        trace:  process.env.CI ? 'on-all-retries' : 'retain-on-failure',
+        trace: process.env.CI ? 'on-all-retries' : 'retain-on-failure',
         video: 'off',
         screenshot: 'only-on-failure',
     },
@@ -121,6 +122,15 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
             },
+            grepInvert: installRegex,
+        },
+        {
+            name: 'Install',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            grep: installRegex,
+            retries: 0,
         },
 
         ...getPluginProjects(),

@@ -1197,7 +1197,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            if ($partial !== [] && !array_key_exists($association->getPropertyName(), $partial)) {
+            if ($partial !== [] && !\array_key_exists($association->getPropertyName(), $partial)) {
                 continue;
             }
 

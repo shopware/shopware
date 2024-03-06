@@ -90,7 +90,7 @@
         "ramsey/uuid": "^4.7",
         "shopware/conflicts": "*",
         "symfony/asset": "~7.0.0",
-        "symfony/cache": "~7.0.0",
+        "symfony/cache": "~7.0.4",
         "symfony/cache-contracts": "~3.3.0",
         "symfony/clock": "~7.0.0",
         "symfony/config": "~7.0.0",
@@ -139,7 +139,7 @@
         "symfony/yaml": "~7.0.0",
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3",
+        "twig/twig": "^3.8.0",
         "zircote/swagger-php": "^4.5.1",
         "squirrelphp/twig-php-syntax": "^1.7.0"
     },

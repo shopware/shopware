@@ -1,6 +1,6 @@
 ---
 title: Change order list filter entity
-issue: NEXT-00000
+issue: NEXT-34216
 author: Wanne Van Camp
 author_email: info@campit.be
 author_github: @wannevancamp

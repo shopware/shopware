@@ -91,6 +91,9 @@ class CoreSubscriberTest extends TestCase
         static::assertStringNotContainsString("\r", (string) $response->headers->get('Content-Security-Policy'));
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.
+     */
     public function testSwaggerHasCsp(): void
     {
         $browser = $this->getBrowser();
@@ -111,11 +114,45 @@ class CoreSubscriberTest extends TestCase
         );
     }
 
-    public function testOptionsRequestWorks(): void
+    public function testStoplightIoHasCsp(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request('GET', '/api/_info/stoplightio.html');
+        $response = $browser->getResponse();
+
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
+        static::assertTrue($response->headers->has('X-Content-Type-Options'));
+        static::assertTrue($response->headers->has('Content-Security-Policy'));
+
+        $nonce = $this->getNonceFromCsp($response);
+
+        static::assertMatchesRegularExpression(
+            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            (string) $response->headers->get('Content-Security-Policy'),
+            'CSP should contain the nonce'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0.
+     */
+    public function testSwaggerOptionsRequestWorks(): void
     {
         $browser = $this->getBrowser();
 
         $browser->request('OPTIONS', '/api/_info/swagger.html');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertFalse($response->headers->has('Content-Security-Policy'));
+    }
+
+    public function testStoplightIoOptionsRequestWorks(): void
+    {
+        $browser = $this->getBrowser();
+
+        $browser->request('OPTIONS', '/api/_info/stoplightio.html');
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());

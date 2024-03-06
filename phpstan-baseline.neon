@@ -4801,16 +4801,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Serializer/fixtures/TestBasicWithExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\VersionTest\\:\\:protectedRoutesDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/VersionTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/VersionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Asset\\\\PrefixVersionStrategyTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Asset/PrefixVersionStrategyTest.php

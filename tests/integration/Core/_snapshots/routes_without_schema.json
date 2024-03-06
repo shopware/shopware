@@ -112,6 +112,7 @@
     "/_info/ping",
     "/_info/queue.json",
     "/_info/rule-config",
+    "/_info/stoplightio.html",
     "/_info/swagger.html",
     "/_proxy-order/{salesChannelId}",
     "/_proxy/disable-automatic-promotions",

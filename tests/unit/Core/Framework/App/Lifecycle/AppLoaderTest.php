@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
@@ -225,7 +226,7 @@ class AppLoaderTest extends TestCase
     public function testLoadShouldLoadOnlyValidPlugin(): void
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects(static::once())->method('error');
+        $loggerMock->expects(static::exactly(2))->method('error');
 
         $appLoader = new AppLoader(
             __DIR__ . '/_fixtures/appDirValidationTest',
@@ -236,8 +237,33 @@ class AppLoaderTest extends TestCase
 
         $result = $appLoader->load();
 
-        static::assertCount(1, $result);
+        static::assertCount(2, $result);
         static::assertArrayHasKey('ValidManifestApp', $result);
+        static::assertArrayHasKey('ValidAppWithLocalManifest', $result);
+    }
+
+    public function testLoadLocalManifest(): void
+    {
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects(static::exactly(2))->method('error');
+
+        $appLoader = new AppLoader(
+            __DIR__ . '/_fixtures/appDirValidationTest',
+            __DIR__,
+            new ConfigReader(),
+            $loggerMock
+        );
+
+        $result = $appLoader->load();
+
+        static::assertArrayHasKey('ValidAppWithLocalManifest', $result);
+
+        $localManifestApp = $result['ValidAppWithLocalManifest'];
+
+        static::assertSame($localManifestApp->getMetadata()->getPrivacy(), 'https://overrided.com/privacy');
+        static::assertInstanceOf(Setup::class, $setup = $localManifestApp->getSetup());
+        static::assertSame($setup->getRegistrationUrl(), 'https://overrided.com/auth');
+        static::assertSame($setup->getSecret(), 'APP_SECRET');
     }
 
     private function getAppLoader(): AppLoader

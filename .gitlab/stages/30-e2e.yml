@@ -303,12 +303,13 @@ acceptance:
     PROJECT_ROOT: /var/www/html
     DATABASE_URL: mysql://root:app@database:3306/root
     APP_URL: http://shopware.test:8000
+    ACCEPTANCE_PROJECT: Platform
   before_script:
     - cd tests/acceptance
     - npm ci
     - npx playwright install --with-deps
   script:
-    - npx playwright test --workers=1
+    - npx playwright test --workers=1 --project=${ACCEPTANCE_PROJECT}
   after_script: []
   artifacts:
     expire_in: 1 day
@@ -316,3 +317,17 @@ acceptance:
     paths:
       - $CI_PROJECT_DIR/tests/acceptance/test-results/*
       - $CI_PROJECT_DIR/tests/acceptance/test-results/playwright-report/*
+
+
+install test:
+  extends: acceptance
+  variables:
+    TEST_WEB_INSTALLER: 1
+    SHOPWARE_SKIP_WEBINSTALLER: 0
+    ACCEPTANCE_PROJECT: Install
+    APP_ENV: prod
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
+    PROJECT_ROOT: /var/www/html
+    APP_URL: http://shopware.test:8000
+    DATABASE_URL: mysql://root:app@database:3306/install_test

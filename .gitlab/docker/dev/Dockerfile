@@ -1,0 +1,22 @@
+FROM ghcr.io/shopware/docker-base:8.2 as base-image
+
+FROM composer:2.7 as build
+
+RUN git clone https://github.com/shopware/production.git . \
+    && chown -R www-data:www-data .
+
+COPY --chown=www-data:www-data . /app/custom/platform
+
+RUN composer config repositories.custom-packages '{"type": "path", "url": "custom/packages/*", "options": { "symlink": false } }' \
+    && composer config minimum-stability dev \
+    && composer config prefer-stable true \
+    && (mkdir -p /app/custom/packages && cd /app/custom/packages && ls ../platform/src | xargs -n 1 -I {} ln -s ../platform/src/{}) \
+    && composer require --ignore-platform-reqs --no-interaction "shopware/core:*" 
+
+FROM base-image
+
+COPY --chown=www-data:www-data .gitlab/docker/entrypoint.sh /entrypoint
+
+COPY --from=build --link --chown=www-data:www-data /app /var/www/html
+
+ENTRYPOINT [ "/entrypoint" ]

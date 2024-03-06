@@ -3,7 +3,10 @@
 <sw-contextual-field
     class="sw-field--datepicker"
     :class="{ 'has--focus': isDatepickerOpen }"
-    v-bind="$attrs"
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
     :required="required"
     :name="formFieldName"
     :disabled="disabled"

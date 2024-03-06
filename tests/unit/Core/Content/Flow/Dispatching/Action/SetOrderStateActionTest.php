@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -35,10 +33,9 @@ class SetOrderStateActionTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $log = $this->createMock(LoggerInterface::class);
         $this->orderService = $this->createMock(OrderService::class);
 
-        $this->action = new SetOrderStateAction($this->connection, $log, $this->orderService);
+        $this->action = new SetOrderStateAction($this->connection, $this->orderService);
     }
 
     public function testRequirements(): void
@@ -146,45 +143,6 @@ class SetOrderStateActionTest extends TestCase
             ->method('orderTransactionStateTransition');
 
         $this->action->handleFlow($flow);
-    }
-
-    public function testThrowExceptionWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
-    {
-        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
-            OrderAware::ORDER_ID => Uuid::randomHex(),
-        ]);
-        $flow->setConfig([
-            'order' => 'fake_state',
-            'order_delivery' => '',
-            'force_transition' => false,
-        ]);
-
-        $this->connection->expects(static::exactly(4))
-            ->method('fetchOne');
-
-        $e = StateMachineException::stateMachineStateNotFound('order', 'open');
-        $this->orderService->expects(static::once())
-            ->method('orderStateTransition')
-            ->willThrowException($e);
-
-        $this->connection->expects(static::once())
-            ->method('getTransactionNestingLevel')
-            ->willReturn(2);
-
-        $this->connection->expects(static::once())
-            ->method('getNestTransactionsWithSavepoints')
-            ->willReturn(false);
-
-        $action = new SetOrderStateAction(
-            $this->connection,
-            $this->createMock(LoggerInterface::class),
-            $this->orderService
-        );
-
-        static::expectException(StateMachineException::class);
-        static::expectExceptionMessage($e->getMessage());
-
-        $action->handleFlow($flow);
     }
 
     public static function actionProvider(): \Generator

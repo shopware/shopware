@@ -570,6 +570,7 @@
         "label": "Produktname"
       },
       "html": {
+        "label": "HTML",
         "config": {
           "warning": "Ungefilterter HTML-Code kann zu Sicherheitsrisiken führen. Bitte füge nur HTML-Code von vertrauenswürdigen Quellen ein und teste deine Änderung vor der Veröffentlichung."
         }

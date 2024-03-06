@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-cms-preview-html', {
+    return mount(await wrapTestComponent('sw-cms-el-preview-html', {
         sync: true,
     }));
 }
 
-describe('src/module/sw-cms/blocks/html/html/preview/index.ts', () => {
+describe('src/module/sw-cms/elements/html/preview/index.ts', () => {
     let wrapper;
 
     beforeEach(async () => {
@@ -20,10 +20,10 @@ describe('src/module/sw-cms/blocks/html/html/preview/index.ts', () => {
     });
 
     it('contains the demo value', () => {
-        expect(wrapper.vm.demoValue).toContain('<h2>Lorem ipsum dolor</h2>');
+        expect(wrapper.vm.demoValue).toContain('<h2>Lorem ipsum</h2>');
     });
 
     it('renders the demo value in the HTML editor', () => {
-        expect(wrapper.html()).toContain('<h2>Lorem ipsum dolor</h2>');
+        expect(wrapper.html()).toContain('<h2>Lorem ipsum</h2>');
     });
 });

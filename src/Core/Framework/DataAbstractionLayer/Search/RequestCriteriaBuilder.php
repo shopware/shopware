@@ -391,7 +391,7 @@ class RequestCriteriaBuilder
 
         if ($this->hasNumericIndex($payload['filter'])) {
             foreach ($payload['filter'] as $index => $query) {
-                if (!is_array($query)) {
+                if (!\is_array($query)) {
                     $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be an array.', '/filter/' . $index), '/filter/' . $index);
 
                     continue;

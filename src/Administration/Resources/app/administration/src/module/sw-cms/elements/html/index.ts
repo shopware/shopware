@@ -7,6 +7,11 @@ Shopware.Component.register('sw-cms-el-html', () => import('./component'));
  * @private
  * @package buyers-experience
  */
+Shopware.Component.register('sw-cms-el-preview-html', () => import('./preview'));
+/**
+ * @private
+ * @package buyers-experience
+ */
 Shopware.Component.register('sw-cms-el-config-html', () => import('./config'));
 
 /**
@@ -18,6 +23,7 @@ Shopware.Service('cmsService').registerCmsElement({
     label: 'sw-cms.elements.html.label',
     component: 'sw-cms-el-html',
     configComponent: 'sw-cms-el-config-html',
+    previewComponent: 'sw-cms-el-preview-html',
     defaultConfig: {
         content: {
             source: 'static',

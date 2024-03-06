@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Routing\NotFound;
+namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
@@ -14,6 +14,7 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -95,6 +96,63 @@ class NotFoundSubscriberTest extends TestCase
         $response = $event->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
+    }
+
+    public function testCookiesAreNotPersistedToNotFoundPages(): void
+    {
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+        $response = new Response();
+        $response->headers->setCookie(new Cookie('extension-cookie', '1'));
+        $response->headers->setCookie(new Cookie('session-', '1'));
+        $httpKernel
+            ->expects(static::once())
+            ->method('handle')
+            ->willReturn($response);
+
+        $cacheTracer = $this->createMock(AbstractCacheTracer::class);
+        $cacheTracer
+            ->expects(static::once())
+            ->method('trace')
+            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getMainRequest')->willReturn(new Request());
+
+        $arrayAdapter = new ArrayAdapter();
+        $subscriber = new NotFoundSubscriber(
+            $httpKernel,
+            $this->createMock(SalesChannelContextServiceInterface::class),
+            false,
+            new TagAwareAdapter($arrayAdapter, $arrayAdapter),
+            $cacheTracer,
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(CacheInvalidator::class),
+            new EventDispatcher(),
+            []
+        );
+
+        $request = new Request();
+
+        $event = new ExceptionEvent(
+            $this->createMock(Kernel::class),
+            $request,
+            0,
+            new HttpException(Response::HTTP_NOT_FOUND)
+        );
+
+        $subscriber->onError($event);
+
+        $writtenCaches = array_values($arrayAdapter->getValues());
+
+        static::assertArrayHasKey(0, $writtenCaches);
+
+        $cacheItem = unserialize($writtenCaches[0]);
+        static::assertInstanceOf(Response::class, $cacheItem);
+
+        $cookies = $cacheItem->headers->getCookies();
+        static::assertCount(1, $cookies);
+
+        static::assertSame('extension-cookie', $cookies[0]->getName());
     }
 
     public function testOtherExceptionsDoesNotGetCached(): void

@@ -805,7 +805,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `bundles/${plugin.technicalFolderName}/`,
                 // filenames aren´t in static folder when using watcher to match the build environment
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
-                chunkFilename: isDev ? 'js/[name].js' : 'static/js/[name].js',
+                chunkFilename: isDev ? 'js/[chunkhash].js' : 'static/js/[chunkhash].js',
                 globalObject: 'window',
                 chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`
             },

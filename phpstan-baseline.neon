@@ -5576,31 +5576,6 @@ parameters:
 			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
 
 		-
-			message: "#^Call to an undefined method object\\:\\:get\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
-			message: "#^Call to an undefined method object\\:\\:getServiceIds\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ServiceDefinitionTest\\:\\:checkArgumentOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\ServiceDefinitionTest\\:\\:checkServiceParameterOrder\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$position of method Shopware\\\\Core\\\\Framework\\\\Test\\\\ServiceDefinitionTest\\:\\:getLineNumber\\(\\) expects int\\<1, max\\>, int given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/ServiceDefinitionTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php

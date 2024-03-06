@@ -411,12 +411,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Contact\ContactPageLoader">
-            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="salutation.repository"/>
-        </service>
-
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute"/>

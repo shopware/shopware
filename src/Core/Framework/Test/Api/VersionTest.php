@@ -26,6 +26,9 @@ class VersionTest extends TestCase
         ]);
     }
 
+    /**
+     * @return array<array{string, string}>
+     */
     public static function protectedRoutesDataProvider(): array
     {
         return [
@@ -33,6 +36,7 @@ class VersionTest extends TestCase
             ['GET', '/api/tax'],
             ['POST', '/api/_action/sync'],
             ['GET', '/api/_info/swagger.html'],
+            ['GET', '/api/_info/stoplightio.html'],
             ['GET', '/api/_info/entity-schema.json'],
             ['GET', '/api/_info/events.json'],
         ];
@@ -47,8 +51,10 @@ class VersionTest extends TestCase
             'Route should be protected. (URL: /api/oauth/token)'
         );
 
-        $response = json_decode($this->unauthorizedClient->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = (string) $this->unauthorizedClient->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertNotEquals('false', $content);
         static::assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
         static::assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);
     }

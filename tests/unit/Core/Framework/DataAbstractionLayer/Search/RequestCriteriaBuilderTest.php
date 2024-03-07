@@ -748,4 +748,27 @@ class RequestCriteriaBuilderTest extends TestCase
             throw $e;
         }
     }
+
+    public function testFilterElementIsInvalid(): void
+    {
+        $payload = [
+            'filter' => [
+                0 => 'test',
+            ],
+        ];
+
+        $this->expectException(SearchRequestException::class);
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertEquals('The filter parameter has to be an array.', $error['detail']);
+            static::assertEquals(400, $error['status']);
+
+            throw $e;
+        }
+    }
 }

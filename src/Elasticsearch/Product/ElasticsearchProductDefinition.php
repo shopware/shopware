@@ -232,13 +232,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     return array_merge([
                         'id' => $propertyId,
                         '_count' => 1,
-                    ], $groups[$propertyId]);
+                    ], $groups[$propertyId] ?? []);
                 }, ElasticsearchIndexingUtils::parseJson($item, 'propertyIds'))),
                 'options' => array_values(array_map(function (string $optionId) use ($groups) {
                     return array_merge([
                         'id' => $optionId,
                         '_count' => 1,
-                    ], $groups[$optionId]);
+                    ], $groups[$optionId] ?? []);
                 }, ElasticsearchIndexingUtils::parseJson($item, 'optionIds'))),
                 'categoryIds' => ElasticsearchIndexingUtils::parseJson($item, 'categoryIds'),
                 'optionIds' => ElasticsearchIndexingUtils::parseJson($item, 'optionIds'),

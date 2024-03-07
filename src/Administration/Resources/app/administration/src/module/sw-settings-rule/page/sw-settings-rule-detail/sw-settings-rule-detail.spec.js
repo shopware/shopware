@@ -1,21 +1,49 @@
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
+import { createRouter, createWebHistory } from 'vue-router';
 
-const { EntityCollection } = Shopware.Data;
+/**
+ * @package services-settings
+ */
 
-function createRuleMock(isNew) {
-    return {
-        id: 'uuid1',
-        name: 'Test rule',
-        isNew: () => isNew,
-        getEntityName: () => 'rule',
-        conditions: {
-            entity: 'rule',
-            source: 'foo/rule',
+const { EntityCollection, Criteria } = Shopware.Data;
+const { Context } = Shopware;
+
+const ruleMock = {
+    id: 'uuid1',
+    name: 'Test rule',
+    isNew: () => false,
+    getEntityName: () => 'rule',
+    conditions: {
+        entity: 'rule_condition',
+        source: 'foo/rule',
+    },
+    someRuleRelation: ['some-value'],
+};
+
+const conditionTreeMock = {
+    conditionTree: [
+        {
+            id: 'some-condition',
+            children: [
+                {
+                    id: 'some-child-condition',
+                    children: [
+                        {
+                            id: 'some-grand-child-condition',
+                        },
+                    ],
+                },
+                {
+                    id: 'some-other-child-condition',
+                },
+            ],
         },
-        someRuleRelation: ['some-value'],
-    };
-}
+        {
+            id: 'some-other-condition',
+        },
+    ],
+};
 
 const defaultAggregations = {
     testRelation: {
@@ -29,95 +57,217 @@ const defaultAggregations = {
     },
 };
 
-function getCollection(repository, entities = [], aggregations = defaultAggregations) {
+function getCollection(
+    repository,
+    entities = [],
+    aggregations = defaultAggregations,
+    total = 0,
+) {
     return new EntityCollection(
         `/${kebabCase(repository)}`,
         repository,
-        null,
-        { isShopwareContext: true },
+        Context.api,
+        { isShopwareContext: true, page: 1, limit: 25 },
         entities,
-        0,
+        total,
         aggregations,
     );
 }
 
-async function createWrapper(isNewRule = false, provide = {}) {
+const ruleConditionDataProviderServiceMock = {
+    getModuleTypes: jest.fn(() => []),
+    addScriptConditions: jest.fn(() => {}),
+    getAwarenessKeysWithEqualsAnyConfig: jest.fn(() => []),
+};
+
+const ruleConditionsConfigApiServiceMock = {
+    load: jest.fn(() => Promise.resolve()),
+};
+
+const ruleRepositoryMock = {
+    create: jest.fn(() => ({
+        ...ruleMock,
+        isNew: () => true,
+    })),
+    hasChanges: jest.fn(() => false),
+    save: jest.fn(() => Promise.resolve()),
+    search: jest.fn(() => Promise.resolve(getCollection('rule', [ruleMock]))),
+    clone: jest.fn(() => Promise.resolve({
+        id: 'duplicated-rule-id',
+    })),
+};
+
+const languageRepositoryMock = {
+    get: jest.fn(() => Promise.resolve({})),
+    search: jest.fn(() => Promise.resolve(
+        getCollection('language', [
+            {
+                id: 'uuid1',
+                name: 'English',
+                label: 'English',
+            },
+        ]),
+    )),
+};
+
+const appConditionRepositoryMock = {
+    search: jest.fn(() => Promise.resolve(getCollection('app_script_condition', []))),
+};
+
+const conditionRepositoryMock = {
+    search: jest.fn(() => Promise.resolve(getCollection('rule_condition', []))),
+    sync: jest.fn(() => Promise.resolve()),
+    syncDeleted: jest.fn(() => Promise.resolve()),
+};
+
+const defaultProps = {
+    ruleId: 'uuid1',
+};
+
+const routeLeaveOrUpdateTestCases = [
+    {
+        name: 'force discard changes',
+        check: 0,
+        from: 'sw.test.route',
+        to: 'sw.test.route',
+        discard: true,
+    },
+    {
+        name: 'switching from base to assignments tab',
+        check: 0,
+        from: 'sw.settings.rule.detail.base',
+        to: 'sw.settings.rule.detail.assignments',
+        discard: false,
+    },
+    {
+        name: 'switch to create tab',
+        check: 0,
+        from: 'sw.test.route',
+        to: 'sw.settings.rule.create.base',
+        discard: false,
+    },
+    {
+        name: 'switch to base tab',
+        check: 0,
+        from: 'sw.test.route',
+        to: 'sw.settings.rule.detail.base',
+        discard: false,
+    },
+    {
+        name: 'check unsaved data',
+        check: 1,
+        from: 'sw.test.route',
+        to: 'sw.test.route',
+        discard: false,
+    },
+];
+
+async function createWrapper(props = defaultProps, provide = {}) {
+    delete config.global.mocks.$router;
+    delete config.global.mocks.$route;
+
+    const router = createRouter({
+        history: createWebHistory(),
+        routes: [
+            {
+                name: 'sw.settings.rule.index',
+                component: { template: '' },
+                path: '/sw/settings/rule/index',
+            },
+            {
+                name: 'sw.settings.rule.detail',
+                component: { template: '' },
+                path: '/sw/settings/rule/detail/:id',
+                redirect: {
+                    name: 'sw.settings.rule.detail.base',
+                },
+            },
+            {
+                name: 'sw.settings.rule.detail.base',
+                component: await wrapTestComponent('sw-settings-rule-detail-base'),
+                path: '/sw/settings/rule/detail/:id/base',
+            },
+            {
+                name: 'sw.settings.rule.detail.assignments',
+                component: await wrapTestComponent('sw-settings-rule-detail-assignments'),
+                path: '/sw/settings/rule/detail/:id/assignments',
+            },
+        ],
+    });
+
+    await router.push({
+        name: 'sw.settings.rule.detail.base',
+        params: {
+            id: ruleMock.id,
+        },
+    });
+
     return mount(
         await wrapTestComponent('sw-settings-rule-detail', { sync: true }),
         {
-            props: {
-                ruleId: isNewRule ? null : 'uuid1',
-            },
+            props,
             global: {
-                renderStubDefaultSlot: true,
+                plugins: [router],
                 stubs: {
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-language-switch': await wrapTestComponent('sw-language-switch'),
+                    'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-popover': await wrapTestComponent('sw-popover'),
+                    'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                     'sw-page': {
                         template: `
                         <div>
                             <slot name="smart-bar-actions"></slot>
+                            <slot name="language-switch"></slot>
                             <slot name="content"></slot>
-                        </div>
-                    `,
-                    },
-                    'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-button-process': await wrapTestComponent('sw-button-process'),
-                    'sw-card': true,
-                    'sw-card-view': true,
-                    'sw-container': true,
-                    'sw-field': true,
-                    'sw-multi-select': true,
-                    'sw-condition-tree': true,
-                    'sw-tabs': true,
-                    'sw-tabs-item': true,
-                    'router-view': {
-                        template:
-                            '<div><slot v-bind="{ Component: \'router-test-view\'}"></slot></div>',
-                    },
-                    'router-test-view': true,
-                    'sw-skeleton': true,
-                    'sw-context-menu-item': true,
-                    'sw-context-button': true,
-                    'sw-button-group': true,
-                    'sw-icon': true,
-                    'sw-loader': true,
-                    'sw-discard-changes-modal': {
-                        template: `
-                        <div>
-                            Iam here
                         </div>
                     `,
                     },
                 },
                 provide: {
-                    ruleConditionDataProviderService: {
-                        getModuleTypes: () => [],
-                        addScriptConditions: () => {},
-                    },
-                    ruleConditionsConfigApiService: {
-                        load: () => Promise.resolve(),
-                    },
+                    ruleConditionDataProviderService: ruleConditionDataProviderServiceMock,
+                    ruleConditionsConfigApiService: ruleConditionsConfigApiServiceMock,
                     repositoryFactory: {
-                        create: (repository) => {
-                            return {
-                                create: () => {
-                                    return createRuleMock(true);
-                                },
-                                search: () => Promise.resolve(getCollection(repository, [createRuleMock(false)])),
-                                hasChanges: (rule, hasChanges) => {
-                                    return hasChanges ?? false;
-                                },
-                                save: () => Promise.resolve(),
-                            };
-                        },
+                        create: jest.fn((repository) => {
+                            switch (repository) {
+                                case 'rule': {
+                                    return ruleRepositoryMock;
+                                }
+                                case 'app_script_condition': {
+                                    return appConditionRepositoryMock;
+                                }
+                                case 'rule_condition': {
+                                    return conditionRepositoryMock;
+                                }
+                                case 'language': {
+                                    return languageRepositoryMock;
+                                }
+                                default: {
+                                    return {
+                                        search: () => Promise.resolve([]),
+                                    };
+                                }
+                            }
+                        }),
+                    },
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([]),
                     },
                     ...provide,
                 },
                 mocks: {
-                    $route: {
-                        meta: {},
-                        params: {
-                            id: isNewRule ? null : 'uuid1',
-                        },
+                    $device: {
+                        getSystemKey: () => 'TEST',
+                        onResize: () => {},
+                        removeResizeListener: () => {},
                     },
                 },
             },
@@ -126,6 +276,453 @@ async function createWrapper(isNewRule = false, provide = {}) {
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('provides shortcuts for save and cancel', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$options.shortcuts.ESCAPE).toBe('onCancel');
+        expect(wrapper.vm.$options.shortcuts['SYSTEMKEY+S']).toBe('onSave');
+    });
+
+    it.each([
+        { name: 'rule exists', rule: ruleMock, title: ruleMock.name },
+        { name: 'rule not exists', rule: null, title: '' },
+    ])('should return metaInfo: $name', async ({ rule, title }) => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            rule,
+        });
+
+        wrapper.vm.$createTitle = jest.fn(() => 'Title');
+        const metaInfo = wrapper.vm.$options.metaInfo.call(wrapper.vm);
+
+        expect(metaInfo.title).toBe('Title');
+        expect(wrapper.vm.$createTitle).toHaveBeenNthCalledWith(1, title);
+    });
+
+    it('should create rule criteria with association and aggregations', async () => {
+        await createWrapper();
+        await flushPromises();
+
+        const association = [
+            'tags',
+            'flowSequences',
+        ];
+
+        const aggregations = [
+            'personaPromotions',
+            'orderPromotions',
+            'cartPromotions',
+            'promotionDiscounts',
+            'promotionSetGroups',
+            'shippingMethodPriceCalculations',
+            'shippingMethodPrices',
+            'productPrices',
+            'shippingMethods',
+            'paymentMethods',
+        ];
+
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(1);
+        const call = ruleRepositoryMock.search.mock.calls[0];
+
+        expect(call[0].associations.map((a) => a.association)).toEqual(association);
+        expect(call[0].aggregations.map((a) => a.name)).toEqual(aggregations);
+    });
+
+    it('should create rule condition repository: $name', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const expectedRepositories = [
+            ['app_script_condition'],
+            ['rule'],
+            [ruleMock.conditions.entity, ruleMock.conditions.source],
+            ['language'],
+        ];
+
+        expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(4);
+        expect(wrapper.vm.repositoryFactory.create.mock.calls).toEqual(expectedRepositories);
+    });
+
+    it.each([
+        { name: 'warning', roles: [], message: 'sw-privileges.tooltip.warning' },
+        { name: 'save', roles: ['rule.editor'], message: 'TEST + S' },
+    ])('should create tooltip for save button: $name', async ({ roles, message }) => {
+        global.activeAclRoles = roles;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail__save-action').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-rule-detail__save-action').attributes('tooltip-mock-message')).toBe(message);
+    });
+
+    it('should create tooltip for cancel button', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail__cancel-action').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-rule-detail__cancel-action').attributes('tooltip-mock-message')).toBe('ESC');
+    });
+
+    it('should render tab items', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-rule-detail__tab-item-assignments').exists()).toBe(true);
+    });
+
+    it.each([
+        { name: 'product association', entity: 'product' },
+        { name: 'no product association', entity: 'order' },
+    ])('should load entity data and condition config on creation: $name', async ({ entity }) => {
+        conditionRepositoryMock.search.mockResolvedValueOnce(getCollection(entity, [{ id: 'uuid1' }], defaultAggregations, 10));
+
+        await createWrapper();
+        await flushPromises();
+
+        expect(appConditionRepositoryMock.search).toHaveBeenCalledTimes(1);
+        expect(ruleConditionsConfigApiServiceMock.load).toHaveBeenCalledTimes(1);
+        expect(ruleConditionDataProviderServiceMock.addScriptConditions).toHaveBeenCalledTimes(1);
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(1);
+
+        const criteria = new Criteria(2, 25);
+
+        if (entity === 'product') {
+            criteria.addAssociation('options.group');
+        }
+
+        expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);
+        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([criteria, Context.api]);
+    });
+
+    it.each([
+        { name: 'save', fails: false },
+        { name: 'save fails', fails: true },
+    ])('should save new rule: $name', async ({ fails }) => {
+        global.activeAclRoles = ['rule.editor'];
+
+        if (fails) {
+            ruleRepositoryMock.save.mockRejectedValueOnce(new Error('Some error'));
+        }
+
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            ruleId: null,
+        });
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const routerSpy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        await wrapper.setData(conditionTreeMock);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail__save-action').exists()).toBe(true);
+        await wrapper.find('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+        expect(routerSpy).toHaveBeenCalledTimes(fails ? 0 : 1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(fails ? 1 : 0);
+    });
+
+    it.each([
+        { name: 'save', fails: false },
+        { name: 'save fails', fails: true },
+    ])('should save existing rule: $name', async ({ fails }) => {
+        global.activeAclRoles = ['rule.editor'];
+
+        if (fails) {
+            ruleRepositoryMock.save.mockRejectedValueOnce(new Error('Some error'));
+        }
+
+        const wrapper = await createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData(conditionTreeMock);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail__save-action').exists()).toBe(true);
+        await wrapper.find('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+        expect(conditionRepositoryMock.sync).toHaveBeenCalledTimes(fails ? 0 : 1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(fails ? 1 : 0);
+    });
+
+    it('should update conditions on change and sync', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper();
+        await wrapper.setData(conditionTreeMock);
+        await flushPromises();
+
+        const conditions = {
+            ...conditionTreeMock,
+            conditionTree: [
+                ...conditionTreeMock.conditionTree,
+                {
+                    id: 'some-other-condition',
+                },
+            ],
+        };
+
+        await wrapper.find('sw-condition-tree').trigger('conditions-changed', {
+            conditions,
+            deletedIds: ['some-condition'],
+        });
+
+        expect(wrapper.vm.conditionTree).toEqual(conditions);
+        expect(wrapper.vm.deletedIds).toEqual(['some-condition']);
+
+        expect(wrapper.find('.sw-settings-rule-detail__save-action').exists()).toBe(true);
+        await wrapper.find('.sw-settings-rule-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(conditionRepositoryMock.sync).toHaveBeenCalledTimes(1);
+        expect(conditionRepositoryMock.syncDeleted).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        { name: 'rule changed', abort: false },
+        { name: 'rule not changed', abort: true },
+    ])('should change language switch', async ({ abort }) => {
+        ruleRepositoryMock.hasChanges.mockReturnValueOnce(abort);
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const apiLanguageId = Shopware.State.get('context').api.languageId;
+        expect(Shopware.State.get('context').api.languageId).not.toBe('uuid1');
+
+        await wrapper.find('.sw-select__select-indicator').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-select-result').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(1);
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(abort ? 1 : 2);
+        expect(Shopware.State.get('context').api.languageId).toBe(abort ? apiLanguageId : 'uuid1');
+
+        // cleanup
+        Shopware.State.commit('context/setApiLanguageId', apiLanguageId);
+    });
+
+    it('should save language switch', async () => {
+        ruleRepositoryMock.hasChanges.mockReturnValueOnce(true);
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-select__select-indicator').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-select-result').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('#sw-language-switch-save-changes-button').exists()).toBe(true);
+        await wrapper.find('#sw-language-switch-save-changes-button').trigger('click');
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should cancel rule edit', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const routerSpy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        await wrapper.find('.sw-settings-rule-detail__cancel-action').trigger('click');
+
+        expect(routerSpy).toHaveBeenNthCalledWith(1, {
+            name: 'sw.settings.rule.index',
+        });
+    });
+
+    it('should clone duplicate rule', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper();
+        await wrapper.setData(conditionTreeMock);
+        await flushPromises();
+
+        const routerSpy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        await wrapper.find('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
+        await flushPromises();
+
+        expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
+        expect(ruleRepositoryMock.clone).toHaveBeenCalledTimes(1);
+        expect(routerSpy).toHaveBeenNthCalledWith(1, {
+            name: 'sw.settings.rule.detail',
+            params: { id: 'duplicated-rule-id' },
+        });
+    });
+
+    it('should reload rule when switching from assignments to base tab', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        await wrapper.find('.sw-settings-rule-detail__tab-item-assignments').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments').exists()).toBe(true);
+
+        await wrapper.find('.sw-settings-rule-detail__tab-item-general').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-rule-detail-base').exists()).toBe(true);
+
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(2);
+    });
+
+    it.each(routeLeaveOrUpdateTestCases)('should check for unsaved data when route updates: $name', async ({ from, to, discard, check }) => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            forceDiscardChanges: discard,
+        });
+        await flushPromises();
+
+        const nextMock = jest.fn();
+
+        wrapper.vm.$options.beforeRouteUpdate.call(
+            wrapper.vm,
+            { name: to, params: { id: 'uuid2' } },
+            { name: from, params: { id: 'uuid1' } },
+            nextMock,
+        );
+        await flushPromises();
+
+        expect(nextMock).toHaveBeenCalledTimes(1);
+        expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(check);
+    });
+
+    it.each(routeLeaveOrUpdateTestCases)('should check for unsaved data when leaving route: $name', async ({ from, to, discard, check }) => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            forceDiscardChanges: discard,
+        });
+        await flushPromises();
+
+        const nextMock = jest.fn();
+
+        wrapper.vm.$options.beforeRouteLeave.call(
+            wrapper.vm,
+            { name: to, params: { id: 'uuid2' } },
+            { name: from, params: { id: 'uuid1' } },
+            nextMock,
+        );
+        await flushPromises();
+
+        expect(nextMock).toHaveBeenCalledTimes(1);
+        expect(ruleRepositoryMock.hasChanges).toHaveBeenCalledTimes(check);
+    });
+
+    it.each([
+        {
+            name: 'no changes',
+            ruleHasChanges: false,
+            containsUserChanges: false,
+            openModal: false,
+            nextArgs: [],
+        },
+        {
+            name: 'rule changes',
+            ruleHasChanges: true,
+            containsUserChanges: false,
+            openModal: true,
+            nextArgs: [false],
+        },
+        {
+            name: 'condition changes',
+            ruleHasChanges: false,
+            containsUserChanges: true,
+            openModal: true,
+            nextArgs: [false],
+        },
+        {
+            name: 'rule and condition changes',
+            ruleHasChanges: true,
+            containsUserChanges: true,
+            openModal: true,
+            nextArgs: [false],
+        },
+    ])('should check for unsaved data: $name', async ({ ruleHasChanges, containsUserChanges, openModal, nextArgs }) => {
+        ruleRepositoryMock.hasChanges.mockReturnValueOnce(ruleHasChanges);
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        if (containsUserChanges) {
+            await wrapper.setData(conditionTreeMock);
+        }
+
+        const nextMock = jest.fn();
+
+        wrapper.vm.checkUnsavedData(
+            {
+                to: { name: 'sw.test.route', params: { id: 'uuid2' } },
+                next: nextMock,
+            },
+        );
+        await flushPromises();
+
+        expect(nextMock).toHaveBeenNthCalledWith(1, ...nextArgs);
+        expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(openModal);
+    });
+
+    it('should cancel discard confirm modal', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            isDisplayingSaveChangesWarning: true,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(true);
+
+        await wrapper.find('.sw-modal .sw-button').trigger('click');
+        expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(false);
+    });
+
+    it.each([
+        { name: 'switch to assignments tab', to: 'sw.settings.rule.detail.assignments', loadCalls: 2 },
+        { name: 'switch to base tab', to: 'sw.settings.rule.detail.base', loadCalls: 1 },
+    ])('should confirm discard changes', async ({ to, loadCalls }) => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const nextRoute = {
+            name: to,
+            params: { id: 'uuid1' },
+        };
+
+        await wrapper.setData({
+            isDisplayingSaveChangesWarning: true,
+            nextRoute,
+        });
+        await flushPromises();
+
+        const routerSpy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        expect(wrapper.find('.sw-modal').exists()).toBe(true);
+        expect(wrapper.find('.sw-discard-changes-modal-delete-text').exists()).toBe(true);
+
+        await wrapper.find('.sw-modal .sw-button--danger').trigger('click');
+        await flushPromises();
+
+        expect(routerSpy).toHaveBeenNthCalledWith(1, nextRoute);
+        expect(ruleRepositoryMock.search).toHaveBeenCalledTimes(loadCalls);
+    });
+
     it('should have disabled fields', async () => {
         global.activeAclRoles = [];
 
@@ -161,122 +758,21 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should not render tabs in new rule', async () => {
         global.activeAclRoles = ['rule.editor'];
 
-        const wrapper = await createWrapper(true);
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            ruleId: null,
+        });
 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeFalsy();
     });
 
-    it('should set user changes when condition tree changed', async () => {
-        global.activeAclRoles = ['rule.editor'];
-
-        const wrapper = await createWrapper(false);
-
-        await flushPromises();
-
-        expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeFalsy();
-        wrapper.vm.setTreeFinishedLoading();
-        wrapper.vm.conditionsChanged({ conditions: [], deletedIds: [] });
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeTruthy();
-    });
-
-    it('should open changes modal when leaving the route', async () => {
-        global.activeAclRoles = ['rule.editor'];
-
-        const wrapper = await createWrapper(false);
-
-        await flushPromises();
-
-        await wrapper.setData({
-            conditionsTreeContainsUserChanges: true,
-        });
-
-        const next = jest.fn();
-        wrapper.vm.unsavedDataLeaveHandler({ name: 'sw.settings.rule.detail.assignments' }, { name: 'sw.settings.rule.detail.base' }, next);
-
-
-        expect(next).toHaveBeenCalled();
-    });
-
-    it('should reset condition tree state when navigating back to the base tab', async () => {
-        global.activeAclRoles = ['rule.editor'];
-
-        const wrapper = await createWrapper(false);
-
-        await flushPromises();
-
-        await wrapper.setData({
-            conditionsTreeContainsUserChanges: true,
-        });
-
-        const next = jest.fn();
-        wrapper.vm.unsavedDataLeaveHandler({ name: 'sw.settings.rule.detail.base' }, {}, next);
-
-        expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeFalsy();
-        expect(wrapper.vm.conditionTreeFinishedLoading).toBeFalsy();
-        expect(next).toHaveBeenCalled();
-    });
-
-    it('should not open changes modal when there are no changes', async () => {
-        global.activeAclRoles = ['rule.editor',
-        ];
-
-        const wrapper = await createWrapper(false);
-
-        await flushPromises();
-
-        await wrapper.setData({
-            conditionsTreeContainsUserChanges: false,
-        });
-
-        const next = jest.fn();
-        wrapper.vm.unsavedDataLeaveHandler({}, {}, next);
-
-        expect(wrapper.vm.isDisplayingSaveChangesWarning).toBeFalsy();
-        expect(next).toHaveBeenCalled();
-    });
-
-    it('should return tab has no error for assignment tab', async () => {
-        global.activeAclRoles = [];
-
-        const wrapper = await createWrapper();
-
-        await flushPromises();
-
-        expect(wrapper.vm.tabHasError({
-            route: {
-                name: 'sw.settings.rule.detail.assignments',
-            },
-        })).toBe(false);
-    });
-
-    it('should return tab has error for assignment tab', async () => {
-        global.activeAclRoles = [];
-
-        Shopware.State.commit('error/addApiError', {
-            expression: 'rule.uuid1.name',
-            error: {
-                message: 'Error detail',
-            },
-        });
-
-        const wrapper = await createWrapper(false);
-        await flushPromises();
-
-        expect(wrapper.vm.tabHasError({
-            route: {
-                name: 'sw.settings.rule.detail.base',
-            },
-        })).toBe(true);
-    });
-
     it('should prevent the user from saving the rule when rule awareness is violated', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper(
-            false,
+            defaultProps,
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
@@ -290,20 +786,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             },
         );
 
-        wrapper.vm.ruleRepository.save = jest.fn(() => Promise.resolve());
-
-        await wrapper.setData({
-            conditionTree: [{
-                id: 'some-condition',
-                children: [{
-                    id: 'some-child-condition',
-                    children: [{
-                        id: 'some-grand-child-condition',
-                    }],
-                }],
-            }],
-        });
-
+        await wrapper.setData(conditionTreeMock);
         await flushPromises();
 
         const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
@@ -316,7 +799,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper(
-            false,
+            defaultProps,
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
@@ -325,20 +808,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 },
             },
         );
-        wrapper.vm.ruleRepository.save = jest.fn(() => Promise.resolve());
 
-        await wrapper.setData({
-            conditionTree: [{
-                id: 'some-condition',
-                children: [{
-                    id: 'some-child-condition',
-                    children: [{
-                        id: 'some-grand-child-condition',
-                    }],
-                }],
-            }],
-        });
-
+        await wrapper.setData(conditionTreeMock);
         await flushPromises();
 
         const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
@@ -356,7 +827,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         }));
 
         const wrapper = await createWrapper(
-            false,
+            defaultProps,
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
@@ -369,18 +840,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             },
         );
 
-        await wrapper.setData({
-            conditionTree: [{
-                id: 'some-condition',
-                children: [{
-                    id: 'some-child-condition',
-                    children: [{
-                        id: 'some-grand-child-condition',
-                    }],
-                }],
-            }],
-        });
-
+        await wrapper.setData(conditionTreeMock);
         await flushPromises();
 
         const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
@@ -398,7 +858,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         }));
 
         const wrapper = await createWrapper(
-            false,
+            defaultProps,
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
@@ -411,18 +871,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             },
         );
 
-        await wrapper.setData({
-            conditionTree: [{
-                id: 'some-condition',
-                children: [{
-                    id: 'some-child-condition',
-                    children: [{
-                        id: 'some-grand-child-condition',
-                    }],
-                }],
-            }],
-        });
-
+        await wrapper.setData(conditionTreeMock);
         await flushPromises();
 
         const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
@@ -435,7 +884,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper(
-            false,
+            defaultProps,
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
@@ -451,15 +900,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         await wrapper.setData({
             entityCount: null,
-            conditionTree: [{
-                id: 'some-condition',
-                children: [{
-                    id: 'some-child-condition',
-                    children: [{
-                        id: 'some-grand-child-condition',
-                    }],
-                }],
-            }],
+            ...conditionTreeMock,
         });
 
         await flushPromises();

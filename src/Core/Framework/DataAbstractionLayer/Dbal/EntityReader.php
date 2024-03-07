@@ -1197,6 +1197,10 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
+            if ($partial !== [] && !\array_key_exists($association->getPropertyName(), $partial)) {
+                continue;
+            }
+
             if ($association instanceof OneToOneAssociationField || $association instanceof ManyToOneAssociationField) {
                 $this->loadToOne($association, $context, $collection, $criteria, $partial[$association->getPropertyName()] ?? []);
 

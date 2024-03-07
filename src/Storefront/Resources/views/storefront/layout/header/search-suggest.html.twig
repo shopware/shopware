@@ -21,7 +21,7 @@
                                                     } %}
 
                                                     {% if product.cover.media.url and product.cover.media.isSpatialObject() == false %}
-                                                        {% if product.cover.media.mimeType starts with 'video/' %}
+                                                        {% if product.cover.media.getMediaType().getName() === 'VIDEO' %}
                                                             {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
                                                                 media: product.cover.media,
                                                                 attributes: attributes

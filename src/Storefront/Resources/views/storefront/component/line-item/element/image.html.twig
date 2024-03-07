@@ -6,7 +6,7 @@
                 title: (lineItem.cover.translated.title ?: '')
             } %}
 
-            {% if lineItem.cover.mimeType starts with 'video/' %}
+            {% if lineItem.cover.getMediaType().getName() === 'VIDEO' %}
                 {% block component_line_item_video %}
                     {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
                         media: lineItem.cover,

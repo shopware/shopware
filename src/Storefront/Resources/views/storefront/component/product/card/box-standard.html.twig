@@ -34,7 +34,7 @@
                                                 title: (cover.translated.title ?: name)
                                             } %}
 
-                                            {% if cover.mimeType starts with 'video/' %}
+                                            {% if cover.getMediaType().getName() === 'VIDEO' %}
                                                 {% if config('core.listing.autoplayVideoInListing') %}
                                                     {% set attributes = attributes|merge({
                                                         autoplay: true,

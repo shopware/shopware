@@ -13,7 +13,7 @@
                                 title: (page.product.cover.translated.title ?: '')
                             } %}
 
-                            {% if page.product.cover.media.mimeType starts with 'video/' %}
+                            {% if page.product.cover.media.getMediaType().getName() === 'VIDEO' %}
                                 {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
                                     media: page.product.cover.media,
                                     attributes: attributes

@@ -1,6 +1,6 @@
 ---
 title: Add product video functionality
-issue: NEXT-00000
+issue: NEXT-34225
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

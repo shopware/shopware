@@ -645,11 +645,6 @@ class PluginLifecycleService
 
         $this->executor->require($pluginComposerName . ':' . $pluginVersion, $plugin->getName());
 
-        // composer builds a new autoloader, we should reset opcache to make sure the new autoloader is used
-        if (\function_exists('opcache_reset')) {
-            opcache_reset();
-        }
-
         // running composer require may have consequences for other plugins, when they are required by the plugin being installed
         $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
 

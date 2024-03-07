@@ -1,4 +1,4 @@
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/data/_internals/EntityCollection';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 
 const { Criteria } = Shopware.Data;
 

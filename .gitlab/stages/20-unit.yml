@@ -237,7 +237,7 @@ PHP Full:
         -   name: redis:7.0
             alias: redis
     variables:
-        TEST_SUITES: "administration storefront content framework profiling system unit integration migration migration-tests"
+        TEST_SUITES: "administration storefront content devops framework profiling system unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         ALLOW_FAILURE: "false"

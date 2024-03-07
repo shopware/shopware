@@ -64,7 +64,7 @@ parameters:
         - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
-        - tests/unit/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+        - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
         # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
         - src/Core/Test/Stub/Redis/RedisCompatibility.php

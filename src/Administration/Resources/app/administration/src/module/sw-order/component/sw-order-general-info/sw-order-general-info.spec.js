@@ -95,10 +95,6 @@ orderMock.deliveries.last = () => ({
     },
 });
 
-const $route = {
-    params: { id: '123' },
-};
-
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-general-info', { sync: true }), {
         props: {
@@ -106,9 +102,6 @@ async function createWrapper() {
             isLoading: false,
         },
         global: {
-            mocks: {
-                $route,
-            },
             provide: {
                 orderStateMachineService: {},
                 stateStyleDataProviderService: {
@@ -221,23 +214,11 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(wrapper.vm.$data.tagCollection).toHaveLength(3);
     });
 
-    it('should not update order.id or call createdComponent when $route does not change', async () => {
+    it('should call createComponent on order id change', async () => {
         const spyCreatedComponent = jest.spyOn(wrapper.vm, 'createdComponent');
 
-        expect(wrapper.vm.order.id).toBe('123');
+        wrapper.vm.$options.watch['order.id'].call(wrapper.vm);
 
-        await wrapper.vm.$options.watch.$route.call(wrapper.vm, { params: { id: '123' } }, $route);
-        expect(wrapper.vm.order.id).toBe('123');
-        expect(spyCreatedComponent).toHaveBeenCalledTimes(0);
-    });
-
-    it('should update order.id and call createdComponent when $route changes', async () => {
-        const spyCreatedComponent = jest.spyOn(wrapper.vm, 'createdComponent');
-
-        expect(wrapper.vm.order.id).toBe('123');
-
-        await wrapper.vm.$options.watch.$route.call(wrapper.vm, { params: { id: '1234' } }, $route);
-        expect(wrapper.vm.order.id).toBe('1234');
         expect(spyCreatedComponent).toHaveBeenCalledTimes(1);
     });
 });

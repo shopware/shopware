@@ -1,4 +1,4 @@
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type EntityCollection from 'src/core/data/entity-collection.data';
 
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';

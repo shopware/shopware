@@ -3,7 +3,7 @@
  */
 
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';

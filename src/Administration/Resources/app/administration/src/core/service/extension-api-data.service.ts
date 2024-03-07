@@ -5,8 +5,8 @@
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
 import { get, debounce, cloneDeepWith } from 'lodash';
 import type { App } from 'vue';
-import { selectData } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/selectData';
-import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/privileges/missing-privileges-error';
+import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
+import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import Entity from 'src/core/data/entity.data';
@@ -128,6 +128,7 @@ handleGet((data, additionalOptions) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const clonedData = deepCloneWithEntity(registeredDataSet.data);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const selectedData = selectData(clonedData, selectors, 'datasetGet', origin);
 
     if (selectedData instanceof MissingPrivilegesError) {

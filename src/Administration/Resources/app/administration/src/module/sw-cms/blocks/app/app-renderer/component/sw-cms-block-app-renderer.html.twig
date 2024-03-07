@@ -1,0 +1,9 @@
+<div
+    class="sw-cms-block-app-renderer"
+    :style="blockStyle"
+>
+    <slot
+        v-for="slot in slots"
+        :name="slot.slot"
+    ></slot>
+</div>

@@ -149,29 +149,12 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_overview_category_options %}
-                    <option value="favorite">
-                        {{ $tc('sw-cms.detail.label.blockCategoryFavorite') }}
-                    </option>
-                    <option value="text">
-                        {{ $tc('sw-cms.detail.label.blockCategoryText') }}
-                    </option>
-                    <option value="image">
-                        {{ $tc('sw-cms.detail.label.blockCategoryImage') }}
-                    </option>
-                    <option value="video">
-                        {{ $tc('sw-cms.detail.label.blockCategoryVideo') }}
-                    </option>
-                    <option value="text-image">
-                        {{ $tc('sw-cms.detail.label.blockCategoryTextImage') }}
-                    </option>
-                    <option value="commerce">
-                        {{ $tc('sw-cms.detail.label.blockCategoryCommerce') }}
-                    </option>
-                    <option value="sidebar">
-                        {{ $tc('sw-cms.detail.label.blockCategorySidebar') }}
-                    </option>
-                    <option value="form">
-                        {{ $tc('sw-cms.detail.label.blockCategoryForm') }}
+                    <option
+                        v-for="blockCategory in cmsBlockCategories"
+                        :key="blockCategory.value"
+                        :value="blockCategory.value"
+                    >
+                        {{ $tc(blockCategory.label) }}
                     </option>
                     <option value="html">
                         {{ $tc('sw-cms.detail.label.blockCategoryHtml') }}
@@ -209,7 +192,10 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_sidebar_block_overview_preview_component %}
-                            <component :is="block.previewComponent" />
+                            <component
+                                :is="block.previewComponent"
+                                :block="block"
+                            />
                             {% endblock %}
                         </div>
 

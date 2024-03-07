@@ -1,0 +1,15 @@
+<div class="sw-cms-block-app-preview-renderer">
+    <img
+        v-if="previewImage"
+        :src="previewImage"
+        :alt="'Preview image for app CMS block: ' + $tc(blockLabel)"
+    >
+
+    <section
+        v-else
+        class="sw-cms-block-app-preview-renderer__fallback-preview">
+        <h2>
+            {{ $tc(appName) }}
+        </h2>
+    </section>
+</div>

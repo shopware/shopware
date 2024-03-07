@@ -466,6 +466,40 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map(block => block.name)).toStrictEqual(['product_list_block']);
     });
 
+    it('should render also new block types', async () => {
+        const wrapper = await createWrapper({
+            cmsBlockRegistry: {
+                product_list_block: {
+                    name: 'product_list_block',
+                    category: 'text',
+                    hidden: false,
+                },
+                listing_block: {
+                    name: 'listing_block',
+                    category: 'text',
+                    hidden: false,
+                },
+                product_list_hidden_block: {
+                    name: 'product_list_hidden_block',
+                    category: 'text',
+                    hidden: true,
+                },
+                completely_different_catagory_block: {
+                    name: 'completely_different_catagory_block',
+                    category: 'completely_different_category',
+                    hidden: false,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const newBlockCategory = wrapper.find('.sw-cms-sidebar__block-category option[value="completely_different_category"]');
+
+        expect(newBlockCategory.exists()).toBeTruthy();
+        expect(newBlockCategory.text()).toBe('apps.sw-cms.detail.label.blockCategory.completely_different_category');
+    });
+
     it('should allow editing of the visibility setting of blocks', async () => {
         const wrapper = await createWrapper();
 

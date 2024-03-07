@@ -62,10 +62,17 @@ async function createWrapper() {
             stubs: {
                 'sw-icon': true,
                 'sw-cms-section-actions': true,
-                'sw-cms-block': true,
-                'sw-cms-block-foo-bar': true,
-                'sw-cms-stage-add-block': true,
+                'sw-cms-block': {
+                    template: '<div class="sw-cms-block"><slot /></div>',
+                },
+                'sw-cms-stage-add-block': {
+                    template: '<div class="sw-cms-stage-add-block"><slot /></div>',
+                },
                 'sw-cms-visibility-toggle': await wrapTestComponent('sw-cms-visibility-toggle'),
+                'sw-cms-block-foo-bar': {
+                    props: ['block'],
+                    template: '<div class="sw-cms-block-foo-bar"></div>',
+                },
             },
             provide: {
                 repositoryFactory: {},
@@ -94,10 +101,10 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
         expect(cmsSectionActions.attributes().disabled).toBeFalsy();
 
-        const cmsBlock = wrapper.find('sw-cms-block-stub');
+        const cmsBlock = wrapper.find('.sw-cms-block');
         expect(cmsBlock.attributes().disabled).toBeFalsy();
 
-        const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
+        const cmsStageAddBlocks = wrapper.findAll('.sw-cms-stage-add-block');
         expect(cmsStageAddBlocks).toHaveLength(4);
 
         cmsStageAddBlocks.forEach(cmsStageAddBlock => {
@@ -114,7 +121,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
         expect(cmsSectionActions.attributes().disabled).toBe('true');
 
-        const cmsBlock = wrapper.find('sw-cms-block-stub');
+        const cmsBlock = wrapper.find('.sw-cms-block');
         expect(cmsBlock.attributes().disabled).toBe('true');
 
         const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
@@ -175,5 +182,19 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.props().section.visibility).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+    });
+
+    it('should have the block value as attribute in the rendered blocks', async () => {
+        const wrapper = await createWrapper();
+
+        // Get first CMS stage block
+        const fooBarBlock = wrapper.findComponent('.sw-cms-section__content .sw-cms-block-foo-bar');
+        expect(fooBarBlock.props()).toEqual({
+            block: {
+                id: '1a2b',
+                sectionPosition: 'main',
+                type: 'foo-bar',
+            },
+        });
     });
 });

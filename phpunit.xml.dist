@@ -55,7 +55,8 @@
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
             <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
-            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/Test/Command/stubs</directory>
+            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
             <directory suffix=".php">src/Core/Maintenance/Test</directory>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/System/Test</directory>
@@ -96,6 +97,9 @@
         </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
+        </testsuite>
+        <testsuite name="devops">
+            <directory>tests/devops</directory>
         </testsuite>
         <testsuite name="framework">
             <directory>src/Core/Framework/Test</directory>

@@ -32,7 +32,6 @@
                                         <tr class="product-block-prices-row"
                                             itemprop="offers" itemscope
                                             itemtype="https://schema.org/Offer">
-
                                             {% block buy_widget_price_block_table_body_cell_quantity %}
                                                 <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
                                                     <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.translated.shortName }}">
@@ -95,7 +94,6 @@
 
             {% if isListPrice %}
                 {% block buy_widget_was_price %}
-
                     {% block buy_widget_was_price_badge %}
                         <span class="list-price-badge">&#37;</span>
                     {% endblock %}

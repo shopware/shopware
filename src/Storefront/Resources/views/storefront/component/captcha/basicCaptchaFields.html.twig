@@ -14,6 +14,7 @@
                class="d-none"
                value="{{ formId }}"
         >
+
         {% block component_basic_captcha_fields_error %}
             {% if formViolations.getViolations("/#{constant('Shopware\\Storefront\\Framework\\Captcha\\BasicCaptcha::CAPTCHA_REQUEST_PARAMETER')}") is not empty %}
                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}

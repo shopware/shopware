@@ -1,10 +1,8 @@
 {% block component_review_widget %}
     <div class="sticky-top product-detail-review-widget">
-
         {% block component_review_info_container %}
             {% block component_review_info %}
                 <div class="product-detail-review-info js-review-info">
-
                     {% block component_review_title %}
                         <p class="product-detail-review-title h5">
                             {{ 'detail.reviewTitle'|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
@@ -71,11 +69,9 @@
                             {% for matrix in reviews.matrix.matrix %}
                                 {% block component_review_filter_box %}
                                     <div class="row product-detail-review-filter">
-
                                         {% block component_review_filter_checkbox %}
                                             <div class="col-md-8 col-lg-5 product-detail-review-checkbox">
                                                 <div class="form-check">
-
                                                     {% block component_review_filter_checkbox_input %}
                                                         <input type="checkbox"
                                                                class="form-check-input"
@@ -136,7 +132,6 @@
 
         {% block component_review_form_teaser %}
             <div class="product-detail-review-teaser js-review-teaser">
-
                 {% block component_review_form_teaser_header %}
                     <p class="h4">
                         {% if not reviews.customerReview %}

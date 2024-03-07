@@ -9,6 +9,7 @@
             } %}
         {% endfor %}
     {% endblock %}
+
     {% block component_checkout_cart_alerts_warnings %}
         {% for error in page.cart.errors.warnings %}
             {% set snippetName = "error.#{error.messageKey}" %}
@@ -19,6 +20,7 @@
             } %}
         {% endfor %}
     {% endblock %}
+
     {% block component_checkout_cart_alerts_errors %}
         {% for error in page.cart.errors.errors %}
             {% set snippetName = "error.#{error.messageKey}" %}

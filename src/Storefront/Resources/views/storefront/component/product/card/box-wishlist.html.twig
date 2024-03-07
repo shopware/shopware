@@ -16,7 +16,6 @@
                     <form action="{{ path('frontend.wishlist.product.delete', {id: id}) }}"
                           method="post"
                           class="product-wishlist-form">
-
                         {% block component_product_wishlist_remove_redirect %}
                             <input type="hidden"
                                    name="redirectTo"

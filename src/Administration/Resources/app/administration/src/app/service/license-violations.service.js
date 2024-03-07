@@ -1,4 +1,4 @@
-const { Application } = Shopware;
+const { Application, State } = Shopware;
 
 /**
  * @private
@@ -194,7 +194,7 @@ export default function createLicenseViolationsService(storeService) {
             method: () => ignorePlugin(warning.name, getIgnoredPlugins()),
         };
 
-        getApplicationRootReference().$store.dispatch('notification/createGrowlNotification', {
+        State.dispatch('notification/createGrowlNotification', {
             title: plugin.label,
             message: warning.text,
             autoClose: false,

@@ -52,7 +52,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
             system: true,
         };
 
-        void root.$store.dispatch(
+        void Shopware.State.dispatch(
             'notification/createNotification',
             notification,
         );

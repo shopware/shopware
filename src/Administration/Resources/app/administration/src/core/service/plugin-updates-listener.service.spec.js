@@ -25,16 +25,9 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         };
     }
 
-    function getApplicationRoot(dispatchFunction) {
-        return {
-            $tc: (snippet) => {
-                return snippet;
-            },
-            $store: {
-                dispatch: dispatchFunction,
-            },
-        };
-    }
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
 
     it('should not update the key if the notification could not be shown', async () => {
         const lastCheckDate = (currentTime - oneDay - 1).toString();
@@ -53,12 +46,11 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
     });
 
     it('should update the key and show a notification', async () => {
-        const dispatchFunctionMock = jest.fn();
         const lastCheckDate = (currentTime - oneDay - 1).toString();
         localStorage.setItem(localStorageKey, lastCheckDate);
 
-        const applicationRoot = getApplicationRoot(dispatchFunctionMock);
-        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => { return { ...applicationRoot }; });
+        // This is to simplify the retrieval of the notification
+        jest.spyOn(Shopware.Utils, 'createId').mockImplementation(() => 'jest');
 
         addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
 
@@ -69,9 +61,11 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         await flushPromises();
 
         const expectedDate = currentTime.toString();
-
         expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
-        expect(dispatchFunctionMock).toHaveBeenCalled();
+
+        const notifications = Shopware.State.get('notification');
+        expect(notifications.notifications.jest.message).toBe('global.notification-center.plugin-updates-listener.updatesAvailableMessage');
+        expect(notifications.growlNotifications.jest.message).toBe('global.notification-center.plugin-updates-listener.updatesAvailableMessage');
     });
 
     it('should only update the key if it checked for updates', async () => {

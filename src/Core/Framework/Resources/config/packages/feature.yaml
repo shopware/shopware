@@ -10,3 +10,6 @@ shopware:
       - name: v6.7.0.0
         default: false
         major: true
+      - name: DISABLE_VUE_COMPAT
+        default: false
+        major: true

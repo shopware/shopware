@@ -9,86 +9,97 @@ include:
       context: tar://${CI_PROJECT_DIR}/context.tar.gz
       destination-image: "${CI_REGISTRY_IMAGE}/ci-e2e"
       destination-tag: "$CI_PIPELINE_ID"
-      additional-tags: "${EXTRA_BUILD_TAGS}"
+      additional-tags: "${EXTRA_DEV_BUILD_TAGS}"
       dockerfile: .gitlab/docker/dev/Dockerfile
       enable-scan: "false"
       cache: "false"
+  - component: gitlab.shopware.com/infrastructure/ci-component-library/kaniko-amd64@trunk
+    inputs:
+      job-suffix: " tagged"
+      stage: lint
+      dockerfile: .gitlab/docker/tags/Dockerfile
+      enable-scan: "false"
+      cache: "false"
+      destination-image: "${CI_REGISTRY_IMAGE}/ci-e2e"
+      destination-tag: "${SHOPWARE_CORE_VERSION}_${CI_PIPELINE_ID}"
+      additional-tags: "${EXTRA_TAGGED_BUILD_TAGS}"
+      build-arg: "SHOPWARE_CORE_VERSION=$SHOPWARE_CORE_VERSION"
 
 Build:
-    extends: .base-with-node
-    variables:
-      SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: '1'
-    stage: lint
-    needs: []
-    services:
-      -   name: mariadb:10.11
-          alias: database
-          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-    rules:
-        - when: always
-    before_script: []
-    script:
-      - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
-      - >
-        if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
-            PLATFORM_VERSION='6.6.99.99'
-        else
-            PLATFORM_VERSION="${LATEST_TAG#"v"}"
-        fi
-      - composer config version "$PLATFORM_VERSION"
-      - !reference [ .scripts, init, composer ]
-      - bin/console debug:container --parameter 'kernel.shopware_version'
-      - mkdir -p config/jwt custom/plugins || true
-      - echo -e "\e[0Ksection_start:$(date +%s):initdb[collapsed=true]\r\e[0KDatabase init"
-      - composer run init:db
-      - echo -e "\e[0Ksection_end:`date +%s`:initdb\r\e[0K"
+  extends: .base-with-node
+  variables:
+    SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
+  stage: lint
+  needs: []
+  services:
+    - name: mariadb:10.11
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+  rules:
+    - when: always
+  before_script: []
+  script:
+    - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
+    - >
+      if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
+          PLATFORM_VERSION='6.6.99.99'
+      else
+          PLATFORM_VERSION="${LATEST_TAG#"v"}"
+      fi
+    - composer config version "$PLATFORM_VERSION"
+    - !reference [.scripts, init, composer]
+    - bin/console debug:container --parameter 'kernel.shopware_version'
+    - mkdir -p config/jwt custom/plugins || true
+    - echo -e "\e[0Ksection_start:$(date +%s):initdb[collapsed=true]\r\e[0KDatabase init"
+    - composer run init:db
+    - echo -e "\e[0Ksection_end:`date +%s`:initdb\r\e[0K"
 
-      # Install only build relevant dependencies
-      - echo -e "\e[0Ksection_start:$(date +%s):npminstalladmin[collapsed=true]\r\e[0Knpm install admin"
-      - 'NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Administration/Resources/app/administration/ ci'
-      - echo -e "\e[0Ksection_end:`date +%s`:npminstalladmin\r\e[0K"
+    # Install only build relevant dependencies
+    - echo -e "\e[0Ksection_start:$(date +%s):npminstalladmin[collapsed=true]\r\e[0Knpm install admin"
+    - "NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Administration/Resources/app/administration/ ci"
+    - echo -e "\e[0Ksection_end:`date +%s`:npminstalladmin\r\e[0K"
 
-      # Install only build relevant dependencies
-      - echo -e "\e[0Ksection_start:$(date +%s):npminstallstorefront[collapsed=true]\r\e[0Knpm install storefront"
-      - 'NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci'
-      - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
+    # Install only build relevant dependencies
+    - echo -e "\e[0Ksection_start:$(date +%s):npminstallstorefront[collapsed=true]\r\e[0Knpm install storefront"
+    - "NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci"
+    - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
 
-      - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
-      - composer run e2e:sdk-plugin:fixture-to-plugin
-      - '(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)'
-      - bin/console plugin:refresh
-      - bin/console plugin:install --activate TestPlugin
-      - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
-      - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
-      - composer run build:js
-      - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
-      - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
-      - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
-      - bin/console theme:compile
-      - bin/console theme:change --all Storefront
-      - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
-      - 'mysqldump -uroot -papp -hdatabase root > var/database.sql'
-      - chown -R www-data:www-data .
-      - tar -cz --exclude .git --exclude "**/node_modules" -f /tmp/context.tar.gz .
-      - mv /tmp/context.tar.gz ${CI_PROJECT_DIR}/
-    artifacts:
-      paths:
-        - context.tar.gz
-      expire_in: 4 hours
+    - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
+    - composer run e2e:sdk-plugin:fixture-to-plugin
+    - "(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)"
+    - bin/console plugin:refresh
+    - bin/console plugin:install --activate TestPlugin
+    - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
+    - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
+    - composer run build:js
+    - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
+    - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
+    - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
+    - bin/console theme:compile
+    - bin/console theme:change --all Storefront
+    - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
+    - "mysqldump -uroot -papp -hdatabase root > var/database.sql"
+    - chown -R www-data:www-data .
+    - tar -cz --exclude .git --exclude "**/node_modules" -f /tmp/context.tar.gz .
+    - mv /tmp/context.tar.gz ${CI_PROJECT_DIR}/
+  artifacts:
+    paths:
+      - context.tar.gz
+    expire_in: 4 hours
 
 Prepare commercial release:
   extends: .base-no-setup
   stage: lint
   needs: []
   environment:
-    name: 'Gitlab - Commercial'
-    url: 'https://gitlab.shopware.com/shopware/6/product/commercial'
+    name: "Gitlab - Commercial"
+    url: "https://gitlab.shopware.com/shopware/6/product/commercial"
   variables:
     GIT_USER: shopwareBot
     GIT_EMAIL: shopwareBot@shopware.com
     COMMERCIAL_REMOTE_URL: "https://bot:${GITLAB_MANYREPO_SYNC_TOKEN}@gitlab.shopware.com/shopware/6/product/commercial"
   rules:
-      - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
   before_script:
     - git config --global user.email $GIT_EMAIL
     - git config --global user.name $GIT_USER
@@ -106,7 +117,7 @@ Prepare SBP platform release:
   stage: lint
   needs: []
   environment:
-    name: 'SBP - Production'
+    name: "SBP - Production"
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
   before_script: []
@@ -118,7 +129,7 @@ Prepare SBP staging platform release:
   stage: lint
   needs: []
   environment:
-    name: 'SBP - Staging'
+    name: "SBP - Staging"
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
   before_script: []
@@ -129,15 +140,14 @@ Draft Github platform release:
   extends: .base-no-setup
   stage: lint
   environment:
-    name: 'Github'
-    url: 'https://github.com/shopware'
+    name: "Github"
+    url: "https://github.com/shopware"
   needs: []
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
   before_script: []
   script:
     - .gitlab/bin/create_github_release.sh draft "$CI_COMMIT_TAG"
-
 
 build image:
   extends:
@@ -147,10 +157,51 @@ build image:
   variables:
     GIT_STRATEGY: none
   rules:
-    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
-      variables:
-        EXTRA_BUILD_TAGS: "${CI_COMMIT_TAG}"
     - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"'
       variables:
-        EXTRA_BUILD_TAGS: "${CI_COMMIT_BRANCH}"
+        EXTRA_DEV_BUILD_TAGS: "${CI_COMMIT_BRANCH}"
     - when: always
+
+tested_update_tags:
+  extends: .base-no-setup
+  stage: lint
+  variables:
+    PREV_MAJOR: "6.5."
+    CUR_MAJOR: "6.6."
+  script:
+    - .gitlab/bin/print_tested_updates.bash > tested_update_tags.env
+    - cat tested_update_tags.env
+  artifacts:
+    reports:
+      dotenv: tested_update_tags.env
+
+build image tagged:
+  extends:
+    - .long-running
+  needs: [Build, tested_update_tags]
+  dependencies: [Build, tested_update_tags]
+  variables:
+    GIT_STRATEGY: fetch
+  parallel:
+    matrix:
+      - SHOPWARE_CORE_VERSION: [
+            # these variables are filled by the dotenv report tested_update_tags.env
+            "${PREV_MAJOR_MIN_TAG}",
+            "${PREV_MAJOR_MAX_TAG}",
+            "${CUR_MAJOR_MIN_TAG}",
+            "${CUR_MAJOR_MAX_TAG}",
+          ]
+  rules:
+    - if: "$SHOPWARE_CORE_VERSION == ''"
+      when: never
+    - if: !reference [.rules, scheduled, if]
+      variables:
+        EXTRA_TAGGED_BUILD_TAGS: "$SHOPWARE_CORE_VERSION"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - src/WebInstaller/**/*
+        - tests/acceptance/tests/Update/**/*
+    - !reference [.rules, long-running]
+  retry: 2
+  before_script:
+    - echo "Building image for version $SHOPWARE_CORE_VERSION"

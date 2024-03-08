@@ -6,4 +6,4 @@ author_email: agreif@communicode.de
 author_github: communicode-sw-dev
 ---
 # Administration
-* fixed imageSlider: remove deleted images so it won't break when mediaRepository returns null
+* Changed imageSlider to remove deleted images, so it won't break when mediaRepository returns null

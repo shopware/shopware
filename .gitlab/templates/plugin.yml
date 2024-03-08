@@ -194,7 +194,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.9
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.26
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
@@ -397,7 +397,7 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.9
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.26
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     variables:
         GIT_STRATEGY: none

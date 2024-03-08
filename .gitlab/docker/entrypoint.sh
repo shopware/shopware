@@ -10,7 +10,15 @@ if [[ -n "${TEST_WEB_INSTALLER:-}" ]]; then
     bin/ci asset:install
     rm install.lock || true
 else
-    /setup
+    # retry /setup command atmost 5 times
+    for i in {1..5}; do
+        if /setup 2>&1 | tee -a /tmp/setup.log; then
+            break
+        fi
+        sleep 15
+    done
+
+    touch /var/www/html/install.lock
 fi
 
 exec /usr/bin/supervisord -c /etc/supervisord.conf

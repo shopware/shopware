@@ -290,6 +290,10 @@ parameters:
             Use the dedicated reset\\*\\(\\) methods instead\\.$#
         """
 
+        - # Added optional parameter and added it as annotation that consumers get annoyed by the IDE to provide it
+            message: '#PHPDoc tag @param references unknown parameter\: \$recursive#'
+            paths:
+                - src/Core/Framework/DataAbstractionLayer/Indexing/TreeUpdater.php
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

@@ -77,7 +77,8 @@ class MediaFolderIndexer extends EntityIndexer
             $this->treeUpdater->batchUpdate(
                 $idsWithChangedParentIds,
                 MediaFolderDefinition::ENTITY_NAME,
-                $event->getContext()
+                $event->getContext(),
+                true
             );
         }
 
@@ -134,7 +135,12 @@ class MediaFolderIndexer extends EntityIndexer
         }
 
         if (!empty($children) && $message->allow(self::TREE_UPDATER)) {
-            $this->treeUpdater->batchUpdate($children, MediaFolderDefinition::ENTITY_NAME, $context);
+            $this->treeUpdater->batchUpdate(
+                $children,
+                MediaFolderDefinition::ENTITY_NAME,
+                $context,
+                !$message->isFullIndexing
+            );
         }
 
         $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), $message->getSkip()));
@@ -160,6 +166,8 @@ class MediaFolderIndexer extends EntityIndexer
 
     /**
      * @param array<string> $parentIds
+     *
+     * @return array<string>
      */
     private function fetchChildren(array $parentIds): array
     {
@@ -179,6 +187,8 @@ class MediaFolderIndexer extends EntityIndexer
     }
 
     /**
+     * @param array<string> $ids
+     *
      * @return array<string>
      */
     private function getParentIds(array $ids): array

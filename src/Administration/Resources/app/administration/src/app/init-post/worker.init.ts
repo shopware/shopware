@@ -1,8 +1,9 @@
-import AdminWorker from 'src/core/worker/admin-worker.shared-worker';
+import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker';
+import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/EntityCollection';
+import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
 import type { ContextState } from '../state/context.store';
@@ -111,13 +112,33 @@ function getWorker() : SharedWorker {
         return worker;
     }
 
-    // The webpack worker plugin generates a valid worker file therefore we can use it here
-    // @ts-expect-error
-    worker = new AdminWorker() as SharedWorker;
+    // SharedWorker is not supported in all browsers, especially on mobile devices
+    if (typeof SharedWorker === 'undefined') {
+        // @ts-expect-error
+        worker = new AdminWorker() as Worker;
+
+        // hack to make the worker api like a shared worker
+        // @ts-expect-error
+        worker.port = worker;
+        worker.port.start = () => {};
+    } else {
+        // @ts-expect-error
+        worker = new SharedAdminWorker() as SharedWorker;
+    }
 
     worker.port.start();
 
-    worker.port.onmessage = () => {
+    worker.port.onmessage = ({ data }: { data: {[key: string]: unknown }}) => {
+        if (data && data.isWorkerError) {
+            /**
+             * To debug workers visit the following URL in Chrome browser
+             * chrome://inspect/#workers
+             */
+            console.error(data.error);
+
+            return;
+        }
+
         const tokenHandler = getRefreshTokenHelper();
 
         if (!tokenHandler.isRefreshing) {

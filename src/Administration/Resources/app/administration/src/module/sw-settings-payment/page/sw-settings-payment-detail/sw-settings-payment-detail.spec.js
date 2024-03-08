@@ -38,7 +38,15 @@ async function createWrapper(privileges = []) {
                             entity: 'settings-payment',
                             pluginId: '12321-a',
                         }),
-                        search: () => Promise.resolve({}),
+                        search: () => Promise.resolve({
+                            first: () => Promise.resolve({
+                                id: '1a2b3c',
+                                name: 'Test settings-payment',
+                                entity: 'settings-payment',
+                                pluginId: '12321-a',
+                                getEntityName: () => 'payment-method',
+                            }),
+                        }),
                     }),
                 },
                 acl: {
@@ -70,6 +78,7 @@ async function createWrapper(privileges = []) {
                 'sw-card-view': true,
                 'sw-card': true,
                 'sw-container': true,
+                'sw-alert': true,
                 'sw-switch-field': true,
                 'sw-number-field': true,
                 'sw-text-field': true,

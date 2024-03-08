@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementC
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
@@ -16,11 +17,15 @@ use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 class ProductPage extends Page
 {
     /**
+     * @deprecated tag:v6.7.0 - Property will be native typed
+     *
      * @var SalesChannelProductEntity
      */
     protected $product;
 
     /**
+     * @deprecated tag:v6.7.0 - Property will be native typed
+     *
      * @var CmsPageEntity
      */
     protected $cmsPage;
@@ -28,21 +33,29 @@ class ProductPage extends Page
     protected ?string $navigationId = null;
 
     /**
+     * @deprecated tag:v6.7.0 - Property will be native typed
+     *
      * @var PropertyGroupCollection
      */
     protected $configuratorSettings;
 
     /**
+     * @deprecated tag:v6.7.0 - Property will be removed as it is not used anymore
+     *
      * @var ReviewLoaderResult
      */
     protected $reviewLoaderResult;
 
     /**
+     * @deprecated tag:v6.7.0 - Property will be native typed
+     *
      * @var PropertyGroupOptionCollection
      */
     protected $selectedOptions;
 
     /**
+     * @deprecated tag:v6.7.0 - Property will be removed as it is not used anymore
+     *
      * @var CrossSellingElementCollection
      */
     protected $crossSellings;
@@ -87,13 +100,28 @@ class ProductPage extends Page
         $this->configuratorSettings = $configuratorSettings;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as the property is not used anymore
+     */
     public function getReviews(): ReviewLoaderResult
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
+        );
+
         return $this->reviewLoaderResult;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as the property is not used anymore
+     */
     public function setReviews(ReviewLoaderResult $result): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
+        );
         $this->reviewLoaderResult = $result;
     }
 
@@ -107,13 +135,28 @@ class ProductPage extends Page
         $this->selectedOptions = $selectedOptions;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as the property is not used anymore
+     */
     public function getCrossSellings(): CrossSellingElementCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
+        );
+
         return $this->crossSellings;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as the property is not used anymore
+     */
     public function setCrossSellings(CrossSellingElementCollection $crossSellings): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
+        );
         $this->crossSellings = $crossSellings;
     }
 

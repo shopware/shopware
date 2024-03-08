@@ -7,8 +7,8 @@
         <sw-card
             v-if="componentSection.component === 'card'"
             position-identifier=""
-            :title="componentSection.props.title"
-            :subtitle="componentSection.props.subtitle"
+            :title="$tc(componentSection?.props?.title ?? '')"
+            :subtitle="$tc(componentSection?.props?.subtitle ?? '')"
             :content-padding="componentSection.props?.contentPadding ?? true"
         >
 
@@ -26,7 +26,7 @@
                         :active-tab="getActiveTab(componentSection).name"
                         :name="tab.name"
                     >
-                        {{ tab.label }}
+                        {{ $tc(tab.label ?? '') }}
                     </sw-tabs-item>
                 </sw-tabs>
             </template>

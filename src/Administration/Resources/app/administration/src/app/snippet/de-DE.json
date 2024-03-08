@@ -490,19 +490,19 @@
       "labelGenerateThumbnails": "Thumbnails für diesen Ordner generieren",
       "labelThumbnailQuality": "Thumbnail-Qualität",
       "labelThumbnailSize": "Thumbnail-Größe",
-      "labelEditList": "Liste bearbeiten",
-      "labelStopEdit": "Bearbeiten beenden",
       "labelKeepProportions": "Seitenverhältnis beibehalten",
       "notification": {
         "success": {
           "message": "Einstellungen erfolgreich gespeichert."
         },
         "error": {
-          "message": "Fehler beim Speichern der Einstellungen."
+          "message": "Fehler beim Speichern der Einstellungen.",
+          "messageThumbnailSizeExisted": "Thumbnail-Größe existiert bereits."
         }
       },
       "labelDefaultFolder": "Medien-Standardspeicherort für",
-      "placeholderDefaultFolder": "Entität auswählen ..."
+      "placeholderDefaultFolder": "Entität auswählen ...",
+      "tooltipCanNotDeleteThumbnailSize": "Thumbnail-Größe kann nicht gelöscht werden, weil diese verwendet wird."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -595,23 +595,23 @@
       "addNewEntity": "Neue {entity} hinzufügen",
       "shortcuts": {
         "product": "G P | A P",
-        "category": "G C | ",
+        "category": "G C | &nbsp;",
         "customers": "G U | A U",
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
         "sales-channel": " | A S",
         "cms": "G E | A E",
-        "dashboard": "G H | ",
-        "product-stream": "G D | ",
-        "order": "G O | ",
-        "media": "G M E | ",
-        "promotion-v2": "G P O | ",
-        "settings": "G S | ",
-        "newsletter-recipient": "G N | ",
-        "settings-snippet": "G S | ",
-        "settings-payment": "G S P | ",
-        "settings-shipping": "G S S | "
+        "dashboard": "G H | &nbsp;",
+        "product-stream": "G D | &nbsp;",
+        "order": "G O | &nbsp;",
+        "media": "G M E | &nbsp;",
+        "promotion-v2": "G P O | &nbsp;",
+        "settings": "G S | &nbsp;",
+        "newsletter-recipient": "G N | &nbsp;",
+        "settings-snippet": "G S | &nbsp;",
+        "settings-payment": "G S P | &nbsp;",
+        "settings-shipping": "G S S | &nbsp;"
       }
     },
     "sw-search-more-results": {
@@ -707,6 +707,7 @@
         "orderStatusRule": "Bestellstatus",
         "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
         "orderDocumentTypeRule": "Bestellung mit Dokument",
+        "orderDocumentTypeSentRule": "Bestellung mit gesendetem Dokument",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -799,6 +800,21 @@
       }
     },
     "sw-condition-generic": {
+      "customerDaysSinceLastLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceFirstLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceLastOrder": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
@@ -849,7 +865,7 @@
         }
       },
       "promotionCodeOfType": {
-        "promotionCodeOfType": {
+        "promotionCodeType": {
           "options": {
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
@@ -1571,15 +1587,6 @@
   },
   "sw-ai-copilot-warning": {
     "text": "AI-Antworten können ungenau oder irreführend sein."
-  },
-  "sw-usage-data": {
-    "sw-settings-usage-data-intro": {
-      "title": "Nutzungsdaten",
-      "headline": "Gemeinsam Shopware verbessern",
-      "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
-      "learnMore": "Mehr erfahren",
-      "learnMoreUrl": "https://shopware.com/de/datenschutz/"
-    }
   },
   "help-center": {
     "sidebar": {

@@ -4,7 +4,7 @@
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import type { Module } from 'vuex';
-import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/mainModule';
+import type { smartBarButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/main-module/';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ExtensionSdkModule = {

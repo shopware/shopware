@@ -1,6 +1,19 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
 
+include:
+  - component: gitlab.shopware.com/infrastructure/ci-component-library/kaniko-amd64@trunk
+    inputs:
+      job-suffix: ""
+      stage: lint
+      context: tar://${CI_PROJECT_DIR}/context.tar.gz
+      destination-image: "${CI_REGISTRY_IMAGE}/ci-e2e"
+      destination-tag: "$CI_PIPELINE_ID"
+      additional-tags: "${EXTRA_BUILD_TAGS}"
+      dockerfile: .gitlab/docker/dev/Dockerfile
+      enable-scan: "false"
+      cache: "false"
+
 Build:
     extends: .base-with-node
     variables:
@@ -55,15 +68,13 @@ Build:
       - bin/console theme:change --all Storefront
       - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
       - 'mysqldump -uroot -papp -hdatabase root > var/database.sql'
+      - chown -R www-data:www-data .
+      - tar -cz --exclude .git --exclude "**/node_modules" -f /tmp/context.tar.gz .
+      - mv /tmp/context.tar.gz ${CI_PROJECT_DIR}/
     artifacts:
-        paths:
-            - src/Administration/Resources/public
-            - src/Storefront/Resources/public
-            - src/Storefront/Resources/app/storefront/dist
-            - src/Storefront/Resources/app/storefront/vendor
-            - var/database.sql
-            - custom/plugins/TestPlugin
-            - public/theme/
+      paths:
+        - context.tar.gz
+      expire_in: 4 hours
 
 Prepare commercial release:
   extends: .base-no-setup
@@ -126,3 +137,20 @@ Draft Github platform release:
   before_script: []
   script:
     - .gitlab/bin/create_github_release.sh draft "$CI_COMMIT_TAG"
+
+
+build image:
+  extends:
+    - .long-running
+  needs: [Build]
+  dependencies: [Build]
+  variables:
+    GIT_STRATEGY: none
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      variables:
+        EXTRA_BUILD_TAGS: "${CI_COMMIT_TAG}"
+    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"'
+      variables:
+        EXTRA_BUILD_TAGS: "${CI_COMMIT_BRANCH}"
+    - when: always

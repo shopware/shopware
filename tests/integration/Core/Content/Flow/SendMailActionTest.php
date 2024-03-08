@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,10 +47,9 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -198,7 +198,7 @@ class SendMailActionTest extends TestCase
             static::assertFalse($oldDocument->getSent());
 
             // new document with new version id, old document with old version id
-            static::assertEquals($mailFilterEvent->getContext()->getVersionId(), $newDocument->getOrderVersionId());
+            static::assertEquals($newDocumentOrderVersionId, $newDocument->getOrderVersionId());
             static::assertEquals($oldDocumentOrderVersionId, $oldDocument->getOrderVersionId());
         }
     }
@@ -769,10 +769,9 @@ class SendMailActionTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class TestEmailService extends MailService
 {
     public float $calls = 0;

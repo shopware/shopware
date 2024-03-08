@@ -1,7 +1,7 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/Entity';
-import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/data/_internals/EntityCollection';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { PaymentOverviewCard } from '../../state/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';

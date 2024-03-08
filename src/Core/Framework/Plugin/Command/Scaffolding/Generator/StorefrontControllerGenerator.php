@@ -34,7 +34,7 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
 
     private string $routesXmlEntry = <<<'EOL'
 
-        <import resource="../../Storefront/Controller/**/*Controller.php" type="annotation" />
+        <import resource="../../Storefront/Controller/**/*Controller.php" type="attribute" />
 
     EOL;
 

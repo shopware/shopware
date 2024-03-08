@@ -43,6 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createDompdfSection())
                 ->append($this->createStockSection())
                 ->append($this->createUsageDataSection())
+                ->append($this->createFeatureToggleNode())
             ->end();
 
         return $treeBuilder;
@@ -316,6 +317,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
                         ->booleanNode('major')->defaultFalse()->end()
+                        ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
                 ->end()
@@ -733,6 +735,19 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('batch_size')->end()
                     ->end()
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createFeatureToggleNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('feature_toggle');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->booleanNode('enable')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

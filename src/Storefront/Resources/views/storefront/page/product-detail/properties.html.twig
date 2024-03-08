@@ -1,3 +1,7 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+
+{# Extend `src/Storefront/Resources/views/storefront/component/product/properties.html.twig` instead #}
+
 {% block page_product_detail_properties_inner %}
     <div class="product-detail-properties">
         {% block page_product_detail_properties_container %}
@@ -13,6 +17,7 @@
                                         {% block page_product_detail_properties_item_label %}
                                             <th class="properties-label">{{ group.translated.name|e }}:</th>
                                         {% endblock %}
+
                                         {% block page_product_detail_properties_item_value %}
                                             <td class="properties-value">
                                                 {% apply spaceless %}

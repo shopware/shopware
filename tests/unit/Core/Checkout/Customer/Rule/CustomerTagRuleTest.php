@@ -9,16 +9,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(CustomerTagRule::class)]
 #[Group('rules')]
 class CustomerTagRuleTest extends TestCase
@@ -42,7 +42,7 @@ class CustomerTagRuleTest extends TestCase
                 'isMatchAny' => 1,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [

@@ -116,7 +116,7 @@
     <sw-modal
         v-if="showElementSettings"
         class="sw-cms-slot__config-modal"
-        variant="large"
+        :variant="modalVariant"
         :title="$tc('sw-cms.detail.title.elementSettingsModal')"
         @modal-close="onCloseSettingsModal"
     >

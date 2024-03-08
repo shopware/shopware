@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemDimensionWidthRule::class)]
 #[Group('rules')]
 class LineItemDimensionWidthRuleTest extends TestCase
@@ -393,8 +393,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
         $expectedOperators[] = Rule::OPERATOR_EMPTY;
 
         static::assertSame($expectedOperators, $result->getData()['operatorSet']['operators']);
-        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields'][0]['config']['unit']);
-        static::assertSame('amount', $result->getData()['fields'][0]['name']);
+        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
+        static::assertSame('amount', $result->getData()['fields']['amount']['name']);
     }
 
     private static function createLineItemWithWidth(?float $width): LineItem

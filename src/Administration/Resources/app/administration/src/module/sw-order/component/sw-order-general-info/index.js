@@ -158,12 +158,7 @@ export default {
             }
         },
 
-        $route(newRoute, oldRoute) {
-            if (newRoute.params.id === oldRoute.params.id) {
-                return;
-            }
-
-            this.order.id = newRoute.params.id;
+        'order.id'() {
             this.createdComponent();
         },
     },

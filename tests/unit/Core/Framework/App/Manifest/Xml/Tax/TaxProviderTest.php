@@ -19,16 +19,15 @@ class TaxProviderTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../_fixtures/test/manifest.xml');
 
         static::assertNotNull($manifest->getTax());
-        static::assertCount(2, $manifest->getTax()->getTaxProviders());
+        $taxProviders = $manifest->getTax()->getTaxProviders();
+        static::assertCount(2, $taxProviders);
 
-        $firstProvider = $manifest->getTax()->getTaxProviders()[0];
-        static::assertNotNull($firstProvider);
+        $firstProvider = $taxProviders[0];
         static::assertSame('myTaxProvider', $firstProvider->getIdentifier());
         static::assertSame('My tax provider', $firstProvider->getName());
         static::assertSame('https://tax-provider.app/process', $firstProvider->getProcessUrl());
 
-        $secondProvider = $manifest->getTax()->getTaxProviders()[1];
-        static::assertNotNull($secondProvider);
+        $secondProvider = $taxProviders[1];
         static::assertSame('mySecondTaxProvider', $secondProvider->getIdentifier());
         static::assertSame('My second tax provider', $secondProvider->getName());
         static::assertSame('https://tax-provider-2.app/process', $secondProvider->getProcessUrl());

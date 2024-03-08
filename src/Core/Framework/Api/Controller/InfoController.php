@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\RouterInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
@@ -45,9 +46,10 @@ class InfoController extends AbstractController
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly Connection $connection,
         private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly RouterInterface $router,
         private readonly ?FlowActionCollector $flowActionCollector = null,
         private readonly bool $enableUrlFeature = true,
-        private readonly array $cspTemplates = []
+        private readonly array $cspTemplates = [],
     ) {
     }
 
@@ -110,12 +112,40 @@ class InfoController extends AbstractController
     }
 
     #[Route(path: '/api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.swagger', methods: ['GET'])]
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in v6.7.0. Use api.info.stoplightio instead
+     */
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
         $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
         $response = $this->render(
             '@Framework/swagger.html.twig',
+            [
+                'schemaUrl' => 'api.info.openapi3',
+                'cspNonce' => $nonce,
+                'apiType' => $apiType,
+            ]
+        );
+
+        $cspTemplate = $this->cspTemplates['administration'] ?? '';
+        $cspTemplate = trim($cspTemplate);
+        if ($cspTemplate !== '') {
+            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
+            $csp = str_replace(["\n", "\r"], ' ', $csp);
+            $response->headers->set('Content-Security-Policy', $csp);
+        }
+
+        return $response;
+    }
+
+    #[Route(path: '/api/_info/stoplightio.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.stoplightio', methods: ['GET'])]
+    public function stoplightIoInfoHtml(Request $request): Response
+    {
+        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON);
+        $response = $this->render(
+            '@Framework/stoplightio.html.twig',
             [
                 'schemaUrl' => 'api.info.openapi3',
                 'cspNonce' => $nonce,
@@ -286,9 +316,18 @@ class InfoController extends AbstractController
             return null;
         }
 
-        $url = 'bundles/' . $bundleDirectoryName . '/' . $defaultEntryFile;
-
-        return $package->getUrl($url);
+        // exception is possible as the administration is an optional dependency
+        try {
+            return $this->router->generate(
+                'administration.plugin.index',
+                [
+                    'pluginName' => \mb_strtolower($bundle->getName()),
+                ],
+                RouterInterface::ABSOLUTE_URL
+            );
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

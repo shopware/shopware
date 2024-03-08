@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -83,23 +82,13 @@ class CartPersister extends AbstractCartPersister
         }
 
         $sql = <<<'SQL'
-            INSERT INTO `cart` (`token`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `payload`, `rule_ids`, `compressed`, `created_at`)
-            VALUES (:token, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :payload, :rule_ids, :compressed, :now)
-            ON DUPLICATE KEY UPDATE `currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `updated_at` = :now;
+            INSERT INTO `cart` (`token`, `payload`, `rule_ids`, `compressed`, `created_at`)
+            VALUES (:token, :payload, :rule_ids, :compressed, :now)
+            ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
         SQL;
-
-        $customerId = $context->getCustomer() ? Uuid::fromHexToBytes($context->getCustomer()->getId()) : null;
 
         $data = [
             'token' => $cart->getToken(),
-            'currency_id' => Uuid::fromHexToBytes($context->getCurrency()->getId()),
-            'shipping_method_id' => Uuid::fromHexToBytes($context->getShippingMethod()->getId()),
-            'payment_method_id' => Uuid::fromHexToBytes($context->getPaymentMethod()->getId()),
-            'country_id' => Uuid::fromHexToBytes($context->getShippingLocation()->getCountry()->getId()),
-            'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannel()->getId()),
-            'customer_id' => $customerId,
-            'price' => $cart->getPrice()->getTotalPrice(),
-            'line_item_count' => $cart->getLineItems()->count(),
             'payload' => $this->serializeCart($cart),
             'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -127,6 +116,24 @@ class CartPersister extends AbstractCartPersister
             'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
             ['newToken' => $newToken, 'oldToken' => $oldToken]
         );
+    }
+
+    public function prune(int $days): void
+    {
+        $time = new \DateTime();
+        $time->modify(sprintf('-%d day', $days));
+
+        $stmt = $this->connection->prepare(<<<'SQL'
+            DELETE FROM cart
+                WHERE created_at <= :timestamp
+                LIMIT 1000;
+        SQL);
+
+        $timestamp = $time->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        do {
+            $result = $stmt->executeStatement(['timestamp' => $timestamp]);
+        } while ($result > 0);
     }
 
     private function serializeCart(Cart $cart): string

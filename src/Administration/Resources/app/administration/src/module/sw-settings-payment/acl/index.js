@@ -44,9 +44,13 @@ Shopware.Service('privileges')
             deleter: {
                 privileges: [
                     'payment_method:delete',
+                    'customer:read',
+                    'sales_channel:read',
+                    'order_transaction:read',
                 ],
                 dependencies: [
                     'payment.viewer',
+                    'payment.editor',
                 ],
             },
         },

@@ -28,11 +28,11 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class BusinessEventRegistry
 {
     /**
-     * @var array<string>
+     * @var list<class-string>
      */
     private array $classes = [
         CustomerBeforeLoginEvent::class,
@@ -61,11 +61,19 @@ class BusinessEventRegistry
         ProductExportLoggingEvent::class,
     ];
 
+    /**
+     * @param list<class-string> $classes
+     */
     public function addClasses(array $classes): void
     {
-        $this->classes = array_unique(array_merge($this->classes, $classes));
+        /** @var list<class-string> */
+        $classes = array_unique(array_merge($this->classes, $classes));
+        $this->classes = $classes;
     }
 
+    /**
+     * @return list<class-string>
+     */
     public function getClasses(): array
     {
         return $this->classes;

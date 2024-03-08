@@ -21,7 +21,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -31,10 +33,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(CartShippingCostRule::class)]
 #[Group('rules')]
 class CartShippingCostRuleTest extends TestCase
@@ -198,10 +199,12 @@ class CartShippingCostRuleTest extends TestCase
         $config = (new CartShippingCostRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'cartShippingCost' => [
                     'name' => 'cartShippingCost',
                     'type' => 'float',
-                    'config' => [],
+                    'config' => [
+                        'digits' => RuleConfig::DEFAULT_DIGITS,
+                    ],
                 ],
             ],
             'operatorSet' => [

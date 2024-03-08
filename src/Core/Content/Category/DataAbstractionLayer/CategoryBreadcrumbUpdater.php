@@ -59,7 +59,7 @@ class CategoryBreadcrumbUpdater
             }
         }
 
-        $all = array_filter(array_values(array_keys(array_flip($all))));
+        $all = array_filter(array_keys(array_flip($all)));
 
         $languages = $this->languageRepository->search(new Criteria(), $context);
 

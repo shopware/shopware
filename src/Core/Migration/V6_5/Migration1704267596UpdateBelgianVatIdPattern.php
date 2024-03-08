@@ -21,9 +21,4 @@ class Migration1704267596UpdateBelgianVatIdPattern extends MigrationStep
     {
         $connection->update('country', ['vat_id_pattern' => '(BE)?(0|1)[0-9]{9}'], ['vat_id_pattern' => '(BE)?0[0-9]{9}']);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

@@ -280,7 +280,8 @@
         },
         "security": [
           {
-            "ApiKey": []
+            "ApiKey": [],
+            "ContextToken": []
           }
         ]
       }

@@ -132,6 +132,7 @@
                             >
                                 <div class="sw-grid__cell-content">
                                     <sw-checkbox-field
+                                        :id="item.id"
                                         :value="isSelected(item.id)"
                                         @update:value="selectItem($event, item)"
                                     />

@@ -28,25 +28,26 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $manager = $connection->createSchemaManager();
-        $columns = $manager->listTableColumns(PaymentMethodDefinition::ENTITY_NAME);
-
-        if (!\array_key_exists('technical_name', $columns)) {
-            $connection->executeStatement('ALTER TABLE `payment_method` ADD COLUMN `technical_name` VARCHAR(255) NULL');
-        }
+        $this->addColumn(
+            connection: $connection,
+            table: 'payment_method',
+            column: 'technical_name',
+            type: 'VARCHAR(255)'
+        );
 
         if (!$this->indexExists($connection, PaymentMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
-            $connection->executeStatement('ALTER TABLE `payment_method` ADD  CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
+            $connection->executeStatement('ALTER TABLE `payment_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
-        $columns = $manager->listTableColumns(ShippingMethodDefinition::ENTITY_NAME);
-
-        if (!\array_key_exists('technical_name', $columns)) {
-            $connection->executeStatement('ALTER TABLE `shipping_method` ADD COLUMN `technical_name` VARCHAR(255) NULL');
-        }
+        $this->addColumn(
+            connection: $connection,
+            table: 'shipping_method',
+            column: 'technical_name',
+            type: 'VARCHAR(255)'
+        );
 
         if (!$this->indexExists($connection, ShippingMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
-            $connection->executeStatement('ALTER TABLE `shipping_method` ADD  CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
+            $connection->executeStatement('ALTER TABLE `shipping_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
         // set technical name for existing payment methods
@@ -67,10 +68,6 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
         $this->updateShippingMethodName('Standard', $connection);
         $this->updateShippingMethodName('Express', $connection);
         $this->updateAppShippingMethods($connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function updateShippingMethodName(string $name, Connection $connection): void

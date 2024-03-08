@@ -86,7 +86,7 @@ class EntityDefinitionServiceTest extends TestCase
         $result = $entityDefinitionService->getManyToManyAssociationIdFields($this->definitionsByName[EntityWithManyToManyWithoutIdFieldDefinition::class]->getFields());
 
         static::assertCount(1, $result);
-        static::assertNotNull($result[0]['associationField']);
+        static::assertArrayHasKey('associationField', $result[0]);
         static::assertNull($result[0]['idField']);
     }
 
@@ -98,7 +98,7 @@ class EntityDefinitionServiceTest extends TestCase
         $result = $entityDefinitionService->getManyToManyAssociationIdFields($this->definitionsByName[EntityWithManyToManyWithIdFieldDefinition::class]->getFields());
         static::assertCount(1, $result);
         static::assertInstanceOf(ManyToManyIdField::class, $result[0]['idField']);
-        static::assertEquals('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
+        static::assertSame('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
     }
 
     #[DataProvider('provideEntityDefinitions')]
@@ -115,7 +115,7 @@ class EntityDefinitionServiceTest extends TestCase
 
         $service = new EntityDefinitionService([$entityDefinition], new UsageDataAllowListService());
 
-        static::assertEquals($isPuidEntity, $service->isPuidEntity($entityDefinition), $errorMessage);
+        static::assertSame($isPuidEntity, $service->isPuidEntity($entityDefinition), $errorMessage);
     }
 
     /**

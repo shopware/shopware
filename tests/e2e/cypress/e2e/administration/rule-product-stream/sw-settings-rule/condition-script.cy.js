@@ -64,7 +64,7 @@ describe('Rule builder: Test app script conditions', () => {
             });
     });
 
-    it('@base @rule: test script conditions are selectable and rendered', { tags: ['pa-business-ops', 'quarantined'] }, () => {
+    it('@base @rule: test script conditions are selectable and rendered', { tags: ['pa-services-settings', 'quarantined'] }, () => {
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -120,7 +120,7 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('.sw-condition-script .sw-field--text').should('exist');
     });
 
-    it('@base @rule: test script conditions persist', { tags: ['pa-business-ops', 'quarantined'] }, () => {
+    it('@base @rule: test script conditions persist', { tags: ['pa-services-settings', 'quarantined'] }, () => {
         const page = new RulePageObject();
 
         cy.intercept({
@@ -187,7 +187,7 @@ describe('Rule builder: Test app script conditions', () => {
         });
     });
 
-    it('@base @rule: check rule condition options filtered via rule config', { tags: ['pa-business-ops', 'quarantined'] }, () => {
+    it('@base @rule: check rule condition options filtered via rule config', { tags: ['pa-services-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
             method: 'POST',

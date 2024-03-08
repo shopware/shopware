@@ -11,6 +11,7 @@
             {% else %}
               {% set gaPrice = lineItem.price.totalPrice %}
             {% endif %}
+
             {% block component_hidden_line_item_information %}
                 <span class="hidden-line-item"
                       data-id="{{ lineItem.id }}"

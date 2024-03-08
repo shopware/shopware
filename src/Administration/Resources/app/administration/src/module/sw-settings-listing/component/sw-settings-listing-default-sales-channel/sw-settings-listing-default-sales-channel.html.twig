@@ -62,6 +62,7 @@
         {% block sw_settings_listing_default_sales_channel_select_visibiliy_modal %}
         <sw-modal
             v-if="displayVisibilityDetail"
+            variant="large"
             class="sw-settings-listing-default-sales-channel__visibility-modal"
             :title="$tc('sw-product.visibility.textHeadline')"
             @modal-close="closeAdvancedVisibility"

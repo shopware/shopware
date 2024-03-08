@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemPromotedRule::class)]
 #[Group('rules')]
 class LineItemPromotedRuleTest extends TestCase

@@ -1,0 +1,12 @@
+<div class="sw-cms-el-config-html">
+    <sw-code-editor
+        :value="element.config.content.value"
+        :set-focus="true"
+        @update:value="onInput"
+        @blur="onBlur"
+    />
+
+    <sw-alert variant="warning">
+        {{ $tc('sw-cms.elements.html.config.warning') }}
+    </sw-alert>
+</div>

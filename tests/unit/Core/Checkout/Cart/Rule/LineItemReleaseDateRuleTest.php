@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemReleaseDateRule::class)]
 #[Group('rules')]
 class LineItemReleaseDateRuleTest extends TestCase

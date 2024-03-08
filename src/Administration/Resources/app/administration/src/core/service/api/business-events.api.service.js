@@ -1,7 +1,7 @@
 import ApiService from '../api.service';
 
 /**
- * @package business-ops
+ * @package services-settings
  *
  * @class
  * @extends ApiService

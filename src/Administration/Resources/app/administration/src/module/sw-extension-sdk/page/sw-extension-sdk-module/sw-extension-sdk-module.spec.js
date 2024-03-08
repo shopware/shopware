@@ -8,10 +8,11 @@ const module = {
     baseUrl: 'http://example.com',
 };
 
-async function createWrapper() {
+async function createWrapper(back = null, push = jest.fn()) {
     return mount(await wrapTestComponent('sw-extension-sdk-module', { sync: true }), {
         props: {
             id: Shopware.Utils.format.md5(JSON.stringify(module)),
+            back,
         },
         global: {
             stubs: {
@@ -21,12 +22,21 @@ async function createWrapper() {
                 'sw-iframe-renderer': true,
                 'sw-language-switch': true,
                 'sw-button': await wrapTestComponent('sw-button'),
+                'router-link': {
+                    props: {
+                        to: { type: String, required: true },
+                    },
+                    template: '<a @click="$router.push(to)"></a>',
+                },
             },
             mocks: {
                 $route: {
                     meta: {
                         $module: {},
                     },
+                },
+                $router: {
+                    push,
                 },
             },
         },
@@ -96,5 +106,16 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         // Test if callback function is called
         await smartBarButton.trigger('click');
         expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should display back button', async () => {
+        wrapper.unmount();
+
+        const back = 'sw.settings.index.plugins';
+        const routerPush = jest.fn();
+        wrapper = await createWrapper(back, routerPush);
+
+        await wrapper.find('.sw-page__back-btn-container a').trigger('click');
+        expect(routerPush).toHaveBeenCalledWith({ name: back });
     });
 });

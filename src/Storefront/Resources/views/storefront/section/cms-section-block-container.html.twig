@@ -6,7 +6,7 @@
     {% set left = block.marginLeft ? block.marginLeft : 0 %}
 
     {% if top or right or bottom or left %}
-        {% set padding = top ~ " " ~ right ~ " " ~ bottom ~ " " ~ left %}
+        {% set padding = top ~ ' ' ~ right ~ ' ' ~ bottom ~ ' ' ~ left %}
     {% endif %}
 
     {% set blockBgColor = block.backgroundColor %}
@@ -57,7 +57,7 @@
                     media: block.backgroundMedia,
                     autoColumnSizes: false,
                     attributes: {
-                        class: "cms-block-background media-mode--" ~ block.backgroundMediaMode
+                        class: 'cms-block-background media-mode--' ~ block.backgroundMediaMode
                     }
                 } %}
             {% endif %}
@@ -66,10 +66,9 @@
         {% block section_content_block_container %}
             <div class="cms-block-container"
                  style="{% if padding %}padding: {{ padding }};{% endif %}">
-
                 {% block section_content_block_row %}
                     <div class="cms-block-container-row row cms-row {{ sidebarClasses }}">
-                        {% sw_include "@Storefront/storefront/block/cms-block-" ~ block.type ~ ".html.twig" ignore missing %}
+                        {% sw_include '@Storefront/storefront/block/cms-block-' ~ block.type ~ '.html.twig' ignore missing %}
                     </div>
                 {% endblock %}
             </div>

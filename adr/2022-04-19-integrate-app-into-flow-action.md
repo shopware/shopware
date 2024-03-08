@@ -1,7 +1,7 @@
 ---
 title: Integrate an app into flow action
 date: 2022-04-19
-area: business-ops
+area: services-settings
 tags: [flow, app, flow-action]
 ---
 

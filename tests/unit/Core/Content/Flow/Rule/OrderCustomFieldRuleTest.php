@@ -15,11 +15,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
- * @package business-ops
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(OrderCustomFieldRule::class)]
 #[Group('rules')]
 class OrderCustomFieldRuleTest extends TestCase

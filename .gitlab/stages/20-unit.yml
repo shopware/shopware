@@ -89,7 +89,6 @@ PHP integration:
             --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
             --testsuite integration
             --order-by default
-            --order-by default
 
 PHP bench:
     extends: .base-no-setup
@@ -238,7 +237,7 @@ PHP Full:
         -   name: redis:7.0
             alias: redis
     variables:
-        TEST_SUITES: "administration storefront content framework profiling system unit integration migration migration-tests"
+        TEST_SUITES: "administration storefront content devops framework profiling system unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         ALLOW_FAILURE: "false"
@@ -268,6 +267,7 @@ PHP Full:
                   - "php8.3"
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+            -   MYSQL_IMAGE: mysql:8.0.17
             -   MYSQL_IMAGE: mariadb:10.11
             -   MYSQL_IMAGE: mariadb:10.11
                 PREFER_LOWEST: 'prefer lowest'
@@ -310,19 +310,21 @@ PHP Full:
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php
                 sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
+                rm -rf src/Administration/Controller
                 rm -rf tests/integration/Administration
                 rm -rf tests/integration/Elasticsearch
                 rm -rf tests/integration/Storefront
                 composer dump-autoload -o
             fi
         - unset SHOPWARE_CACHE_ID
+        - "sed -i -e 's|opcache.enable_cli = 1|opcache.enable_cli = 0|' /usr/local/etc/php/conf.d/docker.ini"
         - FAILED=0
         - >
             for SUITE in $TEST_SUITES; do
                 if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined;
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never;
                 else
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --exclude-group=quarantined || FAILED=1
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
                 fi
             done
         - '[[ $FAILED -eq 0 ]]'
@@ -397,7 +399,7 @@ Jest Coverage per Area (Administration):
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
+      - PRODUCT_AREA: [ "admin", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
   artifacts:
     when: always
     paths:

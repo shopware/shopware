@@ -13,6 +13,7 @@ in {
     pkgs.symfony-cli
     pkgs.deno
     pkgs.jq
+    pkgs.ludtwig
     ( pkgs.writeShellScriptBin "php-pcov" ''
       export PHP_INI_SCAN_DIR=''${PHP_INI_SCAN_DIR-'${pcov}/lib'}
       exec -a "$0" "${pcov}/bin/.php-wrapped"  "$@"
@@ -48,6 +49,8 @@ in {
       short_open_tag = 0
       zend.detect_unicode = 0
       realpath_cache_ttl = 3600
+      post_max_size = 32M
+      upload_max_filesize = 32M
     '';
 
     fpm.pools.web = lib.mkDefault {
@@ -121,7 +124,7 @@ in {
   # Environment variables
 
   env.APP_URL = lib.mkDefault "http://localhost:8000";
-  env.APP_SECRET = lib.mkDefault "devsecret";
+  env.APP_SECRET = lib.mkDefault "def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
 

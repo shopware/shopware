@@ -86,9 +86,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/paths
         static::assertSame([
-            '/_info/openapi3.json',
             '/_info/open-api-schema.json',
             '/_info/swagger.html',
+            '/_info/stoplightio.html',
             '/context',
             '/account/customer',
             '/account/address/{addressId}',
@@ -222,6 +222,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             '/store-api/category/{navigationId}:slots',
             '/store-api/shipping-method:onlyAvailable',
             '/store-api/checkout/cart/line-item:ids',
+            '/store-api/_info/openapi3.json:type',
         ];
 
         foreach ($schema as $operation) {

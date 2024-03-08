@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerP
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
+use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageHandlerCompilerPass;
@@ -96,6 +97,7 @@ class Framework extends Bundle
         $loader->load('webhook.xml');
         $loader->load('rate-limiter.xml');
         $loader->load('increment.xml');
+        $loader->load('flag.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -142,15 +144,13 @@ class Framework extends Bundle
 
         \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
 
-        $featureFlags = $this->container->getParameter('shopware.feature.flags');
-        if (!\is_array($featureFlags)) {
-            throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
-        }
-        Feature::registerFeatures($featureFlags);
+        /** @var FeatureFlagRegistry $featureFlagRegistry */
+        $featureFlagRegistry = $this->container->get(FeatureFlagRegistry::class);
+        $featureFlagRegistry->register();
 
         $cacheDir = $this->container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {
-            throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
+            throw FrameworkException::invalidKernelCacheDir();
         }
 
         $this->registerEntityExtensions(
@@ -178,7 +178,7 @@ class Framework extends Bundle
     {
         $cacheDir = $container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {
-            throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
+            throw FrameworkException::invalidKernelCacheDir();
         }
 
         $locator = new FileLocator('Resources/config');

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,10 +17,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(AffiliateCodeRule::class)]
 #[Group('rules')]
 class AffiliateCodeRuleTest extends TestCase
@@ -46,7 +46,7 @@ class AffiliateCodeRuleTest extends TestCase
         $config = (new AffiliateCodeRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'affiliateCode' => [
                     'name' => 'affiliateCode',
                     'type' => 'string',
                     'config' => [],

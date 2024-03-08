@@ -9,7 +9,6 @@ use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
-use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -44,7 +43,7 @@ class StoreClientFactoryTest extends TestCase
     {
         $storeClientFactory = new StoreClientFactory($this->getSystemConfigService());
 
-        $client = $storeClientFactory->create([$this->createMock(VerifyResponseSignatureMiddleware::class)]);
+        $client = $storeClientFactory->create();
         $config = $this->getConfigFromClient($client);
 
         static::assertEquals(self::TEST_STORE_URI, $config['base_uri']);

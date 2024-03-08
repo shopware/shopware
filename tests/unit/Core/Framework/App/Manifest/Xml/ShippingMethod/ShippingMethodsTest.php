@@ -26,9 +26,8 @@ class ShippingMethodsTest extends TestCase
         $result = $manifestShippingMethod->getShippingMethods();
         static::assertCount(2, $result);
 
-        foreach ($result as $shippingMethod) {
-            static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
-        }
+        static::assertSame('swagFirstShippingMethod', $result[0]->getIdentifier());
+        static::assertSame('swagSecondShippingMethod', $result[1]->getIdentifier());
     }
 
     public function testFromXml(): void

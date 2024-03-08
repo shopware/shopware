@@ -374,7 +374,7 @@ function iterateChildRoutes(routeDefinition: SwRouteConfig): SwRouteConfig {
         return routeDefinition;
     }
 
-    routeDefinition.children = Object.entries(routeDefinitionChildren).map(([key, child]) => {
+    routeDefinition.children = Object.entries(routeDefinitionChildren).map(([key, child]: [string, SwRouteConfig]) => {
         if (child.path && child.path.length === 0) {
             child.path = '';
         } else {

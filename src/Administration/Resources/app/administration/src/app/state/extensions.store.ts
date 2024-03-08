@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import type { Module } from 'vuex';
-import type { extension } from '@shopware-ag/meteor-admin-sdk/es/privileges/privilege-resolver';
+import type { extension } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
 import type { extensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 

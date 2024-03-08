@@ -9,14 +9,14 @@
                             {% block buy_widget_price_block_table_head_inner %}
                                 <tr class="product-block-prices-row">
                                     <th scope="col" class="product-block-prices-cell">
-                                        {{ "detail.dataColumnQuantity"|trans|sw_sanitize }}
+                                        {{ 'detail.dataColumnQuantity'|trans|sw_sanitize }}
                                     </th>
                                     <th scope="col" class="product-block-prices-cell">
-                                        {{ "detail.dataColumnPrice"|trans|sw_sanitize }}
+                                        {{ 'detail.dataColumnPrice'|trans|sw_sanitize }}
                                     </th>
                                     {% if product.calculatedPrice.referencePrice %}
                                         <th scope="col" class="product-block-prices-cell">
-                                            {{ "detail.dataColumnReferencePrice"|trans|sw_sanitize }}
+                                            {{ 'detail.dataColumnReferencePrice'|trans|sw_sanitize }}
                                         </th>
                                     {% endif %}
                                 </tr>
@@ -32,18 +32,17 @@
                                         <tr class="product-block-prices-row"
                                             itemprop="offers" itemscope
                                             itemtype="https://schema.org/Offer">
-
                                             {% block buy_widget_price_block_table_body_cell_quantity %}
                                                 <th scope="row" class="product-block-prices-cell product-block-prices-cell-thin">
                                                     <meta itemprop="priceCurrency" content="{{ page.header.activeCurrency.translated.shortName }}">
                                                     <meta itemprop="price" content="{{ price.unitPrice }}">
 
                                                     {% if loop.last %}
-                                                        {{ "detail.priceDataInfoFrom"|trans|sw_sanitize }}
+                                                        {{ 'detail.priceDataInfoFrom'|trans|sw_sanitize }}
                                                         <span class="product-block-prices-quantity">{{ price.quantity }}</span>
 
                                                     {% else %}
-                                                        {{ "detail.priceDataInfoUntil"|trans|sw_sanitize }}
+                                                        {{ 'detail.priceDataInfoUntil'|trans|sw_sanitize }}
                                                         <span class="product-block-prices-quantity">{{ price.quantity }}</span>
                                                     {% endif %}
                                                 </th>
@@ -60,7 +59,7 @@
                                             {% block buy_widget_price_block_table_body_cell_reference_price %}
                                                 {% if price.referencePrice is not null %}
                                                     <td class="product-block-prices-cell product-block-prices-cell-thin">
-                                                        {{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
+                                                        {{ price.referencePrice.price|currency }}{{ 'general.star'|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}
                                                     </td>
                                                 {% endif %}
                                             {% endblock %}
@@ -90,37 +89,36 @@
             {% set isRegulationPrice = price.regulationPrice != null %}
 
             <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
-                {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                {{ price.unitPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}
             </p>
 
             {% if isListPrice %}
                 {% block buy_widget_was_price %}
-
                     {% block buy_widget_was_price_badge %}
                         <span class="list-price-badge">&#37;</span>
                     {% endblock %}
 
-                    {% set afterListPriceSnippetExists = "listing.afterListPrice"|trans|length > 0 %}
-                    {% set beforeListPriceSnippetExists = "listing.beforeListPrice"|trans|length > 0 %}
+                    {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                    {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
 
                     {% block buy_widget_was_price_wrapper %}
                         <span class="product-detail-list-price-wrapper">
-                            {% if beforeListPriceSnippetExists %}{{"listing.beforeListPrice"|trans|trim}}{% endif %}
+                            {% if beforeListPriceSnippetExists %}{{'listing.beforeListPrice'|trans|trim}}{% endif %}
 
-                            <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}</span>
+                            <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}{{ 'general.star'|trans|sw_sanitize }}</span>
 
                             {% if afterListPriceSnippetExists %}
-                                {{"listing.afterListPrice"|trans|trim}}
+                                {{'listing.afterListPrice'|trans|trim}}
                             {% endif %}
 
-                            <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
+                            <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
                         </span>
                     {% endblock %}
                 {% endblock %}
             {% endif %}
             {% if isRegulationPrice %}
                 <span class="product-detail-list-price-wrapper">
-                    <span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                    <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}{{ 'general.star'|trans|sw_sanitize }}</span>
                 </span>
             {% endif %}
         {% endblock %}
@@ -130,7 +128,7 @@
                 <div class="product-detail-price-unit">
                     {% block buy_widget_price_unit_label %}
                         <span class="price-unit-label">
-                            {{ "detail.priceUnitName"|trans|sw_sanitize }}
+                            {{ 'detail.priceUnitName'|trans|sw_sanitize }}
                         </span>
                     {% endblock %}
 
@@ -143,7 +141,7 @@
                     {% if price.referencePrice is not null %}
                         {% block buy_widget_price_unit_reference_content %}
                             <span class="price-unit-reference-content">
-                                ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                                ({{ price.referencePrice.price|currency }}{{ 'general.star'|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
                             </span>
                         {% endblock %}
                     {% endif %}

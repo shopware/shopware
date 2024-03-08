@@ -90,13 +90,17 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->customerRecoveryRepository->create([$recoveryData], $repoContext);
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
-        \assert($customerRecovery instanceof CustomerRecoveryEntity);
+
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByIdException($customerId);
+        }
 
         $hash = $customerRecovery->getHash();
 
         $recoverUrl = $this->getRecoverUrl($context, $hash, $data->get('storefrontUrl'), $customerRecovery);
 
         $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
+
         $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);
 
         return new SuccessResponse();
@@ -205,7 +209,10 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         }
 
         $customer = $result->first();
-        \assert($customer instanceof CustomerEntity);
+
+        if (!$customer instanceof CustomerEntity) {
+            throw CustomerException::customerNotFound($email);
+        }
 
         return $customer;
     }

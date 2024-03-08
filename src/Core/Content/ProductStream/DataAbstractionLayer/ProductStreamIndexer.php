@@ -154,9 +154,9 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, array<string, mixed>> $entities
+     * @param list<array<string, mixed>> $entities
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function buildNested(array $entities, ?string $parentId): array
     {

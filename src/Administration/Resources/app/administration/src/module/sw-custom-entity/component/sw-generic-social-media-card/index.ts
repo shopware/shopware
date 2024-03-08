@@ -1,6 +1,6 @@
 import './sw-generic-social-media-card.scss';
 
-import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { PropType } from 'vue';
 
 import type Repository from 'src/core/data/repository.data';

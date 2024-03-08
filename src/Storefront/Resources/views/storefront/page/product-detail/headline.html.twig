@@ -1,3 +1,8 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+
+{# Extend `src/Storefront/Resources/views/storefront/element/cms-element-product-name.html.twig`
+or `src/Storefront/Resources/views/storefront/element/cms-element-manufacturer-logo.html.twig` instead #}
+
 {% block page_product_detail_headline_inner %}
     {% block page_product_detail_name_container %}
         <div class="col product-detail-name-container">
@@ -23,15 +28,15 @@
                             {% if page.product.manufacturer.media %}
                                 {% block page_product_detail_manufacturer_logo %}
                                     {% set attributes = {
-                                        'class': 'product-detail-manufacturer-logo',
-                                        'alt': page.product.manufacturer.translated.name,
-                                        'title': page.product.manufacturer.translated.name
+                                        class: 'product-detail-manufacturer-logo',
+                                        alt: page.product.manufacturer.translated.name,
+                                        title: page.product.manufacturer.translated.name
                                     } %}
 
                                     {% sw_thumbnails 'product-detail-manufacturer-image-thumbnails' with {
                                         media: page.product.manufacturer.media,
                                         sizes: {
-                                            'default': '200px'
+                                            default: '200px'
                                         }
                                     } %}
                                 {% endblock %}

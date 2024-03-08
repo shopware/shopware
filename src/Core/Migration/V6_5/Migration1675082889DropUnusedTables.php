@@ -44,8 +44,4 @@ class Migration1675082889DropUnusedTables extends MigrationStep
         $this->removeTrigger($connection, 'customer_address_vat_id_update');
         $this->removeTrigger($connection, 'order_cash_rounding_insert');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

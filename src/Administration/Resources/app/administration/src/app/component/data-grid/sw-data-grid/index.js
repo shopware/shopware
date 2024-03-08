@@ -304,6 +304,10 @@ Component.register('sw-data-grid', {
             const currentVisibleIds = this.records.map(record => record.id);
             return this.selectionCount > 0 && Object.keys(this.selection).some(id => !currentVisibleIds.includes(id));
         },
+
+        currentVisibleColumns() {
+            return this.currentColumns.filter(column => column.visible);
+        },
     },
 
     watch: {

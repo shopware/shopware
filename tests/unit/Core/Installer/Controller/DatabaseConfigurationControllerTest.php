@@ -273,7 +273,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->translator->expects(static::once())
             ->method('trans')
-            ->with('shopware.installer.database-configuration_error_required_fields')
+            ->with('shopware.installer.database-configuration_invalid_requirements')
             ->willReturn('translated error');
 
         $this->connectionFactory->expects(static::once())
@@ -305,14 +305,35 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->connectionFactory->expects(static::once())
             ->method('getConnection')
-            ->willThrowException(new \Exception());
+            ->willThrowException(new \Exception('some error'));
 
         $this->setupDatabaseAdapter->expects(static::never())->method('getExistingDatabases');
         $this->setupDatabaseAdapter->expects(static::never())->method('getTableCount');
 
         $response = $this->controller->databaseInformation($request);
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame('{}', $response->getContent());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('{"error":"some error"}', $response->getContent());
+    }
+
+    public function testDatabaseInformationRouteWithWrongMysqlVersion(): void
+    {
+        $request = Request::create('/installer/database-information', 'POST');
+
+        $this->connectionFactory->expects(static::once())
+            ->method('getConnection')
+            ->willThrowException(new DatabaseSetupException());
+
+        $this->translator->expects(static::once())
+            ->method('trans')
+            ->with('shopware.installer.database-configuration_invalid_requirements')
+            ->willReturn('translated error');
+
+        $this->setupDatabaseAdapter->expects(static::never())->method('getExistingDatabases');
+        $this->setupDatabaseAdapter->expects(static::never())->method('getTableCount');
+
+        $response = $this->controller->databaseInformation($request);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('{"error":"translated error"}', $response->getContent());
     }
 
     public function testDatabaseInformationRoute(): void

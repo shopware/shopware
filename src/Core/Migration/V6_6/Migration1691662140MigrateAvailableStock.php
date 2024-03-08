@@ -37,8 +37,4 @@ class Migration1691662140MigrateAvailableStock extends MigrationStep
             );
         } while (!empty($ids));
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

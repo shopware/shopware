@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +39,8 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         protected int $concurrency,
         protected string $tagPrefix,
         private readonly string $instanceTag,
-        string $appUrl
+        string $appUrl,
+        private readonly LoggerInterface $logger
     ) {
         $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
@@ -46,13 +48,17 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     public function flush(): void
     {
         foreach (\array_chunk($this->tagBuffer, self::MAX_TAG_INVALIDATION) as $part) {
-            $this->client->post(\sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
-                'headers' => [
-                    'Fastly-Key' => $this->apiKey,
-                    'surrogate-key' => \implode(' ', $this->prefixTags($part)),
-                    'fastly-soft-purge' => $this->softPurge,
-                ],
-            ]);
+            try {
+                $this->client->post(\sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
+                    'headers' => [
+                        'Fastly-Key' => $this->apiKey,
+                        'surrogate-key' => \implode(' ', $this->prefixTags($part)),
+                        'fastly-soft-purge' => $this->softPurge,
+                    ],
+                ]);
+            } catch (\Throwable $e) {
+                $this->logger->critical('Error while flushing fastly cache', ['error' => $e->getMessage(), 'tags' => $part]);
+            }
         }
 
         $this->tagBuffer = [];
@@ -108,7 +114,11 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
             },
         ]);
 
-        $pool->promise()->wait();
+        try {
+            $pool->promise()->wait();
+        } catch (\Throwable $e) {
+            $this->logger->critical('Error while flushing fastly cache', ['error' => $e->getMessage(), 'urls' => $urls]);
+        }
     }
 
     public function banAll(): void
@@ -119,12 +129,16 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
             return;
         }
 
-        $this->client->post(\sprintf('%s/service/%s/purge_all', self::API_URL, $this->serviceId), [
-            'headers' => [
-                'Fastly-Key' => $this->apiKey,
-                'fastly-soft-purge' => $this->softPurge,
-            ],
-        ]);
+        try {
+            $this->client->post(\sprintf('%s/service/%s/purge_all', self::API_URL, $this->serviceId), [
+                'headers' => [
+                    'Fastly-Key' => $this->apiKey,
+                    'fastly-soft-purge' => $this->softPurge,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->critical('Error while flushing fastly cache', ['error' => $e->getMessage(), 'urls' => ['/']]);
+        }
     }
 
     /**

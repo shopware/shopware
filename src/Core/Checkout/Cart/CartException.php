@@ -48,6 +48,7 @@ class CartException extends HttpException
     public const TAX_ID_PARAMETER_IS_MISSING = 'CHECKOUT__TAX_ID_PARAMETER_IS_MISSING';
     public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
     public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
+    public const CART_LINE_ITEM_INVALID = 'CHECKOUT__CART_LINE_ITEM_INVALID';
 
     public static function deserializeFailed(): self
     {
@@ -371,6 +372,15 @@ class CartException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::PRICES_PARAMETER_IS_MISSING,
             'Parameter "prices" is missing.',
+        );
+    }
+
+    public static function lineItemInvalid(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_LINE_ITEM_INVALID,
+            'Line item is invalid: ' . $reason
         );
     }
 

@@ -11,16 +11,16 @@
 
             {% block page_checkout_confirm_payment_title %}
                 <div class="card-title">
-                    {{ "checkout.confirmPaymentMethod"|trans|sw_sanitize }}
+                    {{ 'checkout.confirmPaymentMethod'|trans|sw_sanitize }}
                 </div>
             {% endblock %}
 
             {% block page_checkout_change_payment_form %}
                 {% sw_include '@Storefront/storefront/component/payment/payment-form.html.twig' with {
-                    'action': 'frontend.checkout.configure',
-                    'actionPath': path('frontend.checkout.configure'),
-                    'redirect': 'frontend.checkout.confirm.page',
-                    'redirectParameters': {redirected: 0}|json_encode,
+                    action: 'frontend.checkout.configure',
+                    actionPath: path('frontend.checkout.configure'),
+                    redirect: 'frontend.checkout.confirm.page',
+                    redirectParameters: {redirected: 0}|json_encode,
                 } %}
             {% endblock %}
         </div>

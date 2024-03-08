@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameters;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -29,8 +28,8 @@ class ParametersTest extends TestCase
 
         $result = Parameters::fromXml($parameters)->getParameters();
         static::assertCount(3, $result);
-        static::assertInstanceOf(Parameter::class, $result[0]);
-        static::assertInstanceOf(Parameter::class, $result[1]);
-        static::assertInstanceOf(Parameter::class, $result[2]);
+        static::assertSame('string', $result[0]->getType());
+        static::assertSame('string', $result[1]->getType());
+        static::assertSame('string', $result[2]->getType());
     }
 }

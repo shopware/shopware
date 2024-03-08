@@ -86,9 +86,8 @@ class TranslatorTest extends TestCase
         $property->setValue($item, true);
 
         $cache->expects($expectedCacheKey ? static::once() : static::never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
-            static::assertEquals($expectedCacheKey, $key);
+            static::assertSame($expectedCacheKey, $key);
 
-            /** @var callable(CacheItem): mixed $callback */
             return $callback($item);
         });
 
@@ -145,12 +144,12 @@ class TranslatorTest extends TestCase
 
         $snippetSetId = $translator->getSnippetSetId($locale);
 
-        static::assertEquals($expectedSnippetSetId, $snippetSetId);
+        static::assertSame($expectedSnippetSetId, $snippetSetId);
 
         // double call to make sure caching works
         $snippetSetId = $translator->getSnippetSetId($locale);
 
-        static::assertEquals($expectedSnippetSetId, $snippetSetId);
+        static::assertSame($expectedSnippetSetId, $snippetSetId);
     }
 
     public function testGetSnippetIdUsingInjectSetting(): void
@@ -184,12 +183,12 @@ class TranslatorTest extends TestCase
 
         $translator->injectSettings(TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
 
-        static::assertEquals($injectSnippetSetId, $translator->getSnippetSetId('en-GB'));
+        static::assertSame($injectSnippetSetId, $translator->getSnippetSetId('en-GB'));
 
         // prioritize snippet from sales channel domain if set
         $requestStack->push($this->createRequest(TestDefaults::SALES_CHANNEL, $domainSnippetSetId));
         $translator->reset();
-        static::assertEquals($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
+        static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
     }
 
     /**
@@ -349,22 +348,23 @@ class TranslatorTest extends TestCase
 class ArrayCache implements CacheInterface
 {
     /**
-     * @param array<string, array<mixed>> $cacheItems
+     * @param array<string, array{}> $cacheItems
      */
-    public function __construct(public readonly array $cacheItems)
+    public function __construct(private readonly array $cacheItems)
     {
     }
 
+    /**
+     * @return array{}
+     */
     public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
     {
-        // @phpstan-ignore-next-line - $this->cache->get in translator always return array
         return $this->cacheItems[$key];
     }
 
     public function delete(string $key): bool
     {
-        unset($this->cacheItems[$key]);
-
+        // Not needed in this test
         return true;
     }
 }

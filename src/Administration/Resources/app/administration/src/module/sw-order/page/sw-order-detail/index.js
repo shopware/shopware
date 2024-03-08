@@ -46,6 +46,7 @@ export default {
             hasNewVersionId: false,
             hasOrderDeepEdit: false,
             missingProductLineItems: [],
+            promotionsToDelete: [],
         };
     },
 
@@ -90,6 +91,10 @@ export default {
 
         orderRepository() {
             return this.repositoryFactory.create('order');
+        },
+
+        automaticPromotions() {
+            return this.order.lineItems.filter(item => item.type === 'promotion' && item.referencedId === null);
         },
 
         orderCriteria() {
@@ -251,9 +256,16 @@ export default {
                 });
             }
 
+            if (this.promotionsToDelete.length > 0) {
+                this.order.lineItems = this.order.lineItems.filter(
+                    (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
+                );
+            }
+
             await this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
                     this.hasOrderDeepEdit = false;
+                    this.promotionsToDelete = [];
                     return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
                 })
                 .then(() => this.createNewVersionId())
@@ -294,30 +306,40 @@ export default {
             });
         },
 
-        onSaveAndRecalculate() {
+        async onSaveAndRecalculate() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
+            this.isLoading = true;
 
-            return this.orderRepository.save(this.order, this.versionContext)
-                .then(() => this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {}))
-                .then(() => this.reloadEntityData())
-                .catch((error) => {
-                    this.onError('error', error);
-                })
-                .finally(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-                });
+            this.order.lineItems = this.order.lineItems.filter((lineItem) => !this.automaticPromotions.includes(lineItem));
+            try {
+                await this.orderRepository.save(this.order, this.versionContext);
+                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
+                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.reloadEntityData();
+            } catch (error) {
+                this.onError('error', error);
+            } finally {
+                this.isLoading = false;
+                Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
+            }
         },
 
-        onRecalculateAndReload() {
+        async onRecalculateAndReload() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
-
-            return this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {})
-                .then(() => this.reloadEntityData())
-                .catch((error) => {
-                    this.onError('error', error);
-                }).finally(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-                });
+            try {
+                this.promotionsToDelete = this.automaticPromotions.map(promotion => promotion.id);
+                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
+                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.reloadEntityData();
+                this.order.lineItems = this.order.lineItems.filter(
+                    (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
+                );
+            } catch (error) {
+                this.onError('error', error);
+                this.promotionsToDelete = [];
+            } finally {
+                Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
+            }
         },
 
         onSaveAndReload() {

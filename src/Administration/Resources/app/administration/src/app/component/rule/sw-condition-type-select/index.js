@@ -5,7 +5,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Component.register('sw-condition-type-select', {
     template: template,

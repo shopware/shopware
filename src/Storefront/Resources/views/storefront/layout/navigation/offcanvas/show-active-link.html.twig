@@ -10,7 +10,7 @@
                title="{{ name }}">
                 {% block layout_navigation_offcanvas_navigation_categories_list_current_category_item_text %}
                     <span itemprop="name">
-                    {{ "general.showCategory"|trans({"%category%": name})|sw_sanitize }}
+                    {{ 'general.showCategory'|trans({'%category%': name})|sw_sanitize }}
                 </span>
                 {% endblock %}
             </a>

@@ -9,16 +9,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerCreatedByAdminRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(CustomerCreatedByAdminRule::class)]
 #[Group('rules')]
 class CustomerCreatedByAdminRuleTest extends TestCase
@@ -47,7 +47,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         $config = $rule->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'shouldCustomerBeCreatedByAdmin' => [
                     'name' => 'shouldCustomerBeCreatedByAdmin',
                     'type' => 'bool',
                     'config' => [],

@@ -16,7 +16,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CartWeightRule::class)]
 class CartWeightRuleTest extends TestCase
 {
@@ -182,6 +182,6 @@ class CartWeightRuleTest extends TestCase
         $result = $cartVolumeRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('weight', $result['fields'][0]['config']['unit']);
+        static::assertSame('weight', $result['fields']['weight']['config']['unit']);
     }
 }

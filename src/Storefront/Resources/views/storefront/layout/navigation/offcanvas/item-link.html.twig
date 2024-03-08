@@ -9,7 +9,7 @@
             <a class="navigation-offcanvas-link nav-item nav-link{% if isActive %} active{% endif %}{% if hasChildren %} js-navigation-offcanvas-link{% endif %}"
                href="{{ url }}"
                 {% if hasChildren %}
-                    data-href="{{ path('frontend.menu.offcanvas', {'navigationId': item.category.id}) }}"
+                    data-href="{{ path('frontend.menu.offcanvas', {navigationId: item.category.id}) }}"
                 {% endif %}
                itemprop="url"
                 {% if category_linknewtab(item.category) %}target="_blank"{% endif %}
@@ -20,7 +20,7 @@
                         {% block layout_navigation_offcanvas_navigation_categories_list_category_item_link_icon %}
                             <span
                                 class="navigation-offcanvas-link-icon js-navigation-offcanvas-loading-icon">
-                            {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                            {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
                         </span>
                         {% endblock %}
                     {% endif %}

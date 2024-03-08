@@ -33,7 +33,9 @@ export default {
     data() {
         return {
             modalClass: 'sw-media-modal-folder-settings--shows-overflow',
+            unusedThumbnailSizes: [],
             thumbnailSizes: [],
+            // @deprecated tag:v6.7.0 - Remove the property "isEditThumbnails"
             isEditThumbnails: false,
             parent: null,
             configuration: null,
@@ -56,22 +58,33 @@ export default {
         mediaFolderConfigurationRepository() {
             return this.repositoryFactory.create('media_folder_configuration');
         },
+
+        unusedMediaThumbnailSizeCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('mediaFolderConfigurations.mediaFolders.id', null));
+
+            return criteria;
+        },
+
+        mediaThumbnailSizeCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addSorting(Criteria.sort('width'));
+
+            return criteria;
+        },
+
         notEditable() {
             return this.mediaFolder.useParentConfiguration
                 || !this.configuration.createThumbnails
                 || this.disabled;
         },
 
+        // @deprecated tag:v6.7.0 - Remove the computed property
         thumbnailListClass() {
-            return {
-                'is--editable': this.isEditThumbnails,
-            };
         },
 
+        // @deprecated tag:v6.7.0 - Remove the computed property
         labelToggleButton() {
-            return this.isEditThumbnails ?
-                this.$tc('global.sw-media-modal-folder-settings.labelStopEdit') :
-                this.$tc('global.sw-media-modal-folder-settings.labelEditList');
         },
 
         thumbnailSizeFilter() {
@@ -89,6 +102,7 @@ export default {
         async createdComponent() {
             this.mediaFolder = await this.loadMediaFolder();
 
+            await this.getUnusedThumbnailSizes();
             await this.getThumbnailSizes();
             this.configuration = await this.mediaFolderConfigurationRepository.get(
                 this.mediaFolder.configurationId,
@@ -116,19 +130,37 @@ export default {
             return `${item.entity} (${this.$tc(entityNameIdentifier)})`;
         },
 
-        async getThumbnailSizes() {
-            const criteria = new Criteria(1, 50)
-                .addSorting(Criteria.sort('width'));
-
-            this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(criteria, Context.api);
+        async getUnusedThumbnailSizes() {
+            const response = await this.mediaThumbnailSizeRepository.searchIds(
+                this.unusedMediaThumbnailSizeCriteria,
+            );
+            this.unusedThumbnailSizes = response.data;
         },
 
+        async getThumbnailSizes() {
+            this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(
+                this.mediaThumbnailSizeCriteria,
+            );
+
+            this.thumbnailSizes.forEach((thumbnailSize) => {
+                thumbnailSize.deletable = Boolean(this.unusedThumbnailSizes.find((unusedThumbnailSize) => {
+                    return unusedThumbnailSize === thumbnailSize.id;
+                }));
+            });
+        },
+
+        // @deprecated tag:v6.7.0 - Remove the method
         toggleEditThumbnails() {
-            this.isEditThumbnails = !this.isEditThumbnails;
         },
 
         async addThumbnail({ width, height }) {
             if (this.checkIfThumbnailExists({ width, height })) {
+                this.createNotificationError({
+                    message: this.$tc(
+                        'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
+                    ),
+                });
+
                 return;
             }
 
@@ -137,6 +169,8 @@ export default {
             thumbnailSize.height = height;
 
             await this.mediaThumbnailSizeRepository.save(thumbnailSize, Context.api);
+
+            await this.getUnusedThumbnailSizes();
             this.getThumbnailSizes();
         },
 
@@ -144,8 +178,6 @@ export default {
             const exists = this.thumbnailSizes.some((size) => {
                 return size.width === width && size.height === height;
             });
-
-            this.disabled = exists;
 
             return exists;
         },
@@ -157,6 +189,8 @@ export default {
 
             this.configuration.mediaThumbnailSizes.remove(thumbnailSize.id);
             await this.mediaThumbnailSizeRepository.delete(thumbnailSize.id, Context.api);
+
+            await this.getUnusedThumbnailSizes();
             this.getThumbnailSizes();
         },
 

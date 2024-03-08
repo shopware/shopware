@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Headers;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -29,7 +28,7 @@ class HeadersTest extends TestCase
 
         $headers = Headers::fromXml($headers);
         static::assertCount(2, $headers->getParameters());
-        static::assertInstanceOf(Parameter::class, $headers->getParameters()[0]);
-        static::assertInstanceOf(Parameter::class, $headers->getParameters()[1]);
+        static::assertSame('string', $headers->getParameters()[0]->getType());
+        static::assertSame('string', $headers->getParameters()[1]->getType());
     }
 }

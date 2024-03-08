@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -329,6 +330,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppUrlVerifier::class),
+            $this->getContainer()->get('router'),
             $eventCollector,
             true,
             []
@@ -386,6 +388,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppUrlVerifier::class),
+            $this->getContainer()->get('router'),
             $eventCollector,
             true,
             []
@@ -422,6 +425,10 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
+        if (!class_exists(AdministrationController::class)) {
+            static::markTestSkipped('Cannot test without Administration as results will differ');
+        }
+
         $this->clearRequestStack();
 
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/AdminExtensionApiApp');
@@ -450,6 +457,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppUrlVerifier::class),
+            $this->getContainer()->get('router'),
             $eventCollector,
             true,
             []
@@ -476,7 +484,7 @@ class InfoControllerTest extends TestCase
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertEquals(
-            'http://localhost/bundles/adminextensionapipluginwithlocalentrypoint/administration/index.html',
+            'http://localhost:8000/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);

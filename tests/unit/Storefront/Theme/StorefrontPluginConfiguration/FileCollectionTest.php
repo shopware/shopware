@@ -40,8 +40,9 @@ class FileCollectionTest extends TestCase
         $collection = new FileCollection([
             new File('foo.js', [], null),
             new File('bar.js', [], 'bar'),
+            new File('foo/bar.js', [], 'foo'),
         ]);
 
-        static::assertSame(['baz/bar/bar.js'], $collection->getPublicPaths('baz'));
+        static::assertSame(['baz/foo/bar.js'], $collection->getPublicPaths('baz'));
     }
 }

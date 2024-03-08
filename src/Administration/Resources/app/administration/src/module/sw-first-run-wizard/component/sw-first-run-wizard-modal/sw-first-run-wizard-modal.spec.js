@@ -18,13 +18,16 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
     return mount(await wrapTestComponent('sw-first-run-wizard-modal', { sync: true }), {
         global: {
             stubs: {
+                'sw-first-run-wizard-welcome': await wrapTestComponent('sw-first-run-wizard-welcome'),
+                'sw-first-run-wizard-mailer-selection': await wrapTestComponent('sw-first-run-wizard-mailer-selection'),
+                'sw-first-run-wizard-mailer-local': await wrapTestComponent('sw-first-run-wizard-mailer-local'),
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
+                'sw-button': await wrapTestComponent('sw-button'),
                 'sw-loader': true,
                 'sw-icon': {
                     template: '<div />',
                 },
-                'sw-first-run-wizard-welcome': await wrapTestComponent('sw-first-run-wizard-welcome'),
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {
@@ -34,9 +37,6 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                             },
                         };
                     },
-                },
-                'sw-button': {
-                    template: '<button class="sw-button"/>',
                 },
             },
             mocks: {
@@ -428,5 +428,66 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
 
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
         expect(window.location.reload).not.toHaveBeenCalled();
+    });
+
+    it('should contain all required frw steps', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const wrapper = await createWrapper('sw-first-run-wizard-welcome');
+        await flushPromises();
+
+        const steps = [
+            'welcome',
+            'data-import',
+            'defaults',
+            'mailer.selection',
+            'mailer.smtp',
+            'mailer.local',
+            'paypal.info',
+            'paypal.credentials',
+            'plugins',
+            'shopware.account',
+            'shopware.domain',
+            'store',
+            'finish',
+        ];
+
+        expect(Object.keys(wrapper.vm.stepper)).toStrictEqual(steps);
+    });
+
+    it('should redirect to smtp mailer settings', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const wrapper = await createWrapper('sw-first-run-wizard-mailer-selection');
+        await flushPromises();
+
+        const localOption = wrapper.findAll('.sw-first-run-wizard-mailer-selection__selection').at(1);
+
+        expect(localOption.exists()).toBe(true);
+        expect(localOption.find('p').text()).toBe('sw-first-run-wizard.mailerSelection.smtpOption');
+
+        await localOption.trigger('click');
+        await wrapper.find('.sw-button--primary').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.first.run.wizard.index.mailer.smtp' });
+    });
+
+    it('should redirect to local mailer settings', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const wrapper = await createWrapper('sw-first-run-wizard-mailer-selection');
+        await flushPromises();
+
+        const localOption = wrapper.find('.sw-first-run-wizard-mailer-selection__selection');
+
+        expect(localOption.exists()).toBe(true);
+        expect(localOption.find('.sw-first-run-wizard-mailer-selection__help-text').attributes('text')).toBe('sw-first-run-wizard.mailerSelection.localOptionHelptext');
+
+        await localOption.trigger('click');
+        await wrapper.find('.sw-button--primary').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.first.run.wizard.index.mailer.local' });
     });
 });

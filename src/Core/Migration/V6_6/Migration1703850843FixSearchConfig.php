@@ -60,11 +60,6 @@ class Migration1703850843FixSearchConfig extends MigrationStep
         }
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     /**
      * @param array<mixed> $items
      *

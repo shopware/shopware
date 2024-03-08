@@ -64,7 +64,7 @@ parameters:
         - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
-        - tests/unit/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
+        - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
         # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
@@ -109,7 +109,28 @@ parameters:
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
         - '#Class Shopware\\Tests\\Integration\\Elasticsearch\\Product\\EsAwareCriteria extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\Criteria\.#'
 
-        - # dynamic hydrator performance
+        # Route scopes for controllers
+        -
+           message: '#.* has no route scope defined.*#'
+           paths:
+            - **/*Test.php
+            - src/WebInstaller
+            - src/Core/Installer
+            - src/Core/Checkout/Payment/Controller/PaymentController.php
+
+        # Namespace rules
+
+        -
+           message: '#Namespace must start with Shopware#'
+           paths:
+            - tests/
+
+        -
+           message: '#No global Command directories allowed, put your commands in the right domain directory#'
+           path: src/Administration/
+
+        # dynamic hydrator performance
+        -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'
             path: src/*/*Hydrator.php
         -
@@ -139,14 +160,6 @@ parameters:
             message: "#^Class Shopware\\Core\\Content\\Test\\ImportExport\\MockRepository extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.$#"
             count: 1
             path: src/Core/Content/Test/ImportExport/MockRepository.php
-
-        - # Tests are skipped in setup, leading to PHPStan errors, should be re-enabled with NEXT-24549
-            message: "#^Property .* is never written, only read.$#"
-            paths:
-                - src/Core/Migration/Test/Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest.php
-                - src/Core/Migration/Test/Migration1639992771MoveDataFromEventActionToFlowTest.php
-                - src/Core/Migration/Test/Migration1632215760MoveDataFromEventActionToFlowTest.php
-                - src/Core/Migration/Test/Migration1625583619MoveDataFromEventActionToFlowTest.php
 
         - # @deprecated tag:v6.7.0 Using autoload === true on associations is deprecated and must be refactored. See NEXT-25334 and child tasks
             message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
@@ -310,3 +323,4 @@ rules:
     - Symplify\PHPStanRules\Rules\NoVoidGetterMethodRule
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
     - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule

@@ -41,7 +41,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
         $results = \array_filter($results, static function (array $entry) use ($constraint) {
             // Filter out guest entries
             if ($entry['guest']) {
-                return null;
+                return false;
             }
 
             if ($entry['bound_sales_channel_id'] === null) {
@@ -49,7 +49,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
             }
 
             if ($entry['bound_sales_channel_id'] !== $constraint->getSalesChannelContext()->getSalesChannelId()) {
-                return null;
+                return false;
             }
 
             return true;

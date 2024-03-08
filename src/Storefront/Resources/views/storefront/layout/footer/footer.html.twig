@@ -1,6 +1,5 @@
 {% block layout_footer_inner_container %}
     <div class="container">
-
         {% block layout_footer_navigation %}
             <div
                 id="footerColumns"
@@ -18,6 +17,7 @@
                                  aria-controls="collapseFooterHotline"
                                  role="listitem">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
+
                                 {% block layout_footer_navigation_hotline_icons %}
                                     <div class="footer-column-toggle">
                                         <span class="footer-plus-icon">
@@ -69,6 +69,7 @@
                                                 {{ root.category.translated.name }}
                                             </a>
                                         {% endif %}
+
                                         {% block layout_footer_navigation_information_icons %}
                                             <div class="footer-column-toggle">
                                                 <span class="footer-plus-icon">
@@ -132,12 +133,12 @@
                                     {% sw_thumbnails 'footer-payment-image-thumbnails' with {
                                         media: paymentMethod.media,
                                         sizes: {
-                                            'default': '100px'
+                                            default: '100px'
                                         },
                                         attributes: {
-                                            'class': 'img-fluid footer-logo-image',
-                                            'alt': (paymentMethod.media.translated.alt ?: paymentMethod.translated.name),
-                                            'title': (paymentMethod.media.translated.title ?: paymentMethod.translated.name)
+                                            class: 'img-fluid footer-logo-image',
+                                            alt: (paymentMethod.media.translated.alt ?: paymentMethod.translated.name),
+                                            title: (paymentMethod.media.translated.title ?: paymentMethod.translated.name)
                                         }
                                     } %}
                                 </div>
@@ -154,12 +155,12 @@
                                     {% sw_thumbnails 'footer-shipping-image-thumbnails' with {
                                         media: shippingMethod.media,
                                         sizes: {
-                                            'default': '100px'
+                                            default: '100px'
                                         },
                                         attributes: {
-                                            'class': 'img-fluid footer-logo-image',
-                                            'alt': (shippingMethod.media.translated.alt ?: shippingMethod.translated.name),
-                                            'title': (shippingMethod.media.translated.title ?: shippingMethod.translated.name)
+                                            class: 'img-fluid footer-logo-image',
+                                            alt: (shippingMethod.media.translated.alt ?: shippingMethod.translated.name),
+                                            title: (shippingMethod.media.translated.title ?: shippingMethod.translated.name)
                                         }
                                     } %}
                                 </div>
@@ -169,7 +170,6 @@
                 {% endblock %}
             </div>
         {% endblock %}
-
     </div>
 
     {% block layout_footer_bottom %}
@@ -200,15 +200,15 @@
             {% block layout_footer_vat %}
                 {% if showVatNotice or showVatNotice is not defined %}
                     <div class="footer-vat">
-                        {% if context.taxState == "gross" %}
+                        {% if context.taxState == 'gross' %}
                             <p>
-                                {{ "footer.includeVatText"|trans({
+                                {{ 'footer.includeVatText'|trans({
                                     '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
                                 })|raw }}
                             </p>
                         {% else %}
                             <p>
-                                {{ "footer.excludeVatText"|trans({
+                                {{ 'footer.excludeVatText'|trans({
                                     '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
                                 })|raw }}
                             </p>
@@ -219,8 +219,8 @@
 
             {% block layout_footer_copyright %}
                 <div class="footer-copyright">
-                    {% sw_icon 'shopware' style {'size':'xs'} %}
-                    {{ "footer.copyrightInfo"|trans|sw_sanitize }}
+                    {% sw_icon 'shopware' style {size:'xs'} %}
+                    {{ 'footer.copyrightInfo'|trans|sw_sanitize }}
                 </div>
             {% endblock %}
         </div>

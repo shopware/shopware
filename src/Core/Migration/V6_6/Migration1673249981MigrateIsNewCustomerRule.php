@@ -52,9 +52,4 @@ class Migration1673249981MigrateIsNewCustomerRule extends MigrationStep
         // rebuild payload on rule (because it contains the conditions serialized)
         $this->registerIndexer($connection, 'rule.indexer');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

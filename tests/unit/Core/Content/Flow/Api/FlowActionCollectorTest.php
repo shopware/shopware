@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
-use Shopware\Core\Content\Flow\Api\FlowActionCollectorResponse;
 use Shopware\Core\Content\Flow\Api\FlowActionDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
@@ -14,14 +13,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(FlowActionCollector::class)]
 class FlowActionCollectorTest extends TestCase
 {
@@ -57,9 +56,6 @@ class FlowActionCollectorTest extends TestCase
         );
 
         $result = $flowActionCollector->collect(Context::createDefaultContext());
-
-        static::assertInstanceOf(FlowActionCollectorResponse::class, $result);
-        static::assertIsArray($result->getElements());
 
         $customerRequirements = [];
         $customerRequirements[] = 'customerAware';

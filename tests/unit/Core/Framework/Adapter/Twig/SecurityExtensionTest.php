@@ -135,6 +135,26 @@ class SecurityExtensionTest extends TestCase
         );
     }
 
+    public function testAcceptsNull(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|map(v => (v ~ "-test"))|join }}', [], ['test' => null])
+        );
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|reduce((a, b) => a + b)|join }}', [], ['test' => null])
+        );
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|filter(v => v == "a")|join }}', [], ['test' => null])
+        );
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|sort|join }}', [], ['test' => null])
+        );
+    }
+
     /**
      * @param array<string> $allowedFunctions
      * @param array<mixed> $variables

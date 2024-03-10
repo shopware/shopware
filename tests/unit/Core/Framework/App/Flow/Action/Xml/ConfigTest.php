@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Config;
-use Shopware\Core\Framework\App\Flow\Action\Xml\InputField;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -29,9 +28,9 @@ class ConfigTest extends TestCase
 
         $config = Config::fromXml($config);
         static::assertCount(4, $config->getConfig());
-        static::assertInstanceOf(InputField::class, $config->getConfig()[0]);
-        static::assertInstanceOf(InputField::class, $config->getConfig()[1]);
-        static::assertInstanceOf(InputField::class, $config->getConfig()[2]);
-        static::assertInstanceOf(InputField::class, $config->getConfig()[3]);
+        static::assertSame('text', $config->getConfig()[0]->getType());
+        static::assertSame('text', $config->getConfig()[1]->getType());
+        static::assertSame('text', $config->getConfig()[2]->getType());
+        static::assertSame('single-select', $config->getConfig()[3]->getType());
     }
 }

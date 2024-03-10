@@ -19,7 +19,7 @@
     "postinstall": "patch-package",
     "lighthouse": "node lighthouse-tests.js",
     "lint": "eslint --ext .js,.ts,.vue,.html.twig src test --cache",
-    "lint-fix": "eslint --fix --ext .js,.vue,.html.twig src test",
+    "lint-fix": "eslint --fix --ext .js,.ts,.vue,.html.twig src test",
     "lint:all": "npm run lint:types && npm run lint",
     "lint:deprecations": "eslint --rule '\"sw-new-core-rules/private-feature-declarations\": \"error\"' $(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}')",
     "lint:fix": "npm run lint -- --fix",
@@ -40,7 +40,7 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "@shopware-ag/meteor-admin-sdk": "^4.0.3",
+    "@shopware-ag/meteor-admin-sdk": "5.0.1",
     "@shopware-ag/meteor-icon-kit": "5.2.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",

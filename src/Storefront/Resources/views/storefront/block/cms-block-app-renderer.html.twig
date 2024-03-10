@@ -1,0 +1,21 @@
+{# Set dynamic app block name variable #}
+{% set appTwigBlockName = "block_app_renderer_#{block.customFields.appBlockName}"|replace({'-': '_'}) %}
+
+{# Check if block exists and render it #}
+{% if block(appTwigBlockName) is defined %}
+    {{ block(appTwigBlockName) }}
+{% else %}
+    {# Render fallback styling #}
+    <div
+        class="cms-block-app-renderer-fallback-block-{{ block.customFields.appBlockName }}"
+        style="display: grid; grid: {{ block.customFields.slotLayout.grid }};"
+    >
+        {# Render each slot content #}
+        {% for slot in block.slots %}
+            {% set element = block.slots.getSlot(slot.slot) %}
+            <div class="cms-block-app-renderer-fallback-slot-{{ element.type }}">
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

@@ -41,5 +41,10 @@ __backport__:
     - 'echo "Backport branches: $BACKPORT_BRANCH"'
     - npm install -g @kie/git-backporting
     - 'MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"'
-    - git-backporting -tb ${BACKPORT_BRANCH} -pr $MR_URL -a "${CI_GITLAB_API_TOKEN}" --labels backport --comments "Backport of $MR_URL"
+    - SQUASH_PARAM=""
+    - |
+      if echo $CI_MERGE_REQUEST_LABELS | grep -q -i github; then
+        SQUASH_PARAM="--no-squash"
+      fi
+    - git-backporting -tb ${BACKPORT_BRANCH} -pr $MR_URL -a "${CI_GITLAB_API_TOKEN}" --labels backport --comments "Backport of $MR_URL" $SQUASH_PARAM
   after_script: []

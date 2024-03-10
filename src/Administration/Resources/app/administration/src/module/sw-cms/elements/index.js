@@ -16,3 +16,4 @@ import './form';
 import './product-description-reviews';
 import './buy-box';
 import './cross-selling';
+import './html';

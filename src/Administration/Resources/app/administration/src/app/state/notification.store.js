@@ -11,8 +11,8 @@ const NOTIFICATION_LOAD_LIMIT = 50;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function initializeUserNotifications() {
-    if (Application.getApplicationRoot().$store) {
-        Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
+    if (State) {
+        State.commit('notification/setNotificationsForCurrentUser');
         return;
     }
     State.get('notification').notifications = getNotificationsForUser();

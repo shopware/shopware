@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -201,7 +202,9 @@ class CartShippingCostRuleTest extends TestCase
                 'cartShippingCost' => [
                     'name' => 'cartShippingCost',
                     'type' => 'float',
-                    'config' => [],
+                    'config' => [
+                        'digits' => RuleConfig::DEFAULT_DIGITS,
+                    ],
                 ],
             ],
             'operatorSet' => [

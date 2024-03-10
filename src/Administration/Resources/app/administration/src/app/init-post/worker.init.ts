@@ -3,7 +3,7 @@ import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/EntityCollection';
+import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
 import type { ContextState } from '../state/context.store';

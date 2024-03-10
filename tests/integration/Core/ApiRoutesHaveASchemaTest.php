@@ -88,6 +88,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
         static::assertSame([
             '/_info/open-api-schema.json',
             '/_info/swagger.html',
+            '/_info/stoplightio.html',
             '/context',
             '/account/customer',
             '/account/address/{addressId}',

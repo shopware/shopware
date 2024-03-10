@@ -98,6 +98,7 @@ class EntityIndexerRegistry
             while ($message = $indexer->iterate($offset)) {
                 $message->setIndexer($indexer->getName());
                 $message->addSkip(...$skip);
+                $message->isFullIndexing = true;
 
                 $this->sendOrHandle($message, $useQueue);
 
@@ -143,6 +144,7 @@ class EntityIndexerRegistry
             }
 
             $message->setIndexer($indexer->getName());
+            $message->isFullIndexing = false;
             self::addSkips($message, $context);
 
             $this->sendOrHandle($message, $useQueue);
@@ -260,6 +262,7 @@ class EntityIndexerRegistry
 
         $message->setIndexer($indexer->getName());
         $message->addSkip(...$skip);
+        $message->isFullIndexing = true;
 
         $this->sendOrHandle($message, true);
 

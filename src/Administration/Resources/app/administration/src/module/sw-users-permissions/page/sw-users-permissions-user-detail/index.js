@@ -1,7 +1,6 @@
 /**
  * @package services-settings
  */
-import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -9,6 +8,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
+const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -282,16 +282,6 @@ export default {
                 return Promise.resolve();
             }
 
-            if (!email(this.user.email)) {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc(
-                        'sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage',
-                    ),
-                });
-                return Promise.reject();
-            }
-
             return this.userValidationService.checkUserEmail({
                 email: this.user.email,
                 id: this.user.id,
@@ -353,11 +343,13 @@ export default {
                 this.checkEmail()
                     .then(() => {
                         if (this.isEmailAlreadyInUse) {
-                            this.createNotificationError({
-                                message: this.$tc(
-                                    'sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage',
-                                ),
+                            const expression = `user.${this.user.id}.email`;
+                            const error = new ShopwareError({
+                                code: 'USER_EMAIL_ALREADY_EXISTS',
+                                detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
                             });
+
+                            Shopware.State.commit('error/addApiError', { expression, error });
 
                             return Promise.resolve();
                         }

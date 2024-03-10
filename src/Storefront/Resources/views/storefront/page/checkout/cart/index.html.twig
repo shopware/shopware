@@ -119,6 +119,7 @@
                                        aria-expanded="false"
                                        aria-controls="collapseExample">
                                         {{ 'checkout.shippingCosts'|trans|sw_sanitize }}
+
                                         {% block page_checkout_cart_shipping_costs_trigger_icon %}
                                             {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
                                         {% endblock %}
@@ -185,6 +186,7 @@
                                             </select>
                                         </div>
                                     {% endblock %}
+
                                     <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
                                 </div>
                             {% endblock %}

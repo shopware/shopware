@@ -4,7 +4,7 @@
 
 import Vue from 'vue';
 import type { Module } from 'vuex';
-import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/componentSection';
+import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/component-section';
 
 type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'>
 

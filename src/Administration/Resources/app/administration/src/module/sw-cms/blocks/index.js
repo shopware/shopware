@@ -1,3 +1,5 @@
+import './app/app-renderer';
+
 import './text/text';
 import './text/text-hero';
 import './text/text-teaser';
@@ -40,3 +42,5 @@ import './commerce/product-description-reviews';
 import './commerce/cross-selling';
 
 import './form/form';
+
+import './html/html';

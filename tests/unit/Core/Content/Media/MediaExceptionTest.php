@@ -85,7 +85,7 @@ class MediaExceptionTest extends TestCase
     {
         $exception = MediaException::cannotCopyMedia();
 
-        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(MediaException::MEDIA_CANNOT_COPY_MEDIA, $exception->getErrorCode());
         static::assertSame('Error while copying media from source.', $exception->getMessage());
     }
@@ -164,7 +164,7 @@ class MediaExceptionTest extends TestCase
 
         $exception = MediaException::duplicatedMediaFileName($fileName, $fileExtension);
 
-        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(MediaException::MEDIA_DUPLICATED_FILE_NAME, $exception->getErrorCode());
         static::assertSame('A file with the name "file-name.file-extension" already exists.', $exception->getMessage());
         static::assertSame(['fileName' => $fileName, 'fileExtension' => $fileExtension], $exception->getParameters());
@@ -238,7 +238,7 @@ class MediaExceptionTest extends TestCase
 
         $exception = MediaException::couldNotRenameFile($mediaId, $oldFileName);
 
-        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(MediaException::MEDIA_COULD_NOT_RENAME_FILE, $exception->getErrorCode());
         static::assertSame('Could not rename file for media with id: media-id. Rollback to filename: "old-file-name"', $exception->getMessage());
         static::assertSame(['mediaId' => $mediaId, 'oldFileName' => $oldFileName], $exception->getParameters());
@@ -301,7 +301,7 @@ class MediaExceptionTest extends TestCase
 
         $exception = MediaException::thumbnailCouldNotBeSaved($url);
 
-        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(MediaException::MEDIA_THUMBNAIL_NOT_SAVED, $exception->getErrorCode());
         static::assertSame('Thumbnail could not be saved to location: http://url.', $exception->getMessage());
         static::assertSame(['location' => $url], $exception->getParameters());

@@ -221,7 +221,9 @@ class UpdateControllerTest extends TestCase
         $updateController->deactivatePlugins(new Request(), Context::createDefaultContext());
 
         static::assertCount(2, $events);
+        static::assertArrayHasKey(0, $events);
         static::assertInstanceOf(UpdatePrePrepareEvent::class, $events[0]);
+        static::assertArrayHasKey(1, $events);
         static::assertInstanceOf(UpdatePostPrepareEvent::class, $events[1]);
     }
 

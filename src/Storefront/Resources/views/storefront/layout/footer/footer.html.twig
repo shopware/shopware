@@ -1,6 +1,5 @@
 {% block layout_footer_inner_container %}
     <div class="container">
-
         {% block layout_footer_navigation %}
             <div
                 id="footerColumns"
@@ -18,6 +17,7 @@
                                  aria-controls="collapseFooterHotline"
                                  role="listitem">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
+
                                 {% block layout_footer_navigation_hotline_icons %}
                                     <div class="footer-column-toggle">
                                         <span class="footer-plus-icon">
@@ -69,6 +69,7 @@
                                                 {{ root.category.translated.name }}
                                             </a>
                                         {% endif %}
+
                                         {% block layout_footer_navigation_information_icons %}
                                             <div class="footer-column-toggle">
                                                 <span class="footer-plus-icon">
@@ -169,7 +170,6 @@
                 {% endblock %}
             </div>
         {% endblock %}
-
     </div>
 
     {% block layout_footer_bottom %}

@@ -5,16 +5,13 @@
 
     {% block page_account_guest_auth %}
         <div class="account-guest-auth row justify-content-md-center">
-
             {% block page_account_guest_auth_inner %}
                 <div class="col-md-8 col-lg-6">
-
                     {% block page_account_guest_auth_form %}
                         <form method="post"
                               class="account-guest-auth-form card"
                               action="{{ actionUrl }}"
                               data-form-validation="true">
-
                             {% block page_account_guest_auth_title %}
                                 <h1 class="card-title">
                                     {{ 'account.orderGuestLoginTitle'|trans }}
@@ -23,7 +20,6 @@
 
                             {% block page_account_guest_auth_container %}
                                 <div class="card-body">
-
                                     {% block page_account_guest_auth_info %}
                                         <div class="card-text account-guest-auth-info mb-3">
                                             {{ 'account.orderGuestLoginDescription'|trans }}

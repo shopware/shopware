@@ -119,6 +119,12 @@ class OrderSerializerTest extends TestCase
         static::assertSame($serialized['amountTotal'], $order->getAmountTotal());
         static::assertSame($serialized['stateId'], $order->getStateId());
         static::assertSame($serialized['orderDateTime'], $order->getOrderDateTime()->format('Y-m-d\Th:i:s.vP'));
+
+        static::assertNotNull($itemRounding = $order->getItemRounding());
+        static::assertSame($serialized['itemRounding'], $itemRounding->jsonSerialize());
+
+        static::assertNotNull($totalRounding = $order->getTotalRounding());
+        static::assertSame($serialized['totalRounding'], $totalRounding->jsonSerialize());
     }
 
     private function createOrder(): OrderEntity

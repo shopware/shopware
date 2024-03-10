@@ -5,6 +5,7 @@
                 {{ group.translated.name }}
             {% endblock %}
         </label>
+
         {% block buy_widget_configurator_select %}
             <select name="{{ group.id }}" id="{{ group.id }}" class="form-select product-detail-configurator-select-input">
                 {% for option in group.options %}

@@ -353,7 +353,7 @@ class WriteCommandExtractor
         }
 
         if ($field instanceof ReferenceVersionField && $field->is(Required::class)) {
-            return new KeyValuePair($field->getPropertyName(), null, true);
+            return new KeyValuePair($field->getPropertyName(), null, true, true);
         }
 
         if ($this->skipField($field, $existence)) {

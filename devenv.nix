@@ -49,6 +49,8 @@ in {
       short_open_tag = 0
       zend.detect_unicode = 0
       realpath_cache_ttl = 3600
+      post_max_size = 32M
+      upload_max_filesize = 32M
     '';
 
     fpm.pools.web = lib.mkDefault {

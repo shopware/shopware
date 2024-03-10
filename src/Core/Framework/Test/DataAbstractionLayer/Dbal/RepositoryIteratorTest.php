@@ -6,15 +6,19 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -95,5 +99,100 @@ class RepositoryIteratorTest extends TestCase
             ++$totalFetchedIds;
         }
         static::assertEquals($totalFetchedIds, 3);
+    }
+
+    public function testFetchNotObviousEmptyNextRequestAutoIncrement(): void
+    {
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+        /** @var EventDispatcher $eventDispatcher */
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $context = Context::createDefaultContext();
+
+        $builder = new ProductBuilder(new IdsCollection(), 'product1');
+        $builder->price(1);
+        $productRepository->create([$builder->build()], $context);
+
+        $builder = new ProductBuilder(new IdsCollection(), 'product2');
+        $builder->price(1);
+        $productRepository->create([$builder->build()], $context);
+
+        $builder = new ProductBuilder(new IdsCollection(), 'product3');
+        $builder->price(1);
+        $productRepository->create([$builder->build()], $context);
+
+        $criteria = new Criteria();
+        $criteria->setTitle('test__product_iteration');
+        // 3 products will be fetched in pairs of 2
+        // The last response will obviously have 1 (less than 2) item and this already indicates end
+        // so this should not need an additional search
+        $criteria->setLimit(2);
+
+        $searchesCount = 0;
+        $eventDispatcher->addListener(EntitySearchedEvent::class, function (EntitySearchedEvent $event) use (&$searchesCount): void {
+            if ($event->getCriteria()->getTitle() === 'test__product_iteration') {
+                ++$searchesCount;
+            }
+        });
+
+        $iterator = new RepositoryIterator($productRepository, $context, $criteria);
+
+        while ($iterator->fetchIds() !== null) {
+            // fetch all ids and count searches
+        }
+
+        static::assertSame(2, $searchesCount, '2 searches are enough to fetch 3 products by limit 2');
+
+        $searchesCount = 0;
+        $iterator->reset(); // removes increment filter
+
+        while ($iterator->fetch() !== null) {
+            // fetch all entities and count searches
+        }
+
+        static::assertSame(2, $searchesCount, '2 searches are enough to fetch 3 products by limit 2');
+    }
+
+    public function testFetchNotObviousEmptyNextRequestLimitOffset(): void
+    {
+        /** @var EntityRepository<ProductCollection> $countryStateRepository */
+        $countryStateRepository = $this->getContainer()->get('country_state.repository');
+        /** @var EventDispatcher $eventDispatcher */
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->setTitle('test__country_state_iteration');
+        // 16 German country states will be fetched in pairs of 5
+        // The last response will obviously have 1 (less than 5) item and this already indicates end
+        // so this should not need an additional search
+        $criteria->setLimit(5);
+        $criteria->addFilter(new EqualsFilter('country.iso', 'DE'));
+
+        $searchesCount = 0;
+        $eventDispatcher->addListener(EntitySearchedEvent::class, function (EntitySearchedEvent $event) use (&$searchesCount): void {
+            if ($event->getCriteria()->getTitle() === 'test__country_state_iteration') {
+                ++$searchesCount;
+            }
+        });
+
+        $iterator = new RepositoryIterator($countryStateRepository, $context, $criteria);
+
+        while ($iterator->fetchIds() !== null) {
+            // fetch all ids and count searches
+        }
+
+        static::assertSame(4, $searchesCount, '4 searches are enough to fetch 16 German country states by limit 5');
+
+        $searchesCount = 0;
+        $iterator->reset(); // removes offset
+
+        while ($iterator->fetch() !== null) {
+            // fetch all entities and count searches
+        }
+
+        static::assertSame(4, $searchesCount, '4 searches are enough to fetch 16 German country states by limit 5');
     }
 }

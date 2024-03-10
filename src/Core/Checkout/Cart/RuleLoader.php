@@ -47,9 +47,6 @@ class RuleLoader extends AbstractRuleLoader
                     $rules->add($rule);
                 }
             }
-            if ($result->count() < 500) {
-                break;
-            }
         }
 
         return $rules;

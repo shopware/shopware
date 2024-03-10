@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -162,20 +163,20 @@ class GenerateThumbnailsCommand extends Command
         $errored = 0;
         $errors = [];
 
-        while (($result = $iterator->fetch()) !== null) {
-            foreach ($result->getEntities() as $media) {
-                try {
-                    if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
-                        ++$generated;
-                    } else {
-                        ++$skipped;
-                    }
-                } catch (\Throwable $e) {
-                    ++$errored;
-                    $errors[] = [\sprintf('Cannot process file %s (id: %s) due error: %s', $media->getFileName(), $media->getId(), $e->getMessage())];
+        /** @var MediaEntity $media */
+        foreach ($iterator->iterateEntities() as $media) {
+            try {
+                if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
+                    ++$generated;
+                } else {
+                    ++$skipped;
                 }
+            } catch (\Throwable $e) {
+                ++$errored;
+                $errors[] = [\sprintf('Cannot process file %s (id: %s) due error: %s', $media->getFileName(), $media->getId(), $e->getMessage())];
             }
-            $this->io->progressAdvance($result->count());
+
+            $this->io->progressAdvance();
         }
 
         return [

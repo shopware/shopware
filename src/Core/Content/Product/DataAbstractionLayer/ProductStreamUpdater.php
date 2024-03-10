@@ -108,21 +108,23 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             );
         });
 
-        while ($matches = $iterator->fetchIds()) {
-            foreach ($matches as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
-                $ids[] = $id;
-                $insert->addInsert('product_stream_mapping', [
-                    'product_id' => Uuid::fromHexToBytes($id),
-                    'product_version_id' => $version,
-                    'product_stream_id' => $binary,
-                ]);
+        foreach ($iterator->iterateIds() as $id) {
+            if (!\is_string($id)) {
+                continue;
             }
+            $ids[] = $id;
+            $insert->addInsert('product_stream_mapping', [
+                'product_id' => Uuid::fromHexToBytes($id),
+                'product_version_id' => $version,
+                'product_stream_id' => $binary,
+            ]);
 
-            $insert->execute();
+            if (count($ids) >= $criteria->getLimit()) {
+                $insert->execute();
+            }
         }
+
+        $insert->execute();
 
         $message->getContext()->setConsiderInheritance($considerInheritance);
 

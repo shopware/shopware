@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -115,5 +117,37 @@ class RepositoryIterator
         }
 
         return $result;
+    }
+
+    /**
+     * @return iterable<Entity|PartialEntity>
+     */
+    public function iterateEntities(): iterable
+    {
+        while (($entityResult = $this->fetch()) instanceof EntitySearchResult) {
+            // yield from is okay, as getElements keys by unique key
+            yield from $entityResult->getElements();
+
+            if ($entityResult->count() < $this->criteria->getLimit()) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * @return iterable<string>|iterable<array<string, string>>
+     */
+    public function iterateIds(): iterable
+    {
+        while (\is_array($ids = $this->fetchIds())) {
+            // do not use yield from to ensure re-keying
+            foreach ($ids as $id) {
+                yield $id;
+            }
+
+            if (\count($ids) < $this->criteria->getLimit()) {
+                break;
+            }
+        }
     }
 }

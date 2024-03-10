@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,14 +45,10 @@ class RuleLoader extends AbstractRuleLoader
         $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
         $rules = new RuleCollection();
 
-        while (($result = $repositoryIterator->fetch()) !== null) {
-            foreach ($result->getEntities() as $rule) {
-                if ($rule->getPayload()) {
-                    $rules->add($rule);
-                }
-            }
-            if ($result->count() < 500) {
-                break;
+        /** @var RuleEntity $rule */
+        foreach ($repositoryIterator->iterateEntities() as $rule) {
+            if ($rule->getPayload()) {
+                $rules->add($rule);
             }
         }
 

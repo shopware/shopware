@@ -110,7 +110,7 @@ class UnusedMediaPurgerTest extends TestCase
 
                     self::assertCount(0, $filters);
                     self::assertEquals(0, $criteria->getOffset());
-                    self::assertEquals(50, $criteria->getLimit());
+                    self::assertEquals(2, $criteria->getLimit());
 
                     return [$id1, $id2];
                 },
@@ -123,8 +123,8 @@ class UnusedMediaPurgerTest extends TestCase
                     $filters = $criteria->getFilters();
 
                     self::assertCount(0, $filters);
-                    self::assertEquals(50, $criteria->getOffset());
-                    self::assertEquals(50, $criteria->getLimit());
+                    self::assertEquals(2, $criteria->getOffset());
+                    self::assertEquals(2, $criteria->getLimit());
 
                     return [$id3, $id4];
                 },
@@ -141,7 +141,7 @@ class UnusedMediaPurgerTest extends TestCase
         );
 
         $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
-        $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
+        $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia(2)));
 
         static::assertEquals([$media1, $media2, $media3, $media4], $media);
     }

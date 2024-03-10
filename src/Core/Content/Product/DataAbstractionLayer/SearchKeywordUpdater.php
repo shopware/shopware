@@ -112,12 +112,10 @@ class SearchKeywordUpdater implements ResetInterface
 
         $iterator = $this->getIterator($ids, $context, $configFields);
 
-        while ($products = $iterator->fetch()) {
-            foreach ($products->getEntities() as $product) {
-                // overwrite fetched products if translations for that product exists
-                // otherwise we use the already fetched product from the parent language
-                $existingProducts[$product->getId()] = $product;
-            }
+        foreach ($iterator->iterateEntities() as $product) {
+            // overwrite fetched products if translations for that product exists
+            // otherwise we use the already fetched product from the parent language
+            $existingProducts[$product->getId()] = $product;
         }
 
         foreach ($existingProducts as $product) {

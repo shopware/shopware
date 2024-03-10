@@ -83,6 +83,7 @@ class ExportController
         $response = new Response($content ?: null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]);
         $response->setLastModified((new \DateTimeImmutable())->setTimestamp($this->fileSystem->lastModified($filePath)));
         $response->setCharset($encoding);
+
         return $response;
     }
 

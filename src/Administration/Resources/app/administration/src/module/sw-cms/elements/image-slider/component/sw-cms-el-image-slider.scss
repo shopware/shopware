@@ -15,7 +15,8 @@
         display: grid;
         position: relative;
 
-        .sw-cms-el-image-slider__image {
+        .sw-cms-el-image-slider__image,
+        .sw-cms-el-image-slider__video {
             margin: 0 auto;
             width: 100%;
         }
@@ -23,7 +24,8 @@
         &.is--cover {
             width: 100%;
 
-            .sw-cms-el-image-slider__image {
+            .sw-cms-el-image-slider__image,
+            .sw-cms-el-image-slider__video {
                 object-fit: cover;
                 width: 100%;
                 height: 100%;
@@ -36,7 +38,8 @@
         }
 
         &.is--dot-outside {
-            .sw-cms-el-image-slider__image {
+            .sw-cms-el-image-slider__image,
+            .sw-cms-el-image-slider__video {
                 padding-bottom: 30px;
             }
         }

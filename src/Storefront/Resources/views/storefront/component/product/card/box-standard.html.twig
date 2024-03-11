@@ -30,22 +30,42 @@
                                     {% block component_product_box_image_link_inner %}
                                         {% if cover.url and cover.isSpatialObject() == false %}
                                             {% set attributes = {
-                                                class: 'product-image is-'~displayMode,
-                                                alt: (cover.translated.alt ?: name),
-                                                title: (cover.translated.title ?: name),
-                                                loading: 'lazy'
+                                                class: 'product-image is-' ~ displayMode,
+                                                title: (cover.translated.title ?: name)
                                             } %}
 
-                                            {% if displayMode == 'cover' or displayMode == 'contain' %}
-                                                {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
-                                            {% endif %}
+                                            {% if cover.getMediaType().getName() === 'VIDEO' %}
+                                                {% if config('core.listing.autoplayVideoInListing') %}
+                                                    {% set attributes = attributes|merge({
+                                                        autoplay: true,
+                                                        loop: true
+                                                    }) %}
+                                                {% endif %}
 
-                                            {% block component_product_box_image_thumbnail %}
-                                                {% sw_thumbnails 'product-image-thumbnails' with {
-                                                    media: cover,
-                                                    sizes: sizes
-                                                } %}
-                                            {% endblock %}
+                                                {% block component_product_box_video %}
+                                                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                        media: cover,
+                                                        attributes: attributes
+                                                    } %}
+                                                {% endblock %}
+                                            {% else %}
+                                                {% set attributes = attributes|merge({
+                                                    alt: (cover.translated.alt ?: name),
+                                                    loading: 'lazy'
+                                                }) %}
+
+                                                {% if displayMode == 'cover' or displayMode == 'contain' %}
+                                                    {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
+                                                {% endif %}
+
+                                                {% block component_product_box_image_thumbnail %}
+                                                    {% sw_thumbnails 'product-image-thumbnails' with {
+                                                        media: cover,
+                                                        sizes: sizes,
+                                                        attributes: attributes
+                                                    } %}
+                                                {% endblock %}
+                                            {% endif %}
                                         {% else %}
                                             {% block component_product_box_image_placeholder %}
                                                 <div class="product-image-placeholder">

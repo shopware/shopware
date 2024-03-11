@@ -14,6 +14,15 @@
         </input-field>
 
         <input-field type="bool">
+            <name>autoplayVideoInListing</name>
+            <label>Autoplay videos in product listings</label>
+            <label lang="de-DE">Videos in Produkt-Listings</label>
+            <helpText>Videos in product listings that are configured as product media covers are played automatically. Deactivate to display the first frame of video only.</helpText>
+            <helpText lang="de-DE">Videos in Produkt-Listings, die als Cover von Produktmedien konfiguriert sind, werden automatisch abgespielt. Wenn deaktiviert, wird nur der erste Frame des Videos angezeigt.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>hideCloseoutProductsWhenOutOfStock</name>
             <label>Hide products after clearance</label>
             <label lang="de-DE">Produkte nach Abverkaufende ausblenden</label>

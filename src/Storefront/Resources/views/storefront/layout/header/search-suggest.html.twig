@@ -15,18 +15,30 @@
                                         <div class="row align-items-center g-0">
                                             {% block layout_search_suggest_result_image %}
                                                 <div class="col-auto search-suggest-product-image-container">
+                                                    {% set attributes = {
+                                                        class: 'search-suggest-product-image',
+                                                        title: (product.cover.media.translated.title ?: '')
+                                                    } %}
+
                                                     {% if product.cover.media.url and product.cover.media.isSpatialObject() == false %}
-                                                        {% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
-                                                            media: product.cover.media,
-                                                            sizes: {
-                                                                default: '100px'
-                                                            },
-                                                            attributes: {
-                                                                class: 'search-suggest-product-image',
-                                                                alt: (product.cover.media.translated.alt ?: ''),
-                                                                title: (product.cover.media.translated.title ?: '')
-                                                            }
-                                                        } %}
+                                                        {% if product.cover.media.getMediaType().getName() === 'VIDEO' %}
+                                                            {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                                                media: product.cover.media,
+                                                                attributes: attributes
+                                                            } %}
+                                                        {% else %}
+                                                            {% set attributes = attributes|merge({
+                                                                alt: (product.cover.media.translated.alt ?: '')
+                                                            }) %}
+
+                                                            {% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
+                                                                media: product.cover.media,
+                                                                sizes: {
+                                                                    default: '100px'
+                                                                },
+                                                                attributes: attributes
+                                                            } %}
+                                                        {% endif %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {
                                                             size: 'lg'

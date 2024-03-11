@@ -1,0 +1,40 @@
+{% block video_utility %}
+    {% if attributes is not defined %}
+        {% set attributes = {} %}
+    {% endif %}
+
+    {% if attributes.title is not defined and media.translated.title is defined %}
+        {% set attributes = attributes|merge({ title: media.translated.title }) %}
+    {% endif %}
+
+    {% if attributes.autoplay is defined and attributes.autoplay is same as(true) %}
+        {% set attributes = attributes|merge({
+            muted: true,
+            playsinline: true,
+        }) %}
+    {% endif %}
+
+    {% if attributes.preload is not defined %}
+        {% set attributes = attributes|merge({ preload: 'metadata' }) %}
+    {% endif %}
+
+    {% set videoAttributes = [] %}
+
+    {% for key, value in attributes %}
+        {% if value != '' %}
+            {% set videoAttribute = key %}
+
+            {% if not value is same as(true) %}
+                {% set videoAttribute = key ~ '="' ~ value ~ '"' %}
+            {% endif %}
+
+            {% set videoAttributes = videoAttributes|merge([videoAttribute]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% block video_utility_video %}
+        <video {{ videoAttributes|join(' ')|raw }}>
+            <source src="{{ media|sw_encode_media_url }}#t=0.001" type="{{ media.mimeType }}">
+        </video>
+    {% endblock %}
+{% endblock %}

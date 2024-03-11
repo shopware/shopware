@@ -8,17 +8,29 @@
                 {% block component_product_quickview_minimal_img %}
                     <div class="col-12 col-md-6 quickview-minimal-image">
                         {% if page.product.media %}
-                            {% sw_thumbnails 'minimal-image-thumbnails' with {
-                                media: page.product.cover.media,
-                                sizes: {
-                                    default: '360px'
-                                },
-                                attributes: {
-                                    class: 'img-fluid quickview-minimal-img',
-                                    alt: ( page.product.cover.translated.alt ?: ''),
-                                    title: (page.product.cover.translated.title ?: '')
-                                }
+                            {% set attributes = {
+                                class: 'img-fluid quickview-minimal-img',
+                                title: (page.product.cover.translated.title ?: '')
                             } %}
+
+                            {% if page.product.cover.media.getMediaType().getName() === 'VIDEO' %}
+                                {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                                    media: page.product.cover.media,
+                                    attributes: attributes
+                                } %}
+                            {% else %}
+                                {% set attributes = attributes|merge({
+                                    alt: ( page.product.cover.translated.alt ?: '')
+                                }) %}
+
+                                {% sw_thumbnails 'minimal-image-thumbnails' with {
+                                    media: page.product.cover.media,
+                                    sizes: {
+                                        default: '360px'
+                                    },
+                                    attributes: attributes
+                                } %}
+                            {% endif %}
                         {% else %}
                             {% sw_icon 'placeholder' style {
                                 size: 'fluid'

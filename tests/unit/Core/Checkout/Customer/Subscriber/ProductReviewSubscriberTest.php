@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
@@ -24,10 +25,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(ProductReviewSubscriber::class)]
 class ProductReviewSubscriberTest extends TestCase
 {
     private MockObject&ProductReviewCountService $productReviewCountService;

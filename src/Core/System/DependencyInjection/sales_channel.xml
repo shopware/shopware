@@ -180,6 +180,7 @@
 
         <service id="Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.sales_channel_context.expire_days%</argument>
             <tag name="messenger.message_handler"/>
@@ -193,6 +194,12 @@
 
         <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator">
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelAnalyticsLoader">
+            <argument type="service" id="sales_channel_analytics.repository"/>
+
+            <tag name="kernel.event_listener" event="Shopware\Storefront\Event\StorefrontRenderEvent" method="loadAnalytics" priority="2000" />
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper">

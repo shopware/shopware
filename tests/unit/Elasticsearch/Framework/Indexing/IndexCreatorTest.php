@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
@@ -14,18 +16,16 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @covers \Shopware\Elasticsearch\Framework\Indexing\IndexCreator
- *
  * @internal
  */
+#[CoversClass(IndexCreator::class)]
 class IndexCreatorTest extends TestCase
 {
     /**
      * @param array<mixed> $constructorConfig
      * @param array<mixed> $expectedConfig
-     *
-     * @dataProvider providerCreateIndices
      */
+    #[DataProvider('providerCreateIndices')]
     public function testIndexCreation(array $constructorConfig, array $expectedConfig): void
     {
         $client = $this->createMock(Client::class);

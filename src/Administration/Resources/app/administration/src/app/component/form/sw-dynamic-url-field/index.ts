@@ -98,7 +98,7 @@ Component.register('sw-dynamic-url-field', {
 
                 this.lastEmittedLink = preparedLink;
 
-                this.$emit('input', preparedLink);
+                this.$emit('update:value', preparedLink);
             },
         },
     },

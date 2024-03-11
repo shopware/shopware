@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 abstract class FilterStruct extends Struct
 {
     /**

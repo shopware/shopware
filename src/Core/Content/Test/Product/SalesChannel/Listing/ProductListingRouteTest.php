@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Listing;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -15,9 +16,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ProductListingRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

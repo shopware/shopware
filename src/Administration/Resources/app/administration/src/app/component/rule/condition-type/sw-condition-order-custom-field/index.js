@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @public
- * @package business-ops
+ * @package services-settings
  * @description Order custom item for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -114,7 +114,6 @@ Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
     },
 
     methods: {
-
         /**
          * Clear any further field's values if no custom field has been selected
          * @param id

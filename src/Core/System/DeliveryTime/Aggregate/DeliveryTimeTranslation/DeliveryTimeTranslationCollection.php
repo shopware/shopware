@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<DeliveryTimeTranslationEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DeliveryTimeTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getDeliveryTimeIds(): array
     {
@@ -25,7 +25,7 @@ class DeliveryTimeTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

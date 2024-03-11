@@ -3,7 +3,7 @@ title: Merchant registration
 date: 2020-08-14
 area: customer-order
 tags: [merchant, registration, customer-group]
---- 
+---
 
 ## Context
 

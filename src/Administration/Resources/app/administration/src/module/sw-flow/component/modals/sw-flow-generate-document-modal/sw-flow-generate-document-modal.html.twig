@@ -9,11 +9,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_generate_document_modal_document_type_multiple %}
     <sw-multi-select
-        {% if VUE3 %}
         v-model:value="documentTypesSelected"
-        {% else %}
-        v-model="documentTypesSelected"
-        {% endif %}
+        name="sw-field--documentTypesSelected"
         required
         class="sw-flow-generate-document-modal__type-multi-select"
         label-property="translated.name"

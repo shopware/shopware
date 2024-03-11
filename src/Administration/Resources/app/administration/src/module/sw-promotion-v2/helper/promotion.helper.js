@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**

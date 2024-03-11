@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Facade;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
@@ -42,9 +43,7 @@ class SystemConfigFacadeTest extends TestCase
         $this->factory = $this->getContainer()->get(SystemConfigFacadeHookFactory::class);
     }
 
-    /**
-     * @dataProvider getWithoutAppCases
-     */
+    #[DataProvider('getWithoutAppCases')]
     public function testGetForScriptWithoutApp(Hook $hook, ?string $salesChannelId, string $result): void
     {
         $this->systemConfigService->set('test.value', 'generic');

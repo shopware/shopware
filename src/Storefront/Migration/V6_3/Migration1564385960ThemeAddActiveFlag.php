@@ -21,7 +21,14 @@ class Migration1564385960ThemeAddActiveFlag extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `theme` ADD `active` TINYINT(1) NOT NULL DEFAULT 1 AFTER `config_values`;');
+        $this->addColumn(
+            connection: $connection,
+            table: 'theme',
+            column: 'active',
+            type: 'TINYINT(1)',
+            default: '1'
+        );
+
         $connection->executeStatement('
             UPDATE `media_default_folder` SET `association_fields` = \'[\"media\"]\' WHERE `entity` = \'theme\';
         ');

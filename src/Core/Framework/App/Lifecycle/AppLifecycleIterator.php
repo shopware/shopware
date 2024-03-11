@@ -10,11 +10,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class AppLifecycleIterator
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly AbstractAppLoader $appLoader
@@ -64,9 +67,11 @@ class AppLifecycleIterator
         return $fails;
     }
 
+    /**
+     * @return array<string, array{id: string, version: string, roleId: string}>
+     */
     private function getRegisteredApps(Context $context): array
     {
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         $appData = [];
@@ -81,12 +86,15 @@ class AppLifecycleIterator
         return $appData;
     }
 
+    /**
+     * @param list<string> $successfulUpdates
+     */
     private function deleteNotFoundAndFailedInstallApps(
         array $successfulUpdates,
         AbstractAppLifecycle $appLifecycle,
         Context $context
     ): void {
-        // refetch registered apps so we can remove apps where the installation failed
+        // re-fetch registered apps, so we can remove apps where the installation failed
         $appsFromDb = $this->getRegisteredApps($context);
         foreach ($successfulUpdates as $app) {
             unset($appsFromDb[$app]);

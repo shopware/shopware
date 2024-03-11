@@ -4,11 +4,11 @@
     <div class="cms-listing-col wishlist-listing-col col-12">
         {% block element_product_listing_col_empty_wishlist %}
             <img src="{{ asset('assets/illustration/wishlist_empty.svg', 'theme') }}"
-                 alt="{{ "wishlist.wishlistEmptyDescription"|trans|striptags }}"
+                 alt="{{ 'wishlist.wishlistEmptyDescription'|trans|striptags }}"
                  class="wishlist-listing-empty">
 
-            <h1 class="text-center wishlist-listing-header">{{ "wishlist.wishlistEmptyHeader"|trans }}</h1>
-            <p class="text-center wishlist-listing-description">{{ "wishlist.wishlistEmptyDescription"|trans }}</p>
+            <h1 class="text-center wishlist-listing-header">{{ 'wishlist.wishlistEmptyHeader'|trans }}</h1>
+            <p class="text-center wishlist-listing-description">{{ 'wishlist.wishlistEmptyDescription'|trans }}</p>
         {% endblock %}
     </div>
 {% endblock %}

@@ -1,15 +1,14 @@
-import { shallowMount } from '@vue/test-utils';
-import swPaymentCard from 'src/module/sw-settings-payment/component/sw-payment-card';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
 
-Shopware.Component.register('sw-payment-card', swPaymentCard);
-
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-payment-card'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-payment-card', {
+        sync: true,
+    }), {
+        props: {
             paymentMethod: {
                 id: '5e6f7g8h',
                 translated: {
@@ -18,22 +17,25 @@ async function createWrapper(privileges = []) {
                 active: true,
             },
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-card': true,
-            'sw-internal-link': true,
-            'sw-switch-field': true,
-            'sw-media-preview-v2': true,
+            stubs: {
+                'sw-card': true,
+                'sw-internal-link': true,
+                'sw-switch-field': true,
+                'sw-media-preview-v2': true,
+            },
         },
     });
 }

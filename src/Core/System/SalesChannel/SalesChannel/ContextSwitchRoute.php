@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -34,29 +34,13 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     private const LANGUAGE_ID = SalesChannelContextService::LANGUAGE_ID;
 
     /**
-     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
-     *
-     * @var SalesChannelContextPersister
-     */
-    protected $contextPersister;
-
-    /**
-     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
-     *
-     * @var DataValidator
-     */
-    protected $validator;
-
-    /**
      * @internal
      */
     public function __construct(
-        DataValidator $validator,
-        SalesChannelContextPersister $contextPersister,
+        private readonly DataValidator $validator,
+        private readonly SalesChannelContextPersister $contextPersister,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->contextPersister = $contextPersister;
-        $this->validator = $validator;
     }
 
     public function getDecorated(): AbstractContextSwitchRoute

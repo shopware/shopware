@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
@@ -23,20 +25,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Subscriber\ProductSubscriber
  */
+#[CoversClass(ProductSubscriber::class)]
 class ProductSubscriberTest extends TestCase
 {
     private const CONFIG = ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT;
 
-    /**
-     * @dataProvider resolveCmsPageIdProviderWithLoadedEventProvider
-     */
+    #[DataProvider('resolveCmsPageIdProviderWithLoadedEventProvider')]
     public function testResolveCmsPageIdProviderWithLoadedEvent(Entity $entity, SystemConfigService $config, ?string $expected): void
     {
         $subscriber = new ProductSubscriber(
@@ -59,9 +58,7 @@ class ProductSubscriberTest extends TestCase
         static::assertSame($expected, $entity->get('cmsPageId'));
     }
 
-    /**
-     * @dataProvider resolveCmsPageIdProviderWithSalesChannelLoadedEventProvider
-     */
+    #[DataProvider('resolveCmsPageIdProviderWithSalesChannelLoadedEventProvider')]
     public function testResolveCmsPageIdProviderWithSalesChannelLoadedEvent(Entity $entity, SystemConfigService $config, ?string $expected): void
     {
         $subscriber = new ProductSubscriber(

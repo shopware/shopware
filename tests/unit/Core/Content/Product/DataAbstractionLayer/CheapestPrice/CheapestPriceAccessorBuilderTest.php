@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\CheapestPrice;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder;
@@ -11,9 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder
  */
+#[CoversClass(CheapestPriceAccessorBuilder::class)]
 class CheapestPriceAccessorBuilderTest extends TestCase
 {
     protected CheapestPriceAccessorBuilder $builder;

@@ -2,14 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginException
  */
+#[Package('core')]
+#[CoversClass(PluginException::class)]
 class PluginExceptionTest extends TestCase
 {
     public function testCannotDeleteManaged(): void
@@ -52,5 +54,13 @@ class PluginExceptionTest extends TestCase
         $e = PluginException::storeNotAvailable();
 
         static::assertEquals(PluginException::STORE_NOT_AVAILABLE, $e->getErrorCode());
+    }
+
+    public function testProjectDirNotInContainer(): void
+    {
+        static::expectException(PluginException::class);
+        static::expectExceptionMessage('Container parameter "kernel.project_dir" needs to be a string');
+
+        throw PluginException::projectDirNotInContainer();
     }
 }

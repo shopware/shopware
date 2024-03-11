@@ -262,22 +262,11 @@ export default function createSearchRankingService() {
         terms = [...new Set(terms)];
 
         const queryScores = [];
-        const originalTerm = searchTerm.trim();
 
         Object.keys(fieldScores).forEach(field => {
-            queryScores.push(
-                [Criteria.equals(field, originalTerm), fieldScores[field]],
-                [Criteria.contains(field, originalTerm), fieldScores[field] * 0.75],
-            );
-
-            if (terms.length === 0 || (terms.length === 1 && terms[0] === originalTerm)) {
-                return;
-            }
-
             terms.forEach((term) => {
                 queryScores.push(
-                    [Criteria.equals(field, term), fieldScores[field] * 0.5],
-                    [Criteria.contains(field, term), fieldScores[field] * 0.5 * 0.75],
+                    [Criteria.contains(field, term), fieldScores[field]],
                 );
             });
         });

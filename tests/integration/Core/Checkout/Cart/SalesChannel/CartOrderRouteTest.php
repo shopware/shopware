@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -27,11 +30,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @group store-api
- *
- * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute
  */
+#[CoversClass(CartOrderRoute::class)]
+#[Group('store-api')]
 class CartOrderRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -48,6 +49,10 @@ class CartOrderRouteTest extends TestCase
 
     private EntityRepository $taxProviderRepository;
 
+    private string $validSalutationId;
+
+    private string $validCountryId;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -60,6 +65,8 @@ class CartOrderRouteTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->taxProviderRepository = $this->getContainer()->get('tax_provider.repository');
+        $this->validSalutationId = $this->getValidSalutationId();
+        $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
 
         PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
         PreparedTestPaymentHandler::$fail = false;
@@ -716,7 +723,14 @@ class CartOrderRouteTest extends TestCase
     ): void {
         $email ??= Uuid::randomHex() . '@example.com';
         $password ??= 'shopware';
-        $this->createCustomer($password, $email, $paymentHandler, $invalidSalutationId);
+        $this->createCustomer(
+            $password,
+            $email,
+            $paymentHandler,
+            $invalidSalutationId,
+            $this->validSalutationId,
+            $this->validCountryId
+        );
 
         $this->login($email, $password);
     }
@@ -749,7 +763,9 @@ class CartOrderRouteTest extends TestCase
         string $password,
         ?string $email = null,
         string $paymentHandler = SyncTestPaymentHandler::class,
-        bool $invalidSalutaionId = false
+        bool $invalidSalutaionId = false,
+        ?string $validSalutationId = null,
+        ?string $validCountryId = null
     ): string {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -765,12 +781,13 @@ class CartOrderRouteTest extends TestCase
                     'street' => 'Musterstraße 1',
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
+                    'salutationId' => $validSalutationId ?? $this->getValidSalutationId(),
+                    'countryId' => $validCountryId ?? $this->getValidCountryId($this->ids->get('sales-channel')),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => Uuid::randomHex(),
                     'active' => true,
                     'description' => 'Default payment method',
                     'handlerIdentifier' => $paymentHandler,
@@ -785,7 +802,7 @@ class CartOrderRouteTest extends TestCase
                 'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => ($invalidSalutaionId ? null : $this->getValidSalutationId()),
+                'salutationId' => ($invalidSalutaionId ? null : $validSalutationId ?? $this->getValidSalutationId()),
                 'customerNumber' => '12345',
             ],
         ], Context::createDefaultContext());

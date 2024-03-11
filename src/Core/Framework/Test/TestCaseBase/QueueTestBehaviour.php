@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Shopware\Core\Framework\Test\TestCaseHelper\StopWorkerWhenIdleListener;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,11 +16,8 @@ use Symfony\Component\Messenger\Worker;
 
 trait QueueTestBehaviour
 {
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function clearQueue(): void
     {
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');

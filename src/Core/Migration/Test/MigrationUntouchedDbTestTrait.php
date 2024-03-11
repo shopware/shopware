@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Migration\Test;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,9 +14,7 @@ trait MigrationUntouchedDbTestTrait
 {
     private string $databaseName = 'shopware';
 
-    /**
-     * @before
-     */
+    #[Before]
     public function setMigrationDb(): void
     {
         $parsedUrl = parse_url((string) $_SERVER['DATABASE_URL']);
@@ -32,9 +32,7 @@ trait MigrationUntouchedDbTestTrait
         $this->databaseName = substr($databaseName, 1);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function unsetMigrationDb(): void
     {
         $originalDatabase = str_replace('_no_migrations', '', (string) $_SERVER['DATABASE_URL']);

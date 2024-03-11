@@ -19,17 +19,19 @@ class Migration1662533751AddCustomEntityTypeIdToCategory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'category', 'custom_entity_type_id')) {
+        $added = $this->addColumn(
+            connection: $connection,
+            table: 'category',
+            column: 'custom_entity_type_id',
+            type: 'BINARY(16)',
+        );
+
+        if ($added) {
             $connection->executeStatement(
-                'ALTER TABLE `category` ADD `custom_entity_type_id` BINARY(16) NULL,
-                ADD CONSTRAINT `fk.category.custom_entity_type_id` FOREIGN KEY (`custom_entity_type_id`)
+                'ALTER TABLE `category`
+                    ADD CONSTRAINT `fk.category.custom_entity_type_id` FOREIGN KEY (`custom_entity_type_id`)
                     REFERENCES `custom_entity` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;'
             );
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

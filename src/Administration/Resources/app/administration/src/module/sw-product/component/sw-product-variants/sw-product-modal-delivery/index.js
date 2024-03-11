@@ -55,10 +55,10 @@ export default {
             this.isLoading = true;
 
             // Handle variant listing modes (single, expanded) if exists
-            this.product = this.handleExpandedListing(this.product);
+            const product = this.handleExpandedListing(this.product);
 
             // Save the product after generating
-            this.productRepository.save(this.product).then(() => {
+            this.productRepository.save(product).then(() => {
                 this.$emit('configuration-close');
             });
         },

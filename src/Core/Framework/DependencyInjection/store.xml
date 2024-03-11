@@ -76,12 +76,6 @@
             <argument>%instance_id%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier">
-            <argument type="collection">
-                <argument>%kernel.shopware_core_dir%/Framework/Store/public.key</argument>
-            </argument>
-        </service>
-
         <service id="Shopware\Core\Framework\Store\Command\StoreDownloadCommand">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient" />
             <argument type="service" id="plugin.repository" />
@@ -187,6 +181,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -213,13 +208,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
-
-            <tag name="shopware.store_client.middleware" priority="9999"/>
-            <tag name="shopware.frw_client.middleware" priority="9999"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware" public="true">

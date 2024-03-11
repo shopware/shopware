@@ -23,7 +23,7 @@ use Shopware\Core\Test\TestDefaults;
 class CustomerGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var list<string>
+     * @var array<string>
      */
     private array $salutationIds = [];
 
@@ -213,7 +213,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
      * @return array<array{id: string}>
      */
@@ -236,7 +236,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getIds(string $table): array
     {

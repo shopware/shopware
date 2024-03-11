@@ -33,7 +33,7 @@ get_latest_succeeded_pipeline_info() {
     fi
 
     curl -sSf -X GET -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H "Content-Type: text/plain" \
-        "${CI_API_V4_URL}/projects/${project_path}/pipelines?ref=${branch}&scope=finished&status=success&order_by=updated_at&sort=desc&per_page=1"
+        "${CI_API_V4_URL}/projects/${project_path}/pipelines?ref=${branch}&source=schedule&scope=finished&status=success&order_by=updated_at&sort=desc&per_page=1"
 }
 
 get_latest_succeeded_pipeline_sha() {
@@ -64,7 +64,7 @@ create_branch() {
 create_deployment_branch() {
     local project_path="${1}" # Path of the project, the branch should be created in. URL-escaped.
     local deployment_branch_name="${2}"
-    local latest_succeeded_pipeline_sha="$(get_latest_succeeded_pipeline_sha ${project_path} 'trunk')"
+    local latest_succeeded_pipeline_sha="$(get_latest_succeeded_pipeline_sha ${project_path} '6.5.x')"
 
     create_branch "${project_path}" "${deployment_branch_name}" "${latest_succeeded_pipeline_sha}"
 }

@@ -2,7 +2,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 import { tns } from 'tiny-slider';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
-import PluginManager from 'src/plugin-system/plugin.manager';
 
 export default class BaseSliderPlugin extends Plugin {
     /**
@@ -155,7 +154,7 @@ export default class BaseSliderPlugin extends Plugin {
         const container = this.el.querySelector(this.options.containerSelector);
         const controlsContainer = this.el.querySelector(this.options.controlsSelector);
         const onInit = () => {
-            PluginManager.initializePlugins();
+            window.PluginManager.initializePlugins();
 
             this.$emitter.publish('initSlider');
         };

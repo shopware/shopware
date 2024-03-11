@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
@@ -15,10 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\CustomAppStorer
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(CustomAppStorer::class)]
 class CustomAppStorerTest extends TestCase
 {
     private CustomAppStorer $customAppStorer;

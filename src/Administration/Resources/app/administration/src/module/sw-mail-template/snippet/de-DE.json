@@ -46,7 +46,7 @@
         "labelSenderMail": "Absender-Mail",
         "labelSenderName": "Absender",
         "labelSubject": "Betreff",
-        "placeholderSenderMail": "shop@beispiel.com ...",
+        "placeholderSenderMail": "shop{'@'}beispiel.com ...",
         "placeholderSenderName": "Shopnamen eingeben ...",
         "placeholderSubject": "Betreff eingeben ..."
       },
@@ -63,7 +63,7 @@
       },
       "sidebar": {
         "labelContextMenuAddToMailTemplate": "Als Anhang hinzufügen",
-        "placeholderTestMail": "shop@beispiel.com",
+        "placeholderTestMail": "E-Mail-Adresse eingeben ...",
         "buttonTestMail": "Senden",
         "labelTestMail": "Empfänger-Adresse",
         "titleTestMail": "Test-Mail senden",

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
@@ -9,9 +10,8 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEven
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent
  */
+#[CoversClass(ElasticsearchIndexConfigEvent::class)]
 class ElasticsearchIndexConfigEventTest extends TestCase
 {
     public function testEvent(): void

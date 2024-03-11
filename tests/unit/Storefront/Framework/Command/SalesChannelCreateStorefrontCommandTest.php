@@ -2,11 +2,14 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
@@ -14,19 +17,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package system-settings
- *
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand
  */
+#[Package('buyers-experience')]
+#[CoversClass(SalesChannelCreateStorefrontCommand::class)]
 class SalesChannelCreateStorefrontCommandTest extends TestCase
 {
     /**
      * @param array<IdSearchResult> $idsSearchResult
-     *
-     * @dataProvider dataProviderTestExecuteCommandSuccessful
      */
+    #[DataProvider('dataProviderTestExecuteCommandSuccessful')]
     public function testExecuteCommandSuccessful(?string $snippetSetId = null, ?string $isoCode = null, array $idsSearchResult = []): void
     {
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
@@ -114,9 +114,8 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
     /**
      * @param array<IdSearchResult> $idsSearchResult
-     *
-     * @dataProvider dataProviderTestExecuteCommandWithAnException
      */
+    #[DataProvider('dataProviderTestExecuteCommandWithAnException')]
     public function testExecuteCommandWithAnException(?string $snippetSetId = null, ?string $isoCode = null, array $idsSearchResult = []): void
     {
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);

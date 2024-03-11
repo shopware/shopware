@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\ScheduledTask;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Framework\Context;
@@ -10,21 +13,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\CollectingMessageBus;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler
  */
+#[CoversClass(ProductExportGenerateTaskHandler::class)]
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
-    /**
-     * @dataProvider shouldBeRunDataProvider
-     */
+    #[DataProvider('shouldBeRunDataProvider')]
     public function testShouldBeRun(ProductExportEntity $productExportEntity, bool $expectedResult): void
     {
         $salesChannelRepositoryMock = $this->getSalesChannelRepositoryMock();
@@ -35,6 +35,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $salesChannelContextFactoryMock,
             $salesChannelRepositoryMock,
             $productExportRepositoryMock,
@@ -117,13 +118,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     private function getSalesChannelRepositoryMock(): EntityRepository
     {
-        $idSearchResultMock = $this->createMock(IdSearchResult::class);
-        $idSearchResultMock->method('getIds')->willReturn(['8fdd4e21be6b4ad59656fb856d0375e7']);
-
-        $salesChannelRepositoryMock = $this->createMock(EntityRepository::class);
-        $salesChannelRepositoryMock->method('searchIds')->willReturn($idSearchResultMock);
-
-        return $salesChannelRepositoryMock;
+        return new StaticEntityRepository([['8fdd4e21be6b4ad59656fb856d0375e7']]);
     }
 
     private function getSalesChannelContextFactoryMock(): SalesChannelContextFactory

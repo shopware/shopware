@@ -1,69 +1,69 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swSalesChannelDetailAnalytics from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-sales-channel-detail-analytics', swSalesChannelDetailAnalytics);
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-sales-channel-detail-analytics', { sync: true }), {
+        global: {
 
-async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-analytics'), {
-        stubs: {
-            'sw-card': true,
-            'sw-switch-field': true,
-            'sw-text-field': true,
-            'sw-container': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => ({}),
-                }),
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-switch-field': {
+                    template: '<div class="sw-field sw-switch-field"></div>',
+                    props: ['disabled'],
+                },
+                'sw-text-field': {
+                    template: '<div class="sw-field sw-text-field"></div>',
+                    props: ['disabled'],
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                    props: ['disabled'],
+                },
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => ({}),
+                    }),
                 },
             },
         },
-        propsData: {
+        props: {
             salesChannel: {},
         },
     });
 }
 
 /**
- * @package merchant-services
+ * @package buyers-experience
  */
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have fields disabled when the user has no privileges', async () => {
         const wrapper = await createWrapper();
 
-        const fields = wrapper.findAll('sw-field-stub');
+        const fields = wrapper.findAllComponents('.sw-field');
 
-        fields.wrappers.forEach(field => {
-            expect(field.attributes().disabled).toBe('true');
+        expect(fields.length).toBeGreaterThan(0);
+        fields.forEach(field => {
+            expect(field.props('disabled')).toBe(true);
         });
     });
 
     it('should have fields enabled when the user has privileges', async () => {
-        const wrapper = await createWrapper([
-            'sales_channel.editor',
-        ]);
+        global.activeAclRoles = ['sales_channel.editor'];
 
-        const fields = wrapper.findAll('sw-field-stub');
+        const wrapper = await createWrapper();
 
-        fields.wrappers.forEach(field => {
-            expect(field.attributes().disabled).toBeUndefined();
+        const fields = wrapper.findAllComponents('.sw-field');
+
+        expect(fields.length).toBeGreaterThan(0);
+        fields.forEach(field => {
+            expect(field.props('disabled')).toBe(false);
         });
     });
 });

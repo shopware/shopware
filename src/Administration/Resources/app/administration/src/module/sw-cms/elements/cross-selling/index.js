@@ -1,16 +1,16 @@
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-cross-selling', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-cross-selling', () => import('./config'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-cross-selling', () => import('./component'));
 
@@ -20,7 +20,7 @@ criteria.addAssociation('crossSellings.assignedProducts.product');
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'cross-selling',

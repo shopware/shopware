@@ -11,11 +11,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class NewsletterRecipientStorer extends FlowStorer
 {
     /**
@@ -53,24 +52,6 @@ class NewsletterRecipientStorer extends FlowStorer
             NewsletterRecipientAware::NEWSLETTER_RECIPIENT,
             $this->lazyLoad(...)
         );
-    }
-
-    /**
-     * @param array<int, mixed> $args
-     *
-     * @deprecated tag:v6.6.0 - Will be removed in v6.6.0.0
-     */
-    public function load(array $args): ?NewsletterRecipientEntity
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6_6_0_0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0.0')
-        );
-
-        [$id, $context] = $args;
-        $criteria = new Criteria([$id]);
-
-        return $this->loadNewsletterRecipient($criteria, $context, $id);
     }
 
     private function lazyLoad(StorableFlow $storableFlow): ?NewsletterRecipientEntity

@@ -20,15 +20,15 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AddressController;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
+ * @package checkout
  *
  * @internal
  */
@@ -302,11 +302,20 @@ class AddressControllerTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
 
-        /** @var StorefrontResponse $response */
-        $response = $controller->addressBook($request, $requestDataBag, $context, $customer);
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
 
-        static::assertArrayHasKey('formViolations', $response->getData());
-        static::assertArrayHasKey('postedData', $response->getData());
+                static::assertArrayHasKey('formViolations', $data);
+                static::assertArrayHasKey('postedData', $data);
+            },
+            0,
+            true
+        );
+
+        $controller->addressBook($request, $requestDataBag, $context, $customer);
     }
 
     public function testHandleExceptionWhenChangeAddress(): void
@@ -333,15 +342,23 @@ class AddressControllerTest extends TestCase
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
 
-        /** @var StorefrontResponse $response */
-        $response = $controller->addressBook($request, $requestDataBag, $context, $customer);
-        $data = $response->getData();
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
 
-        static::assertArrayHasKey('success', $data);
-        static::assertArrayHasKey('messages', $data);
+                static::assertArrayHasKey('success', $data);
+                static::assertArrayHasKey('messages', $data);
 
-        static::assertFalse($data['success']);
-        static::assertEquals($data['messages']['type'], 'danger');
+                static::assertFalse($data['success']);
+                static::assertEquals($data['messages']['type'], 'danger');
+            },
+            0,
+            true
+        );
+
+        $controller->addressBook($request, $requestDataBag, $context, $customer);
     }
 
     public function testAddressListingPageLoadedScriptsAreExecuted(): void
@@ -401,13 +418,6 @@ class AddressControllerTest extends TestCase
         );
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-
-        $browser->request('GET', '/');
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-        $salesChannelContext = $response->getContext();
-        static::assertNotNull($salesChannelContext);
-        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }

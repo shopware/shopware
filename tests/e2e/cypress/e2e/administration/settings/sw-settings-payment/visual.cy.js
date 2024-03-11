@@ -10,7 +10,7 @@ describe('Payment: Visual testing', () => {
             });
     });
 
-    it('@base @navigation: navigate to payment module', { tags: ['pa-checkout'] }, () => {
+    it('@base @navigation: navigate to payment module', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
             method: 'POST',

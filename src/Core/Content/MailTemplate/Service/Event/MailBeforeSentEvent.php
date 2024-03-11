@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
-use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
@@ -18,11 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - DataAware is deprecated and will be removed in v6.6.0
- */
-#[Package('sales-channel')]
-class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware, ScalarValuesAware, FlowEventAware
+#[Package('services-settings')]
+class MailBeforeSentEvent extends Event implements LogAware, MessageAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.after.create.message';
 
@@ -57,6 +53,9 @@ class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageA
         return self::EVENT_NAME;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getData(): array
     {
         return $this->data;
@@ -84,11 +83,8 @@ class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageA
         ];
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
-     */
-    public function getLogLevel(): int
+    public function getLogLevel(): Level
     {
-        return Level::Info->value;
+        return Level::Info;
     }
 }

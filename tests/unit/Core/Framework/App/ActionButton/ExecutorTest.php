@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
@@ -21,9 +22,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\ActionButton\Executor
  */
+#[CoversClass(Executor::class)]
 class ExecutorTest extends TestCase
 {
     public function testConnectionProblemsGotConverted(): void
@@ -49,8 +49,8 @@ class ExecutorTest extends TestCase
             $this->createMock(KernelInterface::class)
         );
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('connection problems');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('connection problems');
 
         $appAction = new AppAction('https://example.com', 'https://localhost', '1.0.0', 'action-id', 'label', [Uuid::randomHex()], 'GET', 'asd', '123123123');
 

@@ -12,8 +12,7 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Regular.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular-Roman.woff2') format('woff2');
     }
 
     @font-face {
@@ -21,8 +20,7 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Italic.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Italic.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular-Italic.woff2') format('woff2');
     }
 
     @font-face {
@@ -30,8 +28,7 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 600;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-SemiBold.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Roman.woff2') format('woff2');
     }
 
     @font-face {
@@ -39,8 +36,7 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 600;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBoldItalic.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-SemiBoldItalic.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Italic.woff2') format('woff2');
     }
 
     @font-face {
@@ -48,8 +44,7 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Bold.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold-Roman.woff2') format('woff2');
     }
 
     @font-face {
@@ -57,8 +52,7 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-BoldItalic.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-BoldItalic.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold-Italic.woff2') format('woff2');
     }
 }
 
@@ -68,8 +62,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.cyrillic-ext.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.cyrillic-ext.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-CyrillicExt.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-CyrillicExt.woff2') format('woff2-variations');
         unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
     }
 
@@ -78,8 +72,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.cyrillic.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.cyrillic.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Cyrillic.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Cyrillic.woff2') format('woff2-variations');
         unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
     }
 
@@ -88,8 +82,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.greek-ext.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.greek-ext.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-GreekExt.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-GreekExt.woff2') format('woff2-variations');
         unicode-range: U+1F00-1FFF;
     }
 
@@ -98,8 +92,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.greek.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.greek.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Greek.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Greek.woff2') format('woff2-variations');
         unicode-range: U+0370-03FF;
     }
 
@@ -108,8 +102,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.vietnamese.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.vietnamese.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Vietnamese.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Vietnamese.woff2') format('woff2-variations');
         unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB;
     }
 
@@ -118,8 +112,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.latin-ext.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.latin-ext.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-LatinExt.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-LatinExt.woff2') format('woff2-variations');
         unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
     }
 
@@ -128,8 +122,8 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-roman.latin.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-roman.latin.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Latin.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Roman-Latin.woff2') format('woff2-variations');
         unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
     }
 
@@ -138,8 +132,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.cyrillic-ext.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.cyrillic-ext.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-CyrillicExt.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-CyrillicExt.woff2') format('woff2-variations');
         unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
     }
 
@@ -148,8 +142,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.cyrillic.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.cyrillic.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Cyrillic.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Cyrillic.woff2') format('woff2-variations');
         unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
     }
 
@@ -158,8 +152,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.greek-ext.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.greek-ext.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-GreekExt.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-GreekExt.woff2') format('woff2-variations');
         unicode-range: U+1F00-1FFF;
     }
 
@@ -168,8 +162,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.greek.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.greek.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Greek.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Greek.woff2') format('woff2-variations');
         unicode-range: U+0370-03FF;
     }
 
@@ -178,8 +172,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.vietnamese.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.vietnamese.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Vietnamese.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Vietnamese.woff2') format('woff2-variations');
         unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB;
     }
 
@@ -188,8 +182,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.latin-ext.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.latin-ext.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-LatinExt.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-LatinExt.woff2') format('woff2-variations');
         unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
     }
 
@@ -198,8 +192,8 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-italic.latin.var.woff2') format('woff2 supports variations'),
-            url('#{$app-css-relative-asset-path}/font/Inter-italic.latin.var.woff2') format('woff2-variations');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Latin.woff2') format('woff2 supports variations'),
+            url('#{$app-css-relative-asset-path}/font/Inter-Variable-Italic-Latin.woff2') format('woff2-variations');
         unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
     }
 }

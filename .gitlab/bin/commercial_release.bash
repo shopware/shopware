@@ -27,6 +27,9 @@ composer config version ${COMMERCIAL_VERSION} --no-interaction
 
 composer require "$CORE_REQUIRE" --no-interaction --no-update
 
+# Add Changelog entry
+sed -i "1s/^/# $COMMERCIAL_VERSION\n\n* Release for platform $PLATFORM_TAG\n\n/" CHANGELOG.md
+
 git add composer.json
 
 ISSUE_KEY=NEXT-29136

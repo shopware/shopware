@@ -8,6 +8,8 @@ const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 /**
+ * @package buyers-experience
+ *
  * @private
  */
 export default {
@@ -106,14 +108,6 @@ export default {
                 scopes.push({ key: keyValue, name: nameValue });
                 index += 1;
             });
-
-            // if our groups are not yet loaded (async)
-            // make sure that we have at least our selected entry visible
-            // to avoid an accidental save with another value
-            if (this.availableSetGroups.length <= 0) {
-                const nameValue = `${this.$tc('sw-promotion.detail.main.discounts.valueScopeSetGroup')}`;
-                scopes.push({ key: DiscountScopes.SETGROUP, name: nameValue });
-            }
 
             return scopes;
         },
@@ -331,14 +325,9 @@ export default {
                 this.currencySymbol = this.defaultCurrency.symbol;
             });
 
-            // remember the actual scope
-            // our setgroup are loaded async.
-            // so that would reset the dropdown to the first entry "cart".
-            // this means we have to reset it after our loading
-            const previousScope = this.discount.scope;
-
+            this.isLoading = true;
             this.loadSetGroups().then(() => {
-                this.discount.scope = previousScope;
+                this.isLoading = false;
             });
 
             this.loadSorters().then((keys) => {

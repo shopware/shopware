@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -15,10 +16,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ListFieldSerializerTest extends TestCase
 {
     /**
-     * @dataProvider decodeProvider
-     *
      * @param array<mixed>|null $expected
      */
+    #[DataProvider('decodeProvider')]
     public function testDecode(ListField $field, ?string $input, ?array $expected): void
     {
         $serializer = new ListFieldSerializer(

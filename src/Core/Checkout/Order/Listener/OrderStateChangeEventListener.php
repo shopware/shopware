@@ -22,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderStateChangeEventListener implements EventSubscriberInterface
 {
     /**

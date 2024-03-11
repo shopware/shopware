@@ -47,7 +47,7 @@
             }"
             class="sw-order-state-card__date"
         >
-            {{ entry.createdAt| date({hour: '2-digit', minute: '2-digit'}) }}
+            {{ dateFilter(entry.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
         </span>
         {% endblock %}
 

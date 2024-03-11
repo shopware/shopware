@@ -1,9 +1,10 @@
-import AdminWorker from 'src/core/worker/admin-worker.shared-worker';
+import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker';
+import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
-import type { ApiContext } from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
-import type Vue from 'vue';
+import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
+import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
 import type { ContextState } from '../state/context.store';
 import type {
@@ -66,7 +67,7 @@ function enableAdminWorker(
     config: ContextState['app']['config']['adminWorker'],
 ) {
     // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
-    const transports = (window._features_?.vue3 ? JSON.parse(JSON.stringify(config))?.transports || [] : config?.transports || []) as string[];
+    const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
     const getMessage = () => {
         return {
@@ -111,13 +112,33 @@ function getWorker() : SharedWorker {
         return worker;
     }
 
-    // The webpack worker plugin generates a valid worker file therefore we can use it here
-    // @ts-expect-error
-    worker = new AdminWorker() as SharedWorker;
+    // SharedWorker is not supported in all browsers, especially on mobile devices
+    if (typeof SharedWorker === 'undefined') {
+        // @ts-expect-error
+        worker = new AdminWorker() as Worker;
+
+        // hack to make the worker api like a shared worker
+        // @ts-expect-error
+        worker.port = worker;
+        worker.port.start = () => {};
+    } else {
+        // @ts-expect-error
+        worker = new SharedAdminWorker() as SharedWorker;
+    }
 
     worker.port.start();
 
-    worker.port.onmessage = () => {
+    worker.port.onmessage = ({ data }: { data: {[key: string]: unknown }}) => {
+        if (data && data.isWorkerError) {
+            /**
+             * To debug workers visit the following URL in Chrome browser
+             * chrome://inspect/#workers
+             */
+            console.error(data.error);
+
+            return;
+        }
+
         const tokenHandler = getRefreshTokenHelper();
 
         if (!tokenHandler.isRefreshing) {
@@ -179,18 +200,6 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
                 success: 'global.notification-center.worker-listener.dalIndexing.messageSuccess',
                 foregroundSuccessMessage: 'sw-settings-cache.notifications.index.success',
             });
-        },
-    });
-
-    factory.register('WarmupIndexingMessage', {
-        name: 'Shopware\\Storefront\\Framework\\Cache\\CacheWarmer\\WarmUpMessage',
-        fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('warmupMessage', ids, next, entry, $root, notification, {
-                title: 'global.default.success',
-                message: 'global.notification-center.worker-listener.warmupIndexing.message',
-                success: 'global.notification-center.worker-listener.warmupIndexing.messageSuccess',
-                foregroundSuccessMessage: 'sw-settings-cache.notifications.clearCacheAndWarmup.success',
-            }, 10);
         },
     });
 
@@ -345,7 +354,7 @@ function messageQueueNotification(
     ids: { [key: string]: { notificationId: string, didSendForegroundMessage: boolean}},
     next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
     entry: { size: number },
-    $root: Vue,
+    $root: App<Element>,
     notification: NotificationService,
     messages: { title: string, message: string, success: string, foregroundSuccessMessage?: string },
     multiplier = 1,
@@ -393,12 +402,12 @@ function messageQueueNotification(
 
         if (entry.size === 0) {
             config.title = $root.$tc(messages.title);
-            config.message = $root.$t(messages.success) as string;
+            config.message = $root.$t(messages.success);
             config.isLoading = false;
 
             if (messages.foregroundSuccessMessage && !didSendForegroundMessage) {
                 const foreground = { ...config };
-                foreground.message = $root.$t(messages.foregroundSuccessMessage) as string;
+                foreground.message = $root.$t(messages.foregroundSuccessMessage);
                 delete foreground.uuid;
                 delete foreground.isLoading;
                 foreground.growl = true;

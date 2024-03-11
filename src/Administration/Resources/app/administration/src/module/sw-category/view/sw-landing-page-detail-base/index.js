@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { mapState, mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -47,6 +47,10 @@ export default {
 
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
+        },
+
+        isLayoutSet() {
+            return this.landingPage.cmsPageId !== null;
         },
     },
 };

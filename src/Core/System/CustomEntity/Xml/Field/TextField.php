@@ -19,14 +19,6 @@ class TextField extends Field
 
     protected string $type = 'text';
 
-    /**
-     * @internal
-     */
-    public static function fromXml(\DOMElement $element): Field
-    {
-        return new self(self::parse($element));
-    }
-
     public function allowHtml(): bool
     {
         return $this->allowHtml;

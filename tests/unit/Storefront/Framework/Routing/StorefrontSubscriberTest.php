@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
@@ -14,9 +15,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Routing\StorefrontSubscriber
  */
+#[CoversClass(StorefrontSubscriber::class)]
 class StorefrontSubscriberTest extends TestCase
 {
     public function testHasEvents(): void

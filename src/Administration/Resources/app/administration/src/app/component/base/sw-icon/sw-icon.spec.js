@@ -1,9 +1,8 @@
-import 'src/app/component/base/sw-icon/index';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-icon'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-icon', { sync: true }), {
+        props: {
             name: 'regular-circle-download',
         },
     });
@@ -14,14 +13,6 @@ describe('src/app/component/base/sw-icon/index.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-
-        await flushPromises();
-    });
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
 
         await flushPromises();
     });

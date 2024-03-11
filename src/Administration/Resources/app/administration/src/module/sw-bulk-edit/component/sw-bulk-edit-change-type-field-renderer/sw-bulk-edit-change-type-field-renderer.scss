@@ -44,4 +44,14 @@
     .sw-field--checkbox__content {
         padding: 15px 0;
     }
+
+    .sw-data-grid__table {
+        .sw-field--checkbox {
+            margin: 0;
+
+            &__content {
+                padding: 0;
+            }
+        }
+    }
 }

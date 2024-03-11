@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Delivery;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -15,11 +17,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(DeliveryPositionCollection::class)]
 class DeliveryPositionCollectionTest extends TestCase
 {
     public function testCalculateWithMultipleQuantityLineItem(): void
@@ -147,9 +148,7 @@ class DeliveryPositionCollectionTest extends TestCase
         static::assertEquals(80, $deliveryPositionCollection->getWithoutDeliveryFree()->getWeight());
     }
 
-    /**
-     * @dataProvider volumeDataProvider
-     */
+    #[DataProvider('volumeDataProvider')]
     public function testCalculateVolumeWithMultipleLineItemsWithMultipleQuantities(
         ?float $height,
         ?float $width,

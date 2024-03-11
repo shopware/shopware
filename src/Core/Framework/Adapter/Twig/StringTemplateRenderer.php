@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
+use Twig\Error\SyntaxError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
@@ -58,8 +60,6 @@ class StringTemplateRenderer
 
     /**
      * @param array<string, mixed> $data
-     *
-     * @throws StringTemplateRenderingException
      */
     public function render(string $templateSource, array $data, Context $context, bool $htmlEscape = true): string
     {
@@ -77,6 +77,10 @@ class StringTemplateRenderer
         try {
             return $this->twig->render($name, $data);
         } catch (Error $error) {
+            if ($error instanceof SyntaxError) {
+                throw AdapterException::invalidTemplateSyntax($error->getMessage());
+            }
+
             throw new StringTemplateRenderingException($error->getMessage());
         }
     }

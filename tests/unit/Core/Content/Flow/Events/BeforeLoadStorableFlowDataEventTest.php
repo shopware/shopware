@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Events;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
@@ -10,10 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(BeforeLoadStorableFlowDataEvent::class)]
 class BeforeLoadStorableFlowDataEventTest extends TestCase
 {
     public function testGetters(): void
@@ -24,11 +24,7 @@ class BeforeLoadStorableFlowDataEventTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertIsString($event->getName());
         static::assertSame('entity_name', $event->getEntityName());
         static::assertSame('flow.storer.entity_name.criteria.event', $event->getName());
-
-        static::assertInstanceOf(Criteria::class, $event->getCriteria());
-        static::assertInstanceOf(Context::class, $event->getContext());
     }
 }

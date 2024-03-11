@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -26,9 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Cms\ProductBoxCmsElementResolver
  */
+#[CoversClass(ProductBoxCmsElementResolver::class)]
 class ProductBoxCmsElementResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $boxCmsElementResolver;
@@ -168,9 +169,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
         static::assertEquals($productId, $product->getId());
     }
 
-    /**
-     * @dataProvider enrichDataProvider
-     */
+    #[DataProvider('enrichDataProvider')]
     public function testEnrich(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {

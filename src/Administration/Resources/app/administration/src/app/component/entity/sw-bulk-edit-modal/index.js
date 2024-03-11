@@ -4,7 +4,7 @@ import './sw-bulk-edit-modal.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-bulk-edit-modal', {
     template,

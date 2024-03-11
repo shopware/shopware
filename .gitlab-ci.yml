@@ -13,7 +13,7 @@ stages:
     - split
     # deploy artifacts build in the `build` stage
     - deploy
-    # percy
+    # visual testing (not in use at the moment)
     - visual
 
 workflow:

@@ -1,9 +1,8 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups';
+import { mount } from '@vue/test-utils';
 
 async function getError(method, ...args) {
     try {
@@ -43,33 +42,35 @@ const productsMock = [
 ];
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-dynamic-product-groups'), {
-        stubs: {
-            'sw-alert': true,
-            'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>',
+    return mount(await wrapTestComponent('sw-sales-channel-products-assignment-dynamic-product-groups', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-alert': true,
+                'sw-card': {
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
+                },
+                'sw-card-section': true,
+                'sw-simple-search-field': true,
+                'sw-empty-state': true,
+                'sw-entity-listing': true,
+                'sw-pagination': true,
             },
-            'sw-card-section': true,
-            'sw-simple-search-field': true,
-            'sw-empty-state': true,
-            'sw-entity-listing': true,
-            'sw-pagination': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                        get: () => {
-                            return Promise.resolve();
-                        },
-                    };
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => {
+                                return Promise.resolve();
+                            },
+                            get: () => {
+                                return Promise.resolve();
+                            },
+                        };
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             salesChannel: {
                 id: 1,
                 name: 'Headless',
@@ -80,21 +81,9 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-dynamic-product-groups', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get product streams when component got created', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.getProductStreams = jest.fn(() => {
             return Promise.resolve();
         });
@@ -112,6 +101,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get product streams successful', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.productStreamRepository.search = jest.fn(() => {
             return Promise.resolve(productStreamsMock);
         });
@@ -131,6 +122,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get product streams failed', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.productStreamRepository.search = jest.fn(() => {
             return Promise.reject();
         });
@@ -146,6 +139,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get product streams when searching', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.getProductStreams = jest.fn(() => {
             return Promise.resolve();
         });
@@ -167,6 +162,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get product streams when paginating', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.getProductStreams = jest.fn(() => {
             return Promise.resolve();
         });
@@ -181,6 +178,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should open product stream correctly', async () => {
+        const wrapper = await createWrapper();
+
         window.open = jest.fn();
         wrapper.vm.$router.resolve = jest.fn(() => ({ href: 'href' }));
 
@@ -199,6 +198,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should call to get products from product streams when selecting product streams', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.getProductsFromProductStreams = jest.fn(() => {
             return Promise.resolve(productsMock);
         });
@@ -214,6 +215,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should call to show error notification when selecting product streams', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.getProductsFromProductStreams = jest.fn(() => {
             return Promise.reject(new Error('Whoops!'));
@@ -231,6 +234,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should exit the function when selecting product streams', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.onSelect({});
 
         expect(wrapper.emitted()['selection-change'][0]).toEqual(
@@ -239,6 +244,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get products from product streams successful', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.getProducts = jest.fn(() => {
             return Promise.resolve(productsMock);
         });
@@ -256,6 +263,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get products from product streams failed', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.getProducts = jest.fn(() => {
             return Promise.reject(new Error('Whoops!'));
         });
@@ -270,6 +279,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get product stream filter successful', async () => {
+        const wrapper = await createWrapper();
+
         const productStreamFilterMock = { operator: 'OR', queries: [], type: 'multi' };
 
         wrapper.vm.productStreamRepository.get = jest.fn(() => {
@@ -292,6 +303,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get product stream filter failed', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.productStreamRepository.get = jest.fn(() => {
             throw new Error('Whoops!');
         });
@@ -309,6 +322,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get products successful', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.productRepository.search = jest.fn(() => {
             return Promise.resolve(productsMock);
         });
@@ -326,6 +341,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
     });
 
     it('should get products failed', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.productRepository.search = jest.fn(() => {
             throw new Error('Whoops!');
         });

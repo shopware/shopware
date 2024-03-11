@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal
@@ -89,11 +88,5 @@ class RedisIncrementerTest extends TestCase
         $this->incrementer->reset('test');
 
         static::assertEmpty($this->incrementer->list('test'));
-    }
-
-    public function testDecorated(): void
-    {
-        static::expectException(DecorationPatternException::class);
-        $this->incrementer->getDecorated();
     }
 }

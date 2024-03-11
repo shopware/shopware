@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Address;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
@@ -20,9 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Address\AddressValidator
  */
+#[CoversClass(AddressValidator::class)]
 class AddressValidatorTest extends TestCase
 {
     private MockObject&EntityRepository $repository;

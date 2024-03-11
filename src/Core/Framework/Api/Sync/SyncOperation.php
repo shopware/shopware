@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -82,9 +83,9 @@ class SyncOperation extends Struct
             );
         }
 
-        if (empty($this->payload)) {
+        if (empty($this->payload) && empty($this->criteria)) {
             $errors[] = sprintf(
-                'Missing "payload" argument for operation with key "%s". It needs to be a non-empty array.',
+                'Missing "payload"|"criteria" argument for operation with key "%s". It needs to be a non-empty array.',
                 $this->key
             );
         }
@@ -113,5 +114,28 @@ class SyncOperation extends Struct
     public function hasCriteria(): bool
     {
         return !empty($this->criteria);
+    }
+
+    /**
+     * @param array<string, mixed> $operation
+     */
+    public static function createFromArray(array $operation, string $key): self
+    {
+        $key = isset($operation['key']) ? (string) $operation['key'] : $key;
+
+        $syncOperation = new self(
+            $key,
+            $operation['entity'] ?? '',
+            $operation['action'] ?? '',
+            $operation['payload'] ?? [],
+            $operation['criteria'] ?? []
+        );
+
+        $errors = $syncOperation->validate();
+        if (!empty($errors)) {
+            throw ApiException::invalidSyncOperationException(implode('; ', $errors));
+        }
+
+        return $syncOperation;
     }
 }

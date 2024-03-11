@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,6 +21,9 @@ class DeactivateAppCommandTest extends TestCase
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     protected function setUp(): void
@@ -35,14 +39,15 @@ class DeactivateAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => $appName]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[OK] App deactivated successfully.', $commandTester->getDisplay());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
 
-        $app = $this->appRepository->search($criteria, Context::createDefaultContext())->first();
+        $app = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($app);
 
         static::assertFalse($app->isActive());
     }
@@ -54,7 +59,7 @@ class DeactivateAppCommandTest extends TestCase
         $appName = 'NonExisting';
         $commandTester->execute(['name' => $appName]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
 
         static::assertStringContainsString("[ERROR] No app found for \"$appName\".", $commandTester->getDisplay());
     }

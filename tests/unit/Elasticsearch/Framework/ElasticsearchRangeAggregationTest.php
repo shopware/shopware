@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Framework\ElasticsearchRangeAggregation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchRangeAggregation
  */
+#[CoversClass(ElasticsearchRangeAggregation::class)]
 class ElasticsearchRangeAggregationTest extends TestCase
 {
     public function testElasticsearchAggregationBuild(): void

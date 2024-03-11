@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Asset;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand
  */
+#[CoversClass(AssetInstallCommand::class)]
 class AssetInstallCommandTest extends TestCase
 {
     public function testHtaccessCopy(): void

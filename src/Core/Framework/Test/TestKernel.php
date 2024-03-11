@@ -25,4 +25,14 @@ class TestKernel extends Kernel
 
         yield new TestBundle();
     }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        foreach ($container->getDefinitions() as $id => $definition) {
+            if ($definition->isAbstract()) {
+                continue;
+            }
+            $definition->setPublic(true);
+        }
+    }
 }

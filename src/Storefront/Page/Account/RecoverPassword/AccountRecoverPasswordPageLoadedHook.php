@@ -16,7 +16,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @final
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountRecoverPasswordPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

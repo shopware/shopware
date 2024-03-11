@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -22,7 +23,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
@@ -119,8 +120,13 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     {
         $criteria = new Criteria($ids);
         $criteria->addFilter(new EqualsFilter('registrationActive', true));
+
         $criteria->addAssociation('registrationSalesChannels.languages');
         $criteria->addAssociation('translations');
+
+        $criteria->getAssociation('registrationSalesChannels')->addFilter(
+            new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)])
+        );
 
         /** @var CustomerGroupCollection $groups */
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
@@ -136,6 +142,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
+                if ($registrationSalesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+                    continue;
+                }
+
                 /** @var array<string> $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $criteria = new Criteria($languageIds);
@@ -146,6 +156,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     /** @var LanguageEntity $language */
                     $language = $languageCollection->get($languageId);
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
+
+                    if (empty($title)) {
+                        continue;
+                    }
 
                     if (!isset($buildUrls[$languageId])) {
                         $buildUrls[$languageId] = [

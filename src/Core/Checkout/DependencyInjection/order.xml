@@ -91,6 +91,7 @@
             <argument type="service" id="order_address.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader"/>
+            <argument type="service" id="rule.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">

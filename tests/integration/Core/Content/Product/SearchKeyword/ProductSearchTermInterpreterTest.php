@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
@@ -19,9 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter
  */
+#[CoversClass(ProductSearchTermInterpreter::class)]
 class ProductSearchTermInterpreterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -46,10 +47,9 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @dataProvider cases
-     *
      * @param list<string> $expected
      */
+    #[DataProvider('cases')]
     public function testMatching(string $term, array $expected): void
     {
         $context = Context::createDefaultContext();
@@ -58,16 +58,24 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        sort($expected);
-        sort($keywords);
-        static::assertEquals($expected, $keywords);
+        static::assertEqualsCanonicalizing($expected, $keywords);
+    }
+
+    public function testNumericInputIsNotMatchingWithInfixPlaceholders(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $matches = $this->interpreter->interpret('1000', $context);
+
+        $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+
+        static::assertNotContains('10100', $keywords);
     }
 
     /**
-     * @dataProvider casesWithTokenFilter
-     *
      * @param list<string> $expected
      */
+    #[DataProvider('casesWithTokenFilter')]
     public function testMatchingWithTokenFilter(string $term, array $expected): void
     {
         $context = Context::createDefaultContext();
@@ -76,16 +84,13 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $keywords = array_map(fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
 
-        sort($expected);
-        sort($keywords);
-        static::assertEquals($expected, $keywords);
+        static::assertEqualsCanonicalizing($expected, $keywords);
     }
 
     /**
-     * @dataProvider caseWithFetchingTokenTerms
-     *
      * @param list<list<string>> $expected
      */
+    #[DataProvider('caseWithFetchingTokenTerms')]
     public function testMatchingTokenTerms(string $term, array $expected): void
     {
         $context = Context::createDefaultContext();
@@ -94,16 +99,11 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         static::assertEquals(\count($expected), \count($tokenTerms));
         foreach ($tokenTerms as $index => $tokenTerm) {
-            sort($expected[$index]);
-            sort($tokenTerm);
-
-            static::assertEquals($expected[$index], $tokenTerm);
+            static::assertEqualsCanonicalizing($expected[$index], $tokenTerm);
         }
     }
 
-    /**
-     * @dataProvider caseWithMatchingBooleanCause
-     */
+    #[DataProvider('caseWithMatchingBooleanCause')]
     public function testMatchingBooleanClause(bool $andLogic, string $expected): void
     {
         $context = Context::createDefaultContext();
@@ -119,9 +119,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         static::assertEquals($expected, $booleanClause);
     }
 
-    /**
-     * @dataProvider caseWithMatchingSearchPatternTermLength
-     */
+    #[DataProvider('caseWithMatchingSearchPatternTermLength')]
     public function testMatchingSearchPatternTermLength(bool $andLogic, string $words): void
     {
         $context = Context::createDefaultContext();
@@ -165,7 +163,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             ],
             [
                 '1000',
-                ['100', '10000', '10001', '10002', '10007'],
+                ['10000', '10001', '10002', '10007'],
             ],
             'test it uses only first 8 keywords' => [
                 '10',
@@ -194,7 +192,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             ],
             [
                 '1000',
-                ['100', '10000', '10001', '10002', '10007'],
+                ['10000', '10001', '10002', '10007'],
             ],
             [
                 '1',
@@ -229,7 +227,7 @@ class ProductSearchTermInterpreterTest extends TestCase
                 'Büronetz 1000',
                 [
                     ['büronetzwerk'],
-                    ['100', '10000', '10001', '10002', '10007'],
+                    ['10000', '10001', '10002', '10007'],
                 ],
             ],
             [
@@ -270,7 +268,7 @@ class ProductSearchTermInterpreterTest extends TestCase
                 '³²¼¼³¬½{¬]Büronetz³²¼¼³¬½{¬] ³²¼¼³¬½{¬]1000³²¼¼³¬½{¬]',
                 [
                     ['büronetzwerk'],
-                    ['100', '10000', '10001', '10002', '10007'],
+                    ['10000', '10001', '10002', '10007'],
                 ],
             ],
             [
@@ -285,14 +283,14 @@ class ProductSearchTermInterpreterTest extends TestCase
                 '(๑★ .̫ ★๑)Büronet（★￣∀￣★） (̂ ˃̥̥̥ ˑ̫ ˂̥̥̥ )̂1000(*＾v＾*)',
                 [
                     ['büronetzwerk'],
-                    ['100', '10000', '10001', '10002', '10007'],
+                    ['10000', '10001', '10002', '10007'],
                 ],
             ],
             [
                 '‰€€Büronet¥Æ ‡‡1000††',
                 [
                     ['büronetzwerk'],
-                    ['100', '10000', '10001', '10002', '10007'],
+                    ['10000', '10001', '10002', '10007'],
                 ],
             ],
         ];
@@ -402,6 +400,7 @@ class ProductSearchTermInterpreterTest extends TestCase
             'netzwerkspieler',
             'schwarzweiß',
             'netzwerkprotokolle',
+            '10100',
             '10000',
             '10001',
             '10002',

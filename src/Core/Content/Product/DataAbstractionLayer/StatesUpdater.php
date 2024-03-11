@@ -48,7 +48,7 @@ class StatesUpdater
         $products = $this->connection->fetchAllAssociative(
             $sql,
             $params,
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $updates = [];

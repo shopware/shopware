@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -60,6 +60,10 @@ export default {
             }
 
             return null;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

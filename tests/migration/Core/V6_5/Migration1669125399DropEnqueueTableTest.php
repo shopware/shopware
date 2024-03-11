@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Migration\Core\V6_5;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1669125399DropEnqueueTable;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1669125399DropEnqueueTable
  */
+#[CoversClass(Migration1669125399DropEnqueueTable::class)]
 class Migration1669125399DropEnqueueTableTest extends TestCase
 {
     public function testItDropsEnqueueTable(): void

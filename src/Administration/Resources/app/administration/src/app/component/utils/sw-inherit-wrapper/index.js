@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Wrapper for inherited data with toggle
  * @status ready
  * @example-type dynamic
@@ -134,12 +133,16 @@ Component.register('sw-inherit-wrapper', {
             },
 
             set(newValue) {
-                if (this.isInherited) {
-                    this.removeInheritance(newValue);
+                if (this.isInherited && newValue === this.inheritedValue) {
                     return;
                 }
 
-                this.updateValue(newValue, 'restore');
+                if (!this.isInherited && newValue !== this.inheritedValue) {
+                    this.updateValue(newValue, 'restore');
+                    return;
+                }
+
+                this.removeInheritance(newValue);
             },
         },
 
@@ -185,14 +188,7 @@ Component.register('sw-inherit-wrapper', {
         },
 
         updateValue(value, inheritanceEventName) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', value);
-                this.$emit(`inheritance-${inheritanceEventName}`);
-
-                return;
-            }
-
-            this.$emit('input', value);
+            this.$emit('update:value', value);
             this.$emit(`inheritance-${inheritanceEventName}`);
         },
 
@@ -225,12 +221,7 @@ Component.register('sw-inherit-wrapper', {
                 return;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', null);
-                return;
-            }
-
-            this.$emit('input', null);
+            this.$emit('update:value', null);
         },
 
         removeInheritance(newValue = this.currentValue) {
@@ -262,12 +253,7 @@ Component.register('sw-inherit-wrapper', {
                 this.forceInheritanceRemove = true;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', newValue);
-                return;
-            }
-
-            this.$emit('input', newValue);
+            this.$emit('update:value', newValue);
         },
     },
 });

@@ -6,11 +6,11 @@
             {% block page_account_payment_welcome %}
                 <div class="account-welcome">
                     {% block page_account_payment_welcome_headline %}
-                        <h1>{{ "account.paymentTitle"|trans|sw_sanitize }}</h1>
+                        <h1>{{ 'account.paymentTitle'|trans|sw_sanitize }}</h1>
                     {% endblock %}
 
                     {% block page_account_payment_welcome_intro %}
-                        <p>{{ "account.paymentText"|trans|sw_sanitize }}</p>
+                        <p>{{ 'account.paymentText'|trans|sw_sanitize }}</p>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -20,7 +20,7 @@
                     <div class="card-body">
                         {% block page_account_payment_title %}
                             <h2 class="card-title">
-                                {{ "account.overviewPaymentHeader"|trans|sw_sanitize }}
+                                {{ 'account.overviewPaymentHeader'|trans|sw_sanitize }}
                             </h2>
                         {% endblock %}
 
@@ -28,18 +28,19 @@
                             <form action="{{ path('frontend.account.payment.save') }}"
                                   method="post">
                                 <input type="hidden" name="redirectTo" value="frontend.account.payment.page">
+
                                 {% block page_account_payment_fields %}
                                     {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-                                        'visiblePaymentMethodsLimit': null,
-                                        'selectedPaymentMethodId': context.customer.defaultPaymentMethodId
+                                        visiblePaymentMethodsLimit: null,
+                                        selectedPaymentMethodId: context.customer.defaultPaymentMethodId
                                     } %}
                                 {% endblock %}
 
                                 {% block page_account_payment_actions %}
                                     <button class="btn btn-primary"
                                             type="submit"
-                                            title="{{ "account.paymentChangeSubmit"|trans|striptags }}">
-                                        {{ "account.paymentChangeSubmit"|trans|sw_sanitize }}
+                                            title="{{ 'account.paymentChangeSubmit'|trans|striptags }}">
+                                        {{ 'account.paymentChangeSubmit'|trans|sw_sanitize }}
                                     </button>
                                 {% endblock %}
                             </form>

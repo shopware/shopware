@@ -19,10 +19,7 @@
                         }
                     },
                     "products": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#\/components\/schemas\/ProductListingResult"
-                        }
+                        "$ref": "#/components/schemas/ProductListingResult"
                     }
                 }
             }

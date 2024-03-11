@@ -70,7 +70,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $usedMediaIds = $this->connection->fetchFirstColumn(
                 $statement,
                 [$event->getUnusedIds()],
-                [ArrayParameterType::STRING]
+                [ArrayParameterType::BINARY]
             );
 
             $event->markAsUsed($usedMediaIds);
@@ -122,7 +122,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $usedMediaIds = $this->connection->fetchFirstColumn(
                 $statement,
                 [$event->getUnusedIds()],
-                [ArrayParameterType::STRING]
+                [ArrayParameterType::BINARY]
             );
 
             $event->markAsUsed($usedMediaIds);
@@ -163,7 +163,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $usedMediaIds = $this->connection->fetchFirstColumn(
                 $statement,
                 [$event->getUnusedIds()],
-                [ArrayParameterType::STRING]
+                [ArrayParameterType::BINARY]
             );
 
             $event->markAsUsed(

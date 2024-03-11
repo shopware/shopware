@@ -7,6 +7,8 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
@@ -14,9 +16,8 @@ use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
  * @internal
  *
  * @package content
- *
- * @covers \Shopware\Core\System\CustomEntity\Schema\SchemaUpdater
  */
+#[CoversClass(SchemaUpdater::class)]
 class SchemaUpdaterTest extends TestCase
 {
     public function testDefaultFields(): void
@@ -101,11 +102,10 @@ class SchemaUpdaterTest extends TestCase
     }
 
     /**
-     * @dataProvider associationPairsProvider
-     *
      * @param list<array{name: string, fields: string}> $entities
      * @param array<string, list<string>> $expectedSchema
      */
+    #[DataProvider('associationPairsProvider')]
     public function testAssociations(array $entities, array $expectedSchema): void
     {
         $schema = new Schema();

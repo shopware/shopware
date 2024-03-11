@@ -32,7 +32,7 @@ class RequestSignerTest extends TestCase
 
         static::assertTrue($request->hasHeader(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
 
-        static::assertEquals($hashExpected, $request->getHeader(RequestSigner::SHOPWARE_SHOP_SIGNATURE)[0]);
+        static::assertSame($hashExpected, $request->getHeader(RequestSigner::SHOPWARE_SHOP_SIGNATURE)[0]);
     }
 
     public function testSignHeaderWithoutAddedMethodGet(): void

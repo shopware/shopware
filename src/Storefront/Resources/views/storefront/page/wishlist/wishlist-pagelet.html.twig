@@ -4,14 +4,14 @@
             {% block block_wishlist_listing_header %}
                 <h1 class="wishlist-headline">
                     {% block block_wishlist_listing_header_text %}
-                        {{ "wishlist.headline"|trans }}
+                        {{ 'wishlist.headline'|trans }}
                     {% endblock %}
                 </h1>
             {% endblock %}
         {% endif %}
 
         {% block block_wishlist_listing_inner %}
-            {% sw_include "@Storefront/storefront/element/cms-element-wishlist-listing.html.twig" ignore missing %}
+            {% sw_include '@Storefront/storefront/element/cms-element-wishlist-listing.html.twig' ignore missing %}
         {% endblock %}
     </div>
 {% endblock %}

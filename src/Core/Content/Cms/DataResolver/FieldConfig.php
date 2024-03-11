@@ -6,7 +6,7 @@ use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class FieldConfig extends Struct
 {
     final public const SOURCE_STATIC = 'static';

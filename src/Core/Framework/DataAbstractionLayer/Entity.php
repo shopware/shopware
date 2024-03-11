@@ -49,12 +49,12 @@ class Entity extends Struct
             $this->checkIfPropertyAccessIsAllowed($name);
         }
 
-        return $this->$name; /* @phpstan-ignore-line */
+        return $this->$name;
     }
 
     public function __set($name, $value): void
     {
-        $this->$name = $value; /* @phpstan-ignore-line */
+        $this->$name = $value;
     }
 
     public function __isset($name)
@@ -65,7 +65,7 @@ class Entity extends Struct
             }
         }
 
-        return isset($this->$name); /* @phpstan-ignore-line */
+        return isset($this->$name);
     }
 
     public function setUniqueIdentifier(string $identifier): void
@@ -98,7 +98,7 @@ class Entity extends Struct
         }
 
         if ($this->has($property)) {
-            return $this->$property; /* @phpstan-ignore-line */
+            return $this->$property;
         }
 
         if ($this->hasExtension($property)) {
@@ -176,9 +176,6 @@ class Entity extends Struct
         $this->updatedAt = $updatedAt;
     }
 
-    /**
-     * @return array<mixed>
-     */
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();

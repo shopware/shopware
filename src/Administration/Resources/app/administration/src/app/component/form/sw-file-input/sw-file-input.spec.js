@@ -2,20 +2,18 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-file-input';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
 async function createWrapper(customOptions = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('droppable', {});
-
-    return shallowMount(await Shopware.Component.build('sw-file-input'), {
-        localVue,
-        stubs: {
-            'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-            'sw-button': await Shopware.Component.build('sw-button'),
+    return mount(await wrapTestComponent('sw-file-input', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+                'sw-button': await Shopware.Component.build('sw-button'),
+            },
         },
         ...customOptions,
     });
@@ -170,10 +168,12 @@ describe('src/app/component/form/sw-file-input', () => {
             },
         });
 
-        const removeIcon = wrapper.find('.sw-file-input__remove-icon');
+        let removeIcon = wrapper.find('.sw-file-input__remove-icon');
         await removeIcon.trigger('click');
 
         expect(wrapper.vm.selectedFile).toBeNull();
+
+        removeIcon = wrapper.find('.sw-file-input__remove-icon');
         expect(removeIcon.exists()).toBeFalsy();
     });
 });

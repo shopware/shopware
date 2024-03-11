@@ -69,9 +69,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
             $this->validate([new UuidConstraint()], $data, $parameters->getPath());
         }
 
-        if ($value !== null) {
-            $value = Uuid::fromHexToBytes($value);
-        }
+        $value = Uuid::fromHexToBytes($value);
 
         yield $field->getStorageName() => $value;
     }
@@ -85,12 +83,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         return Uuid::fromBytesToHex($value);
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Parameter $value will be natively typed as mixed
-     *
-     * @param mixed $value
-     */
-    protected function shouldUseContext(FkField $field, bool $isRaw, $value): bool
+    protected function shouldUseContext(FkField $field, bool $isRaw, mixed $value): bool
     {
         return $isRaw && $value === null && $field->is(Required::class);
     }

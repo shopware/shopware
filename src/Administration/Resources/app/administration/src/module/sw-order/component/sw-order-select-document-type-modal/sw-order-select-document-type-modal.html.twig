@@ -12,18 +12,10 @@
     {% block sw_order_select_document_type_modal_document_types %}
     <sw-radio-field
         v-if="!isLoading && documentTypes.length"
-        {% if VUE3 %}
         v-model:value="documentType"
-        {% else %}
-        v-model="documentType"
-        {% endif %}
         :options="documentTypes"
         class="sw-order-select-document-type-modal__radio-field"
-        {% if VUE3 %}
         @update:value="onRadioFieldChange"
-        {% else %}
-        @change="onRadioFieldChange"
-        {% endif %}
     />
     {% endblock %}
 

@@ -17,7 +17,7 @@ Shopware.Component.register('sw-settings-rule-detail-assignments', () => import(
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Module.register('sw-settings-rule', {
     type: 'core',

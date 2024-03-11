@@ -2,24 +2,25 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerCreatedByAdminRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerCreatedByAdminRule
  */
+#[Package('services-settings')]
+#[CoversClass(CustomerCreatedByAdminRule::class)]
+#[Group('rules')]
 class CustomerCreatedByAdminRuleTest extends TestCase
 {
     public function testGetConstraints(): void
@@ -46,7 +47,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         $config = $rule->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'shouldCustomerBeCreatedByAdmin' => [
                     'name' => 'shouldCustomerBeCreatedByAdmin',
                     'type' => 'bool',
                     'config' => [],
@@ -82,9 +83,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testMatch(CustomerCreatedByAdminRule $rule, CustomerEntity $customer, bool $isMatching): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

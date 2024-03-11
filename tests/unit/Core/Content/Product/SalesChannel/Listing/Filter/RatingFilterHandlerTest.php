@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler;
@@ -13,9 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Filter\RatingListingFilterHandler
  */
+#[CoversClass(RatingListingFilterHandler::class)]
 class RatingFilterHandlerTest extends TestCase
 {
     public function testFilterCanBeSkipped(): void
@@ -28,9 +29,7 @@ class RatingFilterHandlerTest extends TestCase
         static::assertNull($result);
     }
 
-    /**
-     * @dataProvider filterProvider
-     */
+    #[DataProvider('filterProvider')]
     public function testFilterCanBeCreated(int $input): void
     {
         $result = (new RatingListingFilterHandler())->create(

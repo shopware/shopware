@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
@@ -16,9 +17,8 @@ use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSe
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Snippet\Files\SnippetFileLoader
  */
+#[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {
     public function testLoadSnippetsFromShopwareBundle(): void

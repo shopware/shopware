@@ -46,10 +46,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_permissions_grid_permissions %}
-        <template v-for="permission in permissionsWithParents">
+        <template
+            v-for="permission in permissionsWithParents"
+            :key="permission.value"
+        >
             <div
                 v-if="permission.type === 'parent'"
-                :key="permission.value"
                 :class="'sw-users-permissions-permissions-grid__parent_' + permission.value"
                 class="sw-users-permissions-permissions-grid__entry
                                 sw-users-permissions-permissions-grid__parent"
@@ -79,11 +81,7 @@
                         :value="areAllChildrenRolesSelected(permission.value, role)"
                         :ghost-value="areSomeChildrenRolesSelected(permission.value, role)"
                         :disabled="isParentRoleDisabled(permission.value, role) || disabled"
-                        {% if VUE3 %}
                         @update:value="toggleAllChildrenWithRole(permission.value, role)"
-                        {% else %}
-                        @change="toggleAllChildrenWithRole(permission.value, role)"
-                        {% endif %}
                     />
                     {% endblock %}
                 </div>
@@ -98,11 +96,7 @@
                         :value="areAllChildrenWithAllRolesSelected(permission.value)"
                         :ghost-value="areSomeChildrenWithAllRolesSelected(permission.value)"
                         :disabled="disabled"
-                        {% if VUE3 %}
                         @update:value="toggleAllChildrenWithAllRoles(permission.value)"
-                        {% else %}
-                        @change="toggleAllChildrenWithAllRoles(permission.value)"
-                        {% endif %}
                     />
                     {% endblock %}
                 </div>
@@ -144,11 +138,7 @@
                         }"
                         :value="isPermissionSelected(permission.key, role)"
                         :disabled="isPermissionDisabled(permission.key, role) || disabled"
-                        {% if VUE3 %}
                         @update:value="changePermission(permission.key, role)"
-                        {% else %}
-                        @change="changePermission(permission.key, role)"
-                        {% endif %}
                     />
                     {% endblock %}
                 </div>
@@ -163,11 +153,7 @@
                         v-if="Object.keys(permission.roles).length > 0"
                         :value="allPermissionsForKeySelected(permission.key)"
                         :disabled="disabled"
-                        {% if VUE3 %}
                         @update:value="changeAllPermissionsForKey(permission.key)"
-                        {% else %}
-                        @change="changeAllPermissionsForKey(permission.key)"
-                        {% endif %}
                     />
                     {% endblock %}
                 </div>

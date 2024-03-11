@@ -1,9 +1,9 @@
 ---
 title: Rule Scripting in apps
 date: 2022-02-21
-area: business-ops
+area: services-settings
 tags: [rule, app-system, app-scripts]
---- 
+---
 
 ## Context
 
@@ -52,7 +52,7 @@ class AppScriptConditionDefinition extends EntityDefinition
 
 ### `ScriptRule` implementation
 
-There will be a generice extension of `Rule` named `ScriptRule` which will be used for every condition added by apps.
+There will be a generic extension of `Rule` named `ScriptRule` which will be used for every condition added by apps.
 
 It has properties for the `script` and the `constraints`, both of which will be set from the corresponding values of `app_script_condition` when the rule's payload is indexed.
 
@@ -326,5 +326,5 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
 
 ## Consequences
 
-- Apps will be able to provide their own custom rule conditions, which will consequently be available in the administation's rule builder as any of the hard-coded rule conditions are.
+- Apps will be able to provide their own custom rule conditions, which will consequently be available in the administration's rule builder as any of the hard-coded rule conditions are.
 - Rule scripting, first implemented for apps, eventually opens the door for scripting of rule conditions within the administration, e.g. by providing a code editor in the rule builder.

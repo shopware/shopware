@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Cleanup;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -21,26 +21,15 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private readonly Connection $connection,
+        LoggerInterface $logger,
+        private readonly AbstractCartPersister $cartPersister,
         private readonly int $days
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
-        $time = new \DateTime();
-        $time->modify(sprintf('-%d day', $this->days));
-
-        do {
-            $result = $this->connection->executeStatement(
-                <<<'SQL'
-                DELETE FROM cart
-                    WHERE created_at <= :timestamp
-                        AND (updated_at IS NULL OR updated_at <= :timestamp) LIMIT 1000;
-            SQL,
-                ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
-            );
-        } while ($result > 0);
+        $this->cartPersister->prune($this->days);
     }
 }

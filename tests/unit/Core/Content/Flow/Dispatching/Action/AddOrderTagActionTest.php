@@ -2,36 +2,34 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction
  */
+#[Package('services-settings')]
+#[CoversClass(AddOrderTagAction::class)]
 class AddOrderTagActionTest extends TestCase
 {
     private MockObject&EntityRepository $repository;
 
     private AddOrderTagAction $action;
 
-    private MockObject&StorableFlow $flow;
-
     protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new AddOrderTagAction($this->repository);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -50,38 +48,41 @@ class AddOrderTagActionTest extends TestCase
     /**
      * @param array<string, mixed> $config
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, array $expected): void
     {
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
+        $orderId = Uuid::randomHex();
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $orderId,
+        ]);
+        $flow->setConfig($config);
+
         $this->repository->expects(static::once())
             ->method('update')
-            ->with([['id' => $this->flow->getData(OrderAware::ORDER_ID), 'tags' => $expected]]);
+            ->with([['id' => $orderId, 'tags' => $expected]]);
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
+        $flow = new StorableFlow('foo', Context::createDefaultContext());
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::exactly(1))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => Uuid::randomHex(),
+        ]);
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator
@@ -102,14 +103,10 @@ class AddOrderTagActionTest extends TestCase
     /**
      * @param array<string> $ids
      *
-     * @return array<string, mixed>
+     * @return array<string, true>
      */
     private static function keys(array $ids): array
     {
-        $return = \array_combine($ids, \array_fill(0, \count($ids), true));
-
-        static::assertIsArray($return);
-
-        return $return;
+        return \array_combine($ids, \array_fill(0, \count($ids), true));
     }
 }

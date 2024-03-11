@@ -1,53 +1,53 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swSettingsCustomFieldSetDetail from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
-import swSettingsCustomFieldSetCreate from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create';
+import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
 
-Shopware.Component.register('sw-settings-custom-field-set-detail', swSettingsCustomFieldSetDetail);
-Shopware.Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', swSettingsCustomFieldSetCreate);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-settings-custom-field-set-create'), {
-        mocks: {
-            $tc() {
-                return 'translation';
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create(repositoryName) {
-                    if (repositoryName === 'custom_field') {
-                        return {};
-                    }
-
-                    return {
-                        get() {
-                            return Promise.resolve({});
-                        },
-                        create() {
-                            return Promise.resolve({});
-                        },
-                        search() {
-                            return Promise.resolve({
-                                length: 0,
-                            });
-                        },
-                    };
+    return mount(await wrapTestComponent('sw-settings-custom-field-set-create', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $tc() {
+                    return 'translation';
                 },
             },
-        },
-        stubs: {
-            'sw-page': true,
-            'sw-empty-state': true,
-            'sw-custom-field-set-detail-base': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-card': true,
-            'sw-card-view': true,
-            'sw-skeleton': true,
+            provide: {
+                repositoryFactory: {
+                    create(repositoryName) {
+                        if (repositoryName === 'custom_field') {
+                            return {};
+                        }
+
+                        return {
+                            get() {
+                                return Promise.resolve({});
+                            },
+                            create() {
+                                return Promise.resolve({});
+                            },
+                            search() {
+                                return Promise.resolve({
+                                    length: 0,
+                                });
+                            },
+                        };
+                    },
+                },
+            },
+            stubs: {
+                'sw-page': true,
+                'sw-empty-state': true,
+                'sw-custom-field-set-detail-base': true,
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-card': true,
+                'sw-card-view': true,
+                'sw-skeleton': true,
+            },
         },
     });
 }

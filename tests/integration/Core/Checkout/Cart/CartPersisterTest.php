@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -19,21 +20,22 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\CartPersister
  */
 #[Package('checkout')]
+#[CoversClass(CartPersister::class)]
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -285,6 +287,34 @@ class CartPersisterTest extends TestCase
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
     }
 
+    public function testPrune(): void
+    {
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
+
+        $ids = new IdsCollection();
+
+        $now = new \DateTimeImmutable();
+
+        $this->createCart($ids->create('cart-1'), $now);
+
+        $expiredDate1 = $now->modify(sprintf('-%d day', 121));
+        $this->createCart($ids->create('cart-2'), $expiredDate1);
+
+        $this->createCart($ids->create('cart-3'), $expiredDate1, $now);
+
+        $expiredDate2 = $now->modify(sprintf('-%d day', 122));
+        $this->createCart($ids->create('cart-4'), $expiredDate2, $expiredDate1);
+
+        $this->getContainer()->get(CartPersister::class)->prune(30);
+
+        $carts = $this->getContainer()->get(Connection::class)
+            ->fetchFirstColumn('SELECT token FROM cart');
+
+        static::assertCount(2, $carts);
+        static::assertContains($ids->get('cart-1'), $carts);
+        static::assertContains($ids->get('cart-3'), $carts);
+    }
+
     private function getSalesChannelContext(string $token): SalesChannelContext
     {
         return $this->getContainer()
@@ -300,5 +330,18 @@ class CartPersisterTest extends TestCase
                 static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
             )
             ->willReturnCallback(fn (string $sql): Statement => $this->getContainer()->get(Connection::class)->prepare($sql));
+    }
+
+    private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void
+    {
+        $cart = [
+            'token' => $token,
+            'payload' => '',
+            'rule_ids' => json_encode([]),
+            'created_at' => $updatedAt?->format(Defaults::STORAGE_DATE_TIME_FORMAT) ?? $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
+
+        $this->getContainer()->get(Connection::class)
+            ->insert('cart', $cart);
     }
 }

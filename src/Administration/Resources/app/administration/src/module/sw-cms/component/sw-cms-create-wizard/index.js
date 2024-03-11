@@ -4,7 +4,7 @@ import './sw-cms-create-wizard.scss';
 const { Filter } = Shopware;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraint;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 abstract class Rule extends Struct
 {
     public const RULE_NAME = null;
@@ -88,26 +88,5 @@ abstract class Rule extends Struct
     public function getApiAlias(): string
     {
         return 'rule_' . $this->getName();
-    }
-
-    /**
-     * @param array<mixed> $options
-     *
-     * @return $this
-     */
-    public function assign(array $options)
-    {
-        foreach ($options as $key => $value) {
-            if (!property_exists($this, $key)) {
-                continue;
-            }
-
-            try {
-                $this->$key = $value; /* @phpstan-ignore-line */
-            } catch (\Error|\Exception $error) {
-            }
-        }
-
-        return $this;
     }
 }

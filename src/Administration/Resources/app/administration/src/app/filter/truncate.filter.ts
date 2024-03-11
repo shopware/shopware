@@ -3,7 +3,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * Filter which allows you to truncate a string.
  */
 Shopware.Filter.register('truncate', (

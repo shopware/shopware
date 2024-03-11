@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -24,9 +25,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
         $this->service = new ProductMaxPurchaseCalculator($configService);
     }
 
-    /**
-     * @dataProvider cases
-     */
+    #[DataProvider('cases')]
     public function testCalculate(array $entityData, int $expected): void
     {
         $entity = new PartialEntity();

@@ -1,10 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import SwMediaFolderItem from 'src/app/asyncComponent/media/sw-media-folder-item';
-
-Shopware.Component.register('sw-media-folder-item', SwMediaFolderItem);
+import { mount } from '@vue/test-utils';
 
 const { Module } = Shopware;
 
@@ -35,84 +32,8 @@ const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 
 async function createWrapper(defaultFolderId, privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-media-folder-item'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => Promise.resolve({
-                        isNew: () => true,
-                    }),
-                    search: () => Promise.resolve({
-                        isNew: () => false,
-                    }),
-                    get: (folderId) => {
-                        switch (folderId) {
-                            case ID_PRODUCTS_FOLDER:
-                                return {
-                                    entity: 'product',
-                                    isNew: () => false,
-                                };
-                            case ID_CONTENT_FOLDER:
-                                return {
-                                    entity: 'cms_page',
-                                    isNew: () => false,
-                                };
-                            case ID_MAILTEMPLATE_FOLDER:
-                                return {
-                                    entity: 'mail_template',
-                                    isNew: () => false,
-                                };
-                            default:
-                                return null;
-                        }
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                },
-            },
-        },
-        stubs: {
-            'sw-media-base-item': {
-                props: {
-                    allowMultiSelect: {
-                        type: Boolean,
-                        required: false,
-                        default: true,
-                    },
-                },
-                // Hack with AllowMultiSelect is needed because the property
-                // can't be accessed in the test utils correctly
-                template: `
-                    <div class="sw-media-base-item">
-                        AllowMultiSelect: "{{ allowMultiSelect }}"
-                        <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
-                        <slot></slot>
-                    </div>`,
-            },
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>',
-            },
-            'sw-context-menu': {
-                template: '<div><slot></slot></div>',
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-media-folder-item', { sync: true }), {
+        props: {
             item: {
                 useParentConfiguration: false,
                 configurationId: 'a73ef286f6c748deacdbdfd5aab3cca7',
@@ -134,6 +55,84 @@ async function createWrapper(defaultFolderId, privileges = []) {
             showContextMenuButton: true,
             selected: false,
             isList: true,
+        },
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
+                },
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => Promise.resolve({
+                            isNew: () => true,
+                        }),
+                        search: () => Promise.resolve({
+                            isNew: () => false,
+                        }),
+                        get: (folderId) => {
+                            switch (folderId) {
+                                case ID_PRODUCTS_FOLDER:
+                                    return {
+                                        entity: 'product',
+                                        isNew: () => false,
+                                    };
+                                case ID_CONTENT_FOLDER:
+                                    return {
+                                        entity: 'cms_page',
+                                        isNew: () => false,
+                                    };
+                                case ID_MAILTEMPLATE_FOLDER:
+                                    return {
+                                        entity: 'mail_template',
+                                        isNew: () => false,
+                                    };
+                                default:
+                                    return null;
+                            }
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+            },
+            stubs: {
+                'sw-media-base-item': {
+                    props: {
+                        allowMultiSelect: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                    },
+                    // Hack with AllowMultiSelect is needed because the property
+                    // can't be accessed in the test utils correctly
+                    template: `
+                    <div class="sw-media-base-item">
+                        AllowMultiSelect: "{{ allowMultiSelect }}"
+                        <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
+                        <slot></slot>
+                    </div>`,
+                },
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                },
+                'sw-context-menu': {
+                    template: '<div><slot></slot></div>',
+                },
+            },
         },
     });
 }
@@ -228,5 +227,49 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.text()).toContain('AllowMultiSelect: "false"');
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+    });
+
+    it('onBlur doesnt update the entity if the value did not change', async () => {
+        const wrapper = await createWrapper();
+        const item = wrapper.vm.mediaFolder;
+        const event = { target: { value: item.name } };
+
+        wrapper.vm.onChangeName = jest.fn();
+
+        wrapper.vm.onBlur(event, item, () => {});
+        expect(wrapper.vm.onChangeName).not.toHaveBeenCalled();
+    });
+
+    it('change handler is called if the folder name has changed on blur', async () => {
+        const wrapper = await createWrapper();
+        const item = wrapper.vm.mediaFolder;
+        const event = { target: { value: `${item.name} Test` } };
+
+        wrapper.vm.onChangeName = jest.fn();
+
+        wrapper.vm.onBlur(event, item, () => {});
+        expect(wrapper.vm.onChangeName).toHaveBeenCalled();
+    });
+
+    it('onChangeName rejects invalid names', async () => {
+        const wrapper = await createWrapper();
+        const item = wrapper.vm.mediaFolder;
+
+        wrapper.vm.rejectRenaming = jest.fn();
+
+        const emptyName = { target: { value: '' } };
+        wrapper.vm.onBlur(emptyName, item, () => {});
+        expect(wrapper.vm.rejectRenaming).toHaveBeenCalledWith(item, 'empty-name', expect.any(Function));
+
+        const invalidName = { target: { value: 'Test <' } };
+        wrapper.vm.onBlur(invalidName, item, () => {});
+        expect(wrapper.vm.rejectRenaming).toHaveBeenCalledWith(item, 'invalid-name', expect.any(Function));
     });
 });

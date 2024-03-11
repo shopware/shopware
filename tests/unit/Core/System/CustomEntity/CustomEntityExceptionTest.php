@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\CustomEntityException
  */
+#[CoversClass(CustomEntityException::class)]
 class CustomEntityExceptionTest extends TestCase
 {
     public function testNoLabelProperty(): void

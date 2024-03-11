@@ -5,8 +5,8 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Unit\UnitCollection;
@@ -18,95 +18,173 @@ use Shopware\Core\System\Unit\UnitCollection;
 class ProductCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     *
+     * @return array<string>
      */
     public function getParentIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getParentId());
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
 
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getParentId());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function filterByParentId(string $id): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return $this->filter(fn (ProductEntity $product) => $product->getParentId() === $id);
     }
 
     /**
-     * @return list<string>
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     *
+     * @return array<string>
      */
     public function getTaxIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getTaxId());
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
 
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getTaxId());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function filterByTaxId(string $id): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return $this->filter(fn (ProductEntity $product) => $product->getTaxId() === $id);
     }
 
     /**
-     * @return list<string>
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     *
+     * @return array<string>
      */
     public function getManufacturerIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getManufacturerId());
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
 
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getManufacturerId());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function filterByManufacturerId(string $id): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return $this->filter(fn (ProductEntity $product) => $product->getManufacturerId() === $id);
     }
 
     /**
-     * @return list<string>
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     *
+     * @return array<string>
      */
     public function getUnitIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getUnitId());
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
 
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getUnitId());
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function filterByUnitId(string $id): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return $this->filter(fn (ProductEntity $product) => $product->getUnitId() === $id);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function getTaxes(): TaxCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return new TaxCollection(
             $this->fmap(fn (ProductEntity $product) => $product->getTax())
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function getManufacturers(): ProductManufacturerCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return new ProductManufacturerCollection(
             $this->fmap(fn (ProductEntity $product) => $product->getManufacturer())
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function getUnits(): UnitCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return new UnitCollection(
             $this->fmap(fn (ProductEntity $product) => $product->getUnit())
         );
     }
 
     /**
-     * @return list<string>
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     *
+     * @return array<string>
      */
     public function getPriceIds(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
         $ids = [[]];
 
         foreach ($this->getIterator() as $element) {
@@ -118,28 +196,41 @@ class ProductCollection extends EntityCollection
         return array_merge(...$ids);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function getPrices(): ProductPriceCollection
     {
-        $rules = [[]];
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+        $priceArray = [[]];
 
-        foreach ($this->getIterator() as $element) {
-            /** @var ProductPriceCollection $prices */
+        foreach ($this->elements as $element) {
             $prices = $element->getPrices();
-
-            $rules[] = (array) $prices;
+            if ($prices) {
+                $priceArray[] = $prices->getElements();
+            }
         }
 
-        /** @var array<ProductPriceEntity> $productPriceEntities */
-        $productPriceEntities = array_merge(...$rules);
+        $productPriceEntities = array_merge(...$priceArray);
 
         return new ProductPriceCollection($productPriceEntities);
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     *
      * @param list<string> $optionIds
      */
     public function filterByOptionIds(array $optionIds): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return $this->filter(function (ProductEntity $product) use ($optionIds) {
             $ids = $product->getOptionIds() ?? [];
             $same = array_intersect($ids, $optionIds);
@@ -148,8 +239,16 @@ class ProductCollection extends EntityCollection
         });
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed without replacement
+     */
     public function getCovers(): ProductMediaCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.7.0.0')
+        );
+
         return new ProductMediaCollection($this->fmap(fn (ProductEntity $product) => $product->getCover()));
     }
 

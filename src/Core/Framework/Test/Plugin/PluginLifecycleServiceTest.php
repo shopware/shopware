@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -35,25 +37,24 @@ use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use SwagTest\Migration\Migration1536761533Test;
-use SwagTest\SwagTest;
+use SwagTestPlugin\Migration\Migration1536761533TestMigration;
+use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;
     use MigrationTestBehaviour;
     use PluginTestsHelper;
 
-    private const PLUGIN_NAME = 'SwagTest';
-    private const DEPENDENT_PLUGIN_NAME = self::PLUGIN_NAME . 'Extension';
+    private const PLUGIN_NAME = 'SwagTestPlugin';
+    private const DEPENDENT_PLUGIN_NAME = 'SwagTestExtension';
     private const NOT_SUPPORTED_VERSION_PLUGIN_NAME = 'SwagTestNotSupportedVersion';
 
     private ContainerInterface $container;
@@ -99,7 +100,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->systemConfigService = $this->container->get(SystemConfigService::class);
         $this->pluginLifecycleService = $this->createPluginLifecycleService($this->pluginService);
 
-        require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagTestPlugin/src/Migration/Migration1536761533TestMigration.php';
 
         $this->addTestPluginToKernel(
             __DIR__ . '/_fixture/plugins/' . self::PLUGIN_NAME,
@@ -332,7 +333,7 @@ class PluginLifecycleServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
 
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_OLD_VERSION);
 
         $plugin = $this->getPlugin($context);
         $service->installPlugin($plugin, $context);
@@ -356,10 +357,10 @@ class PluginLifecycleServiceTest extends TestCase
     public function updateDeactivatedPluginWithException(Context $context): void
     {
         $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION, $installedAt);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_OLD_VERSION, $installedAt);
 
         $plugin = $this->getPlugin($context);
-        $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
+        $context->addExtension(SwagTestPlugin::THROW_ERROR_ON_UPDATE, new ArrayStruct());
 
         $this->expectException(\BadMethodCallException::class);
         $this->expectExceptionMessage('Update throws an error');
@@ -368,10 +369,10 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function updateActivatedPluginWithException(Context $context): void
     {
-        $this->createPlugin($this->pluginRepo, $this->context, SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $this->context, SwagTestPlugin::PLUGIN_OLD_VERSION);
         $activatedPlugin = $this->installAndActivatePlugin($context);
 
-        $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
+        $context->addExtension(SwagTestPlugin::THROW_ERROR_ON_UPDATE, new ArrayStruct());
 
         try {
             $this->pluginLifecycleService->updatePlugin($activatedPlugin, $context);
@@ -386,11 +387,11 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function updateActivatedPluginWithExceptionOnDeactivation(Context $context): void
     {
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_OLD_VERSION);
         $activatedPlugin = $this->installAndActivatePlugin($context);
 
-        $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
-        $context->addExtension(SwagTest::THROW_ERROR_ON_DEACTIVATE, new ArrayStruct());
+        $context->addExtension(SwagTestPlugin::THROW_ERROR_ON_UPDATE, new ArrayStruct());
+        $context->addExtension(SwagTestPlugin::THROW_ERROR_ON_DEACTIVATE, new ArrayStruct());
 
         try {
             $this->pluginLifecycleService->updatePlugin($activatedPlugin, $context);
@@ -464,9 +465,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->activatePlugin($pluginEntity, $this->context);
     }
 
-    /**
-     * @dataProvider themeProvideData
-     */
+    #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
         static::markTestSkipped('This test needs the storefront bundle installed.');
@@ -537,15 +536,15 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertSame(1, $this->getMigrationTestKeyCount());
 
-        static::assertSame(7, $this->systemConfigService->get('SwagTest.config.intField'));
-        static::assertNull($this->systemConfigService->get('SwagTest.config.textFieldWithoutDefault'));
-        static::assertSame('string', $this->systemConfigService->get('SwagTest.config.textField'));
-        static::assertNull($this->systemConfigService->get('SwagTest.config.textFieldNull'));
-        static::assertFalse($this->systemConfigService->get('SwagTest.config.switchField'));
-        static::assertSame(0.349831239840912348, $this->systemConfigService->get('SwagTest.config.floatField'));
-        static::assertNull($this->systemConfigService->get('SwagTest.config.priceField'));
-        static::assertSame('100', $this->systemConfigService->get('SwagTest.config.numericTextField'));
-        static::assertSame(['value1', 'value2'], $this->systemConfigService->get('SwagTest.config.multiSelectField'));
+        static::assertSame(7, $this->systemConfigService->get('SwagTestPlugin.config.intField'));
+        static::assertNull($this->systemConfigService->get('SwagTestPlugin.config.textFieldWithoutDefault'));
+        static::assertSame('string', $this->systemConfigService->get('SwagTestPlugin.config.textField'));
+        static::assertNull($this->systemConfigService->get('SwagTestPlugin.config.textFieldNull'));
+        static::assertFalse($this->systemConfigService->get('SwagTestPlugin.config.switchField'));
+        static::assertSame(0.349831239840912348, $this->systemConfigService->get('SwagTestPlugin.config.floatField'));
+        static::assertNull($this->systemConfigService->get('SwagTestPlugin.config.priceField'));
+        static::assertSame('100', $this->systemConfigService->get('SwagTestPlugin.config.numericTextField'));
+        static::assertSame(['value1', 'value2'], $this->systemConfigService->get('SwagTestPlugin.config.multiSelectField'));
     }
 
     private function installPluginWithoutConfig(Context $context): void
@@ -564,7 +563,7 @@ class PluginLifecycleServiceTest extends TestCase
     private function installPluginAlreadyInstalled(Context $context): void
     {
         $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_VERSION, $installedAt);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_VERSION, $installedAt);
 
         $plugin = $this->getTestPlugin($context);
 
@@ -581,12 +580,12 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installPluginWithUpdate(Context $context): void
     {
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_OLD_VERSION);
         $pluginInstalled = $this->installPlugin($context);
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
         static::assertNull($pluginInstalled->getUpgradedAt());
-        static::assertSame(SwagTest::PLUGIN_VERSION, $pluginInstalled->getVersion());
+        static::assertSame(SwagTestPlugin::PLUGIN_VERSION, $pluginInstalled->getVersion());
     }
 
     private function uninstallPlugin(Context $context): void
@@ -639,7 +638,7 @@ class PluginLifecycleServiceTest extends TestCase
     private function updatePlugin(Context $context): void
     {
         $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION, $installedAt);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_OLD_VERSION, $installedAt);
         static::assertSame(0, $this->getMigrationTestKeyCount());
 
         $plugin = $this->getPlugin($context);
@@ -651,7 +650,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginUpdated = $this->getTestPlugin($context);
 
         static::assertNotNull($pluginUpdated->getUpgradedAt());
-        static::assertSame(SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
+        static::assertSame(SwagTestPlugin::PLUGIN_VERSION, $pluginUpdated->getVersion());
 
         // modified config will not be changed, missing config should be reset to default
         $settings = $this->systemConfigService->getDomain($plugin->getName() . '.config');
@@ -663,7 +662,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function updatePluginThrowsIfPluginIsNotInstalled(Context $context): void
     {
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        $this->createPlugin($this->pluginRepo, $context, SwagTestPlugin::PLUGIN_OLD_VERSION);
         static::assertSame(0, $this->getMigrationTestKeyCount());
 
         $plugin = $this->getPlugin($context);
@@ -730,7 +729,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $overAllCount = $this->getMigrationCount('');
 
-        $swagTest = new SwagTest(true, '', '');
+        $swagTest = new SwagTestPlugin(true, '', '');
 
         $_SERVER['FAKE_MIGRATION_NAMESPACE'] = 'Shopware\\Core';
 
@@ -850,7 +849,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $result = $this->connection->executeQuery(
             'SELECT configuration_value FROM system_config WHERE configuration_key = ?',
-            [Migration1536761533Test::TEST_SYSTEM_CONFIG_KEY]
+            [Migration1536761533TestMigration::TEST_SYSTEM_CONFIG_KEY]
         );
 
         return (int) $result->fetchOne();

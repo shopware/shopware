@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Test\Seo;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
@@ -35,7 +37,12 @@ class SeoUrlUpdaterTest extends TestCase
     /**
      * @var array<string, mixed>
      */
-    private array $salesChannel;
+    private array $storefrontSalesChannel;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private array $headlessSalesChannel;
 
     protected function setUp(): void
     {
@@ -48,8 +55,7 @@ class SeoUrlUpdaterTest extends TestCase
         $this->ids->set(self::PARENT, $this->getDeDeLanguageId());
         $this->ids->create(self::CHILD);
 
-        // Create storefront saleschannel for child language
-        $this->salesChannel = $this->createSalesChannel([
+        $salesChannelOverride = [
             // Create child language
             'language' => [
                 'id' => $this->ids->get(self::CHILD),
@@ -76,19 +82,30 @@ class SeoUrlUpdaterTest extends TestCase
                     'languageId' => $this->ids->get(self::CHILD),
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale(self::PARENT),
-                    'url' => 'http://localhost',
                 ],
             ],
-        ]);
+        ];
+
+        // Create storefront saleschannel for child language
+        $storefrontSalesChannelOverride = $salesChannelOverride;
+        $storefrontSalesChannelOverride['typeId'] = Defaults::SALES_CHANNEL_TYPE_STOREFRONT;
+        $storefrontSalesChannelOverride['domains'][0]['url'] = 'http://localhost/storefront';
+        $this->storefrontSalesChannel = $this->createSalesChannel($storefrontSalesChannelOverride);
+
+        // Create headless sales channel.
+        $headlessSalesChannelOverride = $salesChannelOverride;
+        $headlessSalesChannelOverride['typeId'] = Defaults::SALES_CHANNEL_TYPE_API;
+        $headlessSalesChannelOverride['domains'][0]['url'] = 'http://localhost/headless';
+        $this->headlessSalesChannel = $this->createSalesChannel($headlessSalesChannelOverride);
     }
 
     /**
      * Checks whether the seo url updater is using the correct language for translations.
      *
-     * @dataProvider seoLanguageDataProvider
-     *
      * @param list<string> $translations
+     * @param non-empty-string $pathInfo
      */
+    #[DataProvider('seoLanguageDataProvider')]
     public function testSeoLanguageInheritance(array $translations, string $pathInfo): void
     {
         $this->getContainer()->get(Connection::class)->insert('seo_url_template', [
@@ -117,11 +134,13 @@ class SeoUrlUpdaterTest extends TestCase
             [$this->ids->get('p1')]
         );
 
-        // Search for created seo url
+        // Search for created seo url of storefront sales channel.
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('foreignKey', $this->ids->get('p1')));
         $criteria->addFilter(new EqualsFilter('routeName', TestProductSeoUrlRoute::ROUTE_NAME));
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $this->salesChannel['id']));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $this->storefrontSalesChannel['id']));
+
+        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
@@ -132,10 +151,22 @@ class SeoUrlUpdaterTest extends TestCase
 
         // Check if seo path matches the expected path
         static::assertStringStartsWith($pathInfo, $seoUrl->getSeoPathInfo());
+
+        // Verify URL of headless sales channel.
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('routeName', TestProductSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $this->headlessSalesChannel['id']));
+        $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
+            $criteria,
+            Context::createDefaultContext()
+        )->first();
+
+        // Check that no seo url was created.
+        static::assertNull($seoUrl);
     }
 
     /**
-     * @return list<array{translations: list<string>, pathInfo: string}>
+     * @return list<array{translations: list<string>, pathInfo: non-empty-string}>
      */
     public static function seoLanguageDataProvider(): array
     {

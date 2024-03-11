@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Cms;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
@@ -36,9 +37,7 @@ class CmsEntityTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideEntityClasses
-     */
+    #[DataProvider('provideEntityClasses')]
     public function testCmsEntityIsVersionable(string $entityDefinitionClass): void
     {
         /** @var EntityDefinition $definition */
@@ -49,9 +48,7 @@ class CmsEntityTest extends TestCase
         self::assertContainsInstanceOf(VersionField::class, $definition->getFields());
     }
 
-    /**
-     * @dataProvider provideEntityClasses
-     */
+    #[DataProvider('provideEntityClasses')]
     public function testCmsRepositoryLoadsData(string $entityDefinitionClass): void
     {
         $definition = $this->getContainer()->get($entityDefinitionClass);

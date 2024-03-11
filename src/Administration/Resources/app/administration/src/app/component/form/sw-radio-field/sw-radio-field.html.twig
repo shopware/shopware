@@ -4,7 +4,10 @@
     class="sw-field--radio"
     :class="classes"
     :name="formFieldName"
-    v-bind="$attrs"
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
 >
     <template #sw-field-input="{ identification, helpText, error, disabled }">
         <sw-help-text

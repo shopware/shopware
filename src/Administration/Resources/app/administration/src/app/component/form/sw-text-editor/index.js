@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @description <p>A simple text editor which uses the browsers api.
@@ -37,6 +36,8 @@ const { Component } = Shopware;
  */
 Component.register('sw-text-editor', {
     template,
+
+    inject: ['feature'],
 
     props: {
         value: {
@@ -900,12 +901,12 @@ Component.register('sw-text-editor', {
         },
 
         emitContent() {
-            this.$emit('input', this.getContentValue());
+            this.$emit('update:value', this.getContentValue());
         },
 
         emitHtmlContent(value) {
             this.content = value;
-            this.$emit('input', value);
+            this.$emit('update:value', value);
 
             this.isEmpty = this.emptyCheck(this.content);
             this.placeholderVisible = this.isEmpty;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Migration;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -31,9 +32,7 @@ class MigrationSourceTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @dataProvider provideCoreRegexDataV6_3
-     */
+    #[DataProvider('provideCoreRegexDataV6_3')]
     public function testCoreRegexV63(string $subject, bool $shouldMatch): void
     {
         $pattern = $this->getContainer()->get('Shopware\Core\Framework\Migration\MigrationSource.core.V6_3')->getNamespacePattern();
@@ -41,9 +40,7 @@ class MigrationSourceTest extends TestCase
         static::assertSame($shouldMatch, (bool) preg_match("/$pattern/", $subject, $subject));
     }
 
-    /**
-     * @dataProvider provideUnitTestData
-     */
+    #[DataProvider('provideUnitTestData')]
     public function testUnitRegex(string $subject, bool $shouldMatch): void
     {
         $source = new MigrationSource('tmp', [

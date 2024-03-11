@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-menu.html.twig';
@@ -10,9 +10,8 @@ const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-menu', {
     template,
 

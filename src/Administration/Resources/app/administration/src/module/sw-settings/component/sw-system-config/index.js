@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import template from './sw-system-config.html.twig';
@@ -8,6 +8,17 @@ import './sw-system-config.scss';
 const { Mixin } = Shopware;
 const { object, string: { kebabCase } } = Shopware.Utils;
 const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
+
+/**
+ * Component which automatically renders all fields for a given system_config schema. It allows the user to edit these
+ * configuration values.
+ *
+ * N.B: This component handles the data completely independently, therefore you need to trigger the saving of
+ *      data manually with a $ref. Due to the fact that the data is stored inside this component, destroying
+ *      the component could lead to unsaved changes. One primary case for this could be if it will be used
+ *      inside tabs. Because if the user changes the tab content then this component gets destroyed and therefore
+ *      also the corresponding data.
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -84,6 +95,12 @@ export default {
             deep: true,
         },
 
+        domain: {
+            handler() {
+                this.createdComponent();
+            },
+        },
+
         isLoading(value) {
             this.$emit('loading-changed', value);
         },
@@ -111,6 +128,7 @@ export default {
                 this.isLoading = false;
             }
         },
+
         async readConfig() {
             this.config = await this.systemConfigApiService.getConfig(this.domain);
             this.config.every((card) => {
@@ -123,6 +141,7 @@ export default {
                 });
             });
         },
+
         readAll() {
             this.isLoading = true;
             // Return when data for this salesChannel was already loaded
@@ -133,6 +152,7 @@ export default {
 
             return this.loadCurrentSalesChannelConfig();
         },
+
         async loadCurrentSalesChannelConfig() {
             this.isLoading = true;
 
@@ -144,6 +164,7 @@ export default {
                 this.isLoading = false;
             }
         },
+
         saveAll() {
             this.isLoading = true;
             return this.systemConfigApiService
@@ -152,6 +173,7 @@ export default {
                     this.isLoading = false;
                 });
         },
+
         createErrorNotification(errors) {
             let message = `<div>${this.$tc(
                 'sw-config-form-renderer.configLoadErrorMessage',
@@ -168,6 +190,7 @@ export default {
                 autoClose: false,
             });
         },
+
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
             this.readAll();

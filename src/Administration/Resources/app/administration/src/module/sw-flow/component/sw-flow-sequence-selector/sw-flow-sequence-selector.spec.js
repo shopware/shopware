@@ -1,11 +1,6 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swFlowSequenceSelector from 'src/module/sw-flow/component/sw-flow-sequence-selector';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 
-import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
-
-Shopware.Component.register('sw-flow-sequence-selector', swFlowSequenceSelector);
 
 const sequences = [
     {
@@ -37,17 +32,18 @@ const sequences = [
 ];
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-sequence-selector'), {
-        localVue,
-        stubs: {
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-icon': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-flow-sequence-selector', {
+        sync: true,
+    }), {
+        props: {
             sequence: sequences[0],
+        },
+
+        global: {
+            stubs: {
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-icon': true,
+            },
         },
     });
 }
@@ -160,7 +156,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             disabled: true,
         });
 
-        expect(addCondition.attributes().disabled).toBeTruthy();
-        expect(addAction.attributes().disabled).toBeTruthy();
+        expect(addCondition.classes()).toContain('sw-button--disabled');
+        expect(addAction.classes()).toContain('sw-button--disabled');
     });
 });

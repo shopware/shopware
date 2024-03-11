@@ -1,35 +1,27 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-unit-menu';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper({
     type,
     value,
     visibleValue,
 }) {
-    return shallowMount(await Shopware.Component.build('sw-condition-unit-menu'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-condition-unit-menu', { sync: true }), {
+        props: {
             type,
             value,
             visibleValue,
         },
-        stubs: {
-            'sw-icon': true,
-            'sw-popover': true,
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-icon': true,
+                'sw-popover': true,
+            },
         },
     });
 }
 
 describe('components/rule/sw-condition-unit-menu', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper({
-            type: 'weight',
-            value: 1,
-            visibleValue: undefined,
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not render conversion menu button when default unit is undefined', async () => {
         const wrapper = await createWrapper({
             type: 'age',
@@ -52,11 +44,11 @@ describe('components/rule/sw-condition-unit-menu', () => {
         expect(wrapper.find('.sw-condition-unit-menu__menu').exists()).toBe(false);
 
         // open menu
-        await wrapper.find('.sw-condition-unit-menu').trigger('click');
-        expect(wrapper.find('.sw-condition-unit-menu__menu').exists()).toBe(true);
+        await wrapper.get('.sw-condition-unit-menu').trigger('click');
+        expect(wrapper.get('.sw-condition-unit-menu__menu').exists()).toBe(true);
 
         // close menu
-        await wrapper.find('.sw-condition-unit-menu').trigger('click');
+        await wrapper.get('.sw-condition-unit-menu').trigger('click');
         expect(wrapper.find('.sw-condition-unit-menu__menu').exists()).toBe(false);
     });
 
@@ -193,5 +185,24 @@ describe('components/rule/sw-condition-unit-menu', () => {
 
         expect(wrapper.vm.unitOptions).toEqual([]);
         expect(wrapper.vm.unitSnippet).toBe('global.sw-condition-generic.units.age');
+    });
+
+    it('should render current value if conversion returns invalid response', async () => {
+        const wrapper = await createWrapper({
+            type: 'time',
+            value: undefined,
+            visibleValue: undefined,
+        });
+
+        await wrapper.find('.sw-condition-unit-menu').trigger('click');
+        await wrapper.findAll('.sw-condition-unit-menu__menu-item').at(0).trigger('click');
+
+        const changeUnitEvents = wrapper.emitted('change-unit');
+
+        expect(changeUnitEvents).toHaveLength(1);
+        expect(changeUnitEvents[0]).toStrictEqual([{
+            unit: 'min',
+            value: undefined,
+        }]);
     });
 });

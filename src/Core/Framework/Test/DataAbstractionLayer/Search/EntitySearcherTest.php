@@ -140,7 +140,7 @@ class EntitySearcherTest extends TestCase
         $increments = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
             'SELECT LOWER(HEX(id)) as id, auto_increment FROM product WHERE id IN (:ids)',
             ['ids' => $ids->getByteList(['p1', 'p2'])],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $data = $result->getData();

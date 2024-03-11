@@ -10,11 +10,7 @@
         :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaTitle')"
-        {% if VUE3 %}
         @update:value="emitSeoMetaTitle"
-        {% else %}
-        @input="emitSeoMetaTitle"
-        {% endif %}
     />
 
     <sw-text-field
@@ -23,11 +19,7 @@
         :value="seoUrl"
         :label="$tc('sw-landing-page.base.seo.labelUrl')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderUrl')"
-        {% if VUE3 %}
         @update:value="emitSeoUrl"
-        {% else %}
-        @input="emitSeoUrl"
-        {% endif %}
     />
 
     <sw-textarea-field
@@ -37,11 +29,7 @@
         :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
         :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
         :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaDescription')"
-        {% if VUE3 %}
         @update:value="emitSeoMetaDescription"
-        {% else %}
-        @input="emitSeoMetaDescription"
-        {% endif %}
     />
 
     <div class="sw-generic-seo-general-card__google-preview-container">

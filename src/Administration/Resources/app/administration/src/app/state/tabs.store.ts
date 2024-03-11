@@ -1,10 +1,8 @@
 /**
  * @package admin
  */
-
-import Vue from 'vue';
 import type { Module } from 'vuex';
-import type { uiTabsAddTabItem } from '@shopware-ag/admin-extension-sdk/es/ui/tabs';
+import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>;
@@ -25,7 +23,7 @@ const TabsStore: Module<TabsState, VuexRootState> = {
     mutations: {
         addTabItem(state, { label, componentSectionId, positionId }: uiTabsAddTabItem) {
             if (!state.tabItems[positionId]) {
-                Vue.set(state.tabItems, positionId, []);
+                state.tabItems[positionId] = [];
             }
 
             state.tabItems[positionId].push({
@@ -37,7 +35,7 @@ const TabsStore: Module<TabsState, VuexRootState> = {
 };
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default TabsStore;
 

@@ -11,7 +11,7 @@
             {% block component_delivery_information_shipping_free %}
                 <p class="delivery-information delivery-shipping-free">
                     <span class="delivery-status-indicator bg-info"></span>
-                    {{ "general.deliveryShippingFree"|trans|sw_sanitize }}
+                    {{ 'general.deliveryShippingFree'|trans|sw_sanitize }}
                 </p>
             {% endblock %}
         {% endif %}
@@ -22,16 +22,16 @@
                       href="http://schema.org/LimitedAvailability">
                 <p class="delivery-information delivery-not-available">
                     <span class="delivery-status-indicator bg-danger"></span>
-                    {{ "general.deliveryNotAvailable"|trans|sw_sanitize }}
+                    {{ 'general.deliveryNotAvailable'|trans|sw_sanitize }}
                 </p>
             {% endblock %}
-        {% elseif product.releaseDate and product.releaseDate|date('U') > "now"|date('U') %}
+        {% elseif product.releaseDate and product.releaseDate|date('U') > 'now'|date('U') %}
             {% block component_delivery_information_pre_order %}
                 <link itemprop="availability"
                       href="http://schema.org/PreOrder">
                 <p class="delivery-information delivery-preorder">
                     <span class="delivery-status-indicator bg-warning"></span>
-                    {{ "general.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
+                    {{ 'general.deliveryShipping'|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
                 </p>
             {% endblock %}
         {% elseif (product.availableStock >= product.minPurchase or (downloadFlag in product.states and not product.isCloseout)) and product.deliveryTime %}
@@ -40,7 +40,7 @@
                 <p class="delivery-information delivery-available">
                     <span class="delivery-status-indicator bg-success"></span>
 
-                    {{ "detail.deliveryTimeAvailable"|trans({
+                    {{ 'detail.deliveryTimeAvailable'|trans({
                         '%name%': product.deliveryTime.translation('name')
                     })|sw_sanitize }}
                 </p>
@@ -50,7 +50,7 @@
                 <link itemprop="availability" href="http://schema.org/OutOfStock">
                 <p class="delivery-information delivery-soldout">
                     <span class="delivery-status-indicator bg-danger"></span>
-                    {{ "detail.soldOut"|trans|sw_sanitize }}
+                    {{ 'detail.soldOut'|trans|sw_sanitize }}
                 </p>
             {% endblock %}
         {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
@@ -58,7 +58,7 @@
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability">
                 <p class="delivery-information delivery-restock">
                     <span class="delivery-status-indicator bg-warning"></span>
-                    {{ "detail.deliveryTimeRestock"|trans({
+                    {{ 'detail.deliveryTimeRestock'|trans({
                         '%count%': product.restockTime,
                         '%restockTime%': product.restockTime,
                         '%name%': product.deliveryTime.translation('name')

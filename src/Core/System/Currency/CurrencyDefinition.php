@@ -31,7 +31,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'currency';

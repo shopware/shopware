@@ -9,6 +9,7 @@
     "list": {
       "columnCustomerName": "Kundenname",
       "columnBillingAddress": "Rechnungsadresse",
+      "columnDeliveryAddress": "Lieferadresse",
       "columnAmount": "Bestellwert",
       "columnState": "Bestellstatus",
       "columnTransactionState": "Zahlungsstatus",

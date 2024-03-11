@@ -2,7 +2,7 @@ import ApiService from '../api.service';
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default class ProductStreamPreviewService extends ApiService {
     constructor(httpClient, loginService) {
@@ -11,11 +11,12 @@ export default class ProductStreamPreviewService extends ApiService {
     }
 
     /**
-     * @param salesChannelId: String
-     * @param criteria: Criteria
-     * @param filter: Array
-     * @param additionalHeaders: Object
-     * @returns {*} - ApiService.handleResponse(response)
+     * @param {string} salesChannelId
+     * @param {Criteria} criteria
+     * @param {Array} filter
+     * @param {Object} additionalHeaders
+     *
+     * @returns Object
      */
     preview(salesChannelId, criteria, filter, additionalHeaders = {}) {
         return this.httpClient.post(

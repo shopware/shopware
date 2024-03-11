@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CustomerLoggedInRule extends Rule
 {
     final public const RULE_NAME = 'customerLoggedIn';

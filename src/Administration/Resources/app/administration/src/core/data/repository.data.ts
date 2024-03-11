@@ -3,7 +3,7 @@
  */
 
 import type { AxiosInstance, AxiosResponse } from 'axios';
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
@@ -223,17 +223,15 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                     }
                 });
 
-                this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
                 throw errorResponse;
             });
     }
 
     /**
-     * @deprecated tag:v6.6.0.0 - Default param context will be last
      * Clones an existing entity
      */
-    // eslint-disable-next-line default-param-last
-    clone(entityId: string, context = Shopware.Context.api, behavior: $TSDangerUnknownObject): Promise<unknown> {
+    clone(entityId: string, behavior: $TSDangerUnknownObject, context = Shopware.Context.api): Promise<unknown> {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
         }
@@ -340,8 +338,8 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }).catch((errorResponse: ErrorResponse) => {
             const errors = this.getSyncErrors(errorResponse);
             this.errorResolver.handleWriteErrors(
-                { errors },
                 changeset,
+                { errors },
             );
             throw errorResponse;
         });
@@ -589,7 +587,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                         return;
                     }
 
-                    this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                    this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
                     throw errorResponse;
                 });
         }
@@ -605,7 +603,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                     return;
                 }
 
-                this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
                 throw errorResponse;
             });
     }

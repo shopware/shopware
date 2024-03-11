@@ -3,7 +3,7 @@ title: Vue administration app has ESLint support
 date: 2021-05-28
 area: administration
 tags: [administration, eslint, vue, linting]
---- 
+---
 
 ## Context
 

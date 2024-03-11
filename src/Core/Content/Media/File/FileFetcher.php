@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
@@ -43,7 +43,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            (string) mime_content_type($fileName),
+            FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
             hash_file('md5', $fileName) ?: null
@@ -76,7 +76,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            (string) mime_content_type($fileName),
+            FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $writtenBytes,
             hash_file('md5', $fileName) ?: null
@@ -99,6 +99,13 @@ class FileFetcher
             $blobSize,
             $fileHash ?: null
         );
+    }
+
+    public function cleanUpTempFile(MediaFile $mediaFile): void
+    {
+        if ($mediaFile->getFileName() !== '') {
+            unlink($mediaFile->getFileName());
+        }
     }
 
     /**

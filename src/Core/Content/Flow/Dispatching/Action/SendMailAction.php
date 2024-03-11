@@ -14,7 +14,7 @@ use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
     final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
@@ -50,7 +50,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         private readonly LoggerInterface $logger,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $mailTemplateTypeRepository,
-        private readonly Translator $translator,
+        private readonly AbstractTranslator $translator,
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly bool $updateMailTemplate
@@ -215,7 +215,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
         if (!$mailTemplateTypeTranslation) {
             // Don't throw errors if this fails // Fix with NEXT-15475
-            $this->logger->error(
+            $this->logger->warning(
                 "Could not update mail template type, because translation for this language does not exits:\n"
                 . 'Flow id: ' . $event->getFlowState()->flowId . "\n"
                 . 'Sequence id: ' . $event->getFlowState()->getSequenceId()
@@ -237,9 +237,12 @@ class SendMailAction extends FlowAction implements DelayableAction
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
-        return $this->mailTemplateRepository
+        /** @var ?MailTemplateEntity $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository
             ->search($criteria, $context)
             ->first();
+
+        return $mailTemplate;
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool

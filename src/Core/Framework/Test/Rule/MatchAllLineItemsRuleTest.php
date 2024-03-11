@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Test\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
-use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,12 +20,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class MatchAllLineItemsRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -127,10 +128,11 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartScopeTestData
-     *
+     * @param array<string> $categoryIdsProductA
+     * @param array<string> $categoryIdsProductB
      * @param array<string> $categoryIds
      */
+    #[DataProvider('getCartScopeTestData')]
     public function testIfMatchesAllCorrectWithLineItemScope(
         array $categoryIdsProductA,
         array $categoryIdsProductB,
@@ -162,6 +164,9 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, mixed[]>
+     */
     public static function getCartScopeTestData(): array
     {
         return [
@@ -175,10 +180,12 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartScopeTestMinimumShouldMatchData
-     *
+     * @param array<string> $categoryIdsProductA
+     * @param array<string> $categoryIdsProductB
+     * @param array<string> $categoryIdsProductC
      * @param array<string> $categoryIds
      */
+    #[DataProvider('getCartScopeTestMinimumShouldMatchData')]
     public function testIfMatchesMinimumCorrectWithLineItemScope(
         array $categoryIdsProductA,
         array $categoryIdsProductB,
@@ -216,6 +223,9 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, mixed[]>
+     */
     public static function getCartScopeTestMinimumShouldMatchData(): array
     {
         return [

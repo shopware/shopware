@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -16,24 +17,23 @@ final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(
         EntityRepository $scheduledTaskRepository,
+        LoggerInterface $logger,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly int $delay
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void
     {
         try {
             if ($this->delay <= 0) {
-                $this->cacheInvalidator->invalidateExpired(null);
+                $this->cacheInvalidator->invalidateExpired();
 
                 return;
             }
 
-            $time = new \DateTime();
-            $time->modify(sprintf('-%d second', $this->delay));
-            $this->cacheInvalidator->invalidateExpired($time);
+            $this->cacheInvalidator->invalidateExpired();
         } catch (\Throwable) {
         }
     }

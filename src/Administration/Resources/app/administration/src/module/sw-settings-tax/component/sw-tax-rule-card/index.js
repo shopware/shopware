@@ -2,7 +2,7 @@ import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context } = Shopware;
@@ -15,6 +15,7 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     props: {
@@ -106,6 +107,14 @@ export default {
                 label: 'sw-settings-tax.taxRuleCard.labelActiveFrom',
             }];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     created() {
@@ -179,7 +188,8 @@ export default {
 
         getTypeCellComponent(taxRule) {
             const subComponentName = taxRule.type.technicalName.replace(/_/g, '-');
-            return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}-cell`];
+
+            return Shopware.Component.getComponentRegistry().get(`sw-settings-tax-rule-type-${subComponentName}-cell`);
         },
     },
 };

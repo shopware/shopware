@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 interface SitemapHandleInterface
 {
     public function write(array $urls): void;

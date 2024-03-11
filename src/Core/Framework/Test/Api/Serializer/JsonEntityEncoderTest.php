@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -56,9 +57,7 @@ class JsonEntityEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider emptyInputProvider
-     */
+    #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput(mixed $input): void
     {
         $this->expectException(UnsupportedEncoderInputException::class);
@@ -82,9 +81,7 @@ class JsonEntityEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider complexStructsProvider
-     */
+    #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
         /** @var EntityDefinition $definition */
@@ -140,9 +137,8 @@ class JsonEntityEncoderTest extends TestCase
     /**
      * @param array{customFields: mixed}|array{translated: array{customFields: mixed}} $input
      * @param array{customFields: mixed}|array{translated: array{customFields: mixed}} $output
-     *
-     * @dataProvider customFieldsProvider
      */
+    #[DataProvider('customFieldsProvider')]
     public function testCustomFields(array $input, array $output): void
     {
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);

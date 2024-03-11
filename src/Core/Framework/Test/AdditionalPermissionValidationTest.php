@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -13,10 +14,9 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
- *
- * @group slow
  */
 #[Package('core')]
+#[Group('slow')]
 class AdditionalPermissionValidationTest extends TestCase
 {
     use IntegrationTestBehaviour;

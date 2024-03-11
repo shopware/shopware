@@ -37,7 +37,6 @@
     "required": "*",
     "requiredFields": "Fields marked with asterisks (*) are required.",
     "privacyTitle": "Privacy",
-    "privacyNotice": "By clicking continue you confirm that you have read our <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and have accepted our <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "privacyNoticeText": "By selecting continue you confirm that you have read our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "privacyLink": "Privacy policy",
     "imprintLink": "Imprint",
@@ -50,7 +49,8 @@
     "next": "Next",
     "previous": "Previous",
     "formSubmit": "Submit",
-    "listPricePreviously": "previously %price%"
+    "listPricePreviously": "previously %price%",
+    "cancel": "Cancel"
   },
   "header": {
     "logoLink": "Go to homepage",
@@ -197,6 +197,7 @@
     "passwordChangeSuccess": "Your password has been updated.",
     "passwordChangeNoSuccess": "Password could not be changed.",
     "passwordNotIdentical": "The passwords you have entered do not match.",
+    "passwordPoliciesUpdated": "The password policies have changed. Please request a new one.",
     "passwordHashNotFound": "The password reset link seems to be invalid.",
     "passwordHashExpired": "The password reset link is no longer valid. Please request a new one.",
     "recoveryMailSend": " If the provided email address is registered, a confirmation email including a password reset link has been sent.",
@@ -208,7 +209,6 @@
     "profileRecoverPasswordInfo": "We will send you a confirmation email. Click the link in that email in order to change your password.",
     "profileRecoverPasswordSubmit": "Request email",
     "profileSaveChanges": "Save changes",
-    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-target=\"%target%\" data-bs-target=\"%target%\">Click here</a> to delete all your personal data",
     "profileDeleteText": "<a href=\"%target%\" data-bs-toggle=\"modal\" data-bs-target=\"%target%\">Click here</a> to delete all your personal data.",
     "profileDeleteAlert": "After deleting your customer account personal data, newsletter entries and reviews won't be accessible to you anymore. Note that records of all orders will be kept nonetheless in order to fulfill legal regulations.",
     "profileDeleteConfirm": "Do you really want to delete your customer account?",
@@ -217,21 +217,23 @@
     "profileDeleteSuccessAlert": "Your customer account was deleted.",
     "addressWelcome": "Addresses",
     "addressText": "View your current default addresses or add new ones.",
-    "addressListHeader": "All addresses",
+    "addressListHeader": "Available addresses",
     "addressesTitleDefaultShippingAddress": "Default shipping address",
     "addressesTitleDefaultBillingAddress": "Default billing address",
-    "addressesSetAsDefaultShippingAction": "Set as default shipping address",
-    "addressesSetAsDefaultBillingAction": "Set as default billing address",
-    "addressesTitleCurrentShippingAddress": "Currently shipping to",
-    "addressesTitleCurrentBillingAddress": "Currently billing",
-    "addressesContentItemActionEdit": "Edit",
-    "addressesContentItemActionDelete": "Delete",
+    "addressTitleChangeShippingAddress": "Change shipping address",
+    "addressTitleChangeBillingAddress": "Change billing address",
+    "addressesSetAsDefaultShippingAction": "Use as default shipping address",
+    "addressesSetAsDefaultBillingAction": "Use as default billing address",
+    "addressesTitleCurrentShippingAddress": "Current shipping address",
+    "addressesTitleCurrentBillingAddress": "Current billing address",
+    "addressesContentItemActionEdit": "Edit address",
+    "addressesContentItemActionDelete": "Delete address",
     "availableAddresses": "Available addresses",
     "selectAddress": "Select address",
-    "addressCreateBtn": "Add address",
+    "addressCreateBtn": "Add new address",
     "addressEditBtn": "Edit address",
-    "addressCreateWelcome": "Create a new address",
-    "addressEditWelcome": "Change address",
+    "addressCreateWelcome": "New address",
+    "addressEditWelcome": "Edit address",
     "addressSaveChange": "Save address",
     "addressDeleted": "Address has been deleted.",
     "addressNotDeleted": "Address could not be deleted.",
@@ -399,10 +401,8 @@
     "confirmChangePaymentShippingCancel": "Cancel",
     "confirmSubmit": "Submit order",
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
-    "confirmRevocationNotice": "Please note our <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Cancellation policy\">cancellation policy</a>.",
-    "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"General terms and conditions\">general terms and conditions</a>.",
+    "confirmRevocationNotice": "Please note our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Cancellation policy\">cancellation policy</a>.",
     "confirmTermsText": "I have read and accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
-    "confirmTermsReminder": "<br>You have already accepted the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"General terms and conditions\">general terms and conditions</a>.",
     "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "confirmRevocationTerms": "I want immediate access to the digital content and I acknowledge that thereby I waive my right to cancel.",
     "confirmRevocationReminder": "You have already declared that you waive the right of withdrawal.",
@@ -453,7 +453,9 @@
     "salutation-missing": "A salutation is missing from your profile, please choose one during checkout.",
     "salutation-missing-profile": "There's no salutation configured in your profile, please set one <a href=\"%url%\">here</a>.",
     "salutation-missing-billing-address": "There's no salutation configured for your active billing address, please set one <a href=\"%url%\">here</a>.",
-    "salutation-missing-shipping-address": "There's no salutation configured for your active shipping address, please set one <a href=\"%url%\">here</a>."
+    "salutation-missing-shipping-address": "There's no salutation configured for your active shipping address, please set one <a href=\"%url%\">here</a>.",
+    "country-region-missing-billing-address": "There's no country region configured for your active billing address, please set one <a href=\"%url%\">here</a>.",
+    "country-region-missing-shipping-address": "There's no country region configured for your active shipping address, please set one <a href=\"%url%\">here</a>."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -488,8 +490,7 @@
     "afterListPrice": "",
     "cheapestPriceLabel": "Variants from",
     "addToWishlist": "Add to wishlist",
-    "removeFromWishlist": "Remove from wishlist",
-    "toggleWishlist": "Toggle wishlist"
+    "removeFromWishlist": "Remove from wishlist"
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",
@@ -498,7 +499,7 @@
     "unsubscribeOption": "Unsubscribe from newsletter",
     "formSubmit": "Subscribe",
     "subscriptionPersistedSuccess": "You have just subscribed to our newsletter.\n To complete the sign-up process, search your inbox for our confirmation email and click on the link provided with it.",
-    "subscriptionPersistedInfo": "If you did not receive any email, please repeat the process or contact our support team.",
+    "subscriptionPersistedInfo": "If you do not receive a confirmation email in the next few minutes, you may already be subscribed to the newsletter. Check your inbox and spam folder. Then try to subscribe again and contact our support if this does not work either.",
     "subscriptionRevokeSuccess": "You have successfully unsubscribed from the newsletter.",
     "subscriptionConfirmationSuccess": "You have successfully subscribed to the newsletter.",
     "subscriptionConfirmationFailed": "Newsletter subscription did not work properly, please contact our support team.",
@@ -518,8 +519,7 @@
     "subjectPlaceholder": "Enter subject...",
     "commentLabel": "Comment",
     "commentPlaceholder": "Enter comment...",
-    "privacyNotice": "By clicking continue you confirm that you have read and agree to our <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
-    "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
+    "privacyNoticeText": "By selecting continue you confirm that you have read and agree to our <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a>.",
     "formSubmit": "Submit",
     "success": "We have received your contact request and will process it as soon as possible."
   },
@@ -586,6 +586,14 @@
     "reviewAvgRateElements": "stars",
     "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
+  "spatial": {
+    "scanQrCode": "Scan QR-Code",
+    "pointToQrCode": "Point the mobile device at the QR code to display the item in \"Augmented Reality\"-mode",
+    "arSupportInFollowingDevices": "The \"Augmented Reality\" experience is supported on the following devices:",
+    "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
+    "moveTheDeviceToStart": "Move the device to start",
+    "tapToPlaceTheObject": "Tap to place the object"
+  },
   "wishlist": {
     "cartTitle": "Your wishlist",
     "headline": "Your wishlist",
@@ -608,13 +616,10 @@
     "informationHeadline": "Information",
     "newsletterHeadline": "Newsletter",
     "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
-    "serviceContactLink": "Or via our <a data-bs-toggle=\"modal\" data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"contact form\">contact form</a>.",
     "serviceContactText": "Or via our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Contact form\">contact form</a>.",
     "newsletterInput": "Email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
-    "includeVat": "* All prices incl. VAT plus <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\" title=\"Shipping details\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "includeVatText": "* All prices incl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "excludeVat": "* All prices excl. VAT plus <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\" title=\"Shipping details\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "excludeVatText": "* All prices excl. VAT plus <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
@@ -625,9 +630,8 @@
     "basicCaptchaLabel" : "To continue, enter the characters shown above*"
   },
   "cookie": {
-    "message": "This website uses cookies to ensure the best experience possible. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
-    "deny": "Deny",
+    "deny": "Only technically required",
     "configure": "Configure",
     "configuration": "Settings",
     "save": "Save",
@@ -643,7 +647,10 @@
     "groupStatisticalGoogleAnalytics": "Google Analytics",
     "groupComfortFeatures": "Comfort features",
     "groupComfortFeaturesWishlist": "Wishlist",
-    "groupComfortFeaturesYoutubeVideo": "YouTube video"
+    "groupComfortFeaturesYoutubeVideo": "YouTube video",
+    "groupMarketing": "Marketing",
+    "groupMarketingDescription": "Allows Google to collect personal data for online advertising and marketing.",
+    "groupMarketingAdConsent": "Google Advertising"
   },
   "ellipsis": {
     "expandLabel": "show more",
@@ -676,11 +683,12 @@
     },
     "cms": {
       "vimeo": {
-        "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "privacyNoticeText": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "acceptButtonLabel": "Accept"
       },
       "imageGallery": {
+        "touchMove": "Touch and drag",
+        "clickMove": "Click and move",
         "sliderDotLabel": "Show image %index% of %total%"
       },
       "defaultMedia": {
@@ -716,6 +724,13 @@
           "title": "Plant",
           "alt": "Succulent in a white pot in front of light blue background"
         }
+      }
+    }
+  },
+  "theme": {
+    "compilation": {
+      "async": {
+        "success": "Compilation for sales channel %salesChannelName% completed"
       }
     }
   }

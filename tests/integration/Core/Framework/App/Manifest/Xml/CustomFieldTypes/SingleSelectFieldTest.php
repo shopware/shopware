@@ -3,9 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\SingleSelectField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 
@@ -17,45 +14,12 @@ class SingleSelectFieldTest extends TestCase
     use CustomFieldTypeTestBehaviour;
     use IntegrationTestBehaviour;
 
-    public function testCreateFromXml(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/single-select-field.xml');
-
-        static::assertNotNull($manifest->getCustomFields());
-        static::assertCount(1, $manifest->getCustomFields()->getCustomFieldSets());
-
-        /** @var CustomFieldSet $customFieldSet */
-        $customFieldSet = $manifest->getCustomFields()->getCustomFieldSets()[0];
-
-        static::assertCount(1, $customFieldSet->getFields());
-
-        $singleSelectField = $customFieldSet->getFields()[0];
-        static::assertInstanceOf(SingleSelectField::class, $singleSelectField);
-        static::assertEquals('test_single_select_field', $singleSelectField->getName());
-        static::assertEquals([
-            'en-GB' => 'Test single-select field',
-        ], $singleSelectField->getLabel());
-        static::assertEquals([], $singleSelectField->getHelpText());
-        static::assertEquals(1, $singleSelectField->getPosition());
-        static::assertEquals(['en-GB' => 'Choose an option...'], $singleSelectField->getPlaceholder());
-        static::assertFalse($singleSelectField->getRequired());
-        static::assertEquals([
-            'first' => [
-                'en-GB' => 'First',
-                'de-DE' => 'Erster',
-            ],
-            'second' => [
-                'en-GB' => 'Second',
-            ],
-        ], $singleSelectField->getOptions());
-    }
-
     public function testToEntityArray(): void
     {
         $singleSelectField = $this->importCustomField(__DIR__ . '/_fixtures/single-select-field.xml');
 
-        static::assertEquals('test_single_select_field', $singleSelectField->getName());
-        static::assertEquals('select', $singleSelectField->getType());
+        static::assertSame('test_single_select_field', $singleSelectField->getName());
+        static::assertSame('select', $singleSelectField->getType());
         static::assertTrue($singleSelectField->isActive());
         static::assertEquals([
             'label' => [

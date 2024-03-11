@@ -33,11 +33,11 @@ class ExtensionStoreDataControllerTest extends TestCase
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
 
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '[]'));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '[]'));
 
         $response = $this->controller->getInstalledExtensions($this->createAdminStoreContext());
-        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($data);
         static::assertContains('TestApp', array_column($data, 'name'));

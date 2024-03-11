@@ -2,12 +2,12 @@ import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters, mapState } = Component.getComponentHelper();
+const { mapGetters, mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -48,6 +48,8 @@ export default {
             'orderAddressIds',
         ]),
 
+        ...mapPropertyErrors('order', ['orderCustomer.email']),
+
         delivery() {
             return this.order.deliveries.length > 0 && this.order.deliveries[0];
         },
@@ -83,13 +85,7 @@ export default {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            if (this.order.salesChannelId) {
-                criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
-            }
-
-            return criteria;
+            return new Criteria(1, 25);
         },
 
         taxStatus() {

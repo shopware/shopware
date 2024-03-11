@@ -2,8 +2,7 @@
 
 {% block page_checkout_confirm_shipping_form %}
     {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' with {
-        'shipping': context.shippingMethod,
-        'defaultShippingMethodId': context.shippingMethod.id
+        shipping: context.shippingMethod,
+        defaultShippingMethodId: context.shippingMethod.id
     } %}
 {% endblock %}
-

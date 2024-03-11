@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[Package('storefront')]
 class StorefrontPluginConfiguration extends Struct
@@ -32,10 +33,7 @@ class StorefrontPluginConfiguration extends Struct
 
     protected ?string $storefrontEntryFilepath = null;
 
-    /**
-     * @decrecated tag:v6.0.0 will no longer be nullable
-     */
-    protected ?string $basePath = null;
+    protected string $basePath;
 
     /**
      * @var array<int, string>
@@ -250,5 +248,12 @@ class StorefrontPluginConfiguration extends Struct
     public function setThemeJson(?array $themeJson): void
     {
         $this->themeJson = $themeJson;
+    }
+
+    public function getAssetName(): string
+    {
+        $normalizer = new CamelCaseToSnakeCaseNameConverter();
+
+        return \str_replace('_', '-', $normalizer->normalize($this->technicalName));
     }
 }

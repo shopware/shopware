@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount, config } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import AppCmsService from 'src/app/service/app-cms.service';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import fixtures from './_mocks/appBlocks.json';
@@ -117,14 +117,10 @@ describe('src/app/service/app-cms.service', () => {
     });
 
     it('should create a vue.js component for the block component', async () => {
-        // delete global $router and $routes mocks
-        delete config.mocks.$router;
-        delete config.mocks.$route;
-
         const blockDefinition = fixtures.blocks[0];
         const component = service.createBlockPreviewComponent(blockDefinition);
 
-        const mountedComponent = shallowMount(component, {
+        const mountedComponent = mount(component, {
             stubs: {
                 'sw-cms-el-preview-manufacturer-logo': true,
                 'sw-cms-el-preview-image-gallery': true,
@@ -135,7 +131,7 @@ describe('src/app/service/app-cms.service', () => {
         expect(mountedComponent.vm).toBeTruthy();
 
         const previewComponent = service.createBlockPreviewComponent(blockDefinition);
-        const mountedPreviewComponent = shallowMount(previewComponent, {
+        const mountedPreviewComponent = mount(previewComponent, {
             stubs: {
                 'sw-cms-el-preview-manufacturer-logo': true,
                 'sw-cms-el-preview-image-gallery': true,

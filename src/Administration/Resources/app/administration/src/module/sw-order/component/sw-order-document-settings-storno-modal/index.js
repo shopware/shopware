@@ -1,7 +1,7 @@
 import template from './sw-order-document-settings-storno-modal.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

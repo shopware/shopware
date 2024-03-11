@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\ProductFeatureSet;
 
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,9 +17,7 @@ trait ProductFeatureSetFixtures
      */
     public $featureSetFixtures;
 
-    /**
-     * @before
-     */
+    #[Before]
     public function initializeFeatureSetFixtures(): void
     {
         $this->featureSetFixtures = [

@@ -40,7 +40,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -50,7 +49,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'order';
@@ -77,9 +76,6 @@ class OrderDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        // @deprecated tag:v6.6.0 - Variable $autoload will be removed in the next major as it will be false by default
-        $autoload = !Feature::isActive('v6.6.0.0');
-
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
@@ -112,7 +108,7 @@ class OrderDefinition extends EntityDefinition
             (new StringField('source', 'source'))->addFlags(new ApiAware()),
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
-            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', $autoload))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware()),
             new ListField('rule_ids', 'ruleIds', StringField::class),
             (new CustomFields())->addFlags(new ApiAware()),
             (new CreatedByField())->addFlags(new ApiAware()),

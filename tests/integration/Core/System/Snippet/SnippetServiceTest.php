@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,7 +14,7 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -133,10 +134,9 @@ json
     }
 
     /**
-     * @dataProvider dataProviderForTestGetStoreFrontSnippets
-     *
      * @param array<int, array<int, MessageCatalogue|array<int|string, string>>> $expectedResult
      */
+    #[DataProvider('dataProviderForTestGetStoreFrontSnippets')]
     public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
         $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
@@ -958,10 +958,9 @@ json
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
-            $this->getContainer()->get('sales_channel_domain.repository'),
             $this->getContainer()->get(SnippetFilterFactory::class),
             $this->getContainer(),
-            $this->getContainer()->has(SalesChannelThemeLoader::class) ? $this->getContainer()->get(SalesChannelThemeLoader::class) : null
+            $this->getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class) : null
         );
     }
 

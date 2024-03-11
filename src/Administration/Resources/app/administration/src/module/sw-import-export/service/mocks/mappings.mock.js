@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 /**
- * @package system-settings
+ * @package services-settings
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const productProfileOnlyRequired = [

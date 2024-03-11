@@ -2,13 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
+use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
@@ -18,9 +21,8 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter
  */
+#[CoversClass(TimeBackoffLimiter::class)]
 class TimeBackoffLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -88,9 +90,7 @@ class TimeBackoffLimiterTest extends TestCase
         static::assertFalse($limit->isAccepted());
     }
 
-    /**
-     * @dataProvider exceptionData
-     */
+    #[DataProvider('exceptionData')]
     public function testConsumeThrowsCorrectException(int $consume, int $maxLimit, ?int $consumeBefore = null): void
     {
         if ($consumeBefore !== null) {

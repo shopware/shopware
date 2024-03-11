@@ -43,17 +43,13 @@ class ToOneSerializer extends FieldSerializer
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
 
         $result = $entitySerializer->serialize($config, $definition, $record);
-        if ($record !== null) {
-            yield $toOne->getPropertyName() => iterator_to_array($result);
-        }
+        yield $toOne->getPropertyName() => iterator_to_array($result);
     }
 
     /**
      * @param mixed $records
-     *
-     * @return mixed
      */
-    public function deserialize(Config $config, Field $toOne, $records)
+    public function deserialize(Config $config, Field $toOne, $records): mixed
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
             throw new \InvalidArgumentException('Expected *ToOneField');

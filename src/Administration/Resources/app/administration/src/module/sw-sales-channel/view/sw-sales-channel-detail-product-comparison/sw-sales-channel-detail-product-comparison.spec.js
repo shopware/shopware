@@ -1,35 +1,34 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swSalesChannelDetailProductComparison from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-sales-channel-detail-product-comparison', swSalesChannelDetailProductComparison);
-
-async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-product-comparison'), {
-        stubs: {
-            'sw-card': true,
-            'sw-code-editor': true,
-            'sw-container': true,
-            'sw-button-process': true,
-            'sw-sales-channel-detail-product-comparison-preview': true,
-        },
-        provide: {
-            salesChannelService: {},
-            productExportService: {},
-            entityMappingService: {},
-            repositoryFactory: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-sales-channel-detail-product-comparison', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
                 },
+                'sw-code-editor': {
+                    template: '<div class="sw-code-editor"></div>',
+                    props: ['disabled'],
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-button-process': true,
+                'sw-sales-channel-detail-product-comparison-preview': true,
+            },
+            provide: {
+                salesChannelService: {},
+                productExportService: {},
+                entityMappingService: {},
+                repositoryFactory: {},
             },
         },
-        propsData: {
+        props: {
             productExport: {},
             salesChannel: {},
         },
@@ -37,30 +36,32 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
+    beforeEach(() => {
+        global.activeAclRoles = [];
     });
 
     it('should have codeEditors disabled when the user has no privileges', async () => {
         const wrapper = await createWrapper();
 
-        const codeEditors = wrapper.findAll('sw-code-editor-stub');
+        const codeEditors = wrapper.findAllComponents('.sw-code-editor');
 
-        codeEditors.wrappers.forEach(codeEditor => {
-            expect(codeEditor.attributes().disabled).toBe('true');
+        expect(codeEditors.length).toBeGreaterThan(0);
+        codeEditors.forEach(codeEditor => {
+            expect(codeEditor.props('disabled')).toBe(true);
         });
     });
 
     it('should have codeEditors enabled when the user has privileges', async () => {
-        const wrapper = await createWrapper([
+        global.activeAclRoles = [
             'sales_channel.editor',
-        ]);
+        ];
 
-        const codeEditors = wrapper.findAll('sw-field-stub');
+        const wrapper = await createWrapper();
 
-        codeEditors.wrappers.forEach(codeEditor => {
+        const codeEditors = wrapper.findAllComponents('.sw-code-editor');
+
+        expect(codeEditors.length).toBeGreaterThan(0);
+        codeEditors.forEach(codeEditor => {
             expect(codeEditor.attributes().disabled).toBeUndefined();
         });
     });

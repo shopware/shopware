@@ -72,20 +72,24 @@
                 </div>
             {% endblock %}
 
+            {# @deprecated tag:v6.7.0 - This block will be removed #}
             {% block sw_sales_channel_detail_theme_change_modal %}
                 <sw-modal v-if="showChangeModal"
                           @modal-close="onCloseChangeModal"
                           :title="$tc('sales-channel-theme.modal.modalTitleChange')"
                           variant="small">
 
+                    {# @deprecated tag:v6.7.0 - This block will be removed #}
                     {% block sw_sales_channel_detail_theme_change_modal_info %}
                         <p class="sw-sales-channel-detail-theme__confirm-change-text">
                             {{ $tc('sales-channel-theme.modal.textChangeTheme') }}
                         </p>
                     {% endblock %}
 
+                    {# @deprecated tag:v6.7.0 - This block will be removed #}
                     {% block sw_sales_channel_detail_theme_change_modal_footer %}
                         <template #modal-footer>
+                            {# @deprecated tag:v6.7.0 - This block will be removed #}
                             {% block sw_sales_channel_detail_theme_change_modal_cancel %}
                                 <sw-button @click="onCloseChangeModal"
                                            size="small">
@@ -93,6 +97,7 @@
                                 </sw-button>
                             {% endblock %}
 
+                            {# @deprecated tag:v6.7.0 - This block will be removed #}
                             {% block sw_sales_channel_detail_theme_change_modal_confirm %}
                                 <sw-button @click="onConfirmChange"
                                            variant="primary"

@@ -3,7 +3,6 @@
  *
  * @module core/service/plugin-updates-listener
  */
-import type Vue from 'vue';
 import type { LoginService } from './login.service';
 
 type UpdatedListResponse = {
@@ -13,14 +12,14 @@ type UpdatedListResponse = {
 
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function addPluginUpdatesListener(loginService: LoginService, serviceContainer: ServiceContainer): void {
     const localStorageKey = 'lastPluginUpdateCheck';
 
     function checkForPluginUpdates(innerServiceContainer: ServiceContainer) {
         // @ts-expect-error - localStorage.getItem() might return null but then Number.parseInt() will return NaN
-        const lastUpdate: number | Number.NaN = Number.parseInt(localStorage.getItem(localStorageKey), 10);
+        const lastUpdate: number = Number.parseInt(localStorage.getItem(localStorageKey), 10);
         const oneDay = 24 * 60 * 60 * 1000;
 
         if (Number.isNaN(lastUpdate) || lastUpdate < Date.now() - oneDay) {
@@ -35,7 +34,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
     }
 
     function createUpdatesAvailableNotification(): void {
-        const root: Vue | boolean = Shopware.Application.getApplicationRoot();
+        const root = Shopware.Application.getApplicationRoot();
 
         if (!root) {
             throw new Error('could not find applicationRoot');
@@ -53,7 +52,7 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
             system: true,
         };
 
-        void root.$store.dispatch(
+        void Shopware.State.dispatch(
             'notification/createNotification',
             notification,
         );

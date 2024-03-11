@@ -1,7 +1,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initMenuItems(): void {
     Shopware.ExtensionAPI.handle('menuItemAdd', async (menuItemConfig, additionalInformation) => {

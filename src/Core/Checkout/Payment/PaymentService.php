@@ -17,8 +17,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -88,9 +86,9 @@ class PaymentService
 
         try {
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
-        } catch (PaymentProcessException|PaymentException $e) {
+        } catch (PaymentException $e) {
             $transactionId = $e->getOrderTransactionId();
-            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
             if ($transactionId !== null) {
                 $this->transactionStateHandler->fail($transactionId, $context->getContext());
             }
@@ -133,11 +131,11 @@ class PaymentService
 
         try {
             $paymentHandler->finalize($transaction, $request, $context);
-        } catch (CustomerCanceledAsyncPaymentException|PaymentException $e) {
+        } catch (PaymentException $e) {
             if ($e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
                 $this->transactionStateHandler->cancel($transactionId, $context->getContext());
             } else {
-                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+                $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
                 $this->transactionStateHandler->fail($transactionId, $context->getContext());
             }
             $token->setException($e);
@@ -155,7 +153,7 @@ class PaymentService
         $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethodId);
 
         if (!$handler) {
-            throw PaymentException::unknownPaymentMethod($paymentMethodId);
+            throw PaymentException::unknownPaymentMethodById($paymentMethodId);
         }
 
         return $handler;

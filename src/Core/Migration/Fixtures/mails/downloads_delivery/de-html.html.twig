@@ -22,7 +22,7 @@
                         <td>
                             {% for download in lineItem.downloads %}
                                 {% if download.accessGranted %}
-                                    {% set downloadLink = url('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}) %}
+                                    {% set downloadLink = rawUrl('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) %}
                                     <a href="{{ downloadLink }}" target="_blank">
                                         {{ download.media.fileName }}.{{ download.media.fileExtension }}
                                     </a><br>

@@ -7,7 +7,7 @@ Attached to this email you will find the files to the order: {{ order.orderNumbe
 
 -------------------------------------
 {% for download in lineItem.downloads %}{% if download.accessGranted %}
-{{ download.media.fileName }}.{{ download.media.fileExtension }} - {% set downloadLink = url('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}) %}{{ downloadLink }}
+{{ download.media.fileName }}.{{ download.media.fileExtension }} - {% set downloadLink = rawUrl('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) %}{{ downloadLink }}
 {% endif %}{% endfor %}
 
 {% endif %}{% endfor %}

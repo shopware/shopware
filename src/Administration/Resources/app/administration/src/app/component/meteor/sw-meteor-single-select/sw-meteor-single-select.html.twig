@@ -37,9 +37,10 @@
                 <slot name="before-item-list">
                     <sw-simple-search-field
                         ref="searchField"
-                        v-model="searchTerm"
+                        :value="searchTerm"
                         size="small"
                         variant="form"
+                        @update:value="searchTerm = $event"
                         @search-term-change="onInputSearchTerm"
                     />
                 </slot>

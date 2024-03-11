@@ -5,15 +5,8 @@ shopware:
         default: true
         major: true
       - name: v6.6.0.0
+        default: true
+        major: true
+      - name: v6.7.0.0
         default: false
         major: true
-      - name: VUE3
-        default: false
-        major: true
-      - name: ES_MULTILINGUAL_INDEX
-        default: false
-        major: true
-        description: "Change Elasticsearch mapping data to support multi languages in one index"
-      - name: STOCK_HANDLING
-        default: false
-        major: false

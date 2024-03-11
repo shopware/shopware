@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartPriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\CartPriceFacade
  */
+#[CoversClass(CartPriceFacade::class)]
 class CartPriceFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

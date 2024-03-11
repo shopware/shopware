@@ -19,6 +19,9 @@ class Migration1679581138RemoveAssociationFields extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        if ($this->columnExists($connection, 'media_default_folder', 'association_fields')) {
+            $connection->executeStatement('ALTER TABLE `media_default_folder` CHANGE `association_fields` `association_fields` JSON NULL');
+        }
     }
 
     public function updateDestructive(Connection $connection): void

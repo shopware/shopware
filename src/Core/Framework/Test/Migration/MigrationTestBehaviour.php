@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -12,9 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait MigrationTestBehaviour
 {
-    /**
-     * @before
-     */
+    #[Before]
     public function addMigrationSources(): void
     {
         $loader = $this->getContainer()->get(MigrationCollectionLoader::class);

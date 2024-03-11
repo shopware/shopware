@@ -22,11 +22,6 @@ class PackageAnnotationRule implements Rule
      * @internal
      */
     public const PRODUCT_AREA_MAPPING = [
-        'business-ops' => [
-            '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
-            '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
-            '/Shopware\\\\Core\\\\System\\\\(Tag)\\\\/',
-        ],
         'inventory' => [
             '/Shopware\\\\Core\\\\Content\\\\(Product|ProductExport|Property)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Currency|Unit)\\\\/',
@@ -42,13 +37,17 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Footer\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\/',
         ],
-        'system-settings' => [
+        'services-settings' => [
+            '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Tag)\\\\/',
             '/Shopware\\\\Core\\\\Content\\\\(ImportExport|Mail)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Update)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Country|CustomField|Integration|Language|Locale|Snippet|User)\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Country\\\\/',
             '/Shopware\\\\Storefront\\\\Page\\\\Suggest\\\\/',
             '/Shopware\\\\Storefront\\\\Page\\\\Search\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
         ],
         'sales-channel' => [
             '/Shopware\\\\Core\\\\Content\\\\(MailTemplate|Seo|Sitemap)\\\\/',
@@ -56,26 +55,21 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Captcha\\\\/',
         ],
-        'customer-order' => [
-            '/Shopware\\\\Core\\\\Content\\\\(Newsletter)\\\\/',
-            '/Shopware\\\\Core\\\\Checkout\\\\(Customer|Document|Order)\\\\/',
-            '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|Salutation|Tax)\\\\/',
-            '/Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\/',
-            '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\/',
-            '/Shopware\\\\Storefront\\\\Page\\\\Maintenance\\\\/',
-            '/Shopware\\\\Storefront\\\\Page\\\\Address\\\\/',
-            '/Shopware\\\\Storefront\\\\Page\\\\Account\\\\/',
-        ],
         'checkout' => [
             '/Shopware\\\\Core\\\\Checkout\\\\(Cart|Payment|Promotion|Shipping)\\\\/',
+            '/Shopware\\\\Core\\\\Checkout\\\\(Customer|Document|Order)\\\\/',
+            '/Shopware\\\\Core\\\\Content\\\\(Newsletter)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|NumberRange|StateMachine)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(DeliveryTime|Salutation|Tax)\\\\/',
             '/Shopware\\\\Storefront\\\\Checkout\\\\/',
-            '/Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\/',
-            '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Account\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Address\\\\/',
             '/Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\/',
-        ],
-        'merchant-services' => [
-            '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Maintenance\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\/',
+            '/Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\/',
+            '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist\\\\/',
         ],
         'storefront' => [
             '/Shopware\\\\Storefront\\\\Theme\\\\/',
@@ -98,6 +92,9 @@ class PackageAnnotationRule implements Rule
         'administration' => [
             '/Shopware\\\\Administration\\\\/',
         ],
+        'data-services' => [
+            '/Shopware\\\\Core\\\\System\\\\UsageData\\\\/',
+        ],
     ];
 
     public function getNodeType(): string
@@ -112,6 +109,10 @@ class PackageAnnotationRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if ($node->getClassReflection()->isAnonymous()) {
+            return [];
+        }
+
         if ($this->isTestClass($node)) {
             return [];
         }

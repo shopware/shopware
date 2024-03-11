@@ -1,7 +1,7 @@
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/app/service/discount-campaign.service.ts', () => {
     beforeAll(() => {

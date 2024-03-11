@@ -1,9 +1,9 @@
 ---
 title: Integrate an app into flow action
 date: 2022-04-19
-area: business-ops
+area: services-settings
 tags: [flow, app, flow-action]
---- 
+---
 
 We want to offer apps the possibility to deliver their own flow actions. Each app should be able to deliver multiple flow actions. The implementation should be done via webhooks and XML configuration. The information will be stored in the database as usual. If the app is uninstalled, all data will be deleted.
 
@@ -48,4 +48,3 @@ A complete XML structure looks like this:
     </flow-action>
 </flow-actions>
 ```
-

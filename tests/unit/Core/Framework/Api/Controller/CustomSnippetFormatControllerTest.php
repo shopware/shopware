@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController;
@@ -13,9 +14,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController
  */
+#[CoversClass(CustomSnippetFormatController::class)]
 class CustomSnippetFormatControllerTest extends TestCase
 {
     /**

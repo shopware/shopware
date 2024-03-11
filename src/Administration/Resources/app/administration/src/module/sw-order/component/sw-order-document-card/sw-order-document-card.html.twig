@@ -1,10 +1,12 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_card %}
 <sw-card
+    v-show="!isDataLoading"
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
     :is-loading="isDataLoading"
+    class="sw-order-detail-base__document-grid"
 >
     <template #grid>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -76,7 +78,7 @@
             <template #column-createdAt="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_column_date_label %}
-                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
                 {% endblock %}
             </template>
             {% endblock %}
@@ -87,7 +89,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_column_sent_label %}
                 <sw-data-grid-column-boolean
-                    v-model="item.sent"
+                    v-model:value="item.sent"
                     :is-inline-edit="false"
                 />
                 {% endblock %}
@@ -103,7 +105,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_column_attach_label %}
                 <sw-data-grid-column-boolean
-                    v-model="item.attach"
+                    v-model:value="item.attach"
                     :is-inline-edit="true"
                 />
                 {% endblock %}
@@ -145,7 +147,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_send %}
                 <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
+                    :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
                     @click="onSendDocument(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -190,30 +192,27 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_card_grid_column_modal %}
-    <component
-        :is="documentModal"
-        v-if="showModal"
-        :current-document-type="currentDocumentType"
-        :order="order"
-        :is-loading-document="isLoadingDocument"
-        :is-loading-preview="isLoadingPreview"
-        @loading-document="onLoadingDocument"
-        @loading-preview="onLoadingPreview"
-        @page-leave="onCancelCreation"
-        @document-create="onCreateDocument"
-        @preview-show="onPreview"
-    />
+    <div v-if="showModal">
+        <component
+            :is="documentModal"
+            :current-document-type="currentDocumentType"
+            :order="order"
+            :is-loading-document="isLoadingDocument"
+            :is-loading-preview="isLoadingPreview"
+            @loading-document="onLoadingDocument"
+            @loading-preview="onLoadingPreview"
+            @page-leave="onCancelCreation"
+            @document-create="onCreateDocument"
+            @preview-show="onPreview"
+        />
+    </div>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_card_grid_column_document_type_modal %}
     <sw-order-select-document-type-modal
         v-if="showSelectDocumentTypeModal"
-        {% if VUE3 %}
         v-model:value="currentDocumentType"
-        {% else %}
-        v-model="currentDocumentType"
-        {% endif %}
         :order="order"
         @modal-close="onCloseSelectDocumentTypeModal"
     />
@@ -239,7 +238,7 @@
     >/
         <template #icon>
             <img
-                :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                :src="assetFilter('/administration/static/img/empty-states/order-empty-state.svg')"
                 :alt="$tc('sw-order.list.messageEmpty')"
             >
         </template>

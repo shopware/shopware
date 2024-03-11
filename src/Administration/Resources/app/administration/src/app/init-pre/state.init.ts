@@ -2,47 +2,28 @@
  * @package admin
  */
 
-// Vue2 imports
-import Vue from 'vue';
-import Vuex from 'vuex';
-import type { Module, Store } from 'vuex';
 import VuexModules from 'src/app/state/index';
 import type { FullState } from 'src/core/factory/state.factory';
-
-// Vue3 imports
-import type { Store as StoreV3 } from 'vuex_v3';
-import { createStore } from 'vuex_v3';
+import type { Module, Store } from 'vuex';
+import { createStore } from 'vuex';
+import Vue from 'vue';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
     initVuexState(Shopware.State);
-    // @ts-expect-error - all vuex modules are defined
+    // @ts-expect-error - vuex modules import is not typed
     initVuexModules(VuexModules, Shopware.State);
 
     return true;
 }
 
-function initVuexState(state: FullState, app = Vue) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const isVue3 = !!window._features_?.vue3;
+function initVuexState(state: FullState) {
+    const store = createStore<VuexRootState>({
+        modules: {},
+        strict: false,
+    });
 
-    let store: StoreV3<VuexRootState> | Store<VuexRootState>;
-
-    if (isVue3) {
-        store = createStore<VuexRootState>({
-            modules: {},
-            strict: false,
-        });
-
-        app.use(store as StoreV3<VuexRootState>);
-    } else {
-        Vue.use(Vuex);
-
-        store = new Vuex.Store<VuexRootState>({
-            modules: {},
-            strict: false,
-        });
-    }
+    Vue.use(store);
 
     registerProperties(state, store);
 

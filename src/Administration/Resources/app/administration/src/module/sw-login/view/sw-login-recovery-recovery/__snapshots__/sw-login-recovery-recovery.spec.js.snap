@@ -10,16 +10,8 @@ exports[`src/module/sw-login/view/sw-login-recovery-recovery should be a Vue.js 
     <router-link-stub
       class="sw-login__back"
       to="[object Object]"
-    >
-      <sw-icon-stub
-        class="sw-login__back-arrow"
-        name="regular-long-arrow-left"
-        small=""
-      />
-    </router-link-stub>
-    
-        sw-login.recovery.recovery.headline
-    
+    />
+     sw-login.recovery.recovery.headline
   </h2>
    
   <form>
@@ -39,11 +31,7 @@ exports[`src/module/sw-login/view/sw-login-recovery-recovery should be a Vue.js 
       <sw-button-stub
         disabled="true"
         variant="primary"
-      >
-        
-                    sw-login.recovery.recovery.submit.label
-                
-      </sw-button-stub>
+      />
     </div>
   </form>
 </div>

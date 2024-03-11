@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>swagUnitTestShippingMethodPersister</name>
+        <label>Swag unit test shipping method persister</label>
+        <label lang="de-DE">Swag Unit Test Versandart Persister</label>
+        <description>Test for install a shipping methods</description>
+        <description lang="de-DE">Test für die Installation einer Versandart</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+
+    <shipping-methods>
+        <shipping-method>
+            <identifier>shippingMethodOne</identifier>
+            <name>First Shipping Method</name>
+            <name lang="de-DE">Erste Versandart</name>
+            <description>This is a simple description</description>
+            <description lang="de-DE">Das ist eine einfache Beschreibung</description>
+            <active>false</active>
+            <icon>icons/TestIcon.png</icon>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c8</id>
+                <name>Short delivery time 1-2 days</name>
+                <min>1</min>
+                <max>2</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+        <shipping-method>
+            <identifier>shippingMethodTwo</identifier>
+            <name>Second Shipping Method</name>
+            <name lang="de-DE">Zweite Versandart</name>
+            <description>This is another simple description</description>
+            <description lang="de-DE">Das ist eine andere einfache Beschreibung</description>
+            <active>false</active>
+            <delivery-time>
+                <id>4b00146bdc8b4175b12d3fc36ec114c9</id>
+                <name>another delivery time</name>
+                <min>2</min>
+                <max>3</max>
+                <unit>day</unit>
+            </delivery-time>
+        </shipping-method>
+    </shipping-methods>
+</manifest>

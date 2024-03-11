@@ -8,11 +8,11 @@ export default () => {
     Shopware.Component.register('sw-code-editor', () => import('src/app/asyncComponent/form/sw-code-editor'));
     Shopware.Component.register('sw-datepicker', () => import('src/app/asyncComponent/form/sw-datepicker'));
     Shopware.Component.register('sw-chart', () => import('src/app/asyncComponent/base/sw-chart'));
-
+    Shopware.Component.register('sw-help-center-v2', () => import('src/app/asyncComponent/utils/sw-help-center'));
+    Shopware.Component.register('sw-help-sidebar', () => import('src/app/asyncComponent/sidebar/sw-help-sidebar'));
     Shopware.Component.register('sw-image-slider', () => import('src/app/asyncComponent/media/sw-image-slider'));
     Shopware.Component.register('sw-media-add-thumbnail-form', () => import('src/app/asyncComponent/media/sw-media-add-thumbnail-form'));
     Shopware.Component.register('sw-media-base-item', () => import('src/app/asyncComponent/media/sw-media-base-item'));
-    // @ts-expect-error - the extended component is not a valid vue configuration
     Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', () => import('src/app/asyncComponent/media/sw-media-compact-upload-v2'));
     Shopware.Component.register('sw-media-entity-mapper', () => import('src/app/asyncComponent/media/sw-media-entity-mapper'));
     Shopware.Component.register('sw-media-field', () => import('src/app/asyncComponent/media/sw-media-field'));
@@ -27,7 +27,6 @@ export default () => {
     Shopware.Component.register('sw-media-modal-move', () => import('src/app/asyncComponent/media/sw-media-modal-move'));
     Shopware.Component.register('sw-media-modal-replace', () => import('src/app/asyncComponent/media/sw-media-modal-replace'));
     Shopware.Component.register('sw-media-preview-v2', () => import('src/app/asyncComponent/media/sw-media-preview-v2'));
-    // @ts-expect-error - the extended component is not a valid vue configuration
     Shopware.Component.extend('sw-media-replace', 'sw-media-upload-v2', import('src/app/asyncComponent/media/sw-media-replace'));
     Shopware.Component.register('sw-media-upload-v2', () => import('src/app/asyncComponent/media/sw-media-upload-v2'));
     Shopware.Component.register('sw-media-url-form', () => import('src/app/asyncComponent/media/sw-media-url-form'));

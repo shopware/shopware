@@ -28,6 +28,6 @@ final class DeleteThemeFilesHandler
             return;
         }
 
-        $this->filesystem->deleteDirectory($message->getThemePath());
+        $this->filesystem->deleteDirectory('theme' . \DIRECTORY_SEPARATOR . $message->getThemePath());
     }
 }

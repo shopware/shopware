@@ -1,52 +1,53 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import SwMediaField from 'src/app/asyncComponent/media/sw-media-field';
-
-Shopware.Component.register('sw-media-field', SwMediaField);
+import { mount } from '@vue/test-utils';
 
 describe('src/app/component/media/sw-media-field', () => {
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-media-field'), {
-            stubs: {
-                'sw-media-media-item': true,
-                'sw-button': true,
-                'sw-popover': {
-                    template: `
-                         <div>
+        return mount(await wrapTestComponent('sw-media-field', { sync: true }), {
+            props: {
+                fileAccept: '*/*',
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-media-media-item': true,
+                    'sw-button': true,
+                    'sw-popover': {
+                        template: `
+                        <div>
                             <slot />
                         </div>
                     `,
+                    },
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': true,
+                    'sw-simple-search-field': true,
+                    'sw-loader': true,
+                    'sw-icon': true,
+                    'sw-pagination': true,
                 },
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-simple-search-field': true,
-                'sw-loader': true,
-                'sw-icon': true,
-            },
-            mocks: {
-                $route: {
-                    query: '',
+                mocks: {
+                    $route: {
+                        query: '',
+                    },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve();
-                        },
-                        get: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return Promise.resolve();
+                            },
+                            get: () => {
+                                return Promise.resolve();
+                            },
+                            search: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
                 },
-            },
-            propsData: {
-                fileAccept: '*/*',
             },
         });
     }
@@ -67,6 +68,9 @@ describe('src/app/component/media/sw-media-field', () => {
             field: 'mediaFolder.defaultFolder.entity',
             value: 'product',
         });
+
+        expect(criteria.page).toBe(1);
+        expect(criteria.limit).toBe(5);
     });
 
     it('should contain a property props fileAccept', async () => {
@@ -88,5 +92,34 @@ describe('src/app/component/media/sw-media-field', () => {
         });
 
         expect(stopPropagation).toHaveBeenCalled();
+
+        expect(wrapper.vm.page).toBe(1);
+        expect(wrapper.vm.limit).toBe(5);
+        expect(wrapper.vm.total).toBe(0);
+    });
+
+    it('should be able to change search term', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.fetchSuggestions = jest.fn();
+
+        wrapper.vm.onSearchTermChange('test');
+
+        expect(wrapper.vm.searchTerm).toBe('test');
+        expect(wrapper.vm.page).toBe(1);
+        expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
+    });
+
+    it('should be able to change page', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.fetchSuggestions = jest.fn();
+
+        wrapper.vm.onPageChange({
+            page: 2,
+            limit: 5,
+        });
+
+        expect(wrapper.vm.page).toBe(2);
+        expect(wrapper.vm.limit).toBe(5);
+        expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
     });
 });

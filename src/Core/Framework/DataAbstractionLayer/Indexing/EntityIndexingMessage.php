@@ -25,7 +25,8 @@ class EntityIndexingMessage implements AsyncMessageInterface
         protected $data,
         protected $offset = null,
         ?Context $context = null,
-        private readonly bool $forceQueue = false
+        public bool $forceQueue = false,
+        public bool $isFullIndexing = false
     ) {
         $this->context = $context ?? Context::createDefaultContext();
     }

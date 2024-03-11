@@ -16,7 +16,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class HomeUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

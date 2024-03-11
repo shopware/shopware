@@ -8,7 +8,7 @@ import './sw-inheritance-switch.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-inheritance-switch', {
     template,

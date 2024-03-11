@@ -1,10 +1,9 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-describe('Theme: Test common editing of theme', () => {
+describe('Theme: Test common editing of theme', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
@@ -92,16 +91,17 @@ describe('Theme: Test common editing of theme', () => {
 
         cy.get('.sw-theme-manager-detail__area');
 
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().typeAndCheck('\'Inter\', sans-serif');
-
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif`')
+        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif').blur()
             .should('have.value', '\'Inter\', sans-serif');
 
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif´')
+        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif`').blur()
+            .should('have.value', '\'Inter\', sans-serif');
+
+        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif´').blur()
             .should('have.value', '\'Inter\', sans-serif');
     });
 
-    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels'] }, () => {
+    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',

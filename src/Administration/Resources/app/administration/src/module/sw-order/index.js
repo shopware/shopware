@@ -5,7 +5,7 @@ import './mixin/cart-notification.mixin';
 import defaultSearchConfiguration from './default-search-configuration';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Module } = Shopware;

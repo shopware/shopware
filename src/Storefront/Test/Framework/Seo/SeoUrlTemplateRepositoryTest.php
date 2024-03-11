@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -17,6 +19,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
+#[Package('buyers-experience')]
 class SeoUrlTemplateRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -43,9 +46,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         static::assertCount(1, $event->getPayloads());
     }
 
-    /**
-     * @dataProvider templateUpdateDataProvider
-     */
+    #[DataProvider('templateUpdateDataProvider')]
     public function testUpdate(string $id, array $template): void
     {
         $context = Context::createDefaultContext();

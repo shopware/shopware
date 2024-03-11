@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -244,9 +245,8 @@ EOF;
     /**
      * @param list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}> $records
      * @param list<string> $expected
-     *
-     * @dataProvider cashRoundingSortingProvider
      */
+    #[DataProvider('cashRoundingSortingProvider')]
     public function testCashRoundingSorting(
         array $records,
         array $expected,
@@ -478,9 +478,8 @@ EOF;
     /**
      * @param list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}> $records
      * @param list<string> $expected
-     *
-     * @dataProvider cashRoundingFilterProvider
      */
+    #[DataProvider('cashRoundingFilterProvider')]
     public function testCashRoundingFilter(
         RangeFilter $filter,
         array $records,

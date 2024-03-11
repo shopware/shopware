@@ -1,8 +1,9 @@
 {% block cms_form_contact %}
     <form action="{{ path(action) }}"
           method="post"
-          data-form-validation="true">
-
+          data-form-validation="true"
+          data-form-preserver="true"
+          id="cms-form-contact">
         <div class="form-content">
         <div class="row g-2">
             {% block cms_form_contact_select_salutation %}
@@ -55,17 +56,20 @@
                 %}
             {% endblock %}
 
-            {% block cms_form_contact_input_phome %}
-                {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
-                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                    with {
-                    fieldName: 'phone',
-                    required: phoneNumberFieldRequired,
-                    additionalClass: 'col-md-6',
-                    label: 'account.personalPhoneLabel',
-                    placeholder: 'account.personalPhonePlaceholder'
-                }
-                %}
+            {% block cms_form_contact_input_phone %}
+                {# @deprecated tag:v6.7.0 - Block will be renamed because of a typo. Use outer `cms_form_contact_input_phone` instead. #}
+                {% block cms_form_contact_input_phome %}
+                    {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
+                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                        with {
+                        fieldName: 'phone',
+                        required: phoneNumberFieldRequired,
+                        additionalClass: 'col-md-6',
+                        label: 'account.personalPhoneLabel',
+                        placeholder: 'account.personalPhonePlaceholder'
+                    }
+                    %}
+                {% endblock %}
             {% endblock %}
         </div>
 
@@ -107,9 +111,10 @@
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig'
-                with { 'requiresTermsOfService': false }
-            %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' with {
+                requiresTermsOfService: false,
+                prevUrl: app.request.isXmlHttpRequest() ? path('frontend.cms.page', { id: config('core.basicInformation.contactPage') }) : '',
+            } %}
         {% endblock %}
 
         {% block cms_form_contact_submit %}

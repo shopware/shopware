@@ -1,30 +1,32 @@
-import { shallowMount } from '@vue/test-utils';
-import swCustomEntityInputField from 'src/module/sw-custom-entity/component/sw-custom-entity-input-field';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-custom-entity-input-field', swCustomEntityInputField);
-
-async function createWrapper(propsData = { type: 'string' }) {
-    return shallowMount(await Shopware.Component.build('sw-custom-entity-input-field'), {
-        propsData,
-        provide: {
+async function createWrapper(props = { type: 'string' }) {
+    return mount(await wrapTestComponent('sw-custom-entity-input-field', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-text-field': {
+                    template: '<input/>',
+                    props: ['value', 'label', 'placeholder', 'helpText'],
+                },
+                'sw-textarea-field': {
+                    template: '<input/>',
+                    props: ['value', 'label', 'placeholder', 'helpText'],
+                },
+                'sw-number-field': {
+                    template: '<input/>',
+                    props: ['value', 'label', 'placeholder', 'helpText', 'numberType'],
+                },
+                'sw-switch-field': {
+                    template: '<input/>',
+                    props: ['value', 'label', 'placeholder', 'helpText'],
+                },
+                'sw-datepicker': {
+                    template: '<input/>',
+                    props: ['value', 'label', 'placeholder', 'helpText'],
+                },
+            },
         },
-        stubs: {
-            'sw-text-field': {
-                template: '<input/>',
-            },
-            'sw-textarea-field': {
-                template: '<input/>',
-            },
-            'sw-number-field': {
-                template: '<input/>',
-            },
-            'sw-switch-field': {
-                template: '<input/>',
-            },
-            'sw-datepicker': {
-                template: '<input/>',
-            },
-        },
+        props,
     });
 }
 
@@ -40,12 +42,6 @@ const basicMockData = {
  * @package content
  */
 describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     ['string', 'text', 'int', 'float', 'boolean', 'date'].forEach((type) => {
         it(`should render basic properties correctly according to type [type="${type}"]`, async () => {
             const mockData = {
@@ -56,11 +52,11 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
 
             await wrapper.setProps(mockData);
 
-            const inputField = wrapper.get(`.sw-custom-entity-input-field__${type}`);
-            expect(inputField.attributes().value).toBe(mockData.value);
-            expect(inputField.attributes().label).toBe(mockData.label);
-            expect(inputField.attributes().placeholder).toBe(mockData.placeholder);
-            expect(inputField.attributes()['help-text']).toBe(mockData['help-text']);
+            const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
+            expect(inputField.props('value')).toBe(mockData.value);
+            expect(inputField.props('label')).toBe(mockData.label);
+            expect(inputField.props('placeholder')).toBe(mockData.placeholder);
+            expect(inputField.props('helpText')).toBe(mockData['help-text']);
         });
     });
 
@@ -74,8 +70,8 @@ describe('module/sw-custom-entity/component/sw-custom-entity-input-field', () =>
 
             await wrapper.setProps(mockData);
 
-            const inputField = wrapper.get(`.sw-custom-entity-input-field__${type}`);
-            expect(inputField.attributes()['number-type']).toBe(type);
+            const inputField = wrapper.getComponent(`.sw-custom-entity-input-field__${type}`);
+            expect(inputField.props('numberType')).toBe(type);
         });
     });
 });

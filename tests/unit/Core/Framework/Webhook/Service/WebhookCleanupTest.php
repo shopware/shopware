@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -10,9 +11,8 @@ use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\Service\WebhookCleanup
  */
+#[CoversClass(WebhookCleanup::class)]
 class WebhookCleanupTest extends TestCase
 {
     public function testNotingIsRemovedIfLifetimeIsMinus1(): void

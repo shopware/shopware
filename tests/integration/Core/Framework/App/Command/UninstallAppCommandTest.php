@@ -36,7 +36,6 @@ class UninstallAppCommandTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -49,7 +48,7 @@ class UninstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'SwagApp']);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[OK] App uninstalled successfully.', $commandTester->getDisplay());
     }
@@ -60,7 +59,7 @@ class UninstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'SwagApp']);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[ERROR] No app with name "SwagApp" installed.', $commandTester->getDisplay());
     }

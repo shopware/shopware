@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1677470540AddProvincesForCanada;
@@ -10,9 +11,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1677470540AddProvincesForCanada
  */
+#[CoversClass(Migration1677470540AddProvincesForCanada::class)]
 class Migration1677470540AddProvincesForCanadaTest extends TestCase
 {
     use MigrationTestTrait;
@@ -25,7 +25,7 @@ class Migration1677470540AddProvincesForCanadaTest extends TestCase
 
         $countryId = $this->getCountryId();
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT id
 FROM country_state
 WHERE country_id = :countryId
@@ -52,7 +52,7 @@ SQL;
 
         $countryId = $this->getCountryId();
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT COUNT(id)
 FROM country_state
 WHERE country_id = :countryId
@@ -72,7 +72,7 @@ SQL;
 
         $countryId = $this->getCountryId();
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT COUNT(id)
 FROM country_state
 WHERE country_id = :countryId
@@ -92,7 +92,7 @@ SQL;
         $countryId = $this->getCountryId();
         $enLanguageId = $this->getEnLanguageId();
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT COUNT(*)
 FROM country_state_translation
 JOIN country_state ON country_state.id = country_state_translation.country_state_id
@@ -114,7 +114,7 @@ SQL;
         $countryId = $this->getCountryId();
         $deLanguageId = $this->getDeLanguageId();
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT COUNT(*)
 FROM country_state_translation
 JOIN country_state ON country_state.id = country_state_translation.country_state_id
@@ -129,7 +129,7 @@ SQL;
 
     private function getEnLanguageId(): string
     {
-        $getLanguageSql = <<<SQL
+        $getLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -141,7 +141,7 @@ SQL;
 
     private function getDeLanguageId(): string
     {
-        $getLanguageSql = <<<SQL
+        $getLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id

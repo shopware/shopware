@@ -1,5 +1,4 @@
 import DomAccess from 'src/helper/dom-access.helper';
-import { REMOVE_BACKDROP_DELAY } from 'src/utility/backdrop/backdrop.util';
 
 const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
 const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
@@ -30,8 +29,9 @@ export default class PseudoModalUtil {
      * @param {function} cb
      */
     open(cb) {
+        this._hideExistingModal();
         this._create();
-        setTimeout(this._open.bind(this, cb), REMOVE_BACKDROP_DELAY);
+        this._open(cb);
     }
 
     /**
@@ -77,6 +77,30 @@ export default class PseudoModalUtil {
 
         if (typeof callback === 'function') {
             callback.bind(this)();
+        }
+    }
+
+    /**
+     * Before opening a new pseudo modal, check if there is any existing pseudo modal already.
+     * Hide an existing pseudo modal first to avoid multiple modals or backdrops.
+     *
+     * @private
+     */
+    _hideExistingModal() {
+        try {
+            const existingModalEl = DomAccess.querySelector(document, `.${PSEUDO_MODAL_CLASS} .modal`, false);
+            if (!existingModalEl) {
+                return;
+            }
+
+            const existingModalInstance = bootstrap.Modal.getInstance(existingModalEl);
+            if (!existingModalInstance) {
+                return;
+            }
+
+            existingModalInstance.hide();
+        } catch (err) {
+            console.warn(`[PseudoModalUtil] Unable to hide existing pseudo modal before opening pseudo modal: ${err.message}`);
         }
     }
 

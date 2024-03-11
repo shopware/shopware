@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -169,6 +169,10 @@ export default {
 
             return properties;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     methods: {
@@ -238,7 +242,7 @@ export default {
                 },
             };
 
-            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api, behaviour).then((duplicatedData) => {
+            this.ruleRepository.clone(referenceRule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',

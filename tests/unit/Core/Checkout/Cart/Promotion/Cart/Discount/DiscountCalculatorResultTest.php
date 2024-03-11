@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -11,17 +13,15 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult
  */
+#[CoversClass(DiscountCalculatorResult::class)]
 class DiscountCalculatorResultTest extends TestCase
 {
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testGetPrice(): void
     {
         $price = new CalculatedPrice(29, 29, new CalculatedTaxCollection(), new TaxRuleCollection());
@@ -37,9 +37,8 @@ class DiscountCalculatorResultTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCompositionItems(): void
     {
         $price = new CalculatedPrice(29, 29, new CalculatedTaxCollection(), new TaxRuleCollection());

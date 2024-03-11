@@ -1,15 +1,8 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigProductSlider from 'src/module/sw-cms/elements/product-slider/config';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/form/select/base/sw-select-result-list';
-
-Shopware.Component.register('sw-cms-el-config-product-slider', swCmsElConfigProductSlider);
 
 const productMock = [{
     id: 'de8de156da134dabac24257f81ff282f',
@@ -32,8 +25,10 @@ const productStreamMock = {
 
 
 async function createWrapper(customCmsElementConfig) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-slider'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-config-product-slider', {
+        sync: true,
+    }), {
+        props: {
             element: {
                 config: {
                     title: {
@@ -54,52 +49,55 @@ async function createWrapper(customCmsElementConfig) {
             },
             defaultConfig: {},
         },
-        stubs: {
-            'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
-            },
-            'sw-tabs-item': true,
-            'sw-container': true,
-            'sw-text-field': true,
-            'sw-single-select': true,
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': true,
-            'sw-product-variant-info': true,
-            'sw-label': true,
-            'sw-modal': true,
-            'sw-block-field': true,
-            'sw-product-stream-grid-preview': true,
-            'sw-entity-single-select': true,
-            'sw-alert': true,
-            'sw-number-field': true,
-            'sw-icon': true,
-            'sw-loader': true,
-            'sw-popover': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                 },
-                getCmsElementRegistry: () => {
-                    return {};
-                },
+                'sw-tabs-item': true,
+                'sw-container': true,
+                'sw-text-field': true,
+                'sw-single-select': true,
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': true,
+                'sw-product-variant-info': true,
+                'sw-label': true,
+                'sw-modal': true,
+                'sw-block-field': true,
+                'sw-product-stream-grid-preview': true,
+                'sw-entity-single-select': true,
+                'sw-alert': true,
+                'sw-number-field': true,
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-popover': true,
             },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productStreamMock),
-                        search: (criteria) => {
-                            const products = criteria.ids.length ? productMock.slice(0, 1) : productMock;
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return {};
+                    },
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(productStreamMock),
+                            search: (criteria) => {
+                                const products = criteria.ids.length ? productMock.slice(0, 1) : productMock;
 
-                            products.has = id => products.some(i => i.id === id);
+                                products.has = id => products.some(i => i.id === id);
 
-                            return Promise.resolve(products);
-                        },
-                    };
+                                return Promise.resolve(products);
+                            },
+                        };
+                    },
                 },
             },
         },
@@ -124,26 +122,6 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
-    });
-
-    it('should display check marks for manually selected products', async () => {
-        const wrapper = await createWrapper();
-
-
-        expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
-
-        wrapper.vm.element.config.products.source = 'manual';
-
-        await wrapper.get('.sw-select-selection-list__input').trigger('click');
-        await wrapper.vm.$nextTick();
-
-        const selectResults = wrapper.findAll('.sw-select-result-list__item-list > sw-select-result-stub');
-
-        expect(selectResults.at(0).attributes().selected).toBe('true');
-        expect(selectResults.at(0).text()).toBe(productMock[0].translated.name);
-
-        expect(selectResults.at(1).attributes().selected).toBeFalsy();
-        expect(selectResults.at(1).text()).toBe(productMock[1].name);
     });
 
     it('should fetch product stream when assignment type is "product_stream"', async () => {

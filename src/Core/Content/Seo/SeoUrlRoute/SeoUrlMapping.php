@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Seo\SeoUrlRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlMapping
 {
     public function __construct(

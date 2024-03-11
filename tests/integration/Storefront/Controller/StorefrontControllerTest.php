@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
-use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Core\Test\StaticTranslator;
+use Shopware\Core\Test\Stub\Translator\StaticTranslator;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -51,9 +51,7 @@ class StorefrontControllerTest extends TestCase
         $this->cache = new FilesystemCache($this->cacheDir);
     }
 
-    /**
-     * @dataProvider cartProvider
-     */
+    #[DataProvider('cartProvider')]
     public function testAddCartErrorsAddsUrlToSalutationErrors(Cart $cart): void
     {
         $container = static::createStub(ContainerInterface::class);
@@ -177,9 +175,8 @@ class StorefrontControllerTest extends TestCase
 
     /**
      * @return array{
-     *     0: ProfileSalutationMissingError,
-     *     1: BillingAddressSalutationMissingError,
-     *     2: ShippingAddressSalutationMissingError
+     *     0: BillingAddressSalutationMissingError,
+     *     1: ShippingAddressSalutationMissingError
      * }
      */
     private static function getErrors(): array
@@ -198,7 +195,6 @@ class StorefrontControllerTest extends TestCase
         $address->setCity('');
 
         return [
-            new ProfileSalutationMissingError($customer),
             new BillingAddressSalutationMissingError($address),
             new ShippingAddressSalutationMissingError($address),
         ];

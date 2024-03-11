@@ -6,8 +6,7 @@ const { Component, Utils } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description a search field with delayed update
  * @status ready
  * @example-type static
@@ -22,6 +21,11 @@ const { Component, Utils } = Shopware;
 Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,
+
+    emits: [
+        'update:value',
+        'search-term-change',
+    ],
 
     props: {
         variant: {
@@ -41,7 +45,6 @@ Component.register('sw-simple-search-field', {
             type: String,
             default: null,
             required: false,
-
         },
 
         delay: {
@@ -79,7 +82,7 @@ Component.register('sw-simple-search-field', {
 
     methods: {
         onInput(input) {
-            this.$emit('input', input);
+            this.$emit('update:value', input);
             this.onSearchTermChanged(input);
         },
     },

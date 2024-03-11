@@ -125,7 +125,27 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         componentsWithMapInheritanceSupport() {
-            return ['sw-field'];
+            return [
+                'sw-text-field',
+                'sw-textarea-field',
+                'sw-select-field',
+                'sw-checkbox-field',
+                'sw-switch-field',
+                'sw-number-field',
+                'sw-datepicker',
+                'sw-email-field',
+                'sw-url-field',
+                'sw-password-field',
+                'sw-radio-field',
+                'sw-colorpicker',
+                'sw-compact-colorpicker',
+                'sw-price-field',
+                'sw-entity-multi-id-select',
+                'sw-entity-single-select',
+                'sw-tagged-field',
+                // for backwards compatibility with old custom fields
+                'sw-field',
+            ];
         },
     },
 

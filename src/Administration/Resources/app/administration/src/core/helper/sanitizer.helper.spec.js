@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import 'src/app/component/base/sw-empty-state';
@@ -127,18 +127,17 @@ describe('core/helper/sanitizer.helper.js', () => {
     });
 
     it('should sanitize untrusted HTML in a component', async () => {
-        const localVue = createLocalVue();
-        localVue.use(SanitizePlugin);
-
         const $route = {
             meta: { $module: { icon: null } },
         };
 
-        const wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
-            localVue,
-            stubs: ['sw-icon'],
-            mocks: {
-                $route,
+        const wrapper = mount(await Shopware.Component.build('sw-empty-state'), {
+            global: {
+                plugins: [SanitizePlugin],
+                stubs: ['sw-icon'],
+                mocks: {
+                    $route,
+                },
             },
             props: {
                 title: 'Foo bar',

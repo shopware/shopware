@@ -16,12 +16,4 @@ class DateField extends Field
     use TranslatableTrait;
 
     protected string $type = 'date';
-
-    /**
-     * @internal
-     */
-    public static function fromXml(\DOMElement $element): Field
-    {
-        return new self(self::parse($element));
-    }
 }

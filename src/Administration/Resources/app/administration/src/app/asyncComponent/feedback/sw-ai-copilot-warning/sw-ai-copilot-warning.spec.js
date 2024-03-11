@@ -1,12 +1,15 @@
-import { shallowMount } from '@vue/test-utils';
-import SwAiCopilotWarning from './index';
+/**
+ * @package admin
+ */
 
-Shopware.Component.register('sw-ai-copilot-warning', SwAiCopilotWarning);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-ai-copilot-warning'), {
-        stubs: {
-            'sw-icon': true,
+    return mount(await wrapTestComponent('sw-ai-copilot-warning', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
         },
     });
 }
@@ -17,14 +20,6 @@ describe('src/app/asyncComponent/feedback/sw-ai-copilot-warning/index.ts', () =>
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-
-        await flushPromises();
-    });
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
 
         await flushPromises();
     });

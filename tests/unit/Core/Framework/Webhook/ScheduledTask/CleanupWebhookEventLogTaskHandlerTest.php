@@ -2,16 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\ScheduledTask;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler
  */
+#[CoversClass(CleanupWebhookEventLogTaskHandler::class)]
 class CleanupWebhookEventLogTaskHandlerTest extends TestCase
 {
     public function testHandler(): void
@@ -22,6 +23,7 @@ class CleanupWebhookEventLogTaskHandlerTest extends TestCase
 
         $handler = new CleanupWebhookEventLogTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $cleaner
         );
 

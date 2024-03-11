@@ -3,7 +3,7 @@ title: Refactor admin build process to webpack-multi-compiler mode
 date: 2021-08-31
 area: administration
 tags: [administration, webpack, plugin, build]
---- 
+---
 
 ## Context
 Previously the plugins are not completely independent from the core and other plugins. This has sometimes caused built plugin files to be incompatible with the core. Unless they were rebuilt again with the core.

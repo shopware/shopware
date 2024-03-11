@@ -6,12 +6,8 @@ import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
 import Vue from 'vue';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swUsersPermissionsDetailedPermissionsGrid from 'src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid';
-import 'src/app/component/form/sw-checkbox-field';
+import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
-
-Shopware.Component.register('sw-users-permissions-detailed-permissions-grid', swUsersPermissionsDetailedPermissionsGrid);
 
 async function createWrapper(
     {
@@ -20,23 +16,24 @@ async function createWrapper(
         detailedPrivileges = [],
     } = {},
 ) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const privilegesService = new PrivilegesService();
     privilegesMappings.forEach(mapping => {
         privilegesService.addPrivilegeMappingEntry(mapping);
     });
 
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-detailed-permissions-grid'), {
-        localVue,
-        stubs: {
-            'sw-card': true,
+    return mount(await wrapTestComponent('sw-users-permissions-detailed-permissions-grid', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-card': true,
+            },
+            provide: {
+                privileges: privilegesService,
+            },
         },
-        provide: {
-            privileges: privilegesService,
-        },
-        propsData: Vue.observable({
+        props: Vue.observable({
             role: { privileges: rolePrivileges },
             detailedPrivileges: detailedPrivileges,
         }),
@@ -128,10 +125,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             const entityCreateInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_delete input');
 
             // to be disabled
-            expect(entityReadInput.attributes().disabled).toBe('disabled');
-            expect(entityUpdateInput.attributes().disabled).toBe('disabled');
-            expect(entityDeleteInput.attributes().disabled).toBe('disabled');
-            expect(entityCreateInput.attributes().disabled).toBe('disabled');
+            expect(entityReadInput.attributes().disabled).toBeDefined();
+            expect(entityUpdateInput.attributes().disabled).toBeDefined();
+            expect(entityDeleteInput.attributes().disabled).toBeDefined();
+            expect(entityCreateInput.attributes().disabled).toBeDefined();
         });
     });
 
@@ -178,7 +175,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             expect(entityCreateInput.exists()).toBeTruthy();
 
             // read should be disabled
-            expect(entityReadInput.attributes().disabled).toBe('disabled');
+            expect(entityReadInput.attributes().disabled).toBeDefined();
             expect(entityUpdateInput.attributes().disabled).toBeUndefined();
             expect(entityDeleteInput.attributes().disabled).toBeUndefined();
             expect(entityCreateInput.attributes().disabled).toBeUndefined();
@@ -261,8 +258,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             expect(entityCreateInput.exists()).toBeTruthy();
 
             // read and update should be disabled
-            expect(entityReadInput.attributes().disabled).toBe('disabled');
-            expect(entityUpdateInput.attributes().disabled).toBe('disabled');
+            expect(entityReadInput.attributes().disabled).toBeDefined();
+            expect(entityUpdateInput.attributes().disabled).toBeDefined();
             expect(entityDeleteInput.attributes().disabled).toBeUndefined();
             expect(entityCreateInput.attributes().disabled).toBeUndefined();
 

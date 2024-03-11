@@ -29,11 +29,11 @@ class DefaultConfigTest extends TestCase
             $defaultConfig->toArray('en-GB')
         );
 
-        static::assertEquals('5px', $defaultConfig->getMarginBottom());
-        static::assertEquals('10px', $defaultConfig->getMarginTop());
-        static::assertEquals('15px', $defaultConfig->getMarginLeft());
-        static::assertEquals('20px', $defaultConfig->getMarginRight());
-        static::assertEquals('boxed', $defaultConfig->getSizingMode());
-        static::assertEquals('#000', $defaultConfig->getBackgroundColor());
+        static::assertSame('5px', $defaultConfig->getMarginBottom());
+        static::assertSame('10px', $defaultConfig->getMarginTop());
+        static::assertSame('15px', $defaultConfig->getMarginLeft());
+        static::assertSame('20px', $defaultConfig->getMarginRight());
+        static::assertSame('boxed', $defaultConfig->getSizingMode());
+        static::assertSame('#000', $defaultConfig->getBackgroundColor());
     }
 }

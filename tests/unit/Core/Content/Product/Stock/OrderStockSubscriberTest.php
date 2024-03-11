@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -23,14 +25,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\OrderStockSubscriber
  */
+#[CoversClass(OrderStockSubscriber::class)]
 class OrderStockSubscriberTest extends TestCase
 {
     private IdsCollection $ids;
@@ -183,13 +184,12 @@ class OrderStockSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider orderItemWriteProvider
-     *
      * @param list<array{id: string, quantity: string, referenced_id: string}> $beforeState
      * @param list<array{id: string, quantity: string, referenced_id: string}> $afterState
      * @param list<array{lineItemId: string, productId: string, quantityBefore: int, newQuantity: int}> $expectedUpdates
      * @param list<array{type: 'insert'|'delete'|'update', id: string, state: array<string, mixed>}> $commands
      */
+    #[DataProvider('orderItemWriteProvider')]
     public function testOrderItemWrites(array $beforeState, array $afterState, array $expectedUpdates, array $commands): void
     {
         $idMapper = function (array $fields): callable {
@@ -595,9 +595,7 @@ class OrderStockSubscriberTest extends TestCase
         $stockSubscriber->stateChanged($event);
     }
 
-    /**
-     * @dataProvider orderStateTransitionProvider
-     */
+    #[DataProvider('orderStateTransitionProvider')]
     public function testStocksAreUpdatedWhenOrdersTransitionThroughStates(string $fromStateName, string $toStateName, int $quantityBefore, int $quantityAfter): void
     {
         $context = Context::createDefaultContext();

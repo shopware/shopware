@@ -82,7 +82,7 @@ class TestUser
             'password' => $this->password,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         $data = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 

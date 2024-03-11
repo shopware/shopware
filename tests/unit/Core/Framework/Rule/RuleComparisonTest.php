@@ -2,23 +2,22 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Rule\RuleComparison
  */
+#[Package('services-settings')]
+#[CoversClass(RuleComparison::class)]
 class RuleComparisonTest extends TestCase
 {
-    /**
-     * @dataProvider valuesForNumericEqualComparison
-     */
+    #[DataProvider('valuesForNumericEqualComparison')]
     public function testNumericComparisonWithEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_EQ));
@@ -36,9 +35,7 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: null = null should be false' => [null, null, false];
     }
 
-    /**
-     * @dataProvider valuesForNumericNotEqualComparison
-     */
+    #[DataProvider('valuesForNumericNotEqualComparison')]
     public function testNumericComparisonWithNotEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_NEQ));
@@ -55,9 +52,7 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: null != null should be true' => [null, null, true];
     }
 
-    /**
-     * @dataProvider valuesForNumericGreaterThanComparison
-     */
+    #[DataProvider('valuesForNumericGreaterThanComparison')]
     public function testNumericComparisonWithGreaterThanOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GT));
@@ -77,9 +72,7 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: null > null should be false' => [null, null, false];
     }
 
-    /**
-     * @dataProvider valuesForLessThanOrEqualComparison
-     */
+    #[DataProvider('valuesForLessThanOrEqualComparison')]
     public function testNumericComparisonWithLessThanOrEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LTE));
@@ -99,9 +92,7 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: null <= -1.0 should be false' => [null, -1.0, false];
     }
 
-    /**
-     * @dataProvider valuesForGreaterThanOrEqualComparison
-     */
+    #[DataProvider('valuesForGreaterThanOrEqualComparison')]
     public function testNumericComparisonWithGreaterThanOrEqualOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GTE));
@@ -121,9 +112,7 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: null >= -1.0 should be false' => [null, -1.0, false];
     }
 
-    /**
-     * @dataProvider valuesForLessThanComparison
-     */
+    #[DataProvider('valuesForLessThanComparison')]
     public function testNumericComparisonWithLessThanOperator(?float $itemValue, ?float $ruleValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LT));
@@ -143,9 +132,7 @@ class RuleComparisonTest extends TestCase
         yield 'Numeric: null < -1.0 should be false' => [null, -1.0, false];
     }
 
-    /**
-     * @dataProvider valuesForNumericEmptyComparison
-     */
+    #[DataProvider('valuesForNumericEmptyComparison')]
     public function testNumericComparisonWithEmptyOperator(?float $itemValue, bool $result): void
     {
         static::assertEquals($result, RuleComparison::numeric($itemValue, null, Rule::OPERATOR_EMPTY));

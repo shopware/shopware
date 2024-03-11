@@ -3,16 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\User\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQueryBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\User\Service\UserProvisioner
  */
+#[CoversClass(UserProvisioner::class)]
 class UserProvisionerTest extends TestCase
 {
     public function testProvision(): void

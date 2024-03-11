@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use AsyncAws\SimpleS3\SimpleS3Client;
+use AsyncAws\S3\S3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use League\Flysystem\FilesystemAdapter;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,6 +21,8 @@ class AwsS3v3Factory implements AdapterFactoryInterface
      */
     public function create(array $config): FilesystemAdapter
     {
+        $this->validateDependencies();
+
         $options = $this->resolveS3Options($config);
 
         $s3Opts = [
@@ -39,14 +42,9 @@ class AwsS3v3Factory implements AdapterFactoryInterface
             $s3Opts['accessKeySecret'] = $options['credentials']['secret'];
         }
 
-        $client = new SimpleS3Client($s3Opts);
+        $client = new S3Client($s3Opts);
 
-        return new DecoratedAsyncS3Adapter(
-            new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter()),
-            $options['bucket'],
-            $client,
-            $options['root']
-        );
+        return new AsyncAwsS3Adapter($client, $options['bucket'], $options['root'], new PortableVisibilityConverter());
     }
 
     public function getType(): string
@@ -104,5 +102,12 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         $resolved = $options->resolve($credentials);
 
         return $resolved;
+    }
+
+    private function validateDependencies(): void
+    {
+        if (!class_exists(AsyncAwsS3Adapter::class)) {
+            throw AdapterException::missingDependency('league/flysystem-async-aws-s3');
+        }
     }
 }

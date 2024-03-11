@@ -34,12 +34,14 @@
         <tbody>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_extension_permissions_details_modal_table_permissions %}
-            <template v-for="(permissionCategory, category) in permissions">
+            <template
+                v-for="(permissionCategory, category) in permissions"
+                :key="`permission-${category}`"
+            >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_permissions_details_modal_permissions_category %}
                 <tr
                     :id="`permission-${category}`"
-                    :key="`permission-${category}`"
                     class="sw-extension-permissions-details-modal__category"
                 >
                     <td>{{ categoryLabel(category) }}</td>

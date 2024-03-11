@@ -40,11 +40,8 @@ class UpdateSubscriber implements EventSubscriberInterface
      */
     public function updateFinishedDone(UpdatePostFinishEvent $event): void
     {
-        $status = 'success';
-        $message = 'Updated successfully to version ' . $event->getNewVersion();
-        if ($event->getPostUpdateMessage() !== '') {
-            $status = 'warning';
-            $message .= \PHP_EOL . $event->getPostUpdateMessage();
+        if ($event->getPostUpdateMessage() === '') {
+            return;
         }
 
         $source = $event->getContext()->getSource();
@@ -58,8 +55,8 @@ class UpdateSubscriber implements EventSubscriberInterface
         $this->notificationService->createNotification(
             [
                 'id' => Uuid::randomHex(),
-                'status' => $status,
-                'message' => $message,
+                'status' => 'warning',
+                'message' => $event->getPostUpdateMessage(),
                 'adminOnly' => true,
                 'requiredPrivileges' => [],
                 'createdByIntegrationId' => $integrationId,

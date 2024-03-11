@@ -1,65 +1,62 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsLanguageList from 'src/module/sw-settings-language/page/sw-settings-language-list';
-
-Shopware.Component.register('sw-settings-language-list', swSettingsLanguageList);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-language-list'), {
-        localVue,
-        mocks: {
-            $route: {
-                params: {
-                    sortBy: 'sortBy',
-                },
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                name: 'English',
-                            },
-                            {
-                                name: 'German',
-                            },
-                            {
-                                name: 'Vietnamese',
-                            },
-                        ]);
+    return mount(await wrapTestComponent('sw-settings-language-list', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    params: {
+                        sortBy: 'sortBy',
                     },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    name: 'English',
+                                },
+                                {
+                                    name: 'German',
+                                },
+                                {
+                                    name: 'Vietnamese',
+                                },
+                            ]);
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-            detailPageLinkText(allowEdit) {
-                return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+                        return privileges.includes(identifier);
+                    },
+                },
+
+                detailPageLinkText(allowEdit) {
+                    return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+                },
+
+                searchRankingService: {},
             },
-
-            searchRankingService: {},
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -72,20 +69,20 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-switch-field': true,
-            'sw-search-bar': true,
-            'sw-language-switch': true,
-            'sw-icon': true,
-            'sw-button': true,
-            'sw-sidebar': true,
-            'sw-sidebar-item': true,
-            'sw-collapse': true,
-            'sw-context-menu-item': true,
-            'sw-entity-listing': {
-                inject: ['detailPageLinkText'],
-                props: ['items', 'allowEdit', 'allowView', 'detailRoute'],
-                template: `
+                },
+                'sw-switch-field': true,
+                'sw-search-bar': true,
+                'sw-language-switch': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-sidebar': true,
+                'sw-sidebar-item': true,
+                'sw-collapse': true,
+                'sw-context-menu-item': true,
+                'sw-entity-listing': {
+                    inject: ['detailPageLinkText'],
+                    props: ['items', 'allowEdit', 'allowView', 'detailRoute'],
+                    template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="detail-action" v-bind="{ item }">
@@ -100,6 +97,7 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `,
+                },
             },
         },
     });
@@ -108,7 +106,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -117,7 +115,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper([
             'language.creator',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-language-list__button-create');
 
@@ -126,7 +124,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should not be able to create a new language', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-language-list__button-create');
 
@@ -137,7 +135,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper([
             'language.viewer',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
 
@@ -149,7 +147,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper([
             'language.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
 
@@ -159,7 +157,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should not be able to edit a language', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
 
@@ -171,7 +169,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper([
             'language.deleter',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-language-list__delete-action');
 
@@ -180,7 +178,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should not be able to delete a language', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-language-list__delete-action');
 
@@ -191,7 +189,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = await createWrapper([
             'language.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-language-list-grid');
 
@@ -201,7 +199,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
 
     it('should not be able to inline edit a language', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-language-list-grid');
 

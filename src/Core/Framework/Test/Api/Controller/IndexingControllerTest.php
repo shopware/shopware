@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
@@ -33,9 +34,7 @@ class IndexingControllerTest extends TestCase
         static::assertTrue($response['finish']);
     }
 
-    /**
-     * @dataProvider provideOffsets
-     */
+    #[DataProvider('provideOffsets')]
     public function testIterateIndexerApiShouldReturnCorrectOffset(int $offset): void
     {
         $productIndexer = $this->createMock(ProductIndexer::class);

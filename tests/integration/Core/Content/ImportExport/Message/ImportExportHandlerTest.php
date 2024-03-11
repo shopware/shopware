@@ -8,9 +8,9 @@ use Shopware\Core\Content\ImportExport\Message\ImportExportHandler;
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
-use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Content\ImportExport\AbstractImportExportTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
@@ -22,8 +22,8 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 {
     public function testImportExportHandlerDispatchesMessage(): void
     {
-        /** @var TraceableMessageBus $messageBus */
         $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
         $factory = $this->getContainer()->get(ImportExportFactory::class);
         $context = Context::createDefaultContext();
 
@@ -57,14 +57,14 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
         }
 
         static::assertNotNull($importExportMessage);
-        static::assertEquals($logEntity->getId(), $importExportMessage->getLogId());
-        static::assertEquals($logEntity->getActivity(), $importExportMessage->getActivity());
+        static::assertSame($logEntity->getId(), $importExportMessage->getLogId());
+        static::assertSame($logEntity->getActivity(), $importExportMessage->getActivity());
 
         $updatedLogEntity = $this->getLogEntity($logEntity->getId());
-        static::assertEquals(50, $updatedLogEntity->getRecords());
+        static::assertSame(50, $updatedLogEntity->getRecords());
 
         $importExportHandler->__invoke($importExportMessage);
         $updatedLogEntity = $this->getLogEntity($logEntity->getId());
-        static::assertEquals(100, $updatedLogEntity->getRecords());
+        static::assertSame(100, $updatedLogEntity->getRecords());
     }
 }

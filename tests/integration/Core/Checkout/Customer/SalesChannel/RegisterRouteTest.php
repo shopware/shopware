@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -16,12 +18,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,10 +37,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
+#[Group('store-api')]
 class RegisterRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -173,9 +172,7 @@ class RegisterRouteTest extends TestCase
         static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
     }
 
-    /**
-     * @dataProvider customerBoundToSalesChannelProvider
-     */
+    #[DataProvider('customerBoundToSalesChannelProvider')]
     public function testRegistrationWithCustomerScope(bool $isCustomerScoped, bool $hasGlobalAccount, bool $hasBoundAccount, bool $requestOnSameSalesChannel, int $expectedStatus): void
     {
         $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
@@ -270,10 +267,9 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider registerWithDomainAndLeadingSlashProvider
-     *
      * @param array<string, string> $domainUrlTest
      */
+    #[DataProvider('registerWithDomainAndLeadingSlashProvider')]
     public function testRegistrationWithTrailingSlashUrl(array $domainUrlTest): void
     {
         $browser = $this->createCustomSalesChannelBrowser([
@@ -386,11 +382,7 @@ class RegisterRouteTest extends TestCase
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);
-        if (Feature::isActive('v6.6.0.0')) {
-            static::assertSame('CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED', $responseData['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $responseData['errors'][0]['code']);
-        }
+        static::assertSame('CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED', $responseData['errors'][0]['code']);
         static::assertSame('401', $responseData['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);
@@ -953,7 +945,7 @@ class RegisterRouteTest extends TestCase
             static::assertArrayHasKey('errors', $response);
         } else {
             static::assertSame('customer', $response['apiAlias']);
-            static::assertNull($response['vatIds']);
+            static::assertEmpty($response['vatIds']);
             static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             $this->browser
@@ -1236,7 +1228,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithExistingNotSpecifiedSalutation(): void
     {
-        $connection = KernelLifecycleManager::getConnection();
+        $connection = $this->getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         unset($registrationData['salutationId']);
@@ -1263,7 +1255,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationToNotSpecifiedWithoutExistingSalutation(): void
     {
-        $connection = KernelLifecycleManager::getConnection();
+        $connection = $this->getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         unset($registrationData['salutationId']);
@@ -1290,7 +1282,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNull($response['salutationId']);
+        static::assertNull($response['salutationId'], (string) $this->browser->getResponse()->getContent());
     }
 
     /**

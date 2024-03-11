@@ -39,8 +39,4 @@ class Migration1688717599UpdateCreatedByIdAndUpdatedByIdInOrderAndCustomer exten
         $connection->executeStatement('ALTER TABLE `order` ADD CONSTRAINT `fk.order.updated_by_id` FOREIGN KEY (`updated_by_id`)
               REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

@@ -104,15 +104,15 @@ describe('Wishlist: for wishlist', () => {
 
             cy.get('.product-wishlist-action').first().should('be.visible');
 
-            cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('not.be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().contains('Add to wishlist');
+            cy.get('.product-wishlist-action.product-wishlist-not-added').first().should('be.visible');
+            cy.get('.product-wishlist-action').first().should('not.have.class', 'product-wishlist-added');
+            cy.get('.product-wishlist-btn-content').first().contains('Add to wishlist');
 
             cy.get('.product-wishlist-action').first().click();
 
-            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('not.be.visible');
-            cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().contains('Remove from wishlist');
+            cy.get('.product-wishlist-action.product-wishlist-added').first().should('be.visible');
+            cy.get('.product-wishlist-action').first().should('not.have.class', 'product-wishlist-not-added');
+            cy.get('.product-wishlist-btn-content').first().contains('Remove from wishlist');
         });
     });
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection
  */
+#[CoversClass(EntityCollection::class)]
 class EntityCollectionTest extends TestCase
 {
     public function testSetCustomFields(): void

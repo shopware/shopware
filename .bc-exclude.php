@@ -20,7 +20,6 @@ return [
         'Unable to compile initializer in method', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Could not locate constant .* while trying to evaluate constant expression', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Value.+of.+constant', // Changing const values in not a BC per se
-
         // Renaming of arguments
         'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions',
 
@@ -30,8 +29,27 @@ return [
         // added Predis support, can be removed after 6.5.6.0 release
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
+        'Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\FkReference#__construct\(\)',
 
         // Removed boot method from Bundle
-        'Shopware\\\\Core\\\\Framework\\\\Bundle#boot'
+        'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
+
+        // Internal flag added
+        'The number of required arguments for Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator#generate\(\) increased from 3 to 4',
+        'Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator was marked \"@internal\"',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\MainModule',
+
+        // Removed property, which was unintentionally added
+        'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
+
+        // Will be typed in Symfony 7
+        'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#add\(\) changed from no type to void',
+        'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#set\(\) changed from no type to void',
+
+        'Shopware\\\\Storefront\\\\Theme\\\\ThemeScripts was marked "@internal"',
+
+        'An enum expression .* is not supported in .*' // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
     ],
 ];

@@ -1,3 +1,5 @@
+import { reactive } from 'vue';
+
 const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
@@ -14,12 +16,20 @@ Application.addServiceProvider('cmsService', () => {
         getCollectFunction,
         isBlockAllowedInPageType,
         isElementAllowedInPageType,
+        getCmsServiceState,
     };
 });
 
-const elementRegistry = {};
-const blockRegistry = {};
-const mappingTypesCache = {};
+const elementRegistry = reactive({});
+const blockRegistry = reactive({});
+const mappingTypesCache = reactive({});
+
+// This hack is needed to access changes inside the reactive registries
+const cmsServiceState = reactive({
+    elementRegistry,
+    blockRegistry,
+    mappingTypesCache,
+});
 
 function registerCmsElement(config) {
     if (!config.name || !config.component || config.flag === false) {
@@ -88,7 +98,11 @@ function registerCmsElement(config) {
         };
     }
 
-    elementRegistry[config.name] = config;
+    Shopware.Application.view.setReactive(
+        elementRegistry,
+        config.name,
+        config,
+    );
 
     return true;
 }
@@ -134,6 +148,10 @@ function getCmsElementConfigByName(name) {
 
 function getCmsElementRegistry() {
     return elementRegistry;
+}
+
+function getCmsServiceState() {
+    return cmsServiceState;
 }
 
 function registerCmsBlock(config) {

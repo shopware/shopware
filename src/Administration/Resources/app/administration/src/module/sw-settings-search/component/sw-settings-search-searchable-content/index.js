@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
@@ -194,7 +194,7 @@ export default {
         productSearchFieldCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.equals('searchConfigId', this.searchConfigId));
+            criteria.addFilter(Criteria.equals('searchConfigId', this.searchConfigId || null));
             criteria.addSorting(Criteria.sort('field', 'ESC'));
 
             if (this.defaultTab === this.tabNames.generalTab) {
@@ -247,8 +247,7 @@ export default {
     },
 
     watch: {
-        searchConfigId(newValue) {
-            this.searchConfigId = newValue;
+        searchConfigId() {
             this.loadData();
         },
 

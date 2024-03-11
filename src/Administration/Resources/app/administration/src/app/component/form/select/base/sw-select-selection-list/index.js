@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description Base component for rendering selection lists.
  * @example-type code-only
@@ -87,11 +86,35 @@ Component.register('sw-select-selection-list', {
         },
     },
 
+    data() {
+        return {
+            /**
+             * @deprecated tag:v6.7.0 - Will be removed
+             */
+            tagLimit: true,
+        };
+    },
+
+
     computed: {
         showPlaceholder() {
             return (this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels)
                 ? this.placeholder
                 : '';
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        // eslint-disable-next-line vue/return-in-computed-property
+        visibleTags() {
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        // eslint-disable-next-line vue/return-in-computed-property
+        numberOfHiddenTags() {
         },
     },
 
@@ -140,6 +163,12 @@ Component.register('sw-select-selection-list', {
 
         getFocusEl() {
             return this.$refs.swSelectInput;
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        removeTagLimit() {
         },
     },
 });

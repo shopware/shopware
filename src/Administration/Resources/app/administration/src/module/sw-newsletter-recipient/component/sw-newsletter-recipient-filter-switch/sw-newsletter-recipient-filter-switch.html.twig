@@ -7,11 +7,7 @@
         <sw-switch-field
             :name="id"
             :label="label"
-            {% if VUE3 %}
             @update:value="onChange"
-            {% else %}
-            @change="onChange"
-            {% endif %}
         />
     </slot>
     {% endblock %}

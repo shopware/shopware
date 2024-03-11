@@ -3,7 +3,7 @@ title: Merge E2E projects into a single project
 date: 2021-11-22
 area: core
 tags: [e2e, cypress]
---- 
+---
 
 ## Context
 

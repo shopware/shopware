@@ -120,8 +120,15 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
         $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
 
-        $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
-        $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));
+        $assetName = $config->getAssetName();
+
+        $scriptPath = $path . \DIRECTORY_SEPARATOR . sprintf('Resources/app/storefront/dist/storefront/js/%s/%s.js', $assetName, $assetName);
+
+        if (file_exists($scriptPath)) {
+            $config->setScriptFiles(FileCollection::createFromArray([$this->stripProjectDir($scriptPath)]));
+
+            return $config;
+        }
 
         return $config;
     }
@@ -221,25 +228,6 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     /**
      * @return array<int, string>
      */
-    private function getFilesInDir(string $path): array
-    {
-        if (!is_dir($path)) {
-            return [];
-        }
-        $finder = new Finder();
-        $finder->files()->in($path);
-
-        $files = [];
-        foreach ($finder as $file) {
-            $files[] = $this->stripProjectDir($file->getPathname());
-        }
-
-        return $files;
-    }
-
-    /**
-     * @return array<int, string>
-     */
     private function getScssEntryFileInDir(string $path): array
     {
         if (!is_dir($path)) {
@@ -266,7 +254,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     }
 
     /**
-     * @param array<int, string|array<string, array<string, array<int, string>>>> $styles
+     * @param array<string|array<array{resolve?: array<string, string>}>> $styles
      */
     private function resolveStyleFiles(array $styles, string $basePath, StorefrontPluginConfiguration $config): void
     {

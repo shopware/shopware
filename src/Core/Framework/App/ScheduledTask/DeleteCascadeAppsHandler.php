@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,10 +26,11 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
+        LoggerInterface $logger,
         private readonly EntityRepository $aclRoleRepository,
         private readonly EntityRepository $integrationRepository
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void

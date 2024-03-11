@@ -63,6 +63,18 @@ describe('src/app/service/file-helper.service.ts', () => {
                 checkByExtension({ ...fileMock, name: 'test' }, fileAcceptString),
             ).toBe(false);
         });
+
+        it('should return true when filename contains dots', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: 'test.dummy.pdf' }, fileAcceptString),
+            ).toBe(true);
+        });
+
+        it('should return false when filename is empty', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: '' }, fileAcceptString),
+            ).toBe(false);
+        });
     });
 
     describe('by type', () => {
@@ -70,27 +82,63 @@ describe('src/app/service/file-helper.service.ts', () => {
             expect(checkByType(fileMock, '*/*')).toBe(true);
         });
 
-        it('should return false when type categorie is not matching', () => {
+        it('should return false when type category is not matching', () => {
             expect(
                 checkByType(fileMock, 'dummy/*'),
             ).toBe(false);
         });
 
-        it('should return true when type categorie is matching and specifier is *', () => {
+        it('should return true when type category is matching and specifier is *', () => {
             expect(
                 checkByType(fileMock, 'application/*'),
             ).toBe(true);
         });
 
-        it('should return true when type categorie is matching and specifier is matching', () => {
+        it('should return true when type category is matching and specifier is matching', () => {
             expect(
                 checkByType(fileMock, 'application/pdf'),
             ).toBe(true);
         });
 
-        it('should return true when type categorie is matching and specifier is not matching', () => {
+        it('should return false when type category is matching and specifier is not matching', () => {
             expect(
                 checkByType(fileMock, 'application/bin'),
+            ).toBe(false);
+        });
+
+        it('should return true when one of the mime types match', () => {
+            expect(
+                checkByType(fileMock, 'application/bin, application/pdf'),
+            ).toBe(true);
+        });
+
+        it('should return false when nones of the mime types match', () => {
+            expect(
+                checkByType(fileMock, 'application/bin, text/plain'),
+            ).toBe(false);
+        });
+
+        it('should return true when checking for the `model/gltf-binary` with an empty mime type but matching extension', () => {
+            expect(
+                checkByType({ ...fileMock, type: '', name: 'test.glb' }, 'model/gltf-binary'),
+            ).toBe(true);
+        });
+
+        it('should return true when checking for `model/gltf-binary` among multiple allowed mime-types', () => {
+            expect(
+                checkByType({ ...fileMock, type: 'model/gltf-binary', name: 'test.glb' }, 'image/png, model/gltf-binary'),
+            ).toBe(true);
+        });
+
+        it('should return true when checking for `model/gltf-binary` or `image/*` with a png', () => {
+            expect(
+                checkByType({ ...fileMock, type: 'image/png', name: 'test.png' }, 'model/gltf-binary, image/*'),
+            ).toBe(true);
+        });
+
+        it('should return false when checking for the `model/gltf-binary` with an empty mime type and non matching extension', () => {
+            expect(
+                checkByType({ ...fileMock, type: '', name: 'test.txt' }, 'model/gltf-binary'),
             ).toBe(false);
         });
     });

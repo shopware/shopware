@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class FileDeletedSubscriber implements EventSubscriberInterface
 {
     /**

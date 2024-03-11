@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 abstract class AbstractStoreRequestOptionsProvider
 {
     /**

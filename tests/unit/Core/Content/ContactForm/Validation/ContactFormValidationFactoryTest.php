@@ -2,9 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ContactForm\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -15,16 +18,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package content
- *
- * @covers \Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory
  */
+#[Package('buyers-experience')]
+#[CoversClass(ContactFormValidationFactory::class)]
 class ContactFormValidationFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider systemConfigDataProvider
-     */
+    #[DataProvider('systemConfigDataProvider')]
     public function testCreate(bool $required, \Closure $expectsClosure): void
     {
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);

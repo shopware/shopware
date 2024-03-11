@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme\Command;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\Command\ThemeCreateCommand;
@@ -52,9 +53,7 @@ class ThemeCreateCommandTest extends TestCase
         static::assertStringContainsString(self::THEME_NAME . ' already exists', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
 
-    /**
-     * @dataProvider commandFailsWithWrongNameDataProvider
-     */
+    #[DataProvider('commandFailsWithWrongNameDataProvider')]
     public function testCommandFailsWithWrongName(string $name, string $expectedMessage): void
     {
         $commandTester = $this->getCommandTester();

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'debug:business-events',
     description: 'Dumps all business events',
 )]
-#[Package('business-ops')]
+#[Package('services-settings')]
 class DebugDumpBusinessEventsCommand extends Command
 {
     /**

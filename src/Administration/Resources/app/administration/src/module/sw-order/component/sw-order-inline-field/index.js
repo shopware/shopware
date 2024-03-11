@@ -2,7 +2,7 @@ import './sw-order-inline-field.scss';
 import template from './sw-order-inline-field.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -33,7 +33,7 @@ export default {
     },
     methods: {
         onInput(value) {
-            this.$emit('input', value);
+            this.$emit('update:value', value);
         },
     },
 };

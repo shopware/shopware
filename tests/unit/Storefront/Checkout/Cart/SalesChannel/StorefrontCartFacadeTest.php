@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
@@ -32,9 +33,8 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade
  */
+#[CoversClass(StorefrontCartFacade::class)]
 class StorefrontCartFacadeTest extends TestCase
 {
     public function testGetNoBlockedMethods(): void

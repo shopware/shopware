@@ -19,7 +19,6 @@ export default [
     'sw-entity-single-select',
     'sw-error-boundary',
     'sw-extension-component-section',
-    'sw-field',
     'sw-ignore-class',
     'sw-loader',
     'sw-modal',

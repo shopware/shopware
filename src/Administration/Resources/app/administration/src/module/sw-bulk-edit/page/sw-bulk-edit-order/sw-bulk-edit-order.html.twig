@@ -155,13 +155,18 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_save_modal %}
         <router-view
-            :item-total="selectedIds.length"
-            :is-loading="isLoading"
-            :process-status="processStatus"
-            :bulk-edit-data="bulkEditData"
-            @modal-close="closeModal"
-            @bulk-save="onSave"
-        />
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="selectedIds.length"
+                :is-loading="isLoading"
+                :process-status="processStatus"
+                :bulk-edit-data="bulkEditData"
+                @modal-close="closeModal"
+                @bulk-save="onSave"
+            />
+        </router-view>
         {% endblock %}
     </template>
     {% endblock %}

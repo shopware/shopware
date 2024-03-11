@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class BinaryStruct extends StoreStruct
 {
     /**
@@ -25,6 +25,9 @@ class BinaryStruct extends StoreStruct
      */
     protected $creationDate;
 
+    /**
+     * @return BinaryStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

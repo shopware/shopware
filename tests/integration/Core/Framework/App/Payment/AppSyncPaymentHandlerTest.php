@@ -2,14 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
@@ -28,10 +25,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $response = new SyncPayResponse();
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $data = new RequestDataBag(['foo' => 'bar']);
+        $this->paymentService->handlePaymentByOrder($orderId, $data, $salesChannelContext);
 
-        /** @var Request $request */
         $request = $this->getLastRequest();
+        static::assertNotNull($request);
         $body = $request->getBody()->getContents();
 
         $appSecret = $this->app->getAppSecret();
@@ -64,7 +62,11 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertIsArray($content['orderTransaction']);
         static::assertArrayHasKey('recurring', $content);
         static::assertNull($content['recurring']);
-        static::assertCount(4, $content);
+        static::assertArrayHasKey('requestData', $content);
+        static::assertIsArray($content['requestData']);
+        static::assertArrayHasKey('foo', $content['requestData']);
+        static::assertSame('bar', $content['requestData']['foo']);
+        static::assertCount(5, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
     }
 
@@ -109,9 +111,6 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(SyncPaymentProcessException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The synchronous payment process was interrupted due to the following error:' . \PHP_EOL . 'Payment was reported as failed');
 
@@ -131,11 +130,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(SyncPaymentProcessException::class);
-        }
         $this->expectException(PaymentException::class);
-
         $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
@@ -152,11 +147,7 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(SyncPaymentProcessException::class);
-        }
         $this->expectException(PaymentException::class);
-
         $this->expectExceptionMessageMatches(sprintf('/%s/', self::ERROR_MESSAGE));
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
@@ -174,9 +165,6 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(SyncPaymentProcessException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
@@ -195,9 +183,6 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(SyncPaymentProcessException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
@@ -212,9 +197,6 @@ class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(SyncPaymentProcessException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessageMatches('/Invalid app response/');
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);

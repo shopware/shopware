@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail.html.twig';
@@ -219,6 +219,7 @@ export default {
             criteria.addAssociation('domains.language');
             criteria.addAssociation('domains.snippetSet');
             criteria.addAssociation('domains.currency');
+            criteria.addAssociation('domains.productExports');
 
             return criteria;
         },

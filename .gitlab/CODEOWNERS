@@ -1,98 +1,98 @@
-[Core]
+[Core] @product/engineering/platform-group/core
 
-/src/Core/Checkout/Cart/Facade/                                  @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/AbstractCartPersister.php                @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/CartCalculator.php                       @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/CartDataCollectorInterface.php           @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/CartPersister.php                        @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/CartProcessorInterface.php               @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/CartRuleLoader.php                       @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/RuleLoader.php                           @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/Processor.php                            @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/Validator.php                            @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/Price/                                   @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/Processor/                               @product/engineering/platform-group/core
-/src/Core/Checkout/Cart/CartValidatorInterface.php               @product/engineering/platform-group/core
-/src/Core/Checkout/Order/SalesChannel/OrderRoute.php             @product/engineering/platform-group/core
-/src/Core/Checkout/Promotion/Cart/PromotionProcessor.php         @product/engineering/platform-group/core
-/src/Core/Checkout/Promotion/Cart/PromotionDeliveryProcessor.php @product/engineering/platform-group/core
-/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php        @product/engineering/platform-group/core
-/src/Core/Content/Media/Pathname/                                @product/engineering/platform-group/core
-/src/Core/Content/Product/SalesChannel/                          @product/engineering/platform-group/core
-/src/Core/Content/Product/DataAbstractionLayer/                  @product/engineering/platform-group/core
-/src/Core/Content/Product/Cart/                                  @product/engineering/platform-group/core
-/src/Core/Content/Product/Subscriber/ProductSubscriber.php       @product/engineering/platform-group/core
-/src/Core/Content/Seo/SeoUrlGenerator.php                        @product/engineering/platform-group/core
-/src/Core/Content/Seo/SeoResolver.php                            @product/engineering/platform-group/core
-/src/Core/Content/Seo/SeoUrlPersister.php                        @product/engineering/platform-group/core
-/src/Core/Content/Seo/SeoUrlUpdater.php                          @product/engineering/platform-group/core
-/src/Core/Content/Seo/SeoUrlTwigFactory.php                      @product/engineering/platform-group/core
-/src/Core/Content/Seo/SeoUrlPlaceholderHandler.php               @product/engineering/platform-group/core
-/src/Core/**/Cache*.php                                          @product/engineering/platform-group/core
-/src/Core/Framework/Adapter/                                     @product/engineering/platform-group/core
-/src/Core/Framework/Api/                                         @product/engineering/platform-group/core
-/src/Core/Framework/App/                                         @product/engineering/platform-group/core
-/src/Core/Framework/DataAbstractionLayer/                        @product/engineering/platform-group/core
-/src/Core/Framework/Feature/                                     @product/engineering/platform-group/core
-/src/Core/Framework/Log/                                         @product/engineering/platform-group/core
-/src/Core/Framework/MessageQueue/                                @product/engineering/platform-group/core
-/src/Core/Framework/Migration/                                   @product/engineering/platform-group/core
-/src/Core/Framework/Plugin/                                      @product/engineering/platform-group/core
-/src/Core/Framework/Resources/config/                            @product/engineering/platform-group/core
-/src/Core/Framework/Routing/                                     @product/engineering/platform-group/core
-/src/Core/Framework/Rule/                                        @product/engineering/platform-group/core
-/src/Core/Framework/Script/                                      @product/engineering/platform-group/core
-/src/Core/Framework/Update/                                      @product/engineering/platform-group/core
-/src/Core/Framework/Util/                                        @product/engineering/platform-group/core
-/src/Core/Framework/Uuid/                                        @product/engineering/platform-group/core
-/src/Core/Framework/Validation/                                  @product/engineering/platform-group/core
-/src/Core/Framework/Webhook/                                     @product/engineering/platform-group/core
-/src/Core/Framework/*.php                                        @product/engineering/platform-group/core
-/src/Core/Profiling/                                             @product/engineering/platform-group/core
-/src/Core/DevOps/                                                @product/engineering/platform-group/core
-/src/Core/System/CustomEntity/                                   @product/engineering/platform-group/core
-/src/Core/System/CustomField/                                    @product/engineering/platform-group/core
-/src/Core/System/Integration/                                    @product/engineering/platform-group/core
-/src/Elasticsearch/                                              @product/engineering/platform-group/core
-/bin/                                                            @product/engineering/platform-group/core
-/public/                                                         @product/engineering/platform-group/core
-/config/bundles.php                                              @product/engineering/platform-group/core
-composer.json                                                    @product/engineering/platform-group/core
-/vendor-bin/*/composer.json                                      @product/engineering/platform-group/core
-ecs.php                                                          @product/engineering/platform-group/core
-phpstan.neon                                                     @product/engineering/platform-group/core
-.bc-exclude.php                                                  @product/engineering/platform-group/core
-deprecation.ignore                                               @product/engineering/platform-group/core
-/src/Core/Framework/Resources/config/packages/shopware.yaml      @product/engineering/platform-group/core
+/src/Core/Checkout/Cart/Facade/
+/src/Core/Checkout/Cart/AbstractCartPersister.php
+/src/Core/Checkout/Cart/CartCalculator.php
+/src/Core/Checkout/Cart/CartDataCollectorInterface.php
+/src/Core/Checkout/Cart/CartPersister.php
+/src/Core/Checkout/Cart/CartProcessorInterface.php
+/src/Core/Checkout/Cart/CartRuleLoader.php
+/src/Core/Checkout/Cart/RuleLoader.php
+/src/Core/Checkout/Cart/Processor.php
+/src/Core/Checkout/Cart/Validator.php
+/src/Core/Checkout/Cart/Price/
+/src/Core/Checkout/Cart/Processor/
+/src/Core/Checkout/Cart/CartValidatorInterface.php
+/src/Core/Checkout/Order/SalesChannel/OrderRoute.php
+/src/Core/Checkout/Promotion/Cart/PromotionProcessor.php
+/src/Core/Checkout/Promotion/Cart/PromotionDeliveryProcessor.php
+/src/Core/Checkout/Promotion/Cart/PromotionCalculator.php
+/src/Core/Content/Media/Pathname/
+/src/Core/Content/Product/SalesChannel/
+/src/Core/Content/Product/DataAbstractionLayer/
+/src/Core/Content/Product/Cart/
+/src/Core/Content/Product/Subscriber/ProductSubscriber.php
+/src/Core/Content/Seo/SeoUrlGenerator.php
+/src/Core/Content/Seo/SeoResolver.php
+/src/Core/Content/Seo/SeoUrlPersister.php
+/src/Core/Content/Seo/SeoUrlUpdater.php
+/src/Core/Content/Seo/SeoUrlTwigFactory.php
+/src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
+/src/Core/**/Cache*.php
+/src/Core/Framework/Adapter/
+/src/Core/Framework/Api/
+/src/Core/Framework/App/
+/src/Core/Framework/DataAbstractionLayer/
+/src/Core/Framework/Feature/
+/src/Core/Framework/Log/
+/src/Core/Framework/MessageQueue/
+/src/Core/Framework/Migration/
+/src/Core/Framework/Plugin/
+/src/Core/Framework/Resources/config/
+/src/Core/Framework/Routing/
+/src/Core/Framework/Rule/
+/src/Core/Framework/Script/
+/src/Core/Framework/Update/
+/src/Core/Framework/Util/
+/src/Core/Framework/Uuid/
+/src/Core/Framework/Validation/
+/src/Core/Framework/Webhook/
+/src/Core/Framework/*.php
+/src/Core/Profiling/
+/src/Core/DevOps/
+/src/Core/System/CustomEntity/
+/src/Core/System/CustomField/
+/src/Core/System/Integration/
+/src/Elasticsearch/
+/bin/
+/public/
+/config/bundles.php
+composer.json
+/vendor-bin/*/composer.json
+ecs.php
+phpstan.neon
+.bc-exclude.php
+deprecation.ignore
+/src/Core/Framework/Resources/config/packages/shopware.yaml
 # shared code ownership of multiple groups seems only to work for the last entries
 # so don't put any new folders below this line, that are not shared by multiple groups
 /adr/                                                           @product/engineering/platform-group/core
 
-[Admin]
-/src/Administration/Resources/*                                                         @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/*                                      @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/build/                                 @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/config/                                @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/patches/                               @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/*                                  @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/test/*                                 @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/meta/*                             @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/app/                               @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/core/                              @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/        @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/module/sw-login/                   @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/src/module/sw-settings/                @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/static/                                @product/engineering/platform-group/admin
-/src/Administration/Resources/app/administration/twigViewPlugin/                        @product/engineering/platform-group/admin
-/src/Administration/Resources/views/                                                    @product/engineering/platform-group/admin
-/src/Administration/Resources/config/                                                   @product/engineering/platform-group/admin
+[Admin] @product/engineering/platform-group/admin
+/src/Administration/Resources/*
+/src/Administration/Resources/app/administration/*
+/src/Administration/Resources/app/administration/build/
+/src/Administration/Resources/app/administration/config/
+/src/Administration/Resources/app/administration/patches/
+/src/Administration/Resources/app/administration/src/*
+/src/Administration/Resources/app/administration/test/*
+/src/Administration/Resources/app/administration/src/meta/*
+/src/Administration/Resources/app/administration/src/app/
+/src/Administration/Resources/app/administration/src/core/
+/src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/
+/src/Administration/Resources/app/administration/src/module/sw-login/
+/src/Administration/Resources/app/administration/src/module/sw-settings/
+/src/Administration/Resources/app/administration/static/
+/src/Administration/Resources/app/administration/twigViewPlugin/
+/src/Administration/Resources/views/
+/src/Administration/Resources/config/
 # shared code ownership of multiple groups seems only to work for the last entries
 # so don't put any new folders below this line, that are not shared by multiple groups
 /adr/                                                                                   @product/engineering/platform-group/admin
 
-[Storefront]
-/src/Storefront/                                   @product/engineering/platform-group/storefront
-/src/Storefront/**/test/
+[Storefront] @product/engineering/platform-group/storefront
+/src/Storefront/
+# /src/Storefront/**/test/
 # shared code ownership of multiple groups seems only to work for the last entries
 # so don't put any new folders below this line, that are not shared by multiple groups
 /adr/                                              @product/engineering/platform-group/storefront
@@ -105,3 +105,6 @@ deprecation.ignore                                               @product/engine
 
 [Main]
 /.gitlab/CODEOWNERS     @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
+
+[UsageData]
+src/Core/System/UsageData/usage-data-allow-list.json @product/engineering/solution-teams/ctrl-alt-elite

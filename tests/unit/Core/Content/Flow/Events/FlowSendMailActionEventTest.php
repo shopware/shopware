@@ -2,78 +2,35 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Events;
 
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent
  */
+#[Package('services-settings')]
+#[CoversClass(FlowSendMailActionEvent::class)]
 class FlowSendMailActionEventTest extends TestCase
 {
-    public function testGetContextWithFlowEvent(): void
+    public function testEventConstructorParameters(): void
     {
-        $event = $this->createMock(StorableFlow::class);
-        $event->expects(static::once())
-            ->method('getContext')
-            ->willReturn(Context::createDefaultContext());
-
-        $mailTemplate = new MailTemplateEntity();
-
-        $mailEvent = new FlowSendMailActionEvent(new DataBag(), $mailTemplate, $event);
-        $context = $mailEvent->getContext();
-
-        static::assertEquals($context, Context::createDefaultContext());
-    }
-
-    public function testGetDataBag(): void
-    {
-        $mailTemplate = new MailTemplateEntity();
-        $flowEvent = $this->createMock(StorableFlow::class);
+        $context = Context::createDefaultContext();
+        $flow = new StorableFlow('foo', $context);
 
         $expectDataBag = new DataBag(['data' => 'data']);
-        $event = new FlowSendMailActionEvent($expectDataBag, $mailTemplate, $flowEvent);
-        $actualDataBag = $event->getDataBag();
-
-        static::assertEquals($actualDataBag, $expectDataBag);
-    }
-
-    public function testGetMailTemplate(): void
-    {
-        $mailTemplate = new MailTemplateEntity();
-        $flowEvent = $this->createMock(StorableFlow::class);
-
-        $event = new FlowSendMailActionEvent(new DataBag(), $mailTemplate, $flowEvent);
-
-        static::assertEquals($mailTemplate, $event->getMailTemplate());
-    }
-
-    public function testGetStorableFlow(): void
-    {
-        $event = $this->createMock(StorableFlow::class);
-
         $mailTemplate = new MailTemplateEntity();
 
-        $mailEvent = new FlowSendMailActionEvent(new DataBag(), $mailTemplate, $event);
+        $event = new FlowSendMailActionEvent($expectDataBag, $mailTemplate, $flow);
 
-        static::assertEquals($event, $mailEvent->getStorableFlow());
-    }
-
-    public function testGetStorableFlowHasOriginalFlowEvent(): void
-    {
-        /** @var StorableFlow&MockObject $event */
-        $event = $this->createMock(StorableFlow::class);
-
-        $mailTemplate = new MailTemplateEntity();
-        $mailEvent = new FlowSendMailActionEvent(new DataBag(), $mailTemplate, $event);
-        static::assertEquals($event, $mailEvent->getStorableFlow());
+        static::assertSame($context, $event->getContext());
+        static::assertSame($expectDataBag, $event->getDataBag());
+        static::assertSame($mailTemplate, $event->getMailTemplate());
+        static::assertSame($flow, $event->getStorableFlow());
     }
 }

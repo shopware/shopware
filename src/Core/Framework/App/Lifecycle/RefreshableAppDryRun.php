@@ -8,23 +8,23 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class RefreshableAppDryRun extends AbstractAppLifecycle
 {
     /**
-     * @var Manifest[]
+     * @var array<string, Manifest>
      */
     private array $toBeInstalled = [];
 
     /**
-     * @var Manifest[]
+     * @var array<string, Manifest>
      */
     private array $toBeUpdated = [];
 
     /**
-     * @var array<string>
+     * @var array<string, string>
      */
     private array $toBeDeleted = [];
 
@@ -33,6 +33,9 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @param array<string> $names
+     */
     public function filter(array $names): self
     {
         $filter = static function (string $appName) use ($names) {
@@ -71,7 +74,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return Manifest[]
+     * @return array<string, Manifest>
      */
     public function getToBeInstalled(): array
     {
@@ -79,7 +82,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return Manifest[]
+     * @return array<string, Manifest>
      */
     public function getToBeUpdated(): array
     {
@@ -87,7 +90,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getToBeDeleted(): array
     {

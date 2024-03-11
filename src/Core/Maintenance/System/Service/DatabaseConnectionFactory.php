@@ -32,8 +32,8 @@ class DatabaseConnectionFactory
     private static function checkVersion(Connection $connection): void
     {
         // https://developer.shopware.com/docs/guides/installation/overview#system-requirements
-        $mysqlRequiredVersion = '5.7.21';
-        $mariaDBRequiredVersion = '10.3.22';
+        $mysqlRequiredVersion = '8.0.17';
+        $mariaDBRequiredVersion = '10.11';
 
         $version = $connection->fetchOne('SELECT VERSION()');
         \assert(\is_string($version));

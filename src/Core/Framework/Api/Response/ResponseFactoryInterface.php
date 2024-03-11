@@ -30,7 +30,7 @@ interface ResponseFactoryInterface
     /**
      * @template TEntityCollection of EntityCollection
      *
-     * @param EntitySearchResult<TEntityCollection> $searchResult
+     * @param EntitySearchResult<covariant TEntityCollection> $searchResult
      */
     public function createListingResponse(
         Criteria $criteria,

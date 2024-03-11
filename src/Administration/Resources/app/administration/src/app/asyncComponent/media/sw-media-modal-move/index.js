@@ -1,7 +1,7 @@
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Data: { Criteria } } = Shopware;
 
 /**
  * @status ready
@@ -83,6 +83,10 @@ export default {
 
             return firstItem.parentId;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -124,19 +128,34 @@ export default {
             } else if (child.parentId === null) {
                 this.parentFolder = { id: null, name: this.rootFolderName };
             } else {
-                this.parentFolder = await this.mediaFolderRepository.get(child.parentId, Context.api);
+                this.parentFolder = await this.fetchParentFolder(child.parentId);
             }
+        },
+
+        async fetchParentFolder(id) {
+            let items = null;
+
+            const criteria = new Criteria(1, 1)
+                .addFilter(Criteria.equals('id', id))
+                .addAssociation('children');
+
+            try {
+                items = await this.mediaFolderRepository.search(criteria, Context.api);
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-modal-move.notification.errorFetchNavigation.message'),
+                });
+            }
+
+            if (items?.length) {
+                return items[0];
+            }
+
+            return null;
         },
 
         onSelection(folder) {
             this.targetFolder = folder;
-            // the children aren't always loaded
-            if (folder.children) {
-                if (folder.children.filter(this.isNotPartOfItemsToMove).length > 0) {
-                    this.displayFolder = folder;
-                }
-                return;
-            }
 
             if (folder.id === null || folder.childCount > 0) {
                 this.displayFolder = folder;

@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
@@ -153,6 +153,8 @@ describe('Category: Test ACL privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-detail__back-btn').click();
+
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Laidout');

@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Test\Country;
 
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Context;
@@ -32,11 +35,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
 #[Package('system-settings')]
+#[Group('cache')]
+#[Group('store-api')]
 class CachedCountryRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -52,18 +54,14 @@ class CachedCountryRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')
             ->invalidateTags([CachedCountryRoute::buildName(TestDefaults::SALES_CHANNEL)]);
     }
 
-    /**
-     * @dataProvider criteriaProvider
-     */
+    #[DataProvider('criteriaProvider')]
     public function testCriteria(Criteria $criteria): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -106,9 +104,7 @@ class CachedCountryRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')

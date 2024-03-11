@@ -49,11 +49,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_customer_group_detail_actions_save %}
         <sw-button-process
-            {% if VUE3 %}
             v-model:processSuccess="isSaveSuccessful"
-            {% else %}
-            v-model="isSaveSuccessful"
-            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-customer-group-detail__save"
             variant="primary"
@@ -91,14 +87,11 @@
                             columns="repeat(2, minmax(250px, 1fr))"
                             gap="0px 30px"
                         >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_name %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="customerGroup.name"
-                                {% else %}
-                                v-model="customerGroup.name"
-                                {% endif %}
+                                name="sw-field--customerGroup-name"
                                 class="sw-settings-customer-group-detail__name"
                                 required
                                 validation="required"
@@ -112,27 +105,20 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_customer_group_detail_content_card_display_gross %}
                             <sw-boolean-radio-group
-                                {% if VUE3 %}
                                 v-model:value="customerGroup.displayGross"
-                                {% else %}
-                                v-model="customerGroup.displayGross"
-                                {% endif %}
                                 bordered
                                 :label="$tc('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', true)"
-                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', false)"
+                                :label-option-true="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 1)"
+                                :label-option-false="$tc('sw-settings-customer-group.detail.fieldDisplayGrossValues', 0)"
                                 :disabled="!acl.can('customer_groups.editor')"
                             />
                             {% endblock %}
 
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
                             {% block sw_settings_customer_group_detail_content_card_registration_form %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="customerGroup.registrationActive"
-                                {% else %}
-                                v-model="customerGroup.registrationActive"
-                                {% endif %}
+                                name="sw-field--customerGroup-registrationActive"
                                 class="sw-settings-customer-group-detail__registration-form-switch"
                                 :label="$tc('sw-settings-customer-group.detail.registrationForm')"
                                 :disabled="!acl.can('customer_groups.editor')"
@@ -158,11 +144,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_title %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="customerGroup.registrationTitle"
-                        {% else %}
-                        v-model="customerGroup.registrationTitle"
-                        {% endif %}
+                        name="sw-field--customerGroup-registrationTitle"
                         required
                         validation="required"
                         :label="$tc('sw-settings-customer-group.registration.title')"
@@ -175,7 +158,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
                     <sw-text-editor
-                        v-model="customerGroup.registrationIntroduction"
+                        v-model:value="customerGroup.registrationIntroduction"
                         :label="$tc('sw-settings-customer-group.registration.introduction')"
                         :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
                         :disabled="!acl.can('customer_groups.editor')"
@@ -187,11 +170,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="customerGroup.registrationSeoMetaDescription"
-                        {% else %}
-                        v-model="customerGroup.registrationSeoMetaDescription"
-                        {% endif %}
+                        name="sw-field--customerGroup-registrationSeoMetaDescription"
                         :label="$tc('sw-settings-customer-group.registration.seoMetaDescription')"
                         :placeholder="placeholder(customerGroup, 'registrationSeoMetaDescription', $tc('sw-settings-customer-group.registration.placeholderSeoMetaDescription'))"
                         :disabled="!acl.can('customer_groups.editor')"
@@ -201,11 +181,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="customerGroup.registrationOnlyCompanyRegistration"
-                        {% else %}
-                        v-model="customerGroup.registrationOnlyCompanyRegistration"
-                        {% endif %}
+                        name="sw-field--customerGroup-registrationOnlyCompanyRegistration"
                         :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')"
                         :help-text="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegisterHelpText')"
                         :disabled="!acl.can('customer_groups.editor')"
@@ -227,11 +204,8 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
                     <sw-entity-multi-select
-                        {% if VUE3 %}
                         v-model:entityCollection="customerGroup.registrationSalesChannels"
-                        {% else %}
-                        v-model="customerGroup.registrationSalesChannels"
-                        {% endif %}
+                        name="sw-field--customerGroup-registrationSalesChannels"
                         class="sw-settings-customer-group-detail__sales-channel"
                         :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
                         :disabled="!acl.can('customer_groups.editor')"
@@ -242,11 +216,8 @@
                     {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
                     <sw-text-field
                         v-if="customerGroupId"
-                        {% if VUE3 %}
                         v-model:value="technicalUrl"
-                        {% else %}
-                        v-model="technicalUrl"
-                        {% endif %}
+                        name="sw-field--technicalUrl"
                         :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
                         :copyable="true"
                         :disabled="true"
@@ -264,11 +235,7 @@
                         {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
                         <!-- eslint-disable vue/valid-v-model -->
                         <sw-text-field
-                            {% if VUE3 %}
-                            v-model:value="getSeoUrl(seoUrl)"
-                            {% else %}
-                            v-model="getSeoUrl(seoUrl)"
-                            {% endif %}
+                            :value="getSeoUrl(seoUrl)"
                             :label="$tc('sw-settings-customer-group.registration.seoUrlLabel', 0, { salesChannelName: seoUrl.salesChannel.translated.name})"
                             :copyable="true"
                             :disabled="true"

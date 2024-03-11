@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionItemBuilder
 {
     /**
@@ -193,6 +193,9 @@ class PromotionItemBuilder
 
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
+
+        // set promotion priority for sorting
+        $payload['priority'] = $promotion->getPriority();
 
         // set discountId
         $payload['discountId'] = $discount->getId();

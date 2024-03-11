@@ -1,34 +1,33 @@
-import { shallowMount } from '@vue/test-utils';
-import swBulkEditProductMedia from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media';
-
-Shopware.Component.register('sw-bulk-edit-product-media', swBulkEditProductMedia);
+import { mount } from '@vue/test-utils';
 
 /**
  * @package system-settings
  * @returns {Promise<Wrapper<Vue>>}
  */
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-bulk-edit-product-media'), {
-        stubs: {
-            'sw-bulk-edit-product-media-form': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        create: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve({
-                                first: () => null,
-                            });
-                        },
-                    };
+    return mount(await wrapTestComponent('sw-bulk-edit-product-media', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-bulk-edit-product-media-form': true,
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            create: () => {
+                                return Promise.resolve();
+                            },
+                            search: () => {
+                                return Promise.resolve({
+                                    first: () => null,
+                                });
+                            },
+                        };
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             disabled: false,
         },
     });
@@ -41,10 +40,6 @@ describe('sw-bulk-edit-product-media', () => {
         wrapper = await createWrapper();
 
         await flushPromises();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentBaseConfigDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'document_base_config';

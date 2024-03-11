@@ -1,28 +1,16 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-and-container';
+import { mount, config } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {
-    return shallowMount(await Shopware.Component.build('sw-condition-and-container'), {
-        stubs: {
-            'sw-button': true,
-            'sw-condition-tree-node': true,
-        },
-        provide: {
-            conditionDataProviderService: {
-                getPlaceholderData: () => {},
-            },
-            createCondition: () => {},
-            insertNodeTree: {},
-            insertNodeIntoTree: () => {},
-            removeNodeFromTree: {},
-            childAssociationField: 'test',
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-condition-and-container', { sync: true }), {
+        props: {
             condition: {
-                foo: {},
-                test: {
-                    foo: 'bar',
-                },
+                id: 'base-condition-id',
+                type: 'condition-and-container',
+                children: [{
+                    type: null,
+                    position: 0,
+                    children: [],
+                }],
             },
             level: 0,
             ...customProps,
@@ -31,9 +19,48 @@ async function createWrapper(customProps = {}) {
 }
 
 describe('src/app/component/rule/sw-condition-and-container', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+    beforeAll(async () => {
+        config.global = {
+            ...config.global,
+            stubs: {
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-condition-tree-node': true,
+            },
+            provide: {
+                conditionDataProviderService: {
+                    getPlaceholderData() {
+                        return {
+                            type: 'placeholder',
+                            children: [],
+                        };
+                    },
+                    getOrContainerData() {
+                        return {
+                            type: 'condition-or-container',
+                            children: [],
+                        };
+                    },
+                },
+                createCondition: (data, parentId, position) => {
+                    return { ...data, parentId, position };
+                },
+                insertNodeTree: {},
+                insertNodeIntoTree: (condition, node) => {
+                    condition.children.push(node);
+                },
+                removeNodeFromTree(condition, node) {
+                    condition.children = condition.children.filter((child) => {
+                        return child !== node;
+                    }).map((child, index) => {
+                        return { ...child, position: index };
+                    });
+                },
+                childAssociationField: 'children',
+                acl: {
+                    can: () => true,
+                },
+            },
+        };
     });
 
     it('should have enabled condition tree', async () => {
@@ -57,10 +84,11 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should have enabled buttons', async () => {
         const wrapper = await createWrapper();
 
-        const buttons = wrapper.findAll('sw-button-stub');
+        const buttons = wrapper.findAllComponents('.sw-button');
 
-        buttons.wrappers.forEach(button => {
-            expect(button.attributes().disabled).toBeUndefined();
+        expect(buttons.length).toBeGreaterThan(0);
+        buttons.forEach(button => {
+            expect(button.props('disabled')).toBe(false);
         });
     });
 
@@ -69,10 +97,110 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
             disabled: true,
         });
 
-        const buttons = wrapper.findAll('sw-button-stub');
+        const buttons = wrapper.findAllComponents('.sw-button');
 
-        buttons.wrappers.forEach(button => {
-            expect(button.attributes().disabled).toBe('true');
+        expect(buttons.length).toBeGreaterThan(0);
+        buttons.forEach(button => {
+            expect(button.props('disabled')).toBe(true);
         });
+    });
+
+    it('creates placeholder if child list ist empty', async () => {
+        const insertNodeIntoTreeSpy = jest.spyOn(config.global.provide, 'insertNodeIntoTree');
+
+        const wrapper = await createWrapper({
+            condition: {
+                id: 'base-condition-id',
+                type: 'condition-and-container',
+                position: 0,
+                children: [],
+            },
+        });
+
+        expect(insertNodeIntoTreeSpy).toHaveBeenCalled();
+        expect(insertNodeIntoTreeSpy).toHaveBeenCalledWith(
+            wrapper.props('condition'),
+            {
+                type: 'placeholder',
+                children: [],
+                parentId: wrapper.props('condition').id,
+                position: 0,
+            },
+        );
+    });
+
+    it('creates a new or condition container and replaces placeholder child', async () => {
+        const wrapper = await createWrapper();
+
+        const addNewOrContainerButton = wrapper.getComponent(
+            '.sw-button.sw-condition-and-container__actions--sub',
+        );
+
+        await addNewOrContainerButton.trigger('click');
+
+        const condition = wrapper.props('condition');
+        expect(condition.children).toHaveLength(1);
+        expect(condition.children[0].type).toBe('condition-or-container');
+        expect(condition.children[0].position).toBe(0);
+    });
+
+    it('creates a new or condition container after existing element node', async () => {
+        const wrapper = await createWrapper({
+            condition: {
+                type: 'condition-and-container',
+                children: [{
+                    type: 'placeholder',
+                    position: 0,
+                    children: [],
+                }],
+            },
+        });
+
+        const addNewOrContainerButton = wrapper.getComponent(
+            '.sw-button.sw-condition-and-container__actions--sub',
+        );
+
+        await addNewOrContainerButton.trigger('click');
+
+        const condition = wrapper.props('condition');
+        expect(condition.children).toHaveLength(2);
+        expect(condition.children[0].type).toBe('placeholder');
+        expect(condition.children[0].position).toBe(0);
+        expect(condition.children[1].type).toBe('condition-or-container');
+        expect(condition.children[1].position).toBe(1);
+    });
+
+    it('can be removed from tree', async () => {
+        const removeNodeFromTreeSpy = jest.spyOn(config.global.provide, 'removeNodeFromTree');
+
+        const andContainer = {
+            type: 'condition-and-container',
+            id: 'condition-id',
+            children: [],
+        };
+
+        const wrapper = await createWrapper({
+            parentCondition: {
+                id: 'parent-condition',
+                type: 'condition-or-container',
+                children: [andContainer],
+            },
+            condition: andContainer,
+        });
+
+        const deleteButton = wrapper.getComponent(
+            '.sw-button.sw-condition-and-container__actions--delete',
+        );
+
+        await deleteButton.trigger('click');
+
+        expect(removeNodeFromTreeSpy).toHaveBeenCalled();
+        expect(removeNodeFromTreeSpy).toHaveBeenCalledWith(
+            wrapper.props('parentCondition'),
+            andContainer,
+        );
+
+        const parentCondition = wrapper.props('parentCondition');
+        expect(parentCondition.children).toHaveLength(0);
     });
 });

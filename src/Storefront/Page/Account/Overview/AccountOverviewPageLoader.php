@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOverviewPageLoader
 {
     /**
@@ -78,9 +78,12 @@ class AccountOverviewPageLoader
             ->addAssociation('lineItems.cover')
             ->addAssociation('lineItems.downloads.media')
             ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('addresses')
             ->addAssociation('currency')
+            ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
@@ -88,15 +91,13 @@ class AccountOverviewPageLoader
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
-        $responseStruct = $this->orderRoute
-            ->load($event->getStoreApiRequest(), $context, $criteria);
-
-        return $responseStruct->getOrders()->first();
+        return $this->orderRoute
+            ->load($event->getStoreApiRequest(), $context, $criteria)->getOrders()->getEntities()->first();
     }
 
     private function loadCustomer(SalesChannelContext $context, CustomerEntity $customer): CustomerEntity

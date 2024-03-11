@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-product-comparison-preview.html.twig';
@@ -36,8 +36,6 @@ export default {
 
     methods: {
         onModalClose() {
-            this.content = null;
-            this.errors = null;
             this.$emit('close');
         },
 

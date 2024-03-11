@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class StockSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

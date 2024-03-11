@@ -2,17 +2,13 @@
 {% block sw_product_properties %}
 <sw-inherit-wrapper
     v-if="properties"
-    {% if VUE3 %}
     v-model:value="product.properties"
-    {% else %}
-    v-model="product.properties"
-    {% endif %}
     class="sw-product-properties"
     :is-association="isAssociation"
     :disabled="disabled"
     :inherited-value="parentProduct.properties"
 >
-    <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+    <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_properties_card %}
         <sw-card
@@ -52,7 +48,7 @@
             </template>
 
             <template
-                v-if="properties.length > 0 || searchTerm"
+                v-if="productHasProperties"
                 #grid
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -71,7 +67,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
-                                v-model="searchTerm"
+                                v-model:value="searchTerm"
                                 variant="form"
                                 size="small"
                                 :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
@@ -109,11 +105,11 @@
                         class="sw-product-properties__list"
                         detail-route="sw.property.detail"
                         identifier="sw-product-properties-list"
+                        plain-appearance
                         :items="properties"
                         :data-source="properties"
                         :columns="propertyColumns"
                         :repository="propertyGroupRepository"
-                        :plain-appearance="true"
                         :full-page="false"
                         :show-settings="false"
                         :allow-column-edit="false"
@@ -173,6 +169,7 @@
                     {% block sw_product_properties_filled_state_body_empty_state %}
                     <sw-empty-state
                         v-if="properties.length <= 0"
+                        class="sw-product-properties__empty-state has--no-search-result"
                         :absolute="false"
                         :show-description="false"
                         :title="$tc('sw-product.properties.titleEmptyStateList')"
@@ -181,7 +178,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_body_empty_state_image %}
                             <img
-                                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                                 :alt="$tc('sw-product.properties.titleEmptyStateList')"
                             >
                             {% endblock %}
@@ -191,9 +188,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_filled_state_body_loading_state %}
-                    <sw-loader
-                        v-if="isPropertiesLoading"
-                    />
+                    <sw-loader v-if="isPropertiesLoading" />
                     {% endblock %}
                 </sw-container>
                 {% endblock %}
@@ -202,7 +197,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_properties_empty_state %}
             <sw-empty-state
-                v-if="properties.length <= 0 && !searchTerm"
+                v-if="!productHasProperties"
+                class="sw-product-properties__empty-state has--no-properties"
                 :absolute="false"
                 :show-description="false"
                 :title="$tc('sw-product.properties.titleEmptyState')"
@@ -211,7 +207,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_properties_empty_state_image %}
                     <img
-                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-product.properties.titleEmptyState')"
                     >
                     {% endblock %}
@@ -246,7 +242,7 @@
             :new-properties="newProperties"
             :properties-available="propertiesAvailable"
             @modal-cancel="onCancelAddPropertiesModal"
-            @modal-save="onSaveAddPropertiesModal"
+            @modal-save="onSaveAddPropertiesModal($event, updateCurrentValue)"
         />
         {% endblock %}
     </template>

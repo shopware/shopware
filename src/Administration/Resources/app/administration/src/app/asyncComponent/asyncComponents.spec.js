@@ -7,6 +7,8 @@ import registerAsyncComponents from 'src/app/asyncComponent/asyncComponents';
 const componentNames = [
     'sw-code-editor',
     'sw-chart',
+    'sw-help-center-v2',
+    'sw-help-sidebar',
     'sw-datepicker',
     'sw-image-slider',
     'sw-media-add-thumbnail-form',

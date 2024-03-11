@@ -1,16 +1,16 @@
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-product-box', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-product-box', () => import('./config'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-product-box', () => import('./component'));
 
@@ -20,7 +20,7 @@ criteria.addAssociation('cover');
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-box',

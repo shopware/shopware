@@ -3,25 +3,26 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Admin\AdminSearchController;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @package system-settings
  *
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class AdminSearchControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -33,56 +34,139 @@ class AdminSearchControllerTest extends TestCase
 
     private EntityRepository $promotionRepo;
 
-    private AdminSearchController $controller;
-
     protected function setUp(): void
-    {
-        $this->clearElasticsearch();
-
-        $this->connection = $this->getContainer()->get(Connection::class);
-
-        $this->promotionRepo = $this->getContainer()->get('promotion.repository');
-
-        $this->controller = $this->getContainer()->get(AdminSearchController::class);
-    }
-
-    public function testElasticSearch(): void
     {
         if (!$this->getContainer()->getParameter('elasticsearch.administration.enabled')) {
             static::markTestSkipped('No OPENSEARCH configured');
         }
 
+        $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->promotionRepo = $this->getContainer()->get('promotion.repository');
+    }
+
+    public function testIndexing(): IdsCollection
+    {
+        static::expectNotToPerformAssertions();
+
         $this->connection->executeStatement('DELETE FROM promotion');
 
-        $id = 'c1a28776116d4431a2208eb2960ec340';
-        $this->createPromotion([
-            'id' => $id,
-            'name' => 'elasticsearch',
-        ]);
-
+        $this->clearElasticsearch();
         $this->indexElasticSearch(['--only' => ['promotion']]);
 
-        $request = new Request();
-        $request->request->set('term', 'elasticsearch');
-        $request->request->set('entities', ['promotion']);
-        $response = $this->controller->elastic($request, Context::createDefaultContext());
+        $ids = new TestDataCollection();
+        $this->createData($ids);
+
+        $this->refreshIndex();
+
+        return $ids;
+    }
+
+    /**
+     * @param array<string, string> $data
+     * @param array<string> $expectedPromotions
+     */
+    #[Depends('testIndexing')]
+    #[DataProvider('providerSearchCases')]
+    public function testElasticSearch(array $data, array $expectedPromotions, IdsCollection $ids): void
+    {
+        $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
+        $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = $response->getContent();
-        static::assertNotFalse($content);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-
+        static::assertArrayHasKey('data', $content, print_r($content, true));
         static::assertNotEmpty($content['data']);
         static::assertNotEmpty($content['data']['promotion']);
 
-        $data = $content['data']['promotion'];
+        $content = $content['data']['promotion'];
 
-        static::assertEquals(1, $data['total']);
-        static::assertNotEmpty($data['data'][$id]);
-        static::assertEquals($id, $data['data'][$id]['id']);
-        static::assertEquals('elasticsearch', $data['data'][$id]['name']);
+        static::assertEquals(\count($expectedPromotions), $content['total']);
+
+        foreach ($expectedPromotions as $expectedPromotion) {
+            $id = $ids->get($expectedPromotion);
+            static::assertNotEmpty($content['data'][$id]);
+            static::assertEquals($id, $content['data'][$id]['id']);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string|array<string>>, array<string>}>
+     */
+    public static function providerSearchCases(): iterable
+    {
+        yield 'search with normal term' => [
+            [
+                'term' => 'laptop gold',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-1', 'promotion-2', 'promotion-3'],
+        ];
+        yield 'search a phrase' => [
+            [
+                'term' => '"gold laptop"',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-1'],
+        ];
+        yield 'search with AND' => [
+            [
+                'term' => 'laptop AND gold',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-1'],
+        ];
+        yield 'search with OR' => [
+            [
+                'term' => 'laptop OR gold',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-1', 'promotion-2', 'promotion-3'],
+        ];
+        yield 'search with AND syntax' => [
+            [
+                'term' => '+laptop +gold',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-1'],
+        ];
+        yield 'search with OR syntax' => [
+            [
+                'term' => 'laptop | gold',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-1', 'promotion-2', 'promotion-3'],
+        ];
+        yield 'search with NEGATE syntax' => [
+            [
+                'term' => 'laptop +-gold',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-2'],
+        ];
+        yield 'search with Umlauts' => [
+            [
+                'term' => 'Ausländer',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-5'],
+        ];
+        yield 'search by number #1 with concatenated index' => [
+            [
+                'term' => '12345',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-6'],
+        ];
+        yield 'search by number #2 with concatenated index' => [
+            [
+                'term' => '56789',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-6'],
+        ];
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -90,22 +174,50 @@ class AdminSearchControllerTest extends TestCase
         return $this->getContainer();
     }
 
-    /**
-     * @param array<string, mixed> $promotionOverride
-     *
-     * @return array<string, mixed>
-     */
-    private function createPromotion(array $promotionOverride = []): array
+    private function createData(TestDataCollection $ids): void
     {
-        $promotion = array_merge([
-            'id' => $promotionOverride['id'] ?? Uuid::randomHex(),
-            'name' => 'Test case promotion',
-            'active' => true,
-            'useIndividualCodes' => true,
-        ], $promotionOverride);
+        $promotions = [
+            [
+                'id' => $ids->get('promotion-1'),
+                'name' => 'gold laptop',
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+            [
+                'id' => $ids->get('promotion-2'),
+                'name' => 'silver laptop',
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+            [
+                'id' => $ids->get('promotion-3'),
+                'name' => 'gold pc',
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+            [
+                'id' => $ids->get('promotion-4'),
+                'name' => 'silver pc',
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+            [
+                'id' => $ids->get('promotion-5'),
+                'name' => 'Ausländer',
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+            [
+                'id' => $ids->get('promotion-6'),
+                'name' => [
+                    'de-DE' => '12345',
+                    'en-GB' => '56789',
+                ],
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+        ];
 
-        $this->promotionRepo->upsert([$promotion], Context::createDefaultContext());
-
-        return $promotion;
+        $this->promotionRepo->create($promotions, Context::createDefaultContext());
     }
 }

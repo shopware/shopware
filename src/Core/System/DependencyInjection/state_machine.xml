@@ -19,6 +19,8 @@
             <argument type="service" id="state_machine_history.repository" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\System\StateMachine\Command\WorkflowDumpCommand">

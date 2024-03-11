@@ -15,7 +15,6 @@
                       method="post"
                       data-form-submit-loader="true"
                       data-form-validation="true">
-
                     {% block component_account_register_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -43,19 +42,19 @@
                     {% endblock %}
 
                     {% block component_account_register_personal %}
-                        <div class="register-personal">
+                        <div class="register-personal mb-3">
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
-                                        'accountType': data.get('accountType')
+                                        showBirthdayField: config('core.loginRegistration.showBirthdayField'),
+                                        accountType: data.get('accountType')
                                     } %}
                                 {% endblock %}
 
                                 {% block component_account_register_company_fields %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal-company.html.twig' with {
-                                        'prefix': 'billingAddress',
-                                        'address': data.get('billingAddress')
+                                        prefix: 'billingAddress',
+                                        address: data.get('billingAddress')
                                     } %}
                                 {% endblock %}
 
@@ -64,7 +63,7 @@
                                         {% block component_account_register_personal_mail_label %}
                                             <label class="form-label"
                                                    for="personalMail">
-                                                {{ "account.personalMailLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                {{ 'account.personalMailLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                             </label>
                                         {% endblock %}
 
@@ -73,7 +72,7 @@
                                                    class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                    autocomplete="section-personal email"
                                                    id="personalMail"
-                                                   placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}"
+                                                   placeholder="{{ 'account.personalMailPlaceholder'|trans|striptags }}"
                                                    name="email"
                                                    value="{{ data.get('email') }}"
                                                    {% if config('core.loginRegistration.requireEmailConfirmation') %}
@@ -97,7 +96,7 @@
                                         {% block component_account_register_personal_mail_confirmation_label %}
                                             <label class="form-label"
                                                    for="personalMailConfirmation">
-                                                {{ "account.personalMailConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                {{ 'account.personalMailConfirmationLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                             </label>
                                         {% endblock %}
 
@@ -106,11 +105,11 @@
                                                    class="form-control{% if formViolations.getViolations('/email') is not empty or formViolations.getViolations('/emailConfirmation') is not empty %} is-invalid{% endif %}"
                                                    autocomplete="section-personal email"
                                                    id="personalMailConfirmation"
-                                                   placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans|striptags }}"
+                                                   placeholder="{{ 'account.personalMailConfirmationPlaceholder'|trans|striptags }}"
                                                    name="emailConfirmation"
                                                    value="{{ data.get('emailConfirmation') }}"
                                                    data-form-validation-equal="personalMail"
-                                                   data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans|striptags }}"
+                                                   data-form-validation-equal-message="{{ 'account.personalMailConfirmationInvalidMessage'|trans|striptags }}"
                                                    required="required">
                                         {% endblock %}
 
@@ -136,7 +135,7 @@
                                             {% block component_account_register_personal_password_label %}
                                                 <label class="form-label"
                                                        for="personalPassword">
-                                                    {{ "account.personalPasswordLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                    {{ 'account.personalPasswordLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                 </label>
                                             {% endblock %}
 
@@ -145,7 +144,7 @@
                                                        class="form-control{% if formViolations.getViolations('/password') is not empty %} is-invalid{% endif %}"
                                                        autocomplete="new-password"
                                                        id="personalPassword"
-                                                       placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}"
+                                                       placeholder="{{ 'account.personalPasswordPlaceholder'|trans|striptags }}"
                                                        name="password"
                                                        minlength="{{ config('core.loginRegistration.passwordMinLength') }}"
                                                        {% if config('core.loginRegistration.requirePasswordConfirmation') %}
@@ -153,7 +152,7 @@
                                                        {% endif %}
                                                        {% if config('core.loginRegistration.passwordMinLength') != 0 %}
                                                        data-form-validation-length="{{ config('core.loginRegistration.passwordMinLength') }}"
-                                                       data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
+                                                       data-form-validation-length-message=" {{ 'account.personalPasswordDescription'|trans({
                                                            '%minLength%': config('core.loginRegistration.passwordMinLength')
                                                        })|sw_sanitize }}"
                                                        {% endif %}
@@ -164,7 +163,7 @@
                                                 {% if config('core.loginRegistration.passwordMinLength') != 0 %}
                                                     <small class="form-text js-validation-message"
                                                            data-form-validation-length-text="true">
-                                                        {{ "account.personalPasswordDescription"|trans({
+                                                        {{ 'account.personalPasswordDescription'|trans({
                                                             '%minLength%': config('core.loginRegistration.passwordMinLength')
                                                         })|sw_sanitize }}
                                                     </small>
@@ -188,7 +187,7 @@
                                             {% block component_account_register_personal_password_confirmation_label %}
                                                 <label class="form-label"
                                                        for="personalPasswordConfirmation">
-                                                    {{ "account.personalPasswordConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                    {{ 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                 </label>
                                             {% endblock %}
 
@@ -197,11 +196,11 @@
                                                        class="form-control{% if formViolations.getViolations('/password') is not empty or formViolations.getViolations('/passwordConfirmation') is not empty %} is-invalid{% endif %}"
                                                        autocomplete="new-password"
                                                        id="personalPasswordConfirmation"
-                                                       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans|striptags }}"
+                                                       placeholder="{{ 'account.personalPasswordConfirmationPlaceholder'|trans|striptags }}"
                                                        name="passwordConfirmation"
                                                        minlength="{{ config('core.loginRegistration.passwordMinLength') }}"
                                                        data-form-validation-equal="newPassword"
-                                                       data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans|striptags }}"
+                                                       data-form-validation-equal-message="{{ 'account.personalPasswordConfirmationInvalidMessage'|trans|striptags }}"
                                                        required="required">
                                             {% endblock %}
 
@@ -251,21 +250,21 @@
                     {% endblock %}
 
                     {% block component_account_register_address %}
-                        <div class="register-address">
+                        <div class="register-address mb-5">
                             {% block component_account_register_address_fields %}
                                 {% block component_account_register_address_billing %}
                                     <div class="register-billing">
                                         {% block component_account_register_address_billing_header %}
                                             <div class="card-title">
-                                                {{ "account.registerAddressBillingHeader"|trans|sw_sanitize }}
+                                                {{ 'account.registerAddressBillingHeader'|trans|sw_sanitize }}
                                             </div>
                                         {% endblock %}
 
                                         {% block component_account_register_address_billing_fields %}
                                             {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                'prefix': 'billingAddress',
-                                                'data': data.get('billingAddress'),
-                                                'showNoShippingPostfix': true,
+                                                prefix: 'billingAddress',
+                                                data: data.get('billingAddress'),
+                                                showNoShippingPostfix: true,
                                             } %}
                                         {% endblock %}
                                     </div>
@@ -274,7 +273,7 @@
                                 {% block component_account_register_address_different_shipping %}
                                     <div>
                                         {% block component_account_register_address_different_shipping_control %}
-                                            <div class="form-check register-different-shipping">
+                                            <div class="form-check register-different-shipping mb-3">
                                                 {% block component_account_register_address_different_shipping_input %}
                                                     <input type="checkbox"
                                                            class="form-check-input js-different-shipping-checkbox"
@@ -291,45 +290,45 @@
                                                 {% block component_account_register_address_different_shipping_label %}
                                                     <label class="custom-control-label no-validation"
                                                            for="differentShippingAddress">
-                                                        {{ "account.registerDifferentShipping"|trans|sw_sanitize }}
+                                                        {{ 'account.registerDifferentShipping'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
 
                                         {% block component_account_register_address_shipping %}
-                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none">
+                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none mb-4">
                                                 {% block component_account_register_address_shipping_header %}
                                                     <div class="card-title">
-                                                        {{ "account.registerAddressShippingHeader"|trans|sw_sanitize }}
+                                                        {{ 'account.registerAddressShippingHeader'|trans|sw_sanitize }}
                                                     </div>
                                                 {% endblock %}
 
                                                 {% block component_account_register_address_shipping_fields %}
                                                     {% block component_account_register_address_shipping_fields_personal %}
                                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                                            'prefix': 'shippingAddress',
-                                                            'data': data.get('shippingAddress'),
-                                                            'hideCustomerTypeSelect': false,
-                                                            'customToggleTarget': true,
-                                                            'accountType': data.get('shippingAddress').get('accountType')
+                                                            prefix: 'shippingAddress',
+                                                            data: data.get('shippingAddress'),
+                                                            hideCustomerTypeSelect: false,
+                                                            customToggleTarget: true,
+                                                            accountType: data.get('shippingAddress').get('accountType')
                                                         } %}
                                                     {% endblock %}
 
                                                     {% block component_account_register_address_shipping_fields_company %}
                                                         {% sw_include '@Storefront/storefront/component/address/address-personal-company.html.twig' with {
-                                                            'prefix': 'shippingAddress',
-                                                            'customToggleTarget': true,
-                                                            'address': data.get('shippingAddress')
+                                                            prefix: 'shippingAddress',
+                                                            customToggleTarget: true,
+                                                            address: data.get('shippingAddress')
                                                         } %}
                                                     {% endblock %}
 
                                                     {% block component_account_register_address_shipping_fields_address %}
                                                         {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                                            'prefix': 'shippingAddress',
-                                                            'data': data.get('shippingAddress'),
-                                                            'showNoShippingPostfix': true,
-                                                            'disableNonShippableCountries': true,
+                                                            prefix: 'shippingAddress',
+                                                            data: data.get('shippingAddress'),
+                                                            showNoShippingPostfix: true,
+                                                            disableNonShippableCountries: true,
                                                         } %}
                                                     {% endblock %}
                                                 {% endblock %}
@@ -351,7 +350,7 @@
 
                     {% block component_account_register_required_fields %}
                         <p class="register-required-info">
-                            {{ "general.requiredFields"|trans|sw_sanitize }}
+                            {{ 'general.requiredFields'|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -359,7 +358,7 @@
                         <div class="register-submit d-grid col-md-6 offset-md-6">
                             <button type="submit"
                                     class="btn btn-primary btn-lg">
-                                {{ "account.registerSubmit"|trans|sw_sanitize }}
+                                {{ 'account.registerSubmit'|trans|sw_sanitize }}
                             </button>
                         </div>
                     {% endblock %}

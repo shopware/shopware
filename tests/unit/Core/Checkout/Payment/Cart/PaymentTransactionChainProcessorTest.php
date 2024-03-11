@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -16,32 +17,28 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor
  */
 #[Package('checkout')]
+#[CoversClass(PaymentTransactionChainProcessor::class)]
 class PaymentTransactionChainProcessorTest extends TestCase
 {
     private IdsCollection $ids;
@@ -84,13 +81,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $eventDispatcher,
         );
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidOrderException::class);
-        }
         $this->expectException(PaymentException::class);
-        static::expectExceptionMessage(
-            \sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order'))
-        );
+        $this->expectExceptionMessage(\sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order')));
 
         $processor->process(
             $this->ids->get('test-order'),
@@ -152,13 +144,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $eventDispatcher,
         );
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(UnknownPaymentMethodException::class);
-        }
         $this->expectException(PaymentException::class);
-        static::expectExceptionMessage(
-            \sprintf('The payment method %s could not be found.', $this->ids->get('payment'))
-        );
+        $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $this->ids->get('payment')));
 
         $processor->process(
             $this->ids->get('test-order'),

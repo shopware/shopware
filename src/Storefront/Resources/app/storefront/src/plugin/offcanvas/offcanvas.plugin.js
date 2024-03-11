@@ -40,11 +40,9 @@ class OffCanvasSingleton {
     /**
      * Method to change the content of the already visible OffCanvas
      * @param {string} content
-     * @deprecated tag:v6.6.0 - Parameter `closable` is deprecated. The `closable` parameter will be set by the `open` method only instead.
-     * @param {boolean} closable
      * @param {number} delay
      */
-    setContent(content, closable, delay) {
+    setContent(content, delay) {
         const offCanvas = this.getOffCanvas();
 
         if (!offCanvas[0]) {

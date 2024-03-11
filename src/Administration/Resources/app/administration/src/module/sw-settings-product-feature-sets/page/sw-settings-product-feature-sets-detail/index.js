@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-product-feature-sets-detail.html.twig';
 
 const { Mixin } = Shopware;
@@ -7,7 +10,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -97,7 +100,6 @@ export default {
             this.isLoading = true;
 
             if (this.productFeatureSetId) {
-                this.productFeatureSetId = this.$route.params.id;
                 this.productFeatureSetsRepository.get(this.productFeatureSetId)
                     .then((productFeatureSet) => {
                         if (productFeatureSet.features && !productFeatureSet.features.length) {

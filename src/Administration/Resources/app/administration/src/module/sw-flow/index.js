@@ -38,7 +38,7 @@ Shopware.Component.register('sw-flow-leave-page-modal', () => import('./componen
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Module.register('sw-flow', {
     type: 'core',
@@ -120,7 +120,7 @@ Module.register('sw-flow', {
         },
         create: {
             component: 'sw-flow-detail',
-            path: 'create',
+            path: 'create/:flowTemplateId?',
             meta: {
                 parentPath: 'sw.flow.index',
                 privilege: 'flow.creator',

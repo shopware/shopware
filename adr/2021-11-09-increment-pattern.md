@@ -3,7 +3,7 @@ title: Introduce increment pattern
 date: 2021-11-09
 area: system-settings
 tags: [architecture, increment, message-queue-stats]
---- 
+---
 
 ## Context
 The current `message_queue_stats` table records which messages are in the message queue and how often. This

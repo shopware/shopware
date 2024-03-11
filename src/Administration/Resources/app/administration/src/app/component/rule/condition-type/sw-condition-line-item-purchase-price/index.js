@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @package business-ops
+ * @package services-settings
  */
 Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base-line-item', {
     template,

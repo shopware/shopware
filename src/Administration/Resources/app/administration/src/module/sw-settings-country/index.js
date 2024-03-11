@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import './component/sw-settings-country-address-handling';
 import './component/sw-settings-country-new-snippet-modal';

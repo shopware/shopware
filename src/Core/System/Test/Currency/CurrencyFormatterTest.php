@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\Currency;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
@@ -66,9 +67,7 @@ class CurrencyFormatterTest extends TestCase
         static::assertSame('US$132,582.99', $formattedCurrency);
     }
 
-    /**
-     * @dataProvider digitProvider
-     */
+    #[DataProvider('digitProvider')]
     public function testDigits(float $price, int $digits, string $expected): void
     {
         $formatter = $this->getContainer()->get(CurrencyFormatter::class);

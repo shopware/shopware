@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use League\Flysystem\Filesystem;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
@@ -21,9 +22,8 @@ use Symfony\Component\Mime\Email;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\MailerTransportDecorator
  */
+#[CoversClass(MailerTransportDecorator::class)]
 class MailerTransportDecoratorTest extends TestCase
 {
     private MockObject&TransportInterface $decorated;

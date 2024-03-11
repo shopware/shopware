@@ -20,6 +20,7 @@
         :upload-tag="product.id"
         :scroll-target="$parent.$el"
         :default-folder="product.getEntityName()"
+        :file-accept="fileAccept"
         @media-upload-sidebar-open="onOpenMedia"
     />
     {% endblock %}
@@ -66,6 +67,8 @@
                 v-draggable="{ dragGroup: 'product-media', data: mediaItem, onDragEnter: onMediaItemDragSort }"
                 v-droppable="{ dragGroup: 'product-media', data: mediaItem }"
                 :is-cover="isCover(mediaItem)"
+                :is-spatial="isSpatial(mediaItem)"
+                :is-ar-ready="isArReady(mediaItem)"
                 :is-placeholder="mediaItem.isPlaceholder"
                 :media-id="mediaItem.mediaId"
                 :show-cover-label="showCoverLabel"

@@ -3,7 +3,7 @@
  */
 
 import type { Module } from 'vuex';
-import type { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
+import type { actionButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>
 
@@ -26,7 +26,7 @@ const ActionButtonStore: Module<ActionButtonState, VuexRootState> = {
 };
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default ActionButtonStore;
 

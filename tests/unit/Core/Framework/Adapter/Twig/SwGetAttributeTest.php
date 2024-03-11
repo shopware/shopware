@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -15,9 +16,8 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\sw_get_attribute
  */
+#[CoversFunction('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')]
 class SwGetAttributeTest extends TestCase
 {
     private MockObject&Environment $environmentMock;

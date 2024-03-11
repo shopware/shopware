@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Tag\Service;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('inventory')]
 class FilterTagIdsService
 {
     public function __construct(
@@ -84,7 +85,7 @@ class FilterTagIdsService
 
     private function addEmptyFilter(QueryBuilder $query): void
     {
-        /** @var ManyToManyAssociationField[] $manyToManyFields */
+        /** @var CompiledFieldCollection<ManyToManyAssociationField> $manyToManyFields */
         $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField);
 
         foreach ($manyToManyFields as $manyToManyField) {
@@ -115,9 +116,12 @@ class FilterTagIdsService
         );
     }
 
+    /**
+     * @param array<string> $assignments
+     */
     private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
     {
-        /** @var ManyToManyAssociationField[] $manyToManyFields */
+        /** @var CompiledFieldCollection<ManyToManyAssociationField> $manyToManyFields */
         $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true));
 
         if (\count($manyToManyFields) === 0) {

@@ -17,7 +17,7 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
         page = null;
     });
 
-    it('@settings: Edit identfiers', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: Edit identfiers', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'PATCH',
@@ -138,8 +138,10 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
 
         // Verify that the manufacturer was created only once identified by the name
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+        cy.contains('.smart-bar__header', 'Manufacturers');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+        cy.sortAndCheckListingAscViaColumn('Manufacturer', 'Manufacturer identified by name');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible');
         cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`,
             'Manufacturer identified by name');

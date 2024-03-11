@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
     final public const ROUTE_NAME = 'frontend.navigation.page';
@@ -43,14 +43,13 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
     public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
     {
-        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
-            new EqualsFilter('linkType', CategoryDefinition::LINK_TYPE_EXTERNAL),
-        ]));
-
-        $criteria->addFilter(
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('active', true),
-        );
+            new NotFilter(NotFilter::CONNECTION_OR, [
+                new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
+                new EqualsFilter('type', CategoryDefinition::TYPE_LINK),
+            ]),
+        ]));
     }
 
     public function getMapping(Entity $category, ?SalesChannelEntity $salesChannel): SeoUrlMapping

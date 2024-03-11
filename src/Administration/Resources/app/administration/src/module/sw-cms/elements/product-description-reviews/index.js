@@ -1,16 +1,16 @@
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-product-description-reviews', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-product-description-reviews', () => import('./config'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-product-description-reviews', () => import('./component'));
 
@@ -20,7 +20,7 @@ criteria.addAssociation('properties');
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-description-reviews',

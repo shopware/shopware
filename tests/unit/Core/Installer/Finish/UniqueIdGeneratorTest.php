@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Finish;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Finish\UniqueIdGenerator
  */
+#[CoversClass(UniqueIdGenerator::class)]
 class UniqueIdGeneratorTest extends TestCase
 {
     protected function tearDown(): void

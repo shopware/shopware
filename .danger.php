@@ -16,13 +16,19 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
     ],
     'strict' => [
-        '^phpstan\/.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpstan\/phpstan.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
         '^symplify\/phpstan-rules$'  => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
         '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
+        '^scssphp\/scssphp$' => 'Patch updates of scssphp might lead to UI breaks, therefore it is pinned.',
         '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
         '^shopware\/core$' => 'The shopware core packages should be required in any version, so use `*` constraint, the version constraint will be automatically synced during the release process',
         '^ext-.*$' => 'PHP extension version ranges should be required in any version, so use `*` constraint',
     ],
+];
+
+const BaseTestClasses = [
+    'RuleTestCase',
+    'TestCase'
 ];
 
 return (new Config())
@@ -47,6 +53,34 @@ return (new Config())
                     $context->failure('GitHub PRs are not allowed to be squashed');
                 }
             },
+        ]
+    ))
+    /**
+     * MRs that target a release branch that is not trunk should have a thread with link to a trunk MR
+     * to disable this rule you can add the no-trunk label
+     */
+    ->useRule(new Condition(
+        function (Context $context) {
+            $labels = array_map('strtolower', $context->platform->pullRequest->labels);
+
+            return $context->platform instanceof Gitlab
+                && !\in_array('no-trunk', $labels, true)
+                && preg_match('#^6\.\d+.*|saas/\d{4}/\d{1,2}$#', $context->platform->raw['target_branch']);
+        },
+        [
+            function (Context $context): void {
+                $found = false;
+                foreach ($context->platform->pullRequest->getComments() as $comment) {
+                    if (str_contains($comment->body, '/shopware/6/product/platform/-/merge_requests/')) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    $context->failure('This MR should have a dependency on a trunk MR. Please add a thread with a link');
+                }
+            }
         ]
     ))
     ->useRule(new Condition(
@@ -361,12 +395,96 @@ return (new Config())
             );
         }
     })
+    ->useRule(function (Context $context): void {
+        $addedUnitTests = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('tests/unit/**/*Test.php');
+        $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');
+        $missingUnitTests = [];
+        $unitTestsName = [];
+
+        foreach ($addedUnitTests as $file) {
+            $content = $file->getContent();
+
+            preg_match('/\s+extends\s+(?<class>\w+)/', $content, $matches);
+
+            if (isset($matches['class']) && in_array($matches['class'], BaseTestClasses)) {
+                $fqcn = str_replace('.php', '', $file->name);
+                $className = explode('/', $fqcn);
+                $testClass = end($className);
+
+                $unitTestsName[] = $testClass;
+            }
+        }
+
+        foreach ($addedSrcFiles as $file) {
+            $content = $file->getContent();
+
+            $fqcn = str_replace('.php', '', $file->name);
+            $className = explode('/', $fqcn);
+            $class = end($className);
+
+            if (\str_contains($content, '* @codeCoverageIgnore')) {
+                continue;
+            }
+
+            if (\str_contains($content, 'abstract class ' . $class)) {
+                continue;
+            }
+
+            if (\str_contains($content, 'interface ' . $class)) {
+                continue;
+            }
+
+            if (\str_contains($content, 'trait ' . $class)) {
+                continue;
+            }
+
+            if (\str_starts_with($class, 'Migration1')) {
+                continue;
+            }
+
+            $ignoreSuffixes = [
+                'Entity',
+                'Collection',
+                'Struct',
+                'Field',
+                'Test',
+                'Definition',
+                'Event',
+            ];
+
+            $ignored = false;
+
+            foreach ($ignoreSuffixes as $ignoreSuffix) {
+                if (\str_ends_with($class, $ignoreSuffix)) {
+                    $ignored = true;
+
+                    break;
+                }
+            }
+
+            if (!$ignored && !\in_array($class . 'Test', $unitTestsName, true)) {
+                $missingUnitTests[] = $file->name;
+            }
+        }
+
+        if (\count($missingUnitTests) > 0) {
+            $context->warning(
+                'Please be kind and add unit tests for your new code in these files: <br/>'
+                . implode('<br/>', $missingUnitTests)
+                . '<br/>' . 'If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
+            );
+        }
+    })
     // check for composer version operators
     ->useRule(function (Context $context): void {
         $composerFiles = $context->platform->pullRequest->getFiles()->matches('**/composer.json');
 
+        if ($root = $context->platform->pullRequest->getFiles()->matches('composer.json')->first()) {
+            $composerFiles->add($root);
+        }
+
         foreach ($composerFiles as $composerFile) {
-            if ($composerFile->status === File::STATUS_REMOVED || str_contains($composerFile->name, 'src/WebInstaller')) {
+            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string)$composerFile->name, 'src/WebInstaller')) {
                 continue;
             }
 
@@ -420,11 +538,6 @@ return (new Config())
                     );
                 }
             }
-        }
-    })
-    ->after(function (Context $context): void {
-        if ($context->platform instanceof Github && $context->hasFailures()) {
-            $context->platform->addLabels('Incomplete');
         }
     })
 ;

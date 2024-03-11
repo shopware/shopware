@@ -23,8 +23,6 @@ class CustomFieldsSerializer extends FieldSerializer
     }
 
     /**
-     * @param mixed|null $value
-     *
      * @return iterable<string, mixed>
      */
     public function serialize(Config $config, Field $field, $value): iterable
@@ -52,10 +50,8 @@ class CustomFieldsSerializer extends FieldSerializer
 
     /**
      * @param mixed|null $value
-     *
-     * @return mixed|null
      */
-    public function deserialize(Config $config, Field $field, $value)
+    public function deserialize(Config $config, Field $field, $value): mixed
     {
         if (!$field instanceof CustomFields) {
             throw new \InvalidArgumentException('Expected CustomFields');

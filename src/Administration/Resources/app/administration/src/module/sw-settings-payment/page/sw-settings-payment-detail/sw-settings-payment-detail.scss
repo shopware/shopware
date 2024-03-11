@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 .sw-settings-payment-detail {
     #sw-field--paymentMethod-description {
         min-height: 148px;
@@ -6,6 +8,32 @@
     .smart-bar__actions {
         .sw-tooltip--wrapper {
             margin-left: 8px;
+        }
+    }
+
+    .sw-settings-payment-detail-delete {
+        &__container {
+            display: flex;
+            align-items: center;
+            justify-content: end;
+        }
+    }
+
+    /** @deprecated tag:v6.7.0 - Can be removed: with technical names now required, the hint is no longer needed */
+    .sw-settings-payment-detail__field-technical-name.has--warning {
+        .sw-block-field__block {
+            background: $color-pumpkin-spice-50;
+            border-color: $color-pumpkin-spice-500;
+
+            input,
+            textarea,
+            select {
+                background: $color-pumpkin-spice-50;
+            }
+        }
+
+        .sw-field__hint {
+            color: $color-pumpkin-spice-500;
         }
     }
 }

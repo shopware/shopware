@@ -42,11 +42,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_prefix %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="pattern.prefix"
-                {% else %}
-                v-model="pattern.prefix"
-                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__prefix"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPrefix')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderPrefix')"
@@ -56,11 +52,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_replacement %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="pattern.codeLength"
-                {% else %}
-                v-model="pattern.codeLength"
-                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__replacement"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeLength')"
                 :min="1"
@@ -71,11 +63,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_suffix %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="pattern.suffix"
-                {% else %}
-                v-model="pattern.suffix"
-                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__suffix"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelSuffix')"
                 :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderSuffix')"
@@ -89,11 +77,7 @@
         {% block sw_promotion_v2_generate_codes_modal_container_pattern_custom %}
         <sw-text-field
             v-else
-            {% if VUE3 %}
             v-model:value="promotion.individualCodePattern"
-            {% else %}
-            v-model="promotion.individualCodePattern"
-            {% endif %}
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
             :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCustomPattern')"
             :placeholder="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.placeholderCustomPattern')"
@@ -105,11 +89,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_generate_codes_modal_custom_pattern_switch %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="customPatternMode"
-            {% else %}
-            v-model="customPatternMode"
-            {% endif %}
             class="sw-promotion-v2-generate-codes-modal__custom-pattern"
             :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelUseCustomPattern')"
             bordered
@@ -127,11 +107,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_preview %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="preview"
-                {% else %}
-                v-model="preview"
-                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__preview"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelPreview')"
                 disabled
@@ -141,11 +117,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_generate_codes_modal_code_amount %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="codeAmount"
-                {% else %}
-                v-model="codeAmount"
-                {% endif %}
                 class="sw-promotion-v2-generate-codes-modal__code-amount"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.generateModal.labelCodeAmount')"
                 :min="1"

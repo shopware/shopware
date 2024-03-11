@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionExclusionUpdater
 {
     /**
@@ -114,7 +114,7 @@ class PromotionExclusionUpdater
         if (\count($excludeThisIds) > 0) {
             $sqlStatement .= ' AND id NOT IN (:excludedIds)';
             $params['excludedIds'] = $this->convertHexArrayToByteArray($excludeThisIds);
-            $types['excludedIds'] = ArrayParameterType::STRING;
+            $types['excludedIds'] = ArrayParameterType::BINARY;
         }
 
         $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAllAssociative();
@@ -136,7 +136,7 @@ class PromotionExclusionUpdater
                 WHERE id IN(:affectedIds)
             ';
 
-            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => ArrayParameterType::STRING]);
+            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => ArrayParameterType::BINARY]);
         });
 
         return $tags;
@@ -164,7 +164,7 @@ class PromotionExclusionUpdater
                     'addToTheseIds' => $this->convertHexArrayToByteArray($ids),
                 ],
                 [
-                    'addToTheseIds' => ArrayParameterType::STRING,
+                    'addToTheseIds' => ArrayParameterType::BINARY,
                 ]
             );
         });
@@ -207,7 +207,7 @@ class PromotionExclusionUpdater
 
         $params = ['ids' => $bytes];
 
-        $type = ['ids' => ArrayParameterType::STRING];
+        $type = ['ids' => ArrayParameterType::BINARY];
 
         $rows = $this->connection
             ->executeQuery($sqlStatement, $params, $type)

@@ -79,18 +79,12 @@
                     class="sw-profile-index-search-preferences-searchable-elements__entity"
                 >
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
+                        <!-- eslint-disable vue/attributes-order -->
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="searchPreference._searchable"
-                            {% else %}
-                            v-model="searchPreference._searchable"
-                            {% endif %}
                             :label="getModuleTitle(searchPreference.entityName)"
-                            {% if VUE3 %}
                             @update:value="onChangeSearchPreference(searchPreference)"
-                            {% else %}
-                            @change="onChangeSearchPreference(searchPreference)"
-                            {% endif %}
+                            name="sw-field--searchPreference-_searchable"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li
@@ -99,11 +93,8 @@
                                 class="sw-profile-index-search-preferences-searchable-elements__entity-field"
                             >
                                 <sw-checkbox-field
-                                    {% if VUE3 %}
                                     v-model:value="field._searchable"
-                                    {% else %}
-                                    v-model="field._searchable"
-                                    {% endif %}
+                                    name="sw-field--field-_searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
                                     :disabled="adminEsEnable || !searchPreference._searchable"
                                 />

@@ -151,10 +151,13 @@
         v-if="children.length > 0"
         class="sw-admin-menu__sub-navigation-list"
     >
-        <template v-for="entry in children">
+        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
+        <template
+            v-for="entry in children"
+            :key="getCustomKey(entry.id || entryPath + '-separator')"
+        >
             <li
                 v-if="isFirstPluginInMenuEntries(entry, children)"
-                :key="getCustomKey(entry.id || entryPath + '-separator')"
                 :style="{ 'border-color': borderColor }"
                 class="sw-admin-menu__separator"
             >
@@ -162,7 +165,6 @@
             </li>
 
             <sw-admin-menu-item
-                :key="getCustomKey(entry.id || entryPath)"
                 :entry="entry"
                 :border-color="borderColor"
                 :display-icon="false"

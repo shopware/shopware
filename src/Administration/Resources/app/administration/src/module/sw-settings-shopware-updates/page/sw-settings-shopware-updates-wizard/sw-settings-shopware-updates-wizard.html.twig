@@ -101,11 +101,7 @@
 
             <sw-radio-field
                 v-if="displayIncompatiblePluginsWarning"
-                {% if VUE3 %}
                 v-model:value="chosenPluginBehaviour"
-                {% else %}
-                v-model="chosenPluginBehaviour"
-                {% endif %}
                 :options="[
                     {'value': 'all', 'name': optionDeactivateAllTranslation },
                     {'value': 'notCompatible', 'name': optionDeactivateIncompatibleTranslation },
@@ -118,11 +114,7 @@
 
             <template #modal-footer>
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="checkedBackupCheckbox"
-                    {% else %}
-                    v-model="checkedBackupCheckbox"
-                    {% endif %}
                     class="sw-settings-shopware-updates-check__start-update-backup-checkbox"
                     :label="$tc('sw-settings-shopware-updates.updateModal.backupLabel')"
                 />

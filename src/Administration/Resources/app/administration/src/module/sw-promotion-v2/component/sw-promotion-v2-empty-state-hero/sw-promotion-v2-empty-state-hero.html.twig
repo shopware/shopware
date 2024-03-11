@@ -50,7 +50,7 @@
         {% block sw_promotion_v2_empty_state_hero_image_asset %}
         <img
             class="sw-promotion-v2-empty-state-hero__asset"
-            :src="imagePath | asset"
+            :src="assetFilter(imagePath)"
             alt=""
         >
         {% endblock %}

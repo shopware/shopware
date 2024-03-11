@@ -13,7 +13,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_attribute_list_toolbar_searchfield %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 @search-term-change="onSearchCountryState"

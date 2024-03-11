@@ -8,7 +8,7 @@
                     "System Info & Healthcheck"
                 ],
                 "summary": "Get OpenAPI Specification",
-                "description": "Get information about the API in OpenAPI format.",
+                "description": "Get information about the admin API in OpenAPI format.",
                 "operationId": "api-info",
                 "parameters": [
                     {
@@ -26,7 +26,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns information about the API."
+                        "$ref": "#/components/responses/OpenApi3"
                     }
                 }
             }

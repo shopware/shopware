@@ -3,7 +3,7 @@ import template from './sw-settings-store.html.twig';
 const { Mixin } = Shopware;
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {

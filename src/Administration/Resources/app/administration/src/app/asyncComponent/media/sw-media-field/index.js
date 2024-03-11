@@ -18,22 +18,18 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
-    model: {
-        prop: 'mediaId',
-        event: 'media-id-change',
-    },
-
     props: {
+        // need to be "value" instead of "modelValue" because of the compat build
+        value: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
         disabled: {
             type: Boolean,
             default: false,
             required: false,
-        },
-
-        mediaId: {
-            type: String,
-            required: false,
-            default: null,
         },
 
         label: {
@@ -68,10 +64,22 @@ export default {
             isLoadingSuggestions: false,
             pickerClasses: {},
             uploadTag: Utils.createId(),
+            page: 1,
+            limit: 5,
+            total: 0,
         };
     },
 
     computed: {
+        mediaId: {
+            get() {
+                return this.value;
+            },
+            set(newValue) {
+                this.$emit('update:value', newValue);
+            },
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -88,7 +96,7 @@ export default {
         },
 
         suggestionCriteria() {
-            const criteria = new Criteria(1, 5);
+            const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.not(
                 'AND',
@@ -116,7 +124,7 @@ export default {
     watch: {
         mediaId(newValue) {
             this.fetchItem(newValue);
-            this.$emit('media-id-change', newValue);
+            this.$emit('update:value', newValue);
         },
     },
 
@@ -131,6 +139,7 @@ export default {
 
         onSearchTermChange(searchTerm) {
             this.searchTerm = searchTerm;
+            this.page = 1;
             this.fetchSuggestions();
         },
 
@@ -147,6 +156,7 @@ export default {
 
             try {
                 this.suggestedItems = await this.mediaRepository.search(this.suggestionCriteria, Context.api);
+                this.total = this.suggestedItems.total;
             } catch (e) {
                 throw new Error(e);
             } finally {
@@ -155,6 +165,9 @@ export default {
         },
 
         onTogglePicker() {
+            this.page = 1;
+            this.limit = 5;
+            this.total = 0;
             this.showPicker = !this.showPicker;
 
             if (this.showPicker) {
@@ -165,12 +178,12 @@ export default {
         },
 
         mediaItemChanged(newMediaId) {
-            this.$emit('media-id-change', newMediaId);
+            this.$emit('update:value', newMediaId);
             this.onTogglePicker();
         },
 
         removeLink() {
-            this.$emit('media-id-change', null);
+            this.$emit('update:value', null);
         },
 
         computePickerPositionAndStyle() {
@@ -190,13 +203,20 @@ export default {
         },
 
         exposeNewId({ targetId }) {
-            this.$emit('media-id-change', targetId);
+            this.$emit('update:value', targetId);
             this.showUploadField = false;
             this.showPicker = false;
         },
 
         showLabel() {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
+
+            this.fetchSuggestions();
         },
     },
 };

@@ -13,7 +13,7 @@ describe('Mail templates: Check module navigation in settings', () => {
             });
     });
 
-    it('@visual: check appearance of email templates module', { tags: ['pa-business-ops'] }, () => {
+    it('@visual: check appearance of email templates module', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

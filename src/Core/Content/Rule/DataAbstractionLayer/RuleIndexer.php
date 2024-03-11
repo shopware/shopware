@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleIndexer extends EntityIndexer
 {
     final public const PAYLOAD_UPDATER = 'rule.payload';

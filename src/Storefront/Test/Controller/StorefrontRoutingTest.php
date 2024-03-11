@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,6 +20,18 @@ class StorefrontRoutingTest extends TestCase
 
     public function testForwardFromAddPromotionToHomePage(): void
     {
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
+
+                static::assertInstanceOf(NavigationPage::class, $data['page']);
+                static::assertInstanceOf(CmsPageEntity::class, $data['page']->getCmsPage());
+                static::assertSame('Default listing layout', $data['page']->getCmsPage()->getName());
+            }
+        );
+
         $response = $this->request(
             'POST',
             '/checkout/promotion/add',
@@ -28,10 +40,6 @@ class StorefrontRoutingTest extends TestCase
             ])
         );
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertInstanceOf(NavigationPage::class, $response->getData()['page']);
-        static::assertInstanceOf(CmsPageEntity::class, $response->getData()['page']->getCmsPage());
-        static::assertSame('Default listing layout', $response->getData()['page']->getCmsPage()->getName());
         static::assertSame(200, $response->getStatusCode());
     }
 

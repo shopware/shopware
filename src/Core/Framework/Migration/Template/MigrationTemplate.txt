@@ -3,8 +3,13 @@
 namespace %%namespace%%;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('%%package%%')]
 class Migration%%timestamp%%%%name%% extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,11 +19,6 @@ class Migration%%timestamp%%%%name%% extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // implement update
-    }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

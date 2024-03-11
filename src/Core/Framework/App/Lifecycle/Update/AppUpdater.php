@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Update;
 
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 #[Package('core')]
 class AppUpdater extends AbstractAppUpdater
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepo
+     */
     public function __construct(
         private readonly AbstractExtensionDataProvider $extensionDataProvider,
         private readonly EntityRepository $appRepo,
@@ -35,13 +38,16 @@ class AppUpdater extends AbstractAppUpdater
 
         $outdatedApps = [];
 
-        foreach ($extensions->getIterator() as $extension) {
+        foreach ($extensions as $extension) {
             $id = $extension->getLocalId();
             if (!$id) {
                 continue;
             }
-            /** @var AppEntity $localApp */
-            $localApp = $this->appRepo->search(new Criteria([$id]), $context)->first();
+            $localApp = $this->appRepo->search(new Criteria([$id]), $context)->getEntities()->first();
+            if ($localApp === null) {
+                continue;
+            }
+
             $nextVersion = $extension->getLatestVersion();
             if (!$nextVersion) {
                 continue;
@@ -57,7 +63,7 @@ class AppUpdater extends AbstractAppUpdater
             try {
                 $this->appLifecycle->updateExtension($app->getName(), false, $context);
             } catch (ExtensionUpdateRequiresConsentAffirmationException) {
-                // nth
+                // Ignore updates that require consent
             }
         }
     }

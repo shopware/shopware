@@ -1,4 +1,5 @@
 {% block component_address_form %}
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_addressId %}
         {% if data.get('id') %}
             <input type="hidden"
@@ -13,14 +14,14 @@
                 {% set accountTypeRequired = true %}
             {% endif %}
 
-            {% if config('core.loginRegistration.showAccountTypeSelection') or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
-                <div class="{% if prefix == "shippingAddress" or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
+            {% if config('core.loginRegistration.showAccountTypeSelection') or prefix == 'address' or prefix == 'shippingAddress' or hasSelectedBusiness %}
+                <div class="{% if prefix == 'shippingAddress' or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == 'address' %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
                     {% block component_address_form_company_fields %}
                         <div class="row g-2">
                             {% block component_address_form_company_name %}
                                 <div class="form-group col-6">
-                                    {% if formViolations.getViolations("/company") is not empty %}
-                                        {% set violationPath = "/company" %}
+                                    {% if formViolations.getViolations('/company') is not empty %}
+                                        {% set violationPath = '/company' %}
                                     {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
                                         {% set violationPath = "/#{prefix}/company" %}
                                     {% endif %}
@@ -28,18 +29,19 @@
                                     {% block component_address_form_company_name_label %}
                                         <label class="form-label"
                                                for="{{ idPrefix ~ prefix }}company">
-                                            {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if prefix != "shippingAddress" and accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
+                                            {{ 'address.companyNameLabel'|trans|sw_sanitize }}{% if prefix != 'shippingAddress' and accountTypeRequired %}{{ 'general.required'|trans|sw_sanitize }}{% endif %}
                                         </label>
                                     {% endblock %}
 
                                     {% block component_address_form_company_name_input %}
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                               autocomplete="organization"
                                                id="{{ idPrefix ~ prefix }}company"
-                                               placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
+                                               placeholder="{{ 'address.companyNamePlaceholder'|trans|striptags }}"
                                                name="{{ prefix }}[company]"
                                                value="{{ data.get('company') }}"
-                                               {% if prefix != "shippingAddress" and accountTypeRequired %}required="required"{% endif %}>
+                                               {% if prefix != 'shippingAddress' and accountTypeRequired %}required="required"{% endif %}>
                                     {% endblock %}
 
                                     {% block component_address_form_company_name_input_error %}
@@ -52,8 +54,8 @@
 
                             {% block component_address_form_company_department %}
                                 <div class="form-group col-md-6">
-                                    {% if formViolations.getViolations("/department") is not empty %}
-                                        {% set violationPath = "/department" %}
+                                    {% if formViolations.getViolations('/department') is not empty %}
+                                        {% set violationPath = '/department' %}
                                     {% elseif formViolations.getViolations("/#{prefix}/department") is not empty %}
                                         {% set violationPath = "/#{prefix}/department" %}
                                     {% endif %}
@@ -61,7 +63,7 @@
                                     {% block component_address_form_company_department_label %}
                                         <label class="form-label"
                                                for="{{ idPrefix ~ prefix }}department">
-                                            {{ "address.companyDepartmentLabel"|trans|sw_sanitize }}
+                                            {{ 'address.companyDepartmentLabel'|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
 
@@ -69,7 +71,7 @@
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
                                                id="{{ idPrefix ~ prefix }}department"
-                                               placeholder="{{ "address.companyDepartmentPlaceholder"|trans|striptags }}"
+                                               placeholder="{{ 'address.companyDepartmentPlaceholder'|trans|striptags }}"
                                                name="{{ prefix }}[department]"
                                                value="{{ data.get('department') }}">
                                     {% endblock %}
@@ -82,11 +84,12 @@
                                 </div>
                             {% endblock %}
 
+                            {# ludtwig-ignore twig-block-name-snake-case #}
                             {% block component_address_form_company_vatId %}
                                 {% if prefix == 'address' and showVatIdField %}
                                     <div class="form-group col-md-6">
                                         {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
-                                            'vatIds': context.customer.vatIds
+                                            vatIds: context.customer.vatIds
                                         } %}
                                     </div>
                                 {% endif %}
@@ -102,26 +105,27 @@
         <div class="row g-2">
             {% block component_address_form_street %}
                 <div class="form-group col-md-6">
-                    {% if formViolations.getViolations("/street") is not empty %}
-                        {% set violationPath = "/street" %}
+                    {% if formViolations.getViolations('/street') is not empty %}
+                        {% set violationPath = '/street' %}
                     {% elseif formViolations.getViolations("/#{prefix}/street") is not empty %}
                         {% set violationPath = "/#{prefix}/street" %}
                     {% else %}
-                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.streetLabel"|trans|sw_sanitize }) %}
+                        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.streetLabel'|trans|sw_sanitize }) %}
                     {% endif %}
 
                     {% block component_address_form_street_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressStreet">
-                            {{ "address.streetLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ 'address.streetLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_street_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                               autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-line1"
                                id="{{ idPrefix ~ prefix }}AddressStreet"
-                               placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
+                               placeholder="{{ 'address.streetPlaceholder'|trans|striptags }}"
                                name="{{ prefix }}[street]"
                                value="{{ data.get('street') }}"
                                data-form-validation-required
@@ -140,26 +144,27 @@
             {% block component_address_form_zipcode_city %}
                 {% set zipcodeField %}
                 {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
-                    {% if formViolations.getViolations("/zipcode") is not empty %}
-                        {% set violationPath = "/zipcode" %}
+                    {% if formViolations.getViolations('/zipcode') is not empty %}
+                        {% set violationPath = '/zipcode' %}
                     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
                         {% set violationPath = "/#{prefix}/zipcode" %}
                     {% else %}
-                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.zipcodeLabel"|trans|sw_sanitize }) %}
+                        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.zipcodeLabel'|trans|sw_sanitize }) %}
                     {% endif %}
 
                     {% block component_address_form_zipcode_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressZipcode">
-                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}<span class="d-none" id="zipcodeLabel">{{ "general.required"|trans|sw_sanitize }}</span>
+                            {{ 'address.zipcodeLabel'|trans|sw_sanitize }}<span class="d-none" id="zipcodeLabel">{{ 'general.required'|trans|sw_sanitize }}</span>
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_zipcode_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                               autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}postal-code"
                                id="{{ idPrefix ~ prefix }}AddressZipcode"
-                               placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
+                               placeholder="{{ 'address.zipcodePlaceholder'|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
                                value="{{ zipcodeValue }}"
                                data-input-name="zipcodeInput"
@@ -174,27 +179,28 @@
                 {% endset %}
 
                 {% set cityField %}
-                    {% if formViolations.getViolations("/city") is not empty %}
-                        {% set violationPath = "/city" %}
+                    {% if formViolations.getViolations('/city') is not empty %}
+                        {% set violationPath = '/city' %}
                     {% elseif formViolations.getViolations("/#{prefix}/city") is not empty %}
                         {% set violationPath = "/#{prefix}/city" %}
                     {% else %}
-                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.cityLabel"|trans|sw_sanitize }) %}
+                        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.cityLabel'|trans|sw_sanitize }) %}
                         {% set violationPath = null %}
                     {% endif %}
 
                     {% block component_address_form_city_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressCity">
-                            {{ "address.cityLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ 'address.cityLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_city_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                               autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-level2"
                                id="{{ idPrefix ~ prefix }}AddressCity"
-                               placeholder="{{ "address.cityPlaceholder"|trans|striptags }}"
+                               placeholder="{{ 'address.cityPlaceholder'|trans|striptags }}"
                                name="{{ prefix }}[city]"
                                value="{{ data.get('city') }}"
                                data-form-validation-required
@@ -209,30 +215,19 @@
                     {% endblock %}
                 {% endset %}
 
-                {# @deprecated tag:v6.6.0 - Will remove the if statement #}
-                {% if config('core.address.showZipcodeInFrontOfCity') %}
-                    <div class="form-group col-md-2 col-4">
-                        {{ zipcodeField }}
-                    </div>
+                <div class="form-group col-md-4 col-8">
+                    {{ cityField }}
+                </div>
 
-                    <div class="form-group col-md-4 col-8">
-                        {{ cityField }}
-                    </div>
-                {% else %}
-                    <div class="form-group col-md-4 col-8">
-                        {{ cityField }}
-                    </div>
-
-                    <div class="form-group col-md-2 col-4">
-                        {{ zipcodeField }}
-                    </div>
-                {% endif %}
+                <div class="form-group col-md-2 col-4">
+                    {{ zipcodeField }}
+                </div>
             {% endblock %}
 
             {% block component_address_form_additional_field1 %}
                 {% if config('core.loginRegistration.showAdditionalAddressField1') %}
-                    {% if formViolations.getViolations("/additionalAddressLine1") is not empty %}
-                        {% set violationPath = "/additionalAddressLine1" %}
+                    {% if formViolations.getViolations('/additionalAddressLine1') is not empty %}
+                        {% set violationPath = '/additionalAddressLine1' %}
                     {% elseif formViolations.getViolations("/#{prefix}/additionalAddressLine1") is not empty %}
                         {% set violationPath = "/#{prefix}/additionalAddressLine1" %}
                     {% endif %}
@@ -241,15 +236,16 @@
                         {% block component_address_form_additional_field1_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}AdditionalField1">
-                                {{ "address.additionalField1Label"|trans|sw_sanitize }}{{ config('core.loginRegistration.additionalAddressField1Required') ? "general.required"|trans|sw_sanitize }}
+                                {{ 'address.additionalField1Label'|trans|sw_sanitize }}{{ config('core.loginRegistration.additionalAddressField1Required') ? 'general.required'|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
                         {% block component_address_form_additional_field1_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
+                                   autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-line2"
                                    id="{{ idPrefix ~ prefix }}AdditionalField1"
-                                   placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}"
+                                   placeholder="{{ 'address.additionalField1Placeholder'|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
                                    value="{{ data.get('additionalAddressLine1') }}"
                                     {{ config('core.loginRegistration.additionalAddressField1Required') ? 'required="true"' }}>
@@ -266,8 +262,8 @@
 
             {% block component_address_form_additional_field2 %}
                 {% if config('core.loginRegistration.showAdditionalAddressField2') %}
-                    {% if formViolations.getViolations("/additionalAddressLine2") is not empty %}
-                        {% set violationPath = "/additionalAddressLine2" %}
+                    {% if formViolations.getViolations('/additionalAddressLine2') is not empty %}
+                        {% set violationPath = '/additionalAddressLine2' %}
                     {% elseif formViolations.getViolations("/#{prefix}/additionalAddressLine2") is not empty %}
                         {% set violationPath = "/#{prefix}/additionalAddressLine2" %}
                     {% endif %}
@@ -275,15 +271,16 @@
                         {% block component_address_form_additional_field2_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}AdditionalField2">
-                                {{ "address.additionalField2Label"|trans|sw_sanitize }}{{ config('core.loginRegistration.additionalAddressField2Required') ? "general.required"|trans|sw_sanitize }}
+                                {{ 'address.additionalField2Label'|trans|sw_sanitize }}{{ config('core.loginRegistration.additionalAddressField2Required') ? 'general.required'|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
                         {% block component_address_form_additional_field2_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
+                                   autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}address-line3"
                                    id="{{ idPrefix ~ prefix }}AdditionalField2"
-                                   placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}"
+                                   placeholder="{{ 'address.additionalField2Placeholder'|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
                                    value="{{ data.get('additionalAddressLine2') }}"
                                     {{ config('core.loginRegistration.additionalAddressField2Required') ? 'required="true"' }}>
@@ -310,8 +307,8 @@
                         {% set initialCountryId = (page.countries|first).id %}
                     {% endif %}
 
-                    {% if formViolations.getViolations("/countryId") is not empty %}
-                        {% set violationPath = "/countryId" %}
+                    {% if formViolations.getViolations('/countryId') is not empty %}
+                        {% set violationPath = '/countryId' %}
                     {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
                         {% set violationPath = "/#{prefix}/countryId" %}
                     {% endif %}
@@ -319,7 +316,7 @@
                     {% block component_address_form_country_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressCountry">
-                            {{ "address.countryLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ 'address.countryLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -333,7 +330,7 @@
                                 <option disabled="disabled"
                                         value=""
                                         selected="selected">
-                                    {{ "address.countryPlaceholder"|trans|sw_sanitize }}
+                                    {{ 'address.countryPlaceholder'|trans|sw_sanitize }}
                                 </option>
                             {% endif %}
                             {% for country in page.countries %}
@@ -347,16 +344,24 @@
                                         {% if not country.shippingAvailable and disableNonShippableCountries %}
                                             disabled="disabled"
                                         {% endif %}>
-                                    {{ country.translated.name }}{% if showNoShippingPostfix and not country.shippingAvailable %} {{ "address.countryPostfixNoShipping"|trans|sw_sanitize }}{% endif %}
+                                    {{ country.translated.name }}{% if showNoShippingPostfix and not country.shippingAvailable %} {{ 'address.countryPostfixNoShipping'|trans|sw_sanitize }}{% endif %}
                                 </option>
                             {% endfor %}
                         </select>
                     {% endblock %}
+
+                    {# @deprecated tag:v6.7.0 - will be renamed to component_address_form_country_error #}
+                    {% block component_address_form_country_violation_error %}
+                        {% if violationPath %}
+                            {% set violationLabel = 'address.countryLabel'|trans|sw_sanitize %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                        {% endif %}
+                    {% endblock %}
                 </div>
 
                 <div class="form-group col-md-6 d-none">
-                    {% if formViolations.getViolations("/countryStateId") is not empty %}
-                        {% set violationPath = "/countryStateId" %}
+                    {% if formViolations.getViolations('/countryStateId') is not empty %}
+                        {% set violationPath = '/countryStateId' %}
                     {% elseif formViolations.getViolations("/#{prefix}/countryStateId") is not empty %}
                         {% set violationPath = "/#{prefix}/countryStateId" %}
                     {% endif %}
@@ -364,7 +369,7 @@
                     {% block component_address_form_country_state_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressCountryState">
-                            {{ "address.countryStateLabel"|trans|sw_sanitize }}
+                            {{ 'address.countryStateLabel'|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -376,15 +381,18 @@
                             <option value=""
                                     selected="selected"
                                     data-placeholder-option="true">
-                                {{ "address.countryStatePlaceholder"|trans|sw_sanitize }}
+                                {{ 'address.countryStatePlaceholder'|trans|sw_sanitize }}
                             </option>
                         </select>
                     {% endblock %}
 
+                    {# @depecated tag:v6.7.0 - use component_address_form_country_state_error instead #}
                     {% block component_address_form_country_error %}
-                        {% if violationPath %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
-                        {% endif %}
+                        {% block component_address_form_country_state_error %}
+                            {% if violationPath %}
+                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                            {% endif %}
+                        {% endblock %}
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -394,8 +402,8 @@
             {% block component_address_form_phone_number %}
                 {% if config('core.loginRegistration.showPhoneNumberField') %}
                     <div class="form-group col-md-6">
-                        {% if formViolations.getViolations("/phoneNumber") is not empty %}
-                            {% set violationPath = "/phoneNumber" %}
+                        {% if formViolations.getViolations('/phoneNumber') is not empty %}
+                            {% set violationPath = '/phoneNumber' %}
                         {% elseif formViolations.getViolations("/#{prefix}/phoneNumber") is not empty %}
                             {% set violationPath = "/#{prefix}/phoneNumber" %}
                         {% endif %}
@@ -403,15 +411,16 @@
                         {% block component_address_form_phone_number_label %}
                             <label class="form-label"
                                    for="{{ idPrefix ~ prefix }}AddressPhoneNumber">
-                                {{ "address.phoneNumberLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.phoneNumberFieldRequired') ? "general.required"|trans|sw_sanitize }}
+                                {{ 'address.phoneNumberLabel'|trans|sw_sanitize }}{{ config('core.loginRegistration.phoneNumberFieldRequired') ? 'general.required'|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
                         {% block component_address_form_phone_number_input %}
-                            <input type="text"
+                            <input type="tel"
                                    class="form-control"
+                                   autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}tel"
                                    id="{{ idPrefix ~ prefix }}AddressPhoneNumber"
-                                   placeholder="{{ "address.phoneNumberPlaceholder"|trans|striptags }}"
+                                   placeholder="{{ 'address.phoneNumberPlaceholder'|trans|striptags }}"
                                    name="{{ prefix }}[phoneNumber]"
                                    value="{{ data.get('phoneNumber') }}"
                                 {{ config('core.loginRegistration.phoneNumberFieldRequired') ? 'required="true"' }}>

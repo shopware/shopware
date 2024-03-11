@@ -1,32 +1,29 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSearchExampleModal from 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
-import 'src/app/component/base/sw-modal';
-
-Shopware.Component.register('sw-settings-search-example-modal', swSettingsSearchExampleModal);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-settings-search-example-modal'), {
-        localVue,
-
-        provide: {
-            shortcutService: {
-                startEventListener: () => {},
-                stopEventListener: () => {},
+    return mount(await wrapTestComponent('sw-settings-search-example-modal', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
+                acl: {
+                    can: () => true,
+                },
             },
-            acl: {
-                can: () => true,
-            },
-        },
 
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': true,
-            'sw-icon': true,
+            stubs: {
+                'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-button': true,
+                'sw-icon': true,
+            },
         },
     });
 }

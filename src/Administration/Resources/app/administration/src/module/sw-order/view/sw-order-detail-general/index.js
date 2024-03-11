@@ -1,7 +1,7 @@
 import template from './sw-order-detail-general.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils, Mixin } = Shopware;
@@ -56,7 +56,7 @@ export default {
             const formattedTaxes = `${calcTaxes.map(
                 calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
                     taxRate: calcTax.taxRate,
-                    tax: format.currency(calcTax.tax, this.order.currency.shortName),
+                    tax: format.currency(calcTax.tax, this.order.currency.isoCode),
                 })}`,
             ).join('<br>')}`;
 
@@ -87,6 +87,10 @@ export default {
 
         currency() {
             return this.order.currency;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

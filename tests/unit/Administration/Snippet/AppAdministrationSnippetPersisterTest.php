@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
@@ -21,18 +23,16 @@ use Shopware\Core\System\Locale\LocaleEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Snippet\AppAdministrationSnippetPersister
  */
+#[CoversClass(AppAdministrationSnippetPersister::class)]
 class AppAdministrationSnippetPersisterTest extends TestCase
 {
     /**
-     * @dataProvider persisterDataProvider
-     *
      * @param array<mixed> $snippetData
      * @param array<mixed> $localeData
      * @param array<string, string> $snippets
      */
+    #[DataProvider('persisterDataProvider')]
     public function testItPersistsSnippets(
         array $snippetData,
         array $localeData,
@@ -55,11 +55,10 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @dataProvider persisterExceptionDataProvider
-     *
      * @param array<mixed> $localeData
      * @param array<string, string> $snippets
      */
+    #[DataProvider('persisterExceptionDataProvider')]
     public function testItPersistsSnippetsException(
         array $localeData,
         AppEntity $appEntity,

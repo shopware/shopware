@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Store\StoreException;
 /**
  * @internal - only for use by the app-system
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     public function __construct(
@@ -53,6 +53,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         try {
             $app = $this->getAppByName($technicalName, $context);
         } catch (ExtensionNotFoundException) {
+            // extension is not installed, so we can skip the uninstall process
             return;
         }
 

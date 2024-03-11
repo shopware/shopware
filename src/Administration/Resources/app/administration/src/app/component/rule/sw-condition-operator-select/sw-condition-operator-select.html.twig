@@ -11,10 +11,6 @@
     :disabled="disabled"
     required
     show-clearable-button
-    {% if VUE3 %}
     @update:value="changeOperator"
-    {% else %}
-    @change="changeOperator"
-    {% endif %}
 />
 {% endblock %}

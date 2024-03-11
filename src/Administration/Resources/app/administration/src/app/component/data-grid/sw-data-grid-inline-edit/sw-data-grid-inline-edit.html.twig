@@ -9,11 +9,8 @@
     <sw-text-field
         v-if="column.inlineEdit === 'string'"
         key="string"
-        {% if VUE3 %}
         v-model:value="currentValue"
-        {% else %}
-        v-model="currentValue"
-        {% endif %}
+        name="sw-field--currentValue"
         :size="inputFieldSize"
     />
     {% endblock %}
@@ -23,11 +20,8 @@
     <sw-number-field
         v-else-if="column.inlineEdit === 'number'"
         key="number"
-        {% if VUE3 %}
         v-model:value="currentValue"
-        {% else %}
-        v-model="currentValue"
-        {% endif %}
+        name="sw-field--currentValue"
         :size="inputFieldSize"
     />
     {% endblock %}
@@ -37,11 +31,8 @@
     <sw-checkbox-field
         v-else-if="column.inlineEdit === 'boolean'"
         key="boolean"
-        {% if VUE3 %}
         v-model:value="currentValue"
-        {% else %}
-        v-model="currentValue"
-        {% endif %}
+        name="sw-field--currentValue"
     />
     {% endblock %}
 

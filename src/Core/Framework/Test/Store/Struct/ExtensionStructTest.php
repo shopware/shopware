@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Store\Struct;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
@@ -19,9 +20,7 @@ class ExtensionStructTest extends TestCase
         static::assertInstanceOf(ExtensionStruct::class, $struct);
     }
 
-    /**
-     * @dataProvider badValuesProvider
-     */
+    #[DataProvider('badValuesProvider')]
     public function testItThrowsOnMissingData(array $badValues): void
     {
         static::expectException(\InvalidArgumentException::class);

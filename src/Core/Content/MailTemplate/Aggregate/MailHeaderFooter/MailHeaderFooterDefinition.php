@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailHeaderFooterDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'mail_header_footer';

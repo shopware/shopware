@@ -4,11 +4,9 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed
- */
-#[Package('business-ops')]
-interface SalesChannelAware extends FlowEventAware
+#[Package('services-settings')]
+#[IsFlowEventAware]
+interface SalesChannelAware
 {
     public function getSalesChannelId(): string;
 }

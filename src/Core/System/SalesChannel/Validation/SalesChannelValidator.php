@@ -22,7 +22,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelValidator implements EventSubscriberInterface
 {
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
@@ -363,7 +363,7 @@ class SalesChannelValidator implements EventSubscriberInterface
                 ON mapping.sales_channel_id = sales_channel.id
                 WHERE sales_channel.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($salesChannelIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return $result;
@@ -381,6 +381,13 @@ class SalesChannelValidator implements EventSubscriberInterface
             $id = (string) $record['sales_channel_id'];
             $mapping[$id]['current_default'] = $record['current_default'];
             $mapping[$id]['state'][] = $record['language_id'];
+            $mapping[$id]['inserts'] = array_filter(
+                $mapping[$id]['inserts'] ?? [],
+                fn ($value) => $value !== $record['language_id']
+            );
+            if (empty($mapping[$id]['inserts'])) {
+                unset($mapping[$id]['inserts']);
+            }
         }
 
         return $mapping;

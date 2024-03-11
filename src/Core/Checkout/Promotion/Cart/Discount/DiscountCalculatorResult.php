@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class DiscountCalculatorResult
 {
     /**

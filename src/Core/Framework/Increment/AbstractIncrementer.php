@@ -14,11 +14,6 @@ abstract class AbstractIncrementer
      */
     protected array $config;
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed. Incrementer are designed with the adapter pattern. Adapter are not designed to be decorated.
-     */
-    abstract public function getDecorated(): self;
-
     abstract public function decrement(string $cluster, string $key): void;
 
     abstract public function increment(string $cluster, string $key): void;

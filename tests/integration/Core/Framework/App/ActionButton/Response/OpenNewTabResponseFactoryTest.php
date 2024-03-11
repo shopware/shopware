@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton\Response;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
@@ -41,12 +42,10 @@ class OpenNewTabResponseFactoryTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideActionTypes
-     */
+    #[DataProvider('provideActionTypes')]
     public function testSupportsOnlyOpenNewTabActionType(string $actionType, bool $isSupported): void
     {
-        static::assertEquals($isSupported, $this->factory->supports($actionType));
+        static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
     public function testCreatesOpenNewTabResponse(): void
@@ -60,9 +59,8 @@ class OpenNewTabResponseFactoryTest extends TestCase
 
     /**
      * @param array<string, mixed> $payload
-     *
-     * @dataProvider provideInvalidPayloads
      */
+    #[DataProvider('provideInvalidPayloads')]
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
     {
         static::expectException(AppException::class);

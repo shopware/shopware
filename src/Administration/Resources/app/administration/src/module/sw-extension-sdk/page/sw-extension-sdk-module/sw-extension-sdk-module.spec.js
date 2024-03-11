@@ -1,6 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 
 const module = {
     heading: 'jest',
@@ -10,21 +8,37 @@ const module = {
     baseUrl: 'http://example.com',
 };
 
-async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-extension-sdk-module'), {
-        localVue,
-        propsData: {
+async function createWrapper(back = null, push = jest.fn()) {
+    return mount(await wrapTestComponent('sw-extension-sdk-module', { sync: true }), {
+        props: {
             id: Shopware.Utils.format.md5(JSON.stringify(module)),
+            back,
         },
-        stubs: {
-            'sw-page': true,
-            'sw-loader': true,
-            'sw-my-apps-error-page': true,
-            'sw-iframe-renderer': true,
-            'sw-language-switch': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
+        global: {
+            stubs: {
+                'sw-page': await wrapTestComponent('sw-page'),
+                'sw-loader': true,
+                'sw-my-apps-error-page': true,
+                'sw-iframe-renderer': true,
+                'sw-language-switch': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+                'router-link': {
+                    props: {
+                        to: { type: String, required: true },
+                    },
+                    template: '<a @click="$router.push(to)"></a>',
+                },
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {},
+                    },
+                },
+                $router: {
+                    push,
+                },
+            },
         },
     });
 }
@@ -37,10 +51,6 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -96,5 +106,16 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
         // Test if callback function is called
         await smartBarButton.trigger('click');
         expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should display back button', async () => {
+        wrapper.unmount();
+
+        const back = 'sw.settings.index.plugins';
+        const routerPush = jest.fn();
+        wrapper = await createWrapper(back, routerPush);
+
+        await wrapper.find('.sw-page__back-btn-container a').trigger('click');
+        expect(routerPush).toHaveBeenCalledWith({ name: back });
     });
 });

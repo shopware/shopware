@@ -5,12 +5,12 @@
     {% endif %}
 
     <div class="product-wishlist-delivery-information">
-        {% if product.active and product.availableStock >= product.minPurchase and product.deliveryTime and product.releaseDate and product.releaseDate|date('U') > "now"|date('U') %}
+        {% if product.active and product.availableStock >= product.minPurchase and product.deliveryTime and product.releaseDate and product.releaseDate|date('U') > 'now'|date('U') %}
             {% block component_wishlist_delivery_information_pre_order %}
                 <link itemprop="availability" href="http://schema.org/InStock">
                 <p class="delivery-information delivery-preorder">
                     <span class="delivery-status-indicator bg-warning"></span>
-                    {{ "wishlist.deliveryShipping"|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
+                    {{ 'wishlist.deliveryShipping'|trans|sw_sanitize }} {{ product.releaseDate|format_date('long', locale=app.request.locale) }}
                 </p>
             {% endblock %}
         {% elseif product.active and product.availableStock >= product.minPurchase and product.deliveryTime %}
@@ -18,7 +18,7 @@
                 <link itemprop="availability" href="http://schema.org/InStock">
                 <p class="delivery-information delivery-available">
                     <span class="delivery-status-indicator bg-success"></span>
-                    {{ "wishlist.deliveryTimeAvailable"|trans({
+                    {{ 'wishlist.deliveryTimeAvailable'|trans({
                         '%name%': product.deliveryTime.translated.name
                     })|sw_sanitize }}
                 </p>
@@ -28,7 +28,7 @@
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability">
                 <p class="delivery-information delivery-soldout">
                     <span class="delivery-status-indicator bg-danger"></span>
-                    {{ "wishlist.currentlyNotAvailable"|trans|sw_sanitize }}
+                    {{ 'wishlist.currentlyNotAvailable'|trans|sw_sanitize }}
                 </p>
             {% endblock %}
         {% elseif product.availableStock < product.minPurchase and product.deliveryTime and product.restockTime %}
@@ -36,7 +36,7 @@
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability">
                 <p class="delivery-information delivery-restock">
                     <span class="delivery-status-indicator bg-warning"></span>
-                    {{ "wishlist.deliveryTimeRestock"|trans({
+                    {{ 'wishlist.deliveryTimeRestock'|trans({
                         '%count%': product.restockTime,
                         '%restockTime%': product.restockTime,
                         '%name%': product.deliveryTime.translated.name

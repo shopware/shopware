@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
@@ -22,9 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartService
  */
+#[CoversClass(CartService::class)]
 class CartServiceTest extends TestCase
 {
     private AbstractCartDeleteRoute&MockObject $cartDeleteRoute;
@@ -119,7 +119,6 @@ class CartServiceTest extends TestCase
             ->method('change')
             ->with(static::callback(function (Request $actualRequest) use ($id) {
                 $items = $actualRequest->request->all('items');
-                static::assertIsArray($items);
                 static::assertCount(1, $items);
                 static::assertEquals($id, $items[0]['id']);
                 static::assertEquals(5, $items[0]['quantity']);

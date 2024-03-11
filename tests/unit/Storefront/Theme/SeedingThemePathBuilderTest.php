@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\SeedingThemePathBuilder;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\SeedingThemePathBuilder
  */
+#[CoversClass(SeedingThemePathBuilder::class)]
 class SeedingThemePathBuilderTest extends TestCase
 {
     public function testAssemblePathDoesNotChangeWithoutChangedSeed(): void

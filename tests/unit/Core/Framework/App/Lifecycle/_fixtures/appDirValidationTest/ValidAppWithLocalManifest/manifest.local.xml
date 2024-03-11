@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>ValidAppWithLocalManifest</name>
+        <label>Shipping method app to test</label>
+        <description>Testdescription</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <privacy>https://overrided.com/privacy</privacy>
+    </meta>
+    <setup>
+        <registrationUrl>https://overrided.com/auth</registrationUrl>
+        <secret>APP_SECRET</secret>
+    </setup>
+</manifest>
+

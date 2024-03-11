@@ -56,6 +56,10 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Controller\HealthCheckController" public="true">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>
@@ -73,6 +77,12 @@
         <service id="Shopware\Core\Framework\Api\Command\DumpClassSchemaCommand">
             <tag name="console.command"/>
             <argument>%kernel.bundles_metadata%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Command\CreateIntegrationCommand">
+            <tag name="console.command"/>
+
+            <argument type="service" id="integration.repository"/>
         </service>
 
         <!-- Serializer -->
@@ -101,15 +111,6 @@
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
-        </service>
-
-        <!-- Converter -->
-        <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
-            <argument type="tagged" tag="shopware.api.converter"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
         </service>
 
         <!-- API Docs -->
@@ -165,6 +166,7 @@
             <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier"/>
+            <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector" on-invalid="null"/>
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.security.csp_templates%</argument>
@@ -185,7 +187,6 @@
         <service id="Shopware\Core\Framework\Api\Controller\CacheController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <tag name="container.service_subscriber" />
             <tag name="controller.service_arguments" />
@@ -276,6 +277,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener">
@@ -344,6 +346,11 @@
         <service id="Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection" />
             <argument type="service" id="twig"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Controller\FeatureFlagController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
     </services>
 </container>

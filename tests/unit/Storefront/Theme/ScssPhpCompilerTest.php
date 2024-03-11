@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Storefront\Theme\CompilerConfiguration;
@@ -9,9 +10,8 @@ use Shopware\Storefront\Theme\ScssPhpCompiler;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ScssPhpCompiler
  */
+#[CoversClass(ScssPhpCompiler::class)]
 class ScssPhpCompilerTest extends TestCase
 {
     public function testCompilesEmptyConfig(): void

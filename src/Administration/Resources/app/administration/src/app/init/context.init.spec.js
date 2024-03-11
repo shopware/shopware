@@ -1,5 +1,5 @@
 import initContext from 'src/app/init/context.init';
-import { getCurrency, getEnvironment, getLocale, getShopwareVersion, getModuleInformation, getAppInformation, getUserInformation } from '@shopware-ag/admin-extension-sdk/es/context';
+import { getCurrency, getEnvironment, getLocale, getShopwareVersion, getModuleInformation, getAppInformation, getUserInformation } from '@shopware-ag/meteor-admin-sdk/es/context';
 import extensionsStore from '../state/extensions.store';
 
 describe('src/app/init/context.init.ts', () => {

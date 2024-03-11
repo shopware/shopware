@@ -2,54 +2,53 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swPropertyDetail from 'src/module/sw-property/page/sw-property-detail';
-
-Shopware.Component.register('sw-property-detail', swPropertyDetail);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-property-detail'), {
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
+    return mount(await wrapTestComponent('sw-property-detail', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                id: '1a2b3c',
+                                name: 'Test property',
+                                entity: 'property',
+                            };
+                        },
+                        get: () => Promise.resolve({
                             id: '1a2b3c',
                             name: 'Test property',
                             entity: 'property',
-                        };
-                    },
-                    get: () => Promise.resolve({
-                        id: '1a2b3c',
-                        name: 'Test property',
-                        entity: 'property',
-                        options: {
-                            entity: 'property_options_group',
-                        },
+                            options: {
+                                entity: 'property_options_group',
+                            },
+                        }),
+                        search: () => Promise.resolve({}),
                     }),
-                    search: () => Promise.resolve({}),
-                }),
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div class="sw-page">
+                            <slot name="smart-bar-actions"></slot>
+                        </div>`,
+                },
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-language-switch': true,
+                'sw-card-view': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-field': true,
+                'sw-language-info': true,
+                'sw-skeleton': true,
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
-<div class="sw-page">
-    <slot name="smart-bar-actions"></slot>
-</div>`,
-            },
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-language-switch': true,
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-field': true,
-            'sw-language-info': true,
-            'sw-skeleton': true,
         },
     });
 }

@@ -212,11 +212,7 @@
                             entity-name="rule"
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
                             :disabled="!!bulkEditProduct[formField.name].isInherited"
-                            {% if VUE3 %}
                             @update:entity-collection="onRuleChange"
-                            {% else %}
-                            @change="onRuleChange"
-                            {% endif %}
                         >
                             <template #selection-label-property="{ item }">
                                 {{ item.ruleName }}
@@ -451,12 +447,17 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_product_save_modal %}
         <router-view
-            :item-total="selectedIds.length"
-            :is-loading="isLoading"
-            :process-status="processStatus"
-            @modal-close="closeModal"
-            @bulk-save="onSave"
-        />
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="selectedIds.length"
+                :is-loading="isLoading"
+                :process-status="processStatus"
+                @modal-close="closeModal"
+                @bulk-save="onSave"
+            />
+        </router-view>
         {% endblock %}
     </template>
     {% endblock %}

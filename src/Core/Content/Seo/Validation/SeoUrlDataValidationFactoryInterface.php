@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 interface SeoUrlDataValidationFactoryInterface
 {
     public function buildValidation(Context $context, SeoUrlRouteConfig $config): DataValidationDefinition;

@@ -41,6 +41,10 @@
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\DataResolver\Element\HtmlCmsElementResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\DataResolver\Element\FormCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>

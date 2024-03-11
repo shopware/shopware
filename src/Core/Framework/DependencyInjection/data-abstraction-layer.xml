@@ -32,6 +32,29 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer"/>
+            <argument>%kernel.shopware_core_dir%</argument>
+            <argument>%kernel.shopware_version%</argument>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer">
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
@@ -73,6 +96,11 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="api.request_criteria_builder" class="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
@@ -185,6 +213,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface" public="true">
@@ -634,6 +663,10 @@
             <argument type="tagged" tag="shopware.dal.exception_handler"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -670,10 +703,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler">
-            <tag name="messenger.message_handler"/>
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.dal.versioning.expire_days%</argument>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<DocumentBaseConfigEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentBaseConfigCollection extends EntityCollection
 {
     public function getApiAlias(): string

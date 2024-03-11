@@ -1,16 +1,7 @@
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
-import PluginManager from 'src/plugin-system/plugin.manager';
 import DomAccess from 'src/helper/dom-access.helper';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
-
-// Todo: NEXT-23270 - Remove mock ES module import of PluginManager
-jest.mock('src/plugin-system/plugin.manager', () => ({
-    __esModule: true,
-    default: {
-        initializePlugins: jest.fn(),
-    },
-}));
 
 /**
  * @package storefront
@@ -19,6 +10,8 @@ describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
 
     beforeEach(() => {
+        window.PluginManager.initializePlugins = jest.fn();
+
         const mockElement = document.createElement('div');
 
         // init ajax modal plugins
@@ -62,7 +55,7 @@ describe('AjaxModalPlugin tests', () => {
         expect(element.classList).toContain('foo');
         expect(element.classList).toContain('bar');
 
-        expect(PluginManager.initializePlugins).toBeCalled();
+        expect(window.PluginManager.initializePlugins).toBeCalled();
 
         expect(ajaxModalPlugin.$emitter.publish).toBeCalledWith('ajaxModalOpen', { modal: element });
     });
@@ -96,7 +89,9 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin.options.centerLoadingIndicatorClass = 'foo';
 
-        DomAccess.querySelector = jest.fn(() => {
+        // Mock the DomAccess.querySelector method only in this test case
+        const mockDomAccess = jest.spyOn(DomAccess, 'querySelector');
+        mockDomAccess.mockImplementation(() => {
             return element;
         });
 
@@ -108,6 +103,8 @@ describe('AjaxModalPlugin tests', () => {
         expect(event.stopPropagation).toBeCalled();
         expect(ajaxModalPlugin._openModal).toBeCalled();
         expect(ajaxModalPlugin._loadModalContent).toBeCalled();
+
+        mockDomAccess.mockRestore();
     });
 
     test('_loadModalContent will create a loading indicator and load the actual request', () => {
@@ -144,7 +141,64 @@ describe('AjaxModalPlugin tests', () => {
         ajaxModalPlugin._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, element);
 
         expect(loadingIndicatorUtil.remove).toBeCalled();
-        expect(pseudoModalUtil.updateContent).toBeCalledWith(response);
+        expect(pseudoModalUtil.updateContent).toBeCalledWith(response, expect.any(Function));
         expect(element.classList).not.toContain('text-center');
+    });
+
+    test('renders back button when previous modal url is set', () => {
+        document.body.innerHTML = `
+            <!-- This is the modal trigger -->
+            <a
+                data-ajax-modal="true"
+                data-url="/widgets/cms/contact-form-id"
+                data-prev-url="/widgets/cms/prev-id"
+                href="/widgets/cms/contact-form-id"
+            >
+                Open ajax modal
+            </a>
+
+            <div class="js-pseudo-modal-template">
+                <div class="modal modal-lg fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header only-close">
+                                <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+                                <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body js-pseudo-modal-template-content-element">
+                            </div>
+                        </div>
+                    </div>
+                    <template class="js-pseudo-modal-back-btn-template">
+                        <button class="js-pseudo-modal-back-btn btn btn-outline-primary" data-ajax-modal="true" data-url="#" href="#">
+                           Back
+                        </button>
+                    </template>
+                </div>
+            </div>
+        `;
+
+        // Overwrite the ajax modal instance to consider additional attributes
+        ajaxModalPlugin = new AjaxModalPlugin(document.querySelector('[data-ajax-modal]'));
+
+        const response = '<div class="cms-page">Contact form content</div>';
+        const loadingIndicatorUtil = new LoadingIndicatorUtil(document.createElement('div'));
+        loadingIndicatorUtil.remove = jest.fn();
+
+        const pseudoModalUtil = new PseudoModalUtil();
+        pseudoModalUtil.updateContent = jest.fn((response, callback) => callback());
+        pseudoModalUtil._modal = document.querySelector('.modal');
+
+        ajaxModalPlugin._processResponse(
+            response,
+            loadingIndicatorUtil,
+            pseudoModalUtil,
+            document.querySelector('.js-pseudo-modal-template-content-element')
+        );
+
+        // Verify back button is rendered at correct location using the <template> as boilerplate
+        const renderedBackButton = document.querySelector('.js-pseudo-modal-template-content-element .js-pseudo-modal-back-btn');
+        expect(renderedBackButton.getAttribute('href')).toBe('/widgets/cms/prev-id');
+        expect(renderedBackButton.getAttribute('data-url')).toBe('/widgets/cms/prev-id');
     });
 });

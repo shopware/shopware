@@ -161,7 +161,7 @@
         <span class="sw-search-bar-item__label">
             <sw-highlight-text
                 :search-term="searchTerm"
-                :text="item | mediaName"
+                :text="mediaNameFilter(item)"
             />
         </span>
         {% endblock %}

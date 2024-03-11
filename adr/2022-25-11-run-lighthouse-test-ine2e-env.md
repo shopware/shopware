@@ -3,7 +3,7 @@ title: Run Lighthouse tests in E2E env
 date: 2022-21-11
 area: storefront
 tags: [lighthouse, performance, storefront]
---- 
+---
 
 ## Context
 The Lighthouse test ran in the `APP_ENV=prod`, this meant that also AdminQueueWorker was active, which is recommended to not be used in real prod setups.

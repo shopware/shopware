@@ -14,11 +14,7 @@
         :placeholder="$tc('sw-product-stream.filter.placeholderFieldSelect')"
         :disabled="disabled"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="changeField"
-        {% else %}
-        @change="changeField"
-        {% endif %}
     />
 </sw-arrow-field>
 {% endblock %}

@@ -6,17 +6,18 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_and_container_children %}
-    <template v-for="(child, index) in condition[childAssociationField]">
+    <template
+        v-for="(child, index) in condition[childAssociationField]"
+        :key="index"
+    >
         <div
             v-if="index > 0"
-            :key="index"
             class="condition-content__spacer--and"
         >
             {{ $tc('global.sw-condition.condition.and') }}
         </div>
 
         <sw-condition-tree-node
-            :key="`sw-condition-container__or-child--${index}`"
             :parent-condition="condition"
             :condition="child"
             :disabled="disabled"

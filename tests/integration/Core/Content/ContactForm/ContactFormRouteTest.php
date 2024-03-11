@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
@@ -9,6 +11,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -20,11 +23,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @package content
- *
- * @group store-api
  */
+#[Package('buyers-experience')]
+#[Group('store-api')]
 class ContactFormRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -84,9 +85,7 @@ class ContactFormRouteTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
-    /**
-     * @dataProvider navigationProvider
-     */
+    #[DataProvider('navigationProvider')]
     public function testContactFormSendMailWithNavigationIdAndSlotId(string $entityName): void
     {
         [$navigationId, $slotId] = match ($entityName) {
@@ -192,9 +191,7 @@ class ContactFormRouteTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
-    /**
-     * @dataProvider contactFormWithDomainProvider
-     */
+    #[DataProvider('contactFormWithDomainProvider')]
     public function testContactFormWithInvalid(string $firstName, string $lastName, \Closure $expectClosure): void
     {
         $this->browser

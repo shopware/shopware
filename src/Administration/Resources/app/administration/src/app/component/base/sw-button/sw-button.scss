@@ -85,11 +85,6 @@ $sw-button-transition: all 0.15s ease-out;
             line-height: $line-height-lg;
         }
 
-        // @deprecated tag:v6.6.0 - "large" value will be removed
-        &.sw-button--large {
-            line-height: 44px;
-        }
-
         &:hover {
             background: $color-shopware-brand-700;
         }
@@ -128,11 +123,6 @@ $sw-button-transition: all 0.15s ease-out;
 
         &.sw-button--small {
             line-height: $line-height-lg;
-        }
-
-        // @deprecated tag:v6.6.0 - "large" value will be removed
-        &.sw-button--large {
-            line-height: 44px;
         }
 
         &:hover {
@@ -174,11 +164,6 @@ $sw-button-transition: all 0.15s ease-out;
 
         &.sw-button--small {
             line-height: $line-height-lg;
-        }
-
-        // @deprecated tag:v6.6.0 - "large" value will be removed
-        &.sw-button--large {
-            line-height: 44px;
         }
 
         &:hover {
@@ -299,18 +284,6 @@ $sw-button-transition: all 0.15s ease-out;
 
         &.sw-button--square {
             width: 32px;
-        }
-    }
-
-    // @deprecated tag:v6.6.0 - "large" value will be removed
-    &.sw-button--large {
-        padding-left: 28px;
-        padding-right: 28px;
-        line-height: 42px;
-        font-size: $font-size-xs;
-
-        &.sw-button--square {
-            width: 48px;
         }
     }
 

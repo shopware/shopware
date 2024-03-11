@@ -1,0 +1,35 @@
+<?php declare(strict_types=1);
+
+namespace {BASE_NAMESPACE}\Tests\Migration\{NAMESPACE};
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use {FULL_QUALIFIED_CLASS_NAME};
+
+/**
+ * @internal
+ */
+#[Package('{PACKAGE}')]
+#[CoversClass({CLASS_NAME}::class)]
+class {CLASS_NAME}Test extends TestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testMigration(): void
+    {
+        $migration = new {CLASS_NAME}();
+        static::assertSame(9999999, $migration->getCreationTimestamp());
+
+        // make sure a migration can run multiple times without failing
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+    }
+}

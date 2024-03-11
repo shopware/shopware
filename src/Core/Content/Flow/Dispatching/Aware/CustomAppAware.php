@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Framework\Event\IsFlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[IsFlowEventAware]
 interface CustomAppAware
 {
     public const CUSTOM_DATA = 'customAppData';

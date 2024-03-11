@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
+    final public const TYPE = 'product-description-reviews';
     private const LIMIT = 10;
     private const DEFAULT_PAGE = 1;
     private const FILTER_LANGUAGE = 'filter-language';
@@ -42,7 +43,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
     public function getType(): string
     {
-        return 'product-description-reviews';
+        return self::TYPE;
     }
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void

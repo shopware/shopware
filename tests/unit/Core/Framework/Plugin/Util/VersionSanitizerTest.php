@@ -2,19 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Util\VersionSanitizer
  */
+#[CoversClass(VersionSanitizer::class)]
 class VersionSanitizerTest extends TestCase
 {
-    /**
-     * @dataProvider versionProvider
-     */
+    #[DataProvider('versionProvider')]
     public function testSanitizePluginVersion(string $version, string $expectedVersion): void
     {
         $sanitizedVersion = (new VersionSanitizer())->sanitizePluginVersion($version);

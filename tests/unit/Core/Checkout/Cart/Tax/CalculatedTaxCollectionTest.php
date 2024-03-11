@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Tax;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection
  */
+#[CoversClass(CalculatedTaxCollection::class)]
 class CalculatedTaxCollectionTest extends TestCase
 {
     final public const DUMMY_TAX_NAME = 'dummy-tax';

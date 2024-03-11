@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\BehaviorListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,9 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\BehaviorListingProcessor
  */
+#[CoversClass(BehaviorListingProcessor::class)]
 class BehaviorProcessorTest extends TestCase
 {
     public function testPrepareWithNoAggregations(): void

@@ -3,8 +3,12 @@
 namespace Shopware\Core\Framework\Test\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -15,10 +19,9 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @group skip-paratest
- * @group slow
  */
+#[Group('skip-paratest')]
+#[Group('slow')]
 class CacheClearerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -42,7 +45,8 @@ class CacheClearerTest extends TestCase
                 new StaticKernelPluginLoader($classLoader),
                 Uuid::randomHex(),
                 '1.0.0@' . $i . '1eec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33',
-                $original->getContainer()->get(Connection::class)
+                $original->getContainer()->get(Connection::class),
+                EnvironmentHelper::getVariable('PROJECT_ROOT')
             );
 
             $kernel->boot();
@@ -70,16 +74,22 @@ class CacheClearerTest extends TestCase
 
     public function testClearContainerCache(): void
     {
-        $kernelClass = KernelLifecycleManager::getKernelClass();
+        $previousKernelClass = KernelFactory::$kernelClass;
+
+        // We need a new cache dir, therefore we reuse the StaticAnalyzeKernel class
+        KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
         /** @var Kernel $newTestKernel */
-        $newTestKernel = new $kernelClass(
+        $newTestKernel = KernelFactory::create(
             'test',
             true,
+            KernelLifecycleManager::getClassLoader(),
             new StaticKernelPluginLoader(KernelLifecycleManager::getClassLoader()),
-            Uuid::randomHex(),
-            '1.1.1',
             $this->getContainer()->get(Connection::class)
         );
+
+        // reset kernel class for further tests
+        KernelFactory::$kernelClass = $previousKernelClass;
 
         $newTestKernel->boot();
         $cacheDir = $newTestKernel->getCacheDir();

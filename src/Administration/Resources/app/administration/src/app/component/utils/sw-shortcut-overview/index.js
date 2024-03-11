@@ -5,7 +5,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-shortcut-overview', {
     template,
@@ -209,10 +209,12 @@ Component.register('sw-shortcut-overview', {
     methods: {
         onOpenShortcutOverviewModal() {
             this.showShortcutOverviewModal = true;
+            this.$emit('shortcut-open');
         },
 
         onCloseShortcutOverviewModal() {
             this.showShortcutOverviewModal = false;
+            this.$emit('shortcut-close');
         },
     },
 });

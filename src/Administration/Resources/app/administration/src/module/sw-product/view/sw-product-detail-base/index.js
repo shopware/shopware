@@ -176,13 +176,24 @@ export default {
                 id: media.id,
             };
 
-            if (isEmpty(this.product.media)) {
+            if (isEmpty(this.product.media) && !this.isSpatial(newMedia)) {
                 this.setMediaAsCover(newMedia);
             }
 
             this.product.media.add(newMedia);
 
             return Promise.resolve();
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isSpatial(productMedia) {
+            if (productMedia.media?.fileExtension === 'glb') {
+                return true;
+            }
+            // we need to check the media url since media.fileExtension is set directly after upload
+            return !!productMedia.media?.url?.endsWith('.glb');
         },
 
         isExistingMedia(media) {

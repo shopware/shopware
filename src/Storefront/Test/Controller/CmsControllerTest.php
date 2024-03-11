@@ -13,7 +13,7 @@ use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

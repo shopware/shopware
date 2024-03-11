@@ -1,16 +1,12 @@
-import swOrderUserCard from 'src/module/sw-order/component/sw-order-user-card';
-
 /**
  * @package customer-order
  */
-
-Shopware.Component.register('sw-order-user-card', swOrderUserCard);
 
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {
     let userCard;
 
     beforeAll(async () => {
-        userCard = await Shopware.Component.build('sw-order-user-card');
+        userCard = await wrapTestComponent('sw-order-user-card', { sync: true });
     });
 
     const trackingCode = 'TR-4CK1N-GCD';

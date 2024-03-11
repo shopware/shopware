@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ThemeTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getThemeIds(): array
     {
@@ -25,7 +25,7 @@ class ThemeTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

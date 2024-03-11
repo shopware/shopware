@@ -3,7 +3,7 @@
  */
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Shopware.Filter.register('fileSize', (value: number, locale: string) => {
     if (!value) {

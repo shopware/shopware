@@ -85,20 +85,20 @@ To display a dismissible button set the value of "dismissible" to true.
 
 {% block utilities_alert %}
     <div role="alert"
-         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != "error" %} alert-has-icon{% endif %}">
+         class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != 'error' %} alert-has-icon{% endif %}">
         {% block utilities_alert_icon %}
-            {% if icon != "false" %}
+            {% if icon != 'false' %}
                 {% set iconCacheSystem = config('core.storefrontSettings.iconCache') %}
                 {% if iconCache === false and iconCacheSystem === true %}
                     {{ sw_icon_cache_disable() }}
                 {% endif %}
-                {% if type == "danger" %}
+                {% if type == 'danger' %}
                     {% sw_icon 'blocked' %}
-                {% elseif type == "warning" %}
+                {% elseif type == 'warning' %}
                     {% sw_icon 'warning' %}
-                {% elseif type == "info" %}
+                {% elseif type == 'info' %}
                     {% sw_icon 'info' %}
-                {% elseif type == "success" %}
+                {% elseif type == 'success' %}
                     {% sw_icon 'checkmark-circle' %}
                 {% else %}
                     {% sw_icon 'alert' %}

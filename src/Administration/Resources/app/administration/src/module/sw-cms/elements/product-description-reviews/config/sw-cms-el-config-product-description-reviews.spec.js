@@ -1,11 +1,8 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigProductDescriptionReviews from 'src/module/sw-cms/elements/product-description-reviews/config';
-
-Shopware.Component.register('sw-cms-el-config-product-description-reviews', swCmsElConfigProductDescriptionReviews);
 
 const productMock = {
     name: 'Awesome Product',
@@ -13,37 +10,41 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-description-reviews'), {
-        stubs: {
-            'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+    return mount(await wrapTestComponent('sw-cms-el-config-product-description-reviews', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-tabs-item': true,
+                'sw-entity-single-select': true,
+                'sw-alert': true,
             },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'product-description-reviews': {} };
+                    },
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(productMock),
+                            search: () => Promise.resolve(productMock),
+                        };
+                    },
+                },
             },
-            'sw-tabs-item': true,
-            'sw-entity-single-select': true,
-            'sw-alert': true,
         },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'product-description-reviews': {} };
-                },
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock),
-                    };
-                },
-            },
-        },
-        propsData: {
+        props: {
             element: {
                 config: {},
                 data: {},

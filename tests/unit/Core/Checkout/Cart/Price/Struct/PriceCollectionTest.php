@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
@@ -11,9 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection
  */
+#[CoversClass(PriceCollection::class)]
 class PriceCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

@@ -1,7 +1,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @memberOf module:core/service/locale
  * @constructor
  * @method createShortcutService

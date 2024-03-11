@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\Country\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -11,10 +12,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('system-settings')]
+#[Group('store-api')]
 class CountryStateRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

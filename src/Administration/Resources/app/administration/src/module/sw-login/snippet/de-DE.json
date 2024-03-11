@@ -10,6 +10,7 @@
       "headlineForm": "Melde Dich in Deinem Shopware-Shop an",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
+      "labelKeepLoggedIn": "Angemeldet bleiben",
       "placeholderUsername": "Gib Deinen Benutzernamen ein ...",
       "placeholderPassword": "Gib Dein Passwort ein ...",
       "buttonLogin": "Anmelden",
@@ -48,7 +49,7 @@
       "text": "Gib die mit Deinem Konto verknüpfte E-Mail-Adresse ein.",
       "email": {
         "label": "E-Mail-Adresse:",
-        "placeholder": "shop@beispiel.de"
+        "placeholder": "shop{'@'}beispiel.de"
       },
       "submit": "Wiederherstellungs-Link senden"
     }

@@ -27,7 +27,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_modal_content_columns_entity %}
         <template #column-entity="{ item }">
-            {{ $tc('global.entities.' + item.entity) }}
+            {{ $tc('global.entities.' + item.entity) }} {{ enumerateTransaction(item) }}
         </template>
         {% endblock %}
 

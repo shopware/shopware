@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -35,9 +36,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  *
  * @package checkout
- *
- * @covers \Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment
  */
+#[CoversClass(TaxAdjustment::class)]
 class TaxAdjustmentTest extends TestCase
 {
     private IdsCollection $ids;
@@ -387,6 +387,7 @@ class TaxAdjustmentTest extends TestCase
         static::assertCount(1, $taxes);
 
         $tax = $taxes->first();
+        static::assertNotNull($tax);
 
         static::assertSame(7.0, $tax->getTax());
         static::assertSame(7.0, $tax->getTaxRate());

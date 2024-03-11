@@ -77,10 +77,10 @@
         {% block sw_advanced_selection_rule_list_grid_columns_create_date_content %}
         <span :class="getColumnClass(item)">
             <template v-if="item.updatedAt">
-                {{ item.updatedAt|date }}
+                {{ dateFilter(item.updatedAt) }}
             </template>
             <template v-else>
-                {{ item.createdAt|date }}
+                {{ dateFilter(item.createdAt) }}
             </template>
         </span>
         {% endblock %}
@@ -117,9 +117,9 @@
     <template
         v-for="(propertyName, index) in assignmentProperties"
         #[`column-${propertyName}`]="{ item, aggregations }"
+        :key="index"
     >
         <span
-            :key="index"
             class="sw-data-grid__cell-value"
         >
             {{ getCounts(item.id, aggregations)[propertyName] }}

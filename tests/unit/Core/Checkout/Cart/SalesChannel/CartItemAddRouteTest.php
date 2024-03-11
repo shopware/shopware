@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -10,15 +11,15 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute
  */
+#[CoversClass(CartItemAddRoute::class)]
 class CartItemAddRouteTest extends TestCase
 {
     public function testRateLimitationWithoutIp(): void
@@ -51,7 +52,7 @@ class CartItemAddRouteTest extends TestCase
 
         $cartItemAddRoute->add(
             $this->createRequest($item),
-            $this->createMock(Cart::class),
+            new Cart(Uuid::randomHex()),
             $this->createMock(SalesChannelContext::class),
             null
         );
@@ -70,7 +71,7 @@ class CartItemAddRouteTest extends TestCase
 
         $cartItemAddRoute->add(
             $this->createRequest($item),
-            $this->createMock(Cart::class),
+            new Cart(Uuid::randomHex()),
             $this->createMock(SalesChannelContext::class),
             null
         );

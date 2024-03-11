@@ -2,10 +2,11 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
-use Shopware\Core\Test\CollectingMessageBus;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
@@ -13,9 +14,8 @@ use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\SystemUpdateListener
  */
+#[CoversClass(SystemUpdateListener::class)]
 class SystemUpdateListenerTest extends TestCase
 {
     public function testShouldDoNothingWhenNotSet(): void

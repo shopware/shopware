@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,9 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('buyers-experience')]
 class CountryStateControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -107,7 +107,6 @@ class CountryStateControllerTest extends TestCase
             'integration' => [
                 'id' => $integrationId,
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -118,7 +117,7 @@ class CountryStateControllerTest extends TestCase
             'scripts' => [
                 [
                     'name' => 'country-loaded/loaded.script.twig',
-                    'hook' => 'country-sate-data-pagelet-loaded',
+                    'hook' => 'country-state-data-pagelet-loaded',
                     'script' => '{% do debug.dump(hook.getPage.getStates.count) %}',
                     'active' => true,
                 ],
@@ -134,7 +133,7 @@ class CountryStateControllerTest extends TestCase
 
         static::assertArrayHasKey(CountryStateDataPageletLoadedHook::HOOK_NAME, $traces);
 
-        static::assertEquals(['16'], $traces['country-sate-data-pagelet-loaded'][0]['output']);
+        static::assertEquals(['16'], $traces['country-state-data-pagelet-loaded'][0]['output']);
     }
 }
 

@@ -8,7 +8,7 @@ import './sw-app-app-url-changed-modal.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-app-app-url-changed-modal', {
     template,

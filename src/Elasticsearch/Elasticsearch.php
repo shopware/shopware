@@ -71,9 +71,8 @@ class Elasticsearch extends Bundle
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
 
         $env = $container->getParameter('kernel.environment');
-        if (!\is_string($env)) {
-            throw new \RuntimeException('Container parameter "kernel.environment" needs to be a string');
-        }
+        \assert(\is_string($env));
+
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
     }
 }

@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\SummarizeCoverageReports;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -17,9 +19,7 @@ use Twig\Loader\ArrayLoader;
  */
 class SummarizeCoverageReportsTest extends TestCase
 {
-    /**
-     * @before
-     */
+    #[Before]
     public function copyFixtures(): void
     {
         $filesystem = new Filesystem();
@@ -28,9 +28,7 @@ class SummarizeCoverageReportsTest extends TestCase
         $filesystem->mirror(__DIR__ . '/_fixtures/coverage', $projectDir . '/coverage');
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function deleteTestFiles(): void
     {
         $filesystem = new Filesystem();

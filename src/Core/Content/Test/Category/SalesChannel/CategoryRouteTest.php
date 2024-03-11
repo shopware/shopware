@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
@@ -17,9 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class CategoryRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

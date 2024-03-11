@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Services\UpdateHtaccess
  */
+#[CoversClass(UpdateHtaccess::class)]
 class UpdateHtaccessTest extends TestCase
 {
     public function testSubscribedEvents(): void
@@ -22,9 +23,7 @@ class UpdateHtaccessTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getCombinations
-     */
+    #[DataProvider('getCombinations')]
     public function testCombination(string $currentEnv, ?string $newEnv, string $expected): void
     {
         $fs = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true) . '/';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
@@ -10,9 +11,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as A
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity
  */
+#[CoversClass(AdminUiEntity::class)]
 class EntityTest extends TestCase
 {
     public function testFromXml(): void

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-type FilterConfig array{excluded_terms: list<string>, min_search_length: int}
+ * @phpstan-type FilterConfig array{excluded_terms: array<string>, min_search_length: int}
  */
 #[Package('core')]
 class TokenFilter extends AbstractTokenFilter
@@ -34,9 +34,7 @@ class TokenFilter extends AbstractTokenFilter
     }
 
     /**
-     * @param list<string> $tokens
-     *
-     * @return list<string>
+     * {@inheritdoc}
      */
     public function filter(array $tokens, Context $context): array
     {
@@ -61,7 +59,7 @@ class TokenFilter extends AbstractTokenFilter
 
     /**
      * @param list<string> $tokens
-     * @param list<string> $excludedTerms
+     * @param array<string> $excludedTerms
      *
      * @return list<string>
      */
@@ -124,8 +122,10 @@ class TokenFilter extends AbstractTokenFilter
             return null;
         }
 
+        $excludedTerms = \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [];
+
         return $this->config[$languageId] = [
-            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [],
+            'excluded_terms' => $excludedTerms,
             'min_search_length' => (int) ($config['min_search_length'] ?? self::DEFAULT_MIN_SEARCH_TERM_LENGTH),
         ];
     }

@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -42,29 +42,29 @@ class ThemeFileResolver
                     $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
 
                     // add source file at the beginning if no other theme is included first
-                    if (
-                        $addSourceFile
-                        && (
-                            $scriptFiles->count() === 0
-                            || !$this->isInclude($scriptFiles->first()->getFilepath())
-                        )
+                    if ($addSourceFile
                         && $configuration->getStorefrontEntryFilepath()
+                        && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
                     ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
                     foreach ($scriptFiles as $scriptFile) {
-                        if (!$this->isInclude($scriptFile->getFilepath()) && $onlySourceFiles) {
+                        if ($onlySourceFiles && !$this->isInclude($scriptFile->getFilepath())) {
                             continue;
                         }
                         $fileCollection->add($scriptFile);
                     }
-                    if (
-                        $addSourceFile
-                        && $scriptFiles->count() > 0
-                        && $this->isInclude($scriptFiles->first()->getFilepath())
+                    if ($addSourceFile
                         && $configuration->getStorefrontEntryFilepath()
+                        && $scriptFiles->count() > 0
+                        && $scriptFiles->first()
+                        && $this->isInclude($scriptFiles->first()->getFilepath())
                     ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
+                    }
+
+                    foreach ($fileCollection as $file) {
+                        $file->assetName = $configuration->getAssetName();
                     }
 
                     return $fileCollection;
@@ -150,7 +150,7 @@ class ThemeFileResolver
             $name = mb_substr($filepath, 1);
             $configuration = $configurationCollection->getByTechnicalName($name);
             if (!$configuration) {
-                throw new InvalidThemeException($name);
+                throw ThemeException::couldNotFindThemeByName($name);
             }
             foreach ($this->resolve($configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded) as $item) {
                 $resolvedFiles->add($item);

@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
@@ -98,6 +98,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
 
     methods: {
         onSearchTermChange(input) {
+            this.searchTerm = input;
             if (input.length <= 0) {
                 return;
             }

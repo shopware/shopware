@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask
  */
+#[CoversClass(InvalidateCacheTask::class)]
 class InvalidateCacheTaskTest extends TestCase
 {
     public function testGetTaskName(): void

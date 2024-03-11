@@ -1,26 +1,29 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsShippingPriceMatrix from 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
+import { mount } from '@vue/test-utils';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
+
+Shopware.State.registerModule('swShippingDetail', state);
 
 /**
  * @package checkout
  */
-Shopware.State.registerModule('swShippingDetail', state);
-Shopware.Component.register('sw-settings-shipping-price-matrix', swSettingsShippingPriceMatrix);
-
 const createWrapper = async () => {
-    return shallowMount(await Shopware.Component.build('sw-settings-shipping-price-matrix'), {
-        store: Shopware.State._store,
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-select-rule-create': true,
-            'sw-button': true,
-            'sw-context-button': true,
-            'sw-data-grid': true,
-            'sw-context-menu-item': true,
+    return mount(await wrapTestComponent('sw-settings-shipping-price-matrix', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            store: Shopware.State._store,
+            stubs: {
+                'sw-card': true,
+                'sw-container': true,
+                'sw-select-rule-create': true,
+                'sw-button': true,
+                'sw-context-button': true,
+                'sw-data-grid': true,
+                'sw-context-menu-item': true,
+            },
         },
-        propsData: {
+        props: {
             priceGroup: {
                 isNew: false,
                 ruleId: 'ruleId',

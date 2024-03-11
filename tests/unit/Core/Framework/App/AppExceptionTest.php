@@ -2,19 +2,20 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\AppException
  */
 #[Package('core')]
+#[CoversClass(AppException::class)]
 class AppExceptionTest extends TestCase
 {
     public function testCannotDeleteManaged(): void
@@ -67,6 +68,15 @@ class AppExceptionTest extends TestCase
         $e = AppException::invalidConfiguration('InvalidlyConfiguredApp', new AppNameError('InvalidlyConfiguredApp'));
 
         static::assertEquals(AppException::INVALID_CONFIGURATION, $e->getErrorCode());
+    }
+
+    public function testInstallationFailed(): void
+    {
+        $e = AppException::installationFailed('AnyAppName', 'reason');
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertEquals(AppException::INSTALLATION_FAILED, $e->getErrorCode());
+        static::assertEquals('App installation for "AnyAppName" failed: reason', $e->getMessage());
     }
 
     public function testAppSecretRequiredForFeatures(): void

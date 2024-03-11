@@ -1,5 +1,4 @@
 {% block page_checkout_change_shipping_form %}
-
     {% set formAjaxSubmitOptions = {
         changeTriggerSelectors: ['.shipping-method-input']
     } %}
@@ -9,9 +8,8 @@
               name="changeShippingForm"
               action="{{ actionPath }}"
               data-form-auto-submit="true"
-              data-form-auto-submit-options='{{ formAjaxSubmitOptions|json_encode }}'
+              data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
-
             {% block page_checkout_change_shipping_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
                 <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
@@ -19,7 +17,7 @@
 
             {% block page_checkout_change_shipping_form_fields %}
                 {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
-                    'visibleShippingMethodsLimit': 5
+                    visibleShippingMethodsLimit: 5
                 } %}
             {% endblock %}
         </form>

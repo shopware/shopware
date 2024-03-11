@@ -5,16 +5,13 @@
 
     {% block page_account_guest_auth %}
         <div class="account-guest-auth row justify-content-md-center">
-
             {% block page_account_guest_auth_inner %}
                 <div class="col-md-8 col-lg-6">
-
                     {% block page_account_guest_auth_form %}
                         <form method="post"
                               class="account-guest-auth-form card"
                               action="{{ actionUrl }}"
                               data-form-validation="true">
-
                             {% block page_account_guest_auth_title %}
                                 <h1 class="card-title">
                                     {{ 'account.orderGuestLoginTitle'|trans }}
@@ -23,9 +20,8 @@
 
                             {% block page_account_guest_auth_container %}
                                 <div class="card-body">
-
                                     {% block page_account_guest_auth_info %}
-                                        <div class="card-text account-guest-auth-info">
+                                        <div class="card-text account-guest-auth-info mb-3">
                                             {{ 'account.orderGuestLoginDescription'|trans }}
                                         </div>
                                     {% endblock %}
@@ -35,7 +31,7 @@
                                             <div class="form-group col-md-8">
                                                 {% block page_account_guest_auth_mail_label %}
                                                     <label class="form-label" for="mail">
-                                                        {{ 'account.profileCurrentMail'|trans }}{{ "general.required"|trans|sw_sanitize }}
+                                                        {{ 'account.profileCurrentMail'|trans }}{{ 'general.required'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -45,7 +41,7 @@
                                                            autocomplete="section-personal email"
                                                            id="mail"
                                                            name="email"
-                                                           placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
+                                                           placeholder="{{ 'account.loginMailPlaceholder'|trans|striptags }}"
                                                            required="required">
                                                 {% endblock %}
                                             </div>
@@ -55,7 +51,7 @@
                                             {% block page_account_guest_auth_postcode %}
                                                 {% block page_account_guest_auth_postcode_label %}
                                                     <label class="form-label" for="recoverMail2">
-                                                        {{ 'address.zipcodeLabel'|trans }}{{ "general.required"|trans|sw_sanitize }}
+                                                        {{ 'address.zipcodeLabel'|trans }}{{ 'general.required'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -65,7 +61,7 @@
                                                        autocomplete="section-personal zipcode"
                                                        id="zipcode"
                                                        name="zipcode"
-                                                       placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
+                                                       placeholder="{{ 'address.zipcodePlaceholder'|trans|striptags }}"
                                                        required="required">
                                                 {% endblock %}
                                             {% endblock %}

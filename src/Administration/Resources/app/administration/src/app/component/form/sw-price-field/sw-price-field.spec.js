@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-price-field';
 
 // mock data
@@ -45,8 +45,8 @@ const defaultPrice = {
 
 // initial component setup
 const setup = async (propOverride) => {
-    const propsData = {
-        price: [dollarPrice, euroPrice],
+    const props = {
+        value: [dollarPrice, euroPrice],
         taxRate,
         currency,
         defaultPrice,
@@ -54,9 +54,11 @@ const setup = async (propOverride) => {
         ...propOverride,
     };
 
-    return shallowMount(await Shopware.Component.build('sw-price-field'), {
-        stubs: ['sw-number-field', 'sw-icon'],
-        propsData,
+    return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
+        global: {
+            stubs: ['sw-number-field', 'sw-icon'],
+        },
+        props,
     });
 };
 
@@ -79,36 +81,48 @@ describe('components/form/sw-price-field', () => {
                 },
             };
         };
+
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     it('should be a Vue.js component', async () => {
         const wrapper = await setup();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render correctly', async () => {
         const wrapper = await setup();
+
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
+
         expect(wrapper.vm.priceForCurrency.gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.priceForCurrency.net).toEqual(dollarPrice.net);
     });
 
     it('should not be an disabled field', async () => {
         const wrapper = await setup();
+
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeFalsy();
     });
 
     it('should be an disabled field', async () => {
-        const wrapper = await setup({ price: [euroPrice] });
+        const wrapper = await setup({ value: [euroPrice] });
+
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
     });
 
     it('should calculate price based on default price', async () => {
-        const wrapper = await setup({ price: [euroPrice] });
+        const wrapper = await setup({ value: [euroPrice] });
+
         const dollarPriceConverted = {
             gross: euroPrice.gross * currency.factor,
             net: euroPrice.net * currency.factor,
@@ -119,9 +133,10 @@ describe('components/form/sw-price-field', () => {
     });
 
     it('should remove the inheritance when matching currency price exists', async () => {
-        const wrapper = await setup({ price: [euroPrice] });
+        const wrapper = await setup({ value: [euroPrice] });
+
         expect(wrapper.vm.isInherited).toBeTruthy();
-        await wrapper.setProps({ price: [dollarPrice, euroPrice] });
+        await wrapper.setProps({ value: [dollarPrice, euroPrice] });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
 
@@ -164,7 +179,7 @@ describe('components/form/sw-price-field', () => {
     it('should calculate values if inherited and price is not set', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
-            price: [euroPrice],
+            value: [euroPrice],
         });
 
         const expectedNetPrice = (euroPrice.net * currency.factor);
@@ -175,7 +190,7 @@ describe('components/form/sw-price-field', () => {
     it('should set values to null if not inherited and price is not set', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
-            price: [euroPrice],
+            value: [euroPrice],
             inherited: false,
         });
 
@@ -190,5 +205,33 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.find('.sw-price-field__gross').attributes()['help-text']).toBe('help for gross price');
         expect(wrapper.find('.sw-price-field__net').attributes()['help-text']).toBe('help for net price');
+    });
+
+    it('should set gross value when the net value is updated', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        jest.runAllTimers();
+
+        expect(convertNetToGross).toHaveBeenCalled();
+    });
+
+    it('should set net value when the gross value is updated', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(convertGrossToNet).toHaveBeenCalled();
     });
 });

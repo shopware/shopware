@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
       "messageSaveError": "Payment method \"{name}\" could not be saved.",
       "labelName": "Name",
+      "labelTechnicalName": "Technical name",
       "labelPosition": "Position",
       "labelActive": "Active",
       "labelAfterOrderEnabled": "Allow payment change after checkout",
@@ -54,11 +55,24 @@
       },
       "topRule": "Availability rule",
       "placeholderName": "Enter name...",
+      "placeholderTechnicalName": "Enter technical name...",
       "placeholderPosition": "Enter position...",
       "placeholderDescription": "Enter description...",
       "placeholderAvailabilityRule": "Choose availability rule...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "helpTextTechnicalName": "The technical name is used to uniquely reference the payment method. A subsequent change to the technical name can cause payment integrations that rely on it to no longer work.",
+      "hintTextTechnicalName": "Will be required from version 6.7.0 onwards",
+      "delete": {
+        "textHeadline": "Delete payment method",
+        "textAlert": "This payment method is used in rules, Sales Channels or orders and can therefore not be deleted.",
+        "textButton": "Delete payment method",
+        "modal": {
+          "textConfirmation": "Do you really want to delete this payment method?",
+          "buttonCancel": "Cancel",
+          "buttonDelete": "Delete"
+        }
+      }
     }
   },
   "sw-plugin-box": {

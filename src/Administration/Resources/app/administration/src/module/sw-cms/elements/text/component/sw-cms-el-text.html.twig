@@ -9,7 +9,7 @@
 
     <sw-text-editor
         v-else
-        v-model="element.config.content.value"
+        v-model:value="element.config.content.value"
         :disabled="disabled"
         :vertical-align="element.config.verticalAlign.value"
         :allow-inline-data-mapping="true"
@@ -17,7 +17,7 @@
         sanitize-input
         enable-transparent-background
         @blur="onBlur"
-        @input="onInput"
+        @update:value="onInput"
     />
 </div>
 {% endblock %}

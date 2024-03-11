@@ -58,7 +58,7 @@
                 {% block sw_cms_element_image_slider_config_media_modal %}
                 <sw-media-modal-v2
                     v-if="mediaModalIsOpen"
-                    variant="regular"
+                    variant="full"
                     :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
                     :entity-context="cmsPageState.entityName"
                     :initial-folder-id="cmsPageState.defaultMediaFolderId"
@@ -85,18 +85,10 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_display_mode_select %}
                         <sw-select-field
-                            {% if VUE3 %}
                             v-model:value="element.config.displayMode.value"
-                            {% else %}
-                            v-model="element.config.displayMode.value"
-                            {% endif %}
                             :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                             class="sw-cms-el-config-image-slider__setting-display-mode"
-                            {% if VUE3 %}
                             @update:value="onChangeDisplayMode"
-                            {% else %}
-                            @change="onChangeDisplayMode"
-                            {% endif %}
                         >
                             <option value="standard">
                                 {{ $tc('sw-cms.elements.general.config.label.displayModeStandard') }}
@@ -113,31 +105,19 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_min_height %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="element.config.minHeight.value"
-                            {% else %}
-                            v-model="element.config.minHeight.value"
-                            {% endif %}
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :placeholder="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :help-text="$tc('sw-cms.elements.image.config.label.minHeightHelpText')"
                             :disabled="element.config.displayMode.value !== 'cover'"
-                            {% if VUE3 %}
                             @update:value="onChangeMinHeight"
-                            {% else %}
-                            @input="onChangeMinHeight"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
                         <sw-select-field
-                            {% if VUE3 %}
                             v-model:value="element.config.verticalAlign.value"
-                            {% else %}
-                            v-model="element.config.verticalAlign.value"
-                            {% endif %}
                             :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                             :disabled="element.config.displayMode.value === 'cover'"
@@ -164,17 +144,9 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_navigation_arrow_position %}
                             <sw-select-field
-                                {% if VUE3 %}
                                 v-model:value="element.config.navigationArrows.value"
-                                {% else %}
-                                v-model="element.config.navigationArrows.value"
-                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationArrows')"
-                                {% if VUE3 %}
                                 @update:value="emitUpdateEl"
-                                {% else %}
-                                @change="emitUpdateEl"
-                                {% endif %}
                             >
 
                                 <option :value="null">
@@ -195,17 +167,9 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_navigation_dots_position %}
                             <sw-select-field
-                                {% if VUE3 %}
                                 v-model:value="element.config.navigationDots.value"
-                                {% else %}
-                                v-model="element.config.navigationDots.value"
-                                {% endif %}
                                 :label="$tc('sw-cms.elements.imageSlider.config.label.navigationDots')"
-                                {% if VUE3 %}
                                 @update:value="emitUpdateEl"
-                                {% else %}
-                                @change="emitUpdateEl"
-                                {% endif %}
                             >
 
                                 <option :value="null">
@@ -225,30 +189,19 @@
 
                     <div class="sw-cms-el-config-image-slider__setting-slide">
                         <sw-switch-field
-                            {% if VUE3 %}
                             v-model:value="element.config.autoSlide.value"
-                            {% else %}
-                            v-model="element.config.autoSlide.value"
-                            {% endif %}
                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                             :label="$tc('sw-cms.elements.general.config.label.autoSlide')"
                             :help-text="$tc('sw-cms.elements.general.config.helpText.autoSlide')"
-                            {% if VUE3 %}
+                            bordered
                             @update:value="onChangeAutoSlide"
-                            {% else %}
-                            @change="onChangeAutoSlide"
-                            {% endif %}
                         />
                     </div>
 
                     <div class="sw-cms-el-config-image-slider__setting-option">
                         <div class="sw-cms-el-config-image-slider__setting-delay">
                             <sw-number-field
-                                {% if VUE3 %}
                                 v-model:value="element.config.autoplayTimeout.value"
-                                {% else %}
-                                v-model="element.config.autoplayTimeout.value"
-                                {% endif %}
                                 class="sw-cms-el-config-image-slider__setting-delay-slide"
                                 number-type="int"
                                 :min="0"
@@ -261,11 +214,7 @@
                         </div>
                         <div class="sw-cms-el-config-image-slider__setting-speed">
                             <sw-number-field
-                                {% if VUE3 %}
                                 v-model:value="element.config.speed.value"
-                                {% else %}
-                                v-model="element.config.speed.value"
-                                {% endif %}
                                 class="sw-cms-el-config-image-slider__setting-speed-slide"
                                 number-type="int"
                                 :min="0"
@@ -289,37 +238,31 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_url %}
-                            <sw-text-field
+                            <sw-container
                                 :key="sliderItem.mediaId"
-                                {% if VUE3 %}
-                                v-model:value="sliderItem.url"
-                                {% else %}
-                                v-model="sliderItem.url"
-                                {% endif %}
-                                class="sw-cms-el-config-image-slider__settings-link-input"
-                                :name="sliderItem.mediaUrl"
-                                :label="$tc('sw-cms.elements.image.config.label.linkTo')"
-                                :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterUrl')"
+                                class="sw-cms-el-config-image-slider__settings-link-container"
                             >
-                                <template #prefix>
-                                    <img
-                                        v-if="sliderItem.mediaUrl"
-                                        class="sw-cms-el-config-image-slider__settings-link-prefix"
-                                        :src="sliderItem.mediaUrl"
-                                        alt=""
-                                    >
-                                </template>
-                            </sw-text-field>
+                                <img
+                                    v-if="sliderItem.mediaUrl"
+                                    class="sw-cms-el-config-image-slider__settings-link-prefix"
+                                    :src="sliderItem.mediaUrl"
+                                    alt=""
+                                >
+
+                                <sw-url-field
+                                    v-model:value="sliderItem.url"
+                                    class="sw-cms-el-config-image-slider__settings-link-input"
+                                    :name="sliderItem.mediaUrl"
+                                    :label="$tc('sw-cms.elements.image.config.label.linkTo')"
+                                    :placeholder="$tc('sw-cms.elements.image.config.placeholder.enterUrl')"
+                                />
+                            </sw-container>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_cms_element_image_slider_config_settings_link_target %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="sliderItem.newTab"
-                                {% else %}
-                                v-model="sliderItem.newTab"
-                                {% endif %}
                                 class="sw-cms-el-config-image-slider__settings-link-tab"
                                 :name="sliderItem.mediaId"
                                 :label="$tc('sw-cms.elements.image.config.label.linkNewTab')"

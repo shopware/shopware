@@ -9,14 +9,17 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * This class can be used to regenerate the seo urls for a route and an offset at ids.
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlUpdater
 {
     /**
@@ -36,7 +39,7 @@ class SeoUrlUpdater
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     public function update(string $routeName, array $ids): void
     {
@@ -53,7 +56,11 @@ class SeoUrlUpdater
         $context = Context::createDefaultContext();
 
         $languageChains = $this->fetchLanguageChains($context);
-        $salesChannels = $this->salesChannelRepository->search(new Criteria(), $context)->getEntities();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
+
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
 
         foreach ($templates as $config) {
             $template = $config['template'];
@@ -83,15 +90,19 @@ class SeoUrlUpdater
      */
     private function loadUrlTemplate(string $routeName): array
     {
-        $domains = $this->connection->fetchAllAssociative(
-            'SELECT DISTINCT
+        $query = 'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
                LOWER(HEX(domains.language_id)) as languageId
              FROM sales_channel_domain as domains
              INNER JOIN sales_channel
                ON domains.sales_channel_id = sales_channel.id
-               AND sales_channel.active = 1'
-        );
+               AND sales_channel.active = 1';
+        $parameters = [];
+
+        $query .= ' AND sales_channel.type_id != :apiTypeId';
+        $parameters['apiTypeId'] = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
+
+        $domains = $this->connection->fetchAllAssociative($query, $parameters);
 
         if ($domains === []) {
             return [];

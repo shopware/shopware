@@ -2,85 +2,81 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-
-const { Component } = Shopware;
 
 async function createWrapper(options = {}) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Component.build('sw-text-field'), {
-        localVue,
-        stubs: {
-            'sw-field': await Component.build('sw-field'),
-            'sw-base-field': await Component.build('sw-base-field'),
-            'sw-contextual-field': await Component.build('sw-contextual-field'),
-            'sw-block-field': await Component.build('sw-block-field'),
-            'sw-field-error': true,
-        },
-        provide: {
-            validationService: {},
+    const wrapper = mount(await wrapTestComponent('sw-text-field', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-field-error': true,
+            },
+            provide: {
+                validationService: {},
+            },
         },
         ...options,
     });
+
+    await flushPromises();
+
+    return wrapper;
+}
+
+async function createWrappedComponent() {
+    const wrapper = mount(await Shopware.Component.build(
+        'sw-text-field-mock',
+    ), {
+        global: {
+            stubs: {
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-field-error': true,
+            },
+            provide: {
+                validationService: {},
+            },
+        },
+    });
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('src/app/component/form/sw-text-field', () => {
-    const localVue = createLocalVue();
-    let usageWrapper;
+    beforeAll(() => {
+        Shopware.Component.register('sw-text-field-mock', {
+            template: `
+            <div>
+                <sw-text-field v-model:value="mockVar" class="no-suffix" name="sw-field--mockVar" />
+                <sw-text-field v-model:value="mockVar" class="with-suffix" name="sw-field--mockVar-iShallBeSuffix" />
+            </div>`,
 
-    Component.register('sw-text-field-mock', {
-        template:
-            '<div>' +
-            '<sw-text-field v-model="mockVar" class="no-suffix"></sw-text-field>' +
-            '<sw-text-field v-model="mockVar" class="with-suffix" idSuffix="iShallBeSuffix"></sw-text-field>' +
-            '</div>',
-
-        data() {
-            return {
-                mockVar: 'content',
-            };
-        },
+            data() {
+                return {
+                    mockVar: 'content',
+                };
+            },
+        });
     });
 
-    const createUsageWrapper = async () => shallowMount(await Component.build('sw-text-field-mock'), {
-        localVue,
-        stubs: {
-            'sw-text-field': await Component.build('sw-text-field'),
-            'sw-base-field': await Component.build('sw-base-field'),
-            'sw-contextual-field': await Component.build('sw-contextual-field'),
-            'sw-block-field': await Component.build('sw-block-field'),
-            'sw-field-error': true,
-        },
-        provide: {
-            validationService: {},
-        },
-    });
-
-    beforeEach(async () => {
-        usageWrapper = await createUsageWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should render without idSuffix corretly', async () => {
-        const noSuffix = usageWrapper.find('.no-suffix');
+    it('should render without idSuffix correctly', async () => {
+        const wrapper = await createWrappedComponent();
+        const noSuffix = wrapper.find('.no-suffix');
 
         expect(noSuffix.exists()).toBeTruthy();
         expect(noSuffix.find('#sw-field--mockVar').exists()).toBeTruthy();
     });
 
-    it('should render with idSuffix corretly and generated a correct HTML-ID', async () => {
-        const withSuffix = usageWrapper.find('.with-suffix');
+    it('should render with idSuffix correctly and generated a correct HTML-ID', async () => {
+        const wrapper = await createWrappedComponent();
+        const withSuffix = wrapper.find('.with-suffix');
 
         expect(withSuffix.exists()).toBeTruthy();
         expect(withSuffix.find('#sw-field--mockVar-iShallBeSuffix').exists()).toBeTruthy();
@@ -100,7 +96,7 @@ describe('src/app/component/form/sw-text-field', () => {
 
     it('should show the label from the property', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 label: 'Label from prop',
             },
         });
@@ -110,10 +106,10 @@ describe('src/app/component/form/sw-text-field', () => {
 
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 label: 'Label from prop',
             },
-            scopedSlots: {
+            slots: {
                 label: '<template>Label from slot</template>',
             },
         });

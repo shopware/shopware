@@ -1,12 +1,12 @@
-import type { NavigationGuardNext, Route } from 'vue-router';
+import type { NavigationGuardNext } from 'vue-router';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 
 /**
  * @package admin
+ * @private
  *
- * @deprecated tag:v6.6.0 - Will be removed without replacement
  * Mixin which resets entity changes on page leave or if the id of the entity changes.
  * This also affects changes in associations of the entity
  *
@@ -41,7 +41,8 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
     }
 
     return Shopware.Component.wrapComponentConfig({
-        beforeRouteLeave(to: Route, from: Route, next: NavigationGuardNext) {
+        beforeRouteLeave(to, from, next: NavigationGuardNext) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.discardChanges();
 
             next();
@@ -49,12 +50,13 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
 
         watch: {
             '$route.params.id'() {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.discardChanges();
             },
         },
 
         methods: {
-            discardChanges() {
+            discardChanges(): void {
                 entities.forEach((entityName) => {
                     // @ts-expect-error - we check if the entity exists on the component
                     // eslint-disable-next-line max-len

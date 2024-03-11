@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\PhpConfigController;
@@ -18,9 +19,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Controller\PhpConfigController
  */
+#[CoversClass(PhpConfigController::class)]
 class PhpConfigControllerTest extends TestCase
 {
     public function testIndex(): void

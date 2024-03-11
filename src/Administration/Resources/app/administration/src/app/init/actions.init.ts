@@ -1,7 +1,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeActions(): void {
     Shopware.ExtensionAPI.handle('actionExecute', async (actionConfiguration, additionalInformation) => {

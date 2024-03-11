@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Profiling\Controller;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Controller\ProfilerController;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
@@ -20,9 +21,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Controller\ProfilerController
  */
+#[CoversClass(ProfilerController::class)]
 class ProfilerControllerTest extends TestCase
 {
     public function testErrorIsReturnedIfProfileDoesNotExist(): void

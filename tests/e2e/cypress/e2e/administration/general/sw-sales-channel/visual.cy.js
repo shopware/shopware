@@ -11,13 +11,13 @@ describe('Sales Channel: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic sales channel workflow', { tags: ['pa-sales-channels'] }, () => {
+    it('@visual: check appearance of basic sales channel workflow', { tags: ['pa-sales-channels', 'VUE3'] }, () => {
 
         // Open sales channel
         cy.contains('Storefront').click();
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.get('#sw-field--salesChannel-name').should('be.visible');
+        cy.get('.sw-field--salesChannel-name').should('be.visible');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/shipping-method`,

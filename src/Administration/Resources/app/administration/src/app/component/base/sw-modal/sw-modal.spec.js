@@ -2,21 +2,22 @@
  * @package admin
  */
 
-import 'src/app/component/base/sw-modal';
 import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(additionalSlots = null) {
-    return shallowMount(await Shopware.Component.build('sw-modal'), {
-        stubs: {
-            'sw-icon': true,
-        },
-        provide: {
-            shortcutService: {
-                startEventListener: () => {},
-                stopEventListener: () => {},
+    return shallowMount(await wrapTestComponent('sw-modal', { sync: true }), {
+        attachTo: document.body,
+        global: {
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                    stubs: {
+                        'sw-icon': true,
+                    },
+                },
             },
         },
-        attachTo: document.body,
         slots: {
             default: `
                 <div class="modal-content-stuff">
@@ -33,16 +34,14 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({
+            'modal-footer': '<div class="modal-footer-stuff">Some content inside modal footer</div>',
+        });
 
         await flushPromises();
     });
 
     afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
         await flushPromises();
     });
 
@@ -60,13 +59,14 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     });
 
     it('should show console error when using invalid variant', async () => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+        const swModal = await wrapTestComponent('sw-modal', { sync: true });
+        const validator = swModal.props.variant.validator;
 
-        await wrapper.setProps({
-            variant: 'not-existing', // Make some trouble
-        });
-
-        expect(consoleSpy).toHaveBeenCalledTimes(1);
+        expect(validator('default')).toBe(true);
+        expect(validator('small')).toBe(true);
+        expect(validator('large')).toBe(true);
+        expect(validator('full')).toBe(true);
+        expect(validator('not-existing')).toBe(false);
     });
 
     it.each([
@@ -96,6 +96,23 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         });
 
         expect(wrapper.get('.sw-modal__dialog').classes('has--header')).toBe(false);
+    });
+
+    it('should have sw-modal__footer class if showFooter option is true', async () => {
+        await wrapper.setProps({
+            showFooter: true,
+        });
+
+        expect(wrapper.get('.sw-modal__footer').exists()).toBeTruthy();
+        expect(wrapper.get('.modal-footer-stuff').exists()).toBeTruthy();
+    });
+
+    it('should not have sw-modal__footer class if showFooter option is false', async () => {
+        await wrapper.setProps({
+            showFooter: false,
+        });
+
+        expect(wrapper.get('.sw-modal__dialog').classes('sw-modal__footer')).toBeFalsy();
     });
 
     it('should fire the close event when clicking the close button', async () => {
@@ -138,5 +155,26 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         });
 
         expect(wrapper.get('.sw-modal__titles').html()).toContain('<div class="custom-html">Custom HTML title</div>');
+    });
+
+    it('should be able to update the modal classes', async () => {
+        expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(false);
+
+        Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);
+    });
+
+    it('should add classes for the modal body correctly', async () => {
+        await wrapper.setProps({
+            showFooter: false,
+        });
+        expect(wrapper.get('.sw-modal__body').classes('has--no-footer')).toBeTruthy();
+
+        await wrapper.setProps({
+            showFooter: true,
+        });
+        expect(wrapper.get('.sw-modal__body').classes('has--no-footer')).toBeFalsy();
     });
 });

@@ -5,7 +5,7 @@ const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-product-stream-grid-preview', {
     template,
@@ -112,6 +112,14 @@ Component.register('sw-product-stream-grid-preview', {
             }
 
             return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

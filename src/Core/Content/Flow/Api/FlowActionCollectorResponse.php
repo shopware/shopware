@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<FlowActionDefinition>
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowActionCollectorResponse extends Collection
 {
     protected function getExpectedClass(): ?string

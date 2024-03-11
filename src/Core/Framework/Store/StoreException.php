@@ -4,9 +4,7 @@ namespace Shopware\Core\Framework\Store;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,12 +29,21 @@ class StoreException extends HttpException
 
     public static function extensionThemeStillInUse(string $extensionId): self
     {
-        return new ExtensionThemeStillInUseException($extensionId);
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::EXTENSION_THEME_STILL_IN_USE,
+            'The extension with id "{{ extensionId }}" can not be removed because its theme is still assigned to a sales channel.',
+            ['extensionId' => $extensionId]
+        );
     }
 
     public static function extensionInstallException(string $message): self
     {
-        return new ExtensionInstallException($message);
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EXTENSION_INSTALL,
+            $message
+        );
     }
 
     /**
@@ -44,16 +51,31 @@ class StoreException extends HttpException
      */
     public static function extensionUpdateRequiresConsentAffirmationException(string $appName, array $deltas): self
     {
-        return ExtensionUpdateRequiresConsentAffirmationException::fromDelta($appName, $deltas);
+        return new ExtensionUpdateRequiresConsentAffirmationException(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION,
+            'Updating app "{{ appName }}" requires a renewed consent affirmation.',
+            ['appName' => $appName, 'deltas' => $deltas]
+        );
     }
 
     public static function extensionNotFoundFromId(string $id): self
     {
-        return ExtensionNotFoundException::fromId($id);
+        return new ExtensionNotFoundException(
+            Response::HTTP_NOT_FOUND,
+            self::EXTENSION_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'extension', 'field' => 'id', 'value' => $id]
+        );
     }
 
     public static function extensionNotFoundFromTechnicalName(string $technicalName): self
     {
-        return ExtensionNotFoundException::fromTechnicalName($technicalName);
+        return new ExtensionNotFoundException(
+            Response::HTTP_NOT_FOUND,
+            self::EXTENSION_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'extension', 'field' => 'technical name', 'value' => $technicalName]
+        );
     }
 }

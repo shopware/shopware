@@ -2,18 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Generator;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(SalesChannelContextAssembledEvent::class)]
 class SalesChannelContextAssembledEventTest extends TestCase
 {
     public function testConstruct(): void

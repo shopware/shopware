@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ProductStream;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ProductStreamRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -154,14 +155,19 @@ class ProductStreamRepositoryTest extends TestCase
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('filters');
+
         /** @var ProductStreamEntity $entity */
         $entity = $this->repository->search($criteria, $this->context)->get($id);
 
-        static::assertCount(4, $entity->getFilters());
-        static::assertCount(1, $entity->getFilters()->filterByProperty('field', 'product.name'));
-        static::assertCount(3, $entity->getFilters()->filterByProperty('type', 'multi'));
-        static::assertCount(1, $entity->getFilters()->filterByProperty('type', 'multi')->filterByProperty('operator', 'AND'));
-        static::assertCount(2, $entity->getFilters()->filterByProperty('type', 'multi')->filterByProperty('operator', 'OR'));
+        /** @var ProductStreamFilterCollection $filters */
+        $filters = $entity->getFilters();
+        static::assertNotNull($filters);
+
+        static::assertCount(4, $filters);
+        static::assertCount(1, $filters->filterByProperty('field', 'product.name')->getElements());
+        static::assertCount(3, $filters->filterByProperty('type', 'multi')->getElements());
+        static::assertCount(1, $filters->filterByProperty('type', 'multi')->filterByProperty('operator', 'AND')->getElements());
+        static::assertCount(2, $filters->filterByProperty('type', 'multi')->filterByProperty('operator', 'OR')->getElements());
     }
 
     public function testFetchWithQueriesFilter(): void

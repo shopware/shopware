@@ -2,22 +2,21 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\ContextTokenResponse
  */
+#[Package('buyers-experience')]
+#[CoversClass(ContextTokenResponse::class)]
 class ContextTokenResponseTest extends TestCase
 {
     public function testGetTokenFromResponseBody(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
         $token = 'sw-token-value';
         $response = new ContextTokenResponse($token);
         static::assertSame($token, $response->getToken());
@@ -25,8 +24,6 @@ class ContextTokenResponseTest extends TestCase
 
     public function testGetTokenFromHeader(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $token = 'sw-token-value';
         $response = new ContextTokenResponse($token);
         static::assertSame($token, $response->getToken());

@@ -3,7 +3,7 @@ title: Make Core mail templates independent from Storefront urls
 date: 2021-09-06
 area: storefront
 tags: [mail, storefront, headless]
---- 
+---
 
 ## Context
 Some mail templates of the core component (Newsletter, Registration, Password Recovery, Order Status mails) depend on storefront Urls to be included in the mails.

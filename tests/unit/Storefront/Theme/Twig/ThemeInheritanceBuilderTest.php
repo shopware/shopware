@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -10,9 +11,8 @@ use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder
  */
+#[CoversClass(ThemeInheritanceBuilder::class)]
 class ThemeInheritanceBuilderTest extends TestCase
 {
     private ThemeInheritanceBuilder $builder;

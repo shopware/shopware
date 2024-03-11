@@ -2,7 +2,7 @@ import template from './sw-category-entry-point-overwrite-modal.html.twig';
 import './sw-category-entry-point-overwrite-modal.scss';
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

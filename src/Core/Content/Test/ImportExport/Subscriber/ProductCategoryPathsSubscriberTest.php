@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Subscriber;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber;
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductCategoryPathsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -258,9 +259,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideCategoryPaths
-     */
+    #[DataProvider('provideCategoryPaths')]
     public function testCategoryPathToAssignment(array $categoriesToWrite, array $record, array $row, array $assertion): void
     {
         $context = Context::createDefaultContext();

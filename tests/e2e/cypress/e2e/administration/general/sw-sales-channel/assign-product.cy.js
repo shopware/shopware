@@ -26,7 +26,7 @@ describe('Sales Channel: Test product assignment operations', () => {
             });
     });
 
-    it('@general: assign individual products to sales channel', { tags: ['pa-sales-channels'] }, () => {
+    it('@general: assign individual products to sales channel', { tags: ['pa-sales-channels', 'VUE3'] }, () => {
         const salesChannelPage = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 

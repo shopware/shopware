@@ -1,6 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swOrderList from 'src/module/sw-order/page/sw-order-list';
-import 'src/app/component/data-grid/sw-data-grid';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -8,8 +6,6 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 /**
  * @package customer-order
  */
-
-Shopware.Component.register('sw-order-list', swOrderList);
 
 const mockItem = {
     orderNumber: '1',
@@ -22,7 +18,7 @@ const mockItem = {
         },
     ],
     currency: {
-        translated: { shortName: 'EUR' },
+        isoCode: 'EUR',
     },
     stateMachineState: {
         translated: { name: 'Open' },
@@ -54,71 +50,63 @@ const mockItem = {
     },
 };
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.filter('currency', key => key);
-    localVue.filter('date', key => key);
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-order-list', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div>
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content"></slot>
+                        </div>
+                    `,
+                },
+                'sw-button': true,
+                'sw-label': true,
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-pagination': true,
+                'sw-icon': true,
+                'sw-data-grid-settings': true,
+                'sw-empty-state': true,
+                'router-link': {
+                    template: '<a><slot></slot></a>',
+                },
+                'sw-checkbox-field': true,
+                'sw-data-grid-skeleton': true,
+                'sw-time-ago': true,
+                'sw-color-badge': true,
+            },
+            provide: {
+                stateStyleDataProviderService: {
+                    getStyle: () => {
+                        return {
+                            variant: 'success',
+                        };
+                    },
+                },
+                repositoryFactory: {
+                    create: () => ({ search: () => Promise.resolve([]) }),
+                },
+                filterFactory: {},
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
+                },
+            },
+            mocks: {
+                $route: { query: '' },
+            },
+        },
 
-    return shallowMount(await Shopware.Component.build('sw-order-list'), {
-        localVue,
-        stubs: {
-            'sw-page': {
-                template: `
-                    <div>
-                        <slot name="smart-bar-actions"></slot>
-                        <slot name="content"></slot>
-                    </div>
-                `,
-            },
-            'sw-button': true,
-            'sw-label': true,
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-pagination': true,
-            'sw-icon': true,
-            'sw-data-grid-settings': true,
-            'sw-empty-state': true,
-            'router-link': true,
-            'sw-checkbox-field': true,
-            'sw-data-grid-skeleton': true,
-            'sw-time-ago': true,
-            'sw-color-badge': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
-                },
-            },
-            stateStyleDataProviderService: {
-                getStyle: () => {
-                    return {
-                        variant: 'success',
-                    };
-                },
-            },
-            repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve([]) }),
-            },
-            filterFactory: {},
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
-                },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
-                },
-            },
-        },
-        mocks: {
-            $route: { query: '' },
-        },
     });
 }
 
@@ -130,32 +118,32 @@ Shopware.Service().register('filterService', () => {
 
 describe('src/module/sw-order/page/sw-order-list', () => {
     let wrapper;
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        await wrapper.destroy();
-    });
 
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled add button', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-order-list__add-order');
 
         expect(addButton.attributes().disabled).toBe('true');
     });
 
     it('should not have an disabled add button', async () => {
-        wrapper = await createWrapper(['order.creator']);
+        global.activeAclRoles = ['order.creator'];
+        wrapper = await createWrapper();
         const addButton = wrapper.find('.sw-order-list__add-order');
 
         expect(addButton.attributes().disabled).toBeUndefined();
     });
 
     it('should contain manual label correctly', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         await wrapper.setData({
             orders: [
                 {
@@ -176,6 +164,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should contain empty customer', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
 
         await wrapper.setData({
@@ -208,6 +198,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
         });
@@ -230,6 +222,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
@@ -249,6 +243,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should not build query score when search ranking field is null', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
         });
@@ -272,6 +268,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
         });
@@ -293,6 +291,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should show correct label for payment status', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         mockItem.transactions = new EntityCollection(null, null, null, new Criteria(1, 25), [
             {
                 stateMachineState: {
@@ -334,18 +334,12 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should push to a new route when editing items', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         wrapper.vm.$router.push = jest.fn();
-        await wrapper.setData({
-            $refs: {
-                orderGrid: {
-                    selection: {
-                        foo: { deliveries: [] },
-                    },
-                },
-            },
-        });
-
+        wrapper.vm.$refs.orderGrid.selection = { foo: { deliveries: [] } };
         await wrapper.vm.onBulkEditItems();
+
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
             name: 'sw.bulk.edit.order',
             params: expect.objectContaining({
@@ -353,10 +347,13 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             }),
         }));
 
+
         wrapper.vm.$router.push.mockRestore();
     });
 
-    it('should get list with orderCriteria', () => {
+    it('should get list with orderCriteria', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
 
         expect(criteria.getLimit()).toBe(25);
@@ -373,6 +370,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
 
         expect(criteria.hasAssociation('stateMachineState')).toBe(true);
@@ -380,7 +379,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 
-    it('should contain a computed property, called: listFilterOptions', () => {
+    it('should contain a computed property, called: listFilterOptions', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         expect(wrapper.vm.listFilterOptions).toEqual(expect.objectContaining({
             'affiliate-code-filter': expect.objectContaining({
                 property: 'affiliateCode',
@@ -412,7 +413,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         }));
     });
 
-    it('should contain a computed property, called: filterSelectCriteria', () => {
+    it('should contain a computed property, called: filterSelectCriteria', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         expect(wrapper.vm.filterSelectCriteria).toEqual(expect.objectContaining({
             aggregations: expect.arrayContaining([
                 expect.objectContaining({
@@ -447,6 +450,8 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
     describe('loadFilterValues', () => {
         it('should be successful', async () => {
+            global.activeAclRoles = [];
+            wrapper = await createWrapper();
             const loadFilterValuesSpy = jest.spyOn(wrapper.vm, 'loadFilterValues');
             wrapper.vm.orderRepository.search = jest.fn(() => {
                 return Promise.resolve({

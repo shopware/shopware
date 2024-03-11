@@ -4,12 +4,15 @@ namespace Shopware\Core\Framework\App\Aggregate\CmsBlock;
 
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Cms\Xml\Block;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type BlockArray from Block
  */
 #[Package('content')]
 class AppCmsBlockEntity extends Entity
@@ -32,7 +35,7 @@ class AppCmsBlockEntity extends Entity
     protected $name;
 
     /**
-     * @var array
+     * @var BlockArray
      */
     protected $block;
 
@@ -83,11 +86,17 @@ class AppCmsBlockEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @return BlockArray
+     */
     public function getBlock(): array
     {
         return $this->block;
     }
 
+    /**
+     * @param BlockArray $block
+     */
     public function setBlock(array $block): void
     {
         $this->block = $block;

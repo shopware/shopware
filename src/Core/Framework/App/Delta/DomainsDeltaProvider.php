@@ -19,6 +19,9 @@ class DomainsDeltaProvider extends AbstractAppDeltaProvider
         return self::DELTA_NAME;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getReport(Manifest $manifest, AppEntity $app): array
     {
         return $manifest->getAllHosts();

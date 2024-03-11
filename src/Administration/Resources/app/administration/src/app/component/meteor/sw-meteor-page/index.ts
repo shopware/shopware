@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { Route } from 'vue-router';
+import type { RouteLocationNamedRaw } from 'vue-router';
 import type { ModuleManifest } from 'src/core/factory/module.factory';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
@@ -33,7 +33,7 @@ Component.register('sw-meteor-page', {
         },
 
         fromLink: {
-            type: Object as PropType<Route|null>,
+            type: Object as PropType<RouteLocationNamedRaw|null>,
             required: false,
             default: null,
         },

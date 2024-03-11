@@ -157,9 +157,9 @@ class CheapestPriceUpdater
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
-     * @return array<mixed>
+     * @return array<string, array<string, array<string, mixed>>>
      */
     private function fetchPrices(array $ids, Context $context): array
     {
@@ -188,16 +188,15 @@ class CheapestPriceUpdater
 
         $ids = Uuid::fromHexToBytesList($ids);
 
-        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
+        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
         $data = $query->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
-        /** @var array<string, mixed> $row */
         foreach ($data as $row) {
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
-            $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
+            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
         }
 
         $query = $this->connection->createQueryBuilder();
@@ -220,15 +219,14 @@ class CheapestPriceUpdater
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
 
-        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
+        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
         $defaults = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {
             if ($row['price'] === null) {
-                $grouped[$row['parent_id']][$row['variant_id']]['default'] = null;
+                $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = null;
 
                 continue;
             }
@@ -236,12 +234,12 @@ class CheapestPriceUpdater
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
             if ($row['child_count'] > 0) {
-                $grouped[$row['parent_id']]['default'] = $row;
+                $grouped[(string) $row['parent_id']]['default'] = $row;
 
                 continue;
             }
 
-            $grouped[$row['parent_id']][$row['variant_id']]['default'] = $row;
+            $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = $row;
         }
 
         return $grouped;

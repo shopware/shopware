@@ -21,16 +21,16 @@
     {% endif %}
 
     {% if attributes.alt is not defined and media.translated.alt is defined %}
-        {% set attributes = attributes|merge({'alt': media.translated.alt}) %}
+        {% set attributes = attributes|merge({alt: media.translated.alt}) %}
     {% endif %}
 
     {% if attributes.title is not defined and media.translated.title is defined %}
-        {% set attributes = attributes|merge({'title': media.translated.title}) %}
+        {% set attributes = attributes|merge({title: media.translated.title}) %}
     {% endif %}
 
     {# If no loading attribute is defined, use the default behaviour for images. #}
     {% if attributes.loading is not defined %}
-        {% set attributes = attributes|merge({ 'loading': 'eager' }) %}
+        {% set attributes = attributes|merge({ loading: 'eager' }) %}
     {% endif %}
 
     {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
@@ -38,19 +38,19 @@
         {% if autoColumnSizes and columns and sizes is not defined %}
             {# set image size for every viewport #}
             {% set sizes = {
-                'xs': (theme_config('breakpoint.sm') - 1) ~'px',
-                'sm': (theme_config('breakpoint.md') - 1) ~'px',
-                'md': ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
-                'lg': ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
+                xs: (theme_config('breakpoint.sm') - 1) ~'px',
+                sm: (theme_config('breakpoint.md') - 1) ~'px',
+                md: ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
+                lg: ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
             } %}
 
             {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
             {% if layout == 'full-width' %}
                 {% set container = 100 %}
-                {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'vw'}) %}
+                {% set sizes = sizes|merge({ xl: (container / columns)|round(0, 'ceil') ~'vw'}) %}
             {% else %}
                 {% set container = 1360 %}
-                {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'px'}) %}
+                {% set sizes = sizes|merge({ xl: (container / columns)|round(0, 'ceil') ~'px'}) %}
             {% endif %}
         {% endif %}
 
@@ -71,11 +71,11 @@
             {% endif %}
 
             {% set breakpoint = {
-                'xs': theme_config('breakpoint.xs'),
-                'sm': theme_config('breakpoint.sm'),
-                'md': theme_config('breakpoint.md'),
-                'lg': theme_config('breakpoint.lg'),
-                'xl': theme_config('breakpoint.xl')
+                xs: theme_config('breakpoint.xs'),
+                sm: theme_config('breakpoint.sm'),
+                md: theme_config('breakpoint.md'),
+                lg: theme_config('breakpoint.lg'),
+                xl: theme_config('breakpoint.xl')
             } %}
 
             {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw

@@ -2,31 +2,28 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-empty-state';
+import { mount } from '@vue/test-utils';
 
 describe('components/base/sw-empty-state', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
-            stubs: {
-                'sw-icon': true,
+        wrapper = mount(await wrapTestComponent('sw-empty-state'), {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
+                mocks: {
+                    $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
+                },
             },
-            mocks: {
-                $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
-            },
-            propsData: {
+            props: {
                 title: 'Oh no, nothing was found.',
             },
             slots: {
                 actions: '<button class="sw-button">Primary action</button>',
             },
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

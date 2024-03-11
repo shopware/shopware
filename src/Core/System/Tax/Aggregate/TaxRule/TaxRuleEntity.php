@@ -9,7 +9,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class TaxRuleEntity extends Entity
 {
     use EntityIdTrait;

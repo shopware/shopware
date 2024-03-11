@@ -12,6 +12,9 @@ class NotHookableError extends Error
 {
     private const KEY = 'manifest-not-hookable';
 
+    /**
+     * @param list<string> $violations
+     */
     public function __construct(array $violations)
     {
         $this->message = sprintf(

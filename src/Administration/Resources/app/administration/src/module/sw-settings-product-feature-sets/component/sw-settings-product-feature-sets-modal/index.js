@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-product-feature-sets-modal.html.twig';
 import './sw-settings-product-feature-sets-modal.scss';
 

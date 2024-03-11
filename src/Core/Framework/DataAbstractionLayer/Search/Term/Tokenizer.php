@@ -22,7 +22,8 @@ class Tokenizer implements TokenizerInterface
         $string = strip_tags($string);
         $string = trim((string) preg_replace("/[^\pL\-_0-9]/u", ' ', $string));
 
-        $tags = explode(' ', $string);
+        /** @var list<string> $tags */
+        $tags = array_filter(explode(' ', $string));
 
         $filtered = [];
         foreach ($tags as $tag) {
@@ -36,9 +37,9 @@ class Tokenizer implements TokenizerInterface
         }
 
         if (empty($filtered)) {
-            return array_filter($tags);
+            return $tags;
         }
 
-        return array_unique($filtered);
+        return array_values(array_unique($filtered));
     }
 }

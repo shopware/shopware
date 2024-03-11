@@ -15,13 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class TaxRuleDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'tax_rule';
@@ -48,9 +47,6 @@ class TaxRuleDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        // @deprecated tag:v6.6.0 - Variable $autoload will be removed in the next major as it will be false by default
-        $autoload = !Feature::isActive('v6.6.0.0');
-
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('tax_rule_type_id', 'taxRuleTypeId', TaxRuleTypeDefinition::class))->addFlags(new Required()),
@@ -64,7 +60,7 @@ class TaxRuleDefinition extends EntityDefinition
             ]),
             (new FkField('tax_id', 'taxId', TaxDefinition::class))->addFlags(new Required()),
             new DateTimeField('active_from', 'activeFrom'),
-            new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id', $autoload),
+            new ManyToOneAssociationField('type', 'tax_rule_type_id', TaxRuleTypeDefinition::class, 'id'),
             new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id'),
             new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class, 'id'),
         ]);

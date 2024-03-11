@@ -48,9 +48,4 @@ class Migration1673420896RemoveUndefinedSalutation extends MigrationStep
 
         $connection->executeStatement('DELETE FROM `salutation` WHERE `id` = :id', ['id' => $undefinedSalutationId]);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

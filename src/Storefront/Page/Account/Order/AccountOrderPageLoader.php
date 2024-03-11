@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -24,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOrderPageLoader
 {
     /**
@@ -50,17 +51,19 @@ class AccountOrderPageLoader
 
         $page->getMetaInformation()?->setRobots('noindex,follow');
 
-        $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
+        $orders = $this->getOrders($request, $salesChannelContext);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $orders = StorefrontSearchResult::createFrom($orders);
+        }
+
+        $page->setOrders($orders);
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
         $firstOrder = $page->getOrders()->getEntities()->first();
         $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
         if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
-            $this->accountService->loginById(
-                $orderCustomerId,
-                $salesChannelContext
-            );
+            $this->accountService->loginById($orderCustomerId, $salesChannelContext);
         }
 
         $this->eventDispatcher->dispatch(
@@ -80,7 +83,7 @@ class AccountOrderPageLoader
     private function getOrders(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = $this->createCriteria($request);
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         // Add email and zipcode for guest customer verification in order view
         if ($request->get('email', false) && $request->get('zipcode', false)) {
@@ -107,13 +110,16 @@ class AccountOrderPageLoader
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
             ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
             ->addAssociation('lineItems.downloads.media')
             ->addAssociation('addresses')
             ->addAssociation('currency')
+            ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)

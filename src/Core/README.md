@@ -4,13 +4,13 @@ Core Component
 The Core component is the e-commerce core for Shopware. It includes an administrative API in PHP and via Rest.
 
 This repository is considered **read-only**. Please send pull requests
-to our [main Shopware repository](https://github.com/shopware/platform). 
+to our [main Shopware repository](https://github.com/shopware/shopware).
 
 Resources
 ---------
 
-  * [Documentation](https://developers.shopware.com)
-  * [Contributing](https://developers.shopware.com/community/contributing-code/)
-  * [Report issues](https://github.com/shopware/platform/issues) and
-    [send Pull Requests](https://github.com/shopware/platform/pulls)
-    in the [main Shopware repository](https://github.com/shopware/platform)
+  * [Documentation](https://developer.shopware.com)
+  * [Contributing](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html)
+  * [Report issues](https://github.com/shopware/shopware/issues) and
+    [send Pull Requests](https://github.com/shopware/shopware/pulls)
+    in the [main Shopware\Core repository](https://github.com/shopware/shopware)

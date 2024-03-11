@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal can only be used in test setups where bypass finals is activated
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MockRepository extends EntityRepository
 {
     public $createCalls = 0;

@@ -23,9 +23,4 @@ class Migration1661505878ChangeDefaultValueOfShippingMethodActiveField extends M
 
         $connection->executeStatement($sql);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

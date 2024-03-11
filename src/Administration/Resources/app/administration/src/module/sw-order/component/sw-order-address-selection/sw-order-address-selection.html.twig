@@ -63,11 +63,7 @@
         :placeholder="$tc('sw-order.createBase.detailsBody.placeholderAddress')"
         :popover-classes="['sw-order-address-selection__popover']"
         :disabled="disabled"
-        {% if VUE3 %}
         @update:value="onAddressChange"
-        {% else %}
-        @change="onAddressChange"
-        {% endif %}
     >
         <template #before-item-list>
             <ul class="sw-select-result__item-list">
@@ -90,12 +86,16 @@
                 :class="{'sw-order-address-selection__order-address': isSelected(item)}"
             >
                 <div class="sw-order-address-selection__information">
+
                     <p>{{ item.firstName }} {{ item.lastName }}</p>
                     <p class="text-gray">
                         {{ item.street }}
                     </p>
                     <p class="text-gray">
                         {{ item.zipcode }} {{ item.city }}
+                    </p>
+                    <p class="text-gray">
+                        {{ item.country.translated.name }}
                     </p>
                 </div>
 

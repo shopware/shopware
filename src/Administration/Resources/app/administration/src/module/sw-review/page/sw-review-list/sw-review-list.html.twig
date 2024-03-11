@@ -70,7 +70,7 @@
             {% block sw_review_list_content_list_status %}
             <template #column-status="{ item }">
                 <sw-data-grid-column-boolean
-                    v-model="item.status"
+                    v-model:value="item.status"
                     :is-inline-edit="false"
                 />
             </template>
@@ -90,7 +90,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_created_at %}
             <template #column-createdAt="{ item }">
-                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit', second: '2-digit'}) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
             </template>
             {% endblock %}
 
@@ -120,7 +120,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_review_list_content_list_points %}
             <template #column-points="{ item }">
-                <sw-rating-stars v-model="item.points" />
+                <sw-rating-stars :value="item.points" />
             </template>
             {% endblock %}
 
@@ -129,7 +129,7 @@
             <template #column-comment="{ item }">
                 <!-- eslint-disable vue/valid-v-model -->
                 <sw-data-grid-column-boolean
-                    v-model="item.comment && item.comment.length > 0"
+                    :value="item.comment && item.comment.length > 0"
                     :is-inline-edit="false"
                 />
             </template>

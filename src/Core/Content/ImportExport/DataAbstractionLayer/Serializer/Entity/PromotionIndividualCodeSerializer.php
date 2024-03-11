@@ -3,8 +3,6 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
-use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -49,9 +47,11 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
+        $context = Context::createDefaultContext();
+
         // set promotion id from promotion name if possible
         if (empty($deserialized['promotion']['id']) && isset($entity['promotion']['translations']['DEFAULT']['name'])) {
-            $promoId = $this->getPromoIdFromName($entity['promotion']['translations']['DEFAULT']['name']);
+            $promoId = $this->getPromoIdFromName($entity['promotion']['translations']['DEFAULT']['name'], $context);
 
             if ($promoId) {
                 $deserialized['promotion']['id'] = $promoId;
@@ -79,7 +79,7 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
         // set promotionIndividualCode id from code if possible (for existing codes)
         if (empty($deserialized['id']) && isset($deserialized['promotion']['id']) && isset($entity['code'])) {
-            $id = $this->getPromoCodeId($entity['code']);
+            $id = $this->getPromoCodeId($entity['code'], $context);
 
             if ($id) {
                 $deserialized['id'] = $id;
@@ -95,7 +95,7 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
         $this->cachePromoIds = [];
     }
 
-    private function getPromoIdFromName(string $promotionName): ?string
+    private function getPromoIdFromName(string $promotionName, Context $context): ?string
     {
         if (\array_key_exists($promotionName, $this->cachePromoIds)) {
             return $this->cachePromoIds[$promotionName];
@@ -103,12 +103,11 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $promotionName));
-        $promo = $this->promoRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->cachePromoIds[$promotionName] = null;
-        if ($promo instanceof PromotionEntity) {
-            $this->cachePromoIds[$promotionName] = $promo->getId();
-        }
+        $this->cachePromoIds[$promotionName] = $this->promoRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId();
 
         return $this->cachePromoIds[$promotionName];
     }
@@ -116,7 +115,7 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
     /**
      * Get the promotionIndividualCode id from the code (which is unique).
      */
-    private function getPromoCodeId(string $code): ?string
+    private function getPromoCodeId(string $code, Context $context): ?string
     {
         if (\array_key_exists($code, $this->cachePromoCodeIds)) {
             return $this->cachePromoCodeIds[$code];
@@ -124,12 +123,11 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('code', $code));
-        $promoCode = $this->promoCodeRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->cachePromoCodeIds[$code] = null;
-        if ($promoCode instanceof PromotionIndividualCodeEntity) {
-            $this->cachePromoCodeIds[$code] = $promoCode->getId();
-        }
+        $this->cachePromoCodeIds[$code] = $this->promoCodeRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId();
 
         return $this->cachePromoCodeIds[$code];
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Currency\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -33,9 +35,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute
  */
+#[Package('buyers-experience')]
+#[CoversClass(CachedCurrencyRoute::class)]
 class CachedCurrencyRouteTest extends TestCase
 {
     private MockObject&AbstractCurrencyRoute $decorated;

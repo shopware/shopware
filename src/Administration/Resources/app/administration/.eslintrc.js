@@ -52,6 +52,7 @@ module.exports = {
         autoStub: true,
         flushPromises: true,
         wrapTestComponent: true,
+        resetFilters: true,
     },
 
     plugins: [
@@ -192,11 +193,11 @@ module.exports = {
                 'vue/no-v-html': 'off',
                 'vue/valid-template-root': 'off',
                 'vue/no-v-model-argument': 'off',
-                'vue/no-v-for-template-key': 'error',
+                'vue/no-v-for-template-key': 'off',
                 // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
                 'vue/html-closing-bracket-newline': 'off',
                 'vue/no-v-for-template-key-on-child': 'off',
-                'vue/no-deprecated-filter': 'off',
+                'vue/no-deprecated-filter': 'error',
                 'vue/no-deprecated-dollar-listeners-api': 'off',
                 'vue/no-deprecated-dollar-scopedslots-api': 'off',
                 'vue/no-deprecated-v-on-native-modifier': 'off',

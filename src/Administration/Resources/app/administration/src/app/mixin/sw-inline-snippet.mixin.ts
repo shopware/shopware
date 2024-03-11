@@ -2,17 +2,17 @@
  * @package admin
  */
 
-/* @private */
 import { defineComponent } from 'vue';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('sw-inline-snippet', defineComponent({
     computed: {
         swInlineSnippetLocale(): string {
             return Shopware.State.get('session').currentLocale as unknown as string;
         },
+
         swInlineSnippetFallbackLocale(): string {
             return Shopware.Context.app.fallbackLocale as unknown as string;
         },

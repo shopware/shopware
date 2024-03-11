@@ -6,7 +6,7 @@ use Shopware\Core\Content\Sitemap\ConfigHandler\ConfigHandlerInterface;
 use Shopware\Core\Content\Sitemap\Exception\InvalidSitemapKey;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class ConfigHandler
 {
     final public const EXCLUDED_URLS_KEY = 'excluded_urls';

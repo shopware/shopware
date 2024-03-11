@@ -211,11 +211,8 @@
                                 <template #inline-edit>
                                     <sw-text-field
                                         ref="nameEditor"
-                                        {% if VUE3 %}
                                         v-model:value="item.name"
-                                        {% else %}
-                                        v-model="item.name"
-                                        {% endif %}
+                                        name="sw-field--item-name"
                                         :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
                                     />
                                 </template>
@@ -235,10 +232,10 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_changed_date %}
                                 <div v-if="item.updatedAt">
-                                    {{ item.updatedAt | date }}
+                                    {{ dateFilter(item.updatedAt) }}
                                 </div>
                                 <div v-else>
-                                    {{ item.createdAt | date }}
+                                    {{ dateFilter(item.createdAt) }}
                                 </div>
                                 {% endblock %}
                             </sw-grid-column>
@@ -260,11 +257,7 @@
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
                                 <template #inline-edit>
                                     <sw-select-field
-                                        {% if VUE3 %}
                                         v-model:value="item.baseFile"
-                                        {% else %}
-                                        v-model="item.baseFile"
-                                        {% endif %}
                                     >
                                         <option
                                             v-for="file in baseFiles"

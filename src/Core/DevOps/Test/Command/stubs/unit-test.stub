@@ -1,0 +1,21 @@
+<?php declare(strict_types=1);
+
+namespace {BASE_NAMESPACE}\Tests\Unit\{NAMESPACE};
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use {FULL_QUALIFIED_CLASS_NAME};
+
+/**
+ * @internal
+ */
+#[Package('{PACKAGE}')]
+#[CoversClass({CLASS_NAME}::class)]
+class {CLASS_NAME}Test extends TestCase
+{
+    protected function setUp(): void
+    {
+        static::assertTrue(false);
+    }
+}

@@ -2,84 +2,77 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
-import 'src/app/component/base/sw-icon';
-import 'src/app/component/form/sw-snippet-field';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
+
 
 async function createWrapper(systemLanguageIso = '', translations = [], customOptions = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-snippet-field'), {
-        localVue,
-        propsData: {
-            snippet: 'test.snippet',
-        },
-        stubs: {
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-modal': true,
-            'sw-loader': true,
-            'sw-icon': true,
-            'sw-snippet-field-edit-modal': true,
-        },
-        provide: {
-            validationService: {},
-            repositoryFactory: {
-                create: (entity) => ({
-                    search: () => {
-                        if (entity === 'snippet_set') {
-                            return Promise.resolve(createEntityCollection([
-                                {
-                                    name: 'Base en-GB',
-                                    iso: 'en-GB',
-                                    id: uuid.get('en-GB'),
-                                },
-                                {
-                                    name: 'Base de-DE',
-                                    iso: 'de-DE',
-                                    id: uuid.get('de-DE'),
-                                },
-                            ]));
-                        }
-
-                        if (entity === 'language') {
-                            return Promise.resolve(createEntityCollection([
-                                {
-                                    name: 'default language',
-                                    locale: {
-                                        code: systemLanguageIso,
-                                    },
-                                    id: uuid.get('default language'),
-                                },
-                            ]));
-                        }
-
-                        return Promise.resolve([]);
-                    },
-                }),
+    return mount(await wrapTestComponent('sw-snippet-field', { sync: true }), {
+        global: {
+            directives: {
+                tooltip: {},
             },
-            snippetSetService: {
-                getCustomList: () => {
-                    return Promise.resolve({
-                        total: translations.length,
-                        data: {
-                            'test.snippet': translations,
+            stubs: {
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-modal': true,
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-snippet-field-edit-modal': true,
+            },
+            provide: {
+                validationService: {},
+                repositoryFactory: {
+                    create: (entity) => ({
+                        search: () => {
+                            if (entity === 'snippet_set') {
+                                return Promise.resolve(createEntityCollection([
+                                    {
+                                        name: 'Base en-GB',
+                                        iso: 'en-GB',
+                                        id: uuid.get('en-GB'),
+                                    },
+                                    {
+                                        name: 'Base de-DE',
+                                        iso: 'de-DE',
+                                        id: uuid.get('de-DE'),
+                                    },
+                                ]));
+                            }
+
+                            if (entity === 'language') {
+                                return Promise.resolve(createEntityCollection([
+                                    {
+                                        name: 'default language',
+                                        locale: {
+                                            code: systemLanguageIso,
+                                        },
+                                        id: uuid.get('default language'),
+                                    },
+                                ]));
+                            }
+
+                            return Promise.resolve([]);
                         },
-                    });
+                    }),
+                },
+                snippetSetService: {
+                    getCustomList: () => {
+                        return Promise.resolve({
+                            total: translations.length,
+                            data: {
+                                'test.snippet': translations,
+                            },
+                        });
+                    },
                 },
             },
+        },
+        props: {
+            snippet: 'test.snippet',
         },
         ...customOptions,
     });
@@ -199,7 +192,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
 
         expect(wrapper.find('sw-snippet-field-edit-modal-stub').exists()).toBe(false);
 
-        wrapper.get('.sw-snippet-field__icon').vm.$emit('click');
+        wrapper.getComponent('.sw-snippet-field__icon').vm.$emit('click');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('sw-snippet-field-edit-modal-stub').exists()).toBe(true);

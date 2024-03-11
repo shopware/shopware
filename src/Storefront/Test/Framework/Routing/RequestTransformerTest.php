@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Defaults;
@@ -53,11 +54,10 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @dataProvider domainProvider
-     *
      * @param array<string, string|array<string, string>> $salesChannels
      * @param ExpectedRequest[] $requests
      */
+    #[DataProvider('domainProvider')]
     public function testDomainResolving(array $salesChannels, array $requests): void
     {
         $this->createSalesChannels($salesChannels);
@@ -100,9 +100,13 @@ class RequestTransformerTest extends TestCase
         $germanId = Uuid::randomHex();
         $englishId = Uuid::randomHex();
         $gerUkId = Uuid::randomHex();
+        $gerUkId2 = Uuid::randomHex();
 
         $gerDomainId = Uuid::randomHex();
         $ukDomainId = Uuid::randomHex();
+
+        $gerDomainId2 = Uuid::randomHex();
+        $ukDomainId2 = Uuid::randomHex();
 
         return [
             'single' => [
@@ -196,6 +200,31 @@ class RequestTransformerTest extends TestCase
                     new ExpectedRequest('http://saleschannel.test/en/en/navigation/1', '/en', '/en/navigation/1', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
                 ],
             ],
+            'two-scs-same-host-different-sub-path-unsorted' => [
+                [
+                    self::getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://saleschannel.test/de', $ukDomainId, 'http://saleschannel.test/en'),
+                    self::getSalesChannelWithGerAndUkDomain($gerUkId2, $gerDomainId2, 'http://saleschannel.test/subdir/de', $ukDomainId2, 'http://saleschannel.test/subdir/en'),
+                ],
+                [
+                    new ExpectedRequest('http://saleschannel.test/de', '/de', '/', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+                    new ExpectedRequest('http://saleschannel.test/de/', '/de', '/', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+                    new ExpectedRequest('http://saleschannel.test/de/foobar', '/de', '/foobar', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+
+                    new ExpectedRequest('http://saleschannel.test/subdir/en', '/subdir/en', '/', $ukDomainId2, $gerUkId2, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                    new ExpectedRequest('http://saleschannel.test/subdir/en/', '/subdir/en', '/', $ukDomainId2, $gerUkId2, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                    new ExpectedRequest('http://saleschannel.test/subdir/en/foobar', '/subdir/en', '/foobar', $ukDomainId2, $gerUkId2, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+
+                    new ExpectedRequest('http://saleschannel.test/en', '/en', '/', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                    new ExpectedRequest('http://saleschannel.test/en/', '/en', '/', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                    new ExpectedRequest('http://saleschannel.test/en/foobar', '/en', '/foobar', $ukDomainId, $gerUkId, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+
+                    new ExpectedRequest('http://saleschannel.test/de/navigation/1', '/de', '/navigation/1', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+                    new ExpectedRequest('http://saleschannel.test/subdir/en/navigation/1', '/subdir/en', '/navigation/1', $ukDomainId2, $gerUkId2, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+
+                    new ExpectedRequest('http://saleschannel.test/de/de/navigation/1', '/de', '/de/navigation/1', $gerDomainId, $gerUkId, true, self::LOCALE_DE_DE_ISO, Defaults::CURRENCY, 'de-DE', self::LOCALE_DE_DE_ISO),
+                    new ExpectedRequest('http://saleschannel.test/subdir/en/en/navigation/1', '/subdir/en', '/en/navigation/1', $ukDomainId2, $gerUkId2, true, self::LOCALE_EN_GB_ISO, Defaults::CURRENCY, Defaults::LANGUAGE_SYSTEM, self::LOCALE_EN_GB_ISO),
+                ],
+            ],
             'two-domains-same-host-extended-path' => [
                 [
                     self::getSalesChannelWithGerAndUkDomain($gerUkId, $gerDomainId, 'http://saleschannel.test/de', $ukDomainId, 'http://saleschannel.test'),
@@ -233,9 +262,7 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider seoRedirectProvider
-     */
+    #[DataProvider('seoRedirectProvider')]
     public function testRedirectLinksUsesSalesChannelPath(string $baseUrl, string $virtualUrl, string $resolvedUrl): void
     {
         $gerUkId = Uuid::randomHex();

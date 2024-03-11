@@ -12,11 +12,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_tag_modal_to_field %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="entity"
-            {% else %}
-            v-model="entity"
-            {% endif %}
+            name="sw-field--entity"
             class="sw-flow-set-entity-custom-field-modal__entity-field"
             required
             show-clearable-button
@@ -24,22 +21,15 @@
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.placeholderToField')"
             :error="entityError"
             :options="entityOptions"
-            {% if VUE3 %}
             @update:value="onEntityChange()"
-            {% else %}
-            @change="onEntityChange()"
-            {% endif %}
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_category %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="customFieldSetId"
-            {% else %}
-            v-model="customFieldSetId"
-            {% endif %}
+            name="sw-field--customFieldSetId"
             class="sw-flow-set-entity-custom-field-modal__custom-field-set"
             entity="custom_field_set"
             required
@@ -49,7 +39,7 @@
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
             :error="customFieldSetError"
-            @change="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
+            @update:value="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
         >
             <template #selection-label-property="{ item }">
                 {{ getInlineSnippet(item.config.label) || item.name }}
@@ -64,11 +54,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_set_entity_custom_field_modal_field_name %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="customFieldId"
-            {% else %}
-            v-model="customFieldId"
-            {% endif %}
+            name="sw-field--customFieldId"
             class="sw-flow-set-entity-custom-field-modal__custom-field"
             entity="custom_field"
             required
@@ -78,7 +65,7 @@
             :criteria="customFieldCriteria"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldPlaceHolder')"
             :error="customFieldError"
-            @change="(id, customField) => onCustomFieldChange(id, customField)"
+            @update:value="(id, customField) => onCustomFieldChange(id, customField)"
         >
             <template #selection-label-property="{ item }">
                 {{ getInlineSnippet(item.config.label) || item.name }}
@@ -94,11 +81,8 @@
         {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
         <sw-single-select
             v-if="customFieldId"
-            {% if VUE3 %}
             v-model:value="fieldOptionSelected"
-            {% else %}
-            v-model="fieldOptionSelected"
-            {% endif %}
+            name="sw-field--fieldOptionSelected"
             class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
             :options="fieldOptions"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
@@ -110,7 +94,8 @@
         {% block sw_flow_set_entity_custom_field_modal_field_value %}
         <sw-form-field-renderer
             v-if="showFieldValue"
-            v-model="customFieldValue"
+            v-model:value="customFieldValue"
+            name="sw-field--customFieldValue"
             class="sw-flow-set-entity-custom-field-modal__custom-field-value"
             :config="renderedFieldConfig"
             bordered

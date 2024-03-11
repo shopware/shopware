@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\ConfigLoader;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,7 +14,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -21,10 +21,9 @@ use Shopware\Storefront\Theme\ThemeEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider
  */
 #[Package('storefront')]
+#[CoversClass(DatabaseAvailableThemeProvider::class)]
 class DatabaseAvailableThemeProviderTest extends TestCase
 {
     public function testThemeProviderThrowsOnGetDecorated(): void
@@ -33,24 +32,6 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $themeProvider->getDecorated();
-    }
-
-    public function testLoadThrowsExceptionInNextMajorWhenCalledWithOnlyOneParameter(): void
-    {
-        $themeProvider = new DatabaseAvailableThemeProvider(new StaticEntityRepository([new SalesChannelCollection()]));
-
-        static::expectException(\RuntimeException::class);
-        $themeProvider->load(Context::createDefaultContext());
-    }
-
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
-    public function testLoadCanStillBeCalledWithOneParameter(): void
-    {
-        $themeProvider = new DatabaseAvailableThemeProvider(new StaticEntityRepository([new SalesChannelCollection()]));
-
-        static::assertEquals([], $themeProvider->load(Context::createDefaultContext()));
     }
 
     public function testThemeProviderIsSearchingForStorefrontsWithThemes(): void

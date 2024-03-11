@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description The help text adds a question mark icon which triggers a tooltip with your desired content.
  * @status ready
  * @example-type dynamic

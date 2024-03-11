@@ -16,23 +16,22 @@
       "clearCachesHeadline": "Clear caches",
       "clearCachesText": "The cache is immediately cleared synchronously for all used adapters.",
       "clearCachesButton": "Clear caches",
-      "clearAndWarmUpHeadline": "Clear and warm up caches",
-      "clearAndWarmUpText": "After the cache has been cleared, new cache entries are generated asynchronously.",
-      "clearAndWarmUpButton": "Clear and warm up caches",
       "indexesHeadline": "Indexes",
       "indexesText": "All indexes are updated asynchronously. Keep track of the progress by monitoring the notifications.",
       "indexesButton": "Update indexes",
-      "indexesSkipSelectPlaceholder": "Skip indexers and/or updaters"
+      "indexingModeLabel": "Method",
+      "indexingModeOptionSkipLabel": "Update all, but skip selected",
+      "indexingModeOptionOnlyLabel": "Only update selected",
+      "indexesSkipSelectLabel": "Indexers and/or updaters to skip",
+      "indexesOnlySelectLabel": "Indexers and/or updaters",
+      "indexesSkipSelectPlaceholder": "Select indexers and/or updaters to skip",
+      "indexesOnlySelectPlaceholder": "Select indexers and/or updaters"
     },
     "notifications": {
       "clearCache": {
         "started": "Clearing caches.",
         "success": "All caches cleared.",
         "error": "Unable to clear caches ."
-      },
-      "clearCacheAndWarmup": {
-        "started": "Caches cleared. Now warming up. Hint: Watch the notifications to keep track of the progress.",
-        "success": "Warmup completed."
       },
       "index": {
         "started": "Building indexes.",

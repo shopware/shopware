@@ -5,34 +5,21 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler
  */
+#[CoversClass(CreateAliasTaskHandler::class)]
 class CreateAliasTaskHandlerTest extends TestCase
 {
-    public function testHandledMessages(): void
-    {
-        $messages = CreateAliasTaskHandler::getHandledMessages();
-
-        if ($messages instanceof \Traversable) {
-            $messages = iterator_to_array($messages);
-        }
-
-        static::assertSame([CreateAliasTask::class], $messages);
-    }
-
     public function testHandleLogsErrors(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -48,12 +35,12 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $this->createMock(Client::class),
             $connection,
             $elasticsearchHelper,
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $handler->run();
@@ -72,12 +59,12 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $handler->run();
@@ -144,17 +131,14 @@ class CreateAliasTaskHandlerTest extends TestCase
             $called = true;
         });
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->expects(static::once())->method('set')->with(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
-
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
             $eventDispatcher,
-            $storage
         );
 
         $handler->run();
@@ -202,14 +186,14 @@ class CreateAliasTaskHandlerTest extends TestCase
                 'body' => [
                     'actions' => [
                         [
-                            'add' => [
-                                'index' => 'index',
+                            'remove' => [
+                                'index' => 'old_index',
                                 'alias' => 'alias',
                             ],
                         ],
                         [
-                            'remove' => [
-                                'index' => 'old_index',
+                            'add' => [
+                                'index' => 'index',
                                 'alias' => 'alias',
                             ],
                         ],
@@ -223,12 +207,12 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
             new EventDispatcher(),
-            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $handler->run();

@@ -11,18 +11,10 @@
             <sw-text-field
                 v-for="(label, name) in propertyNames"
                 :key="getInlineSnippet(name)"
-                {% if VUE3 %}
                 v-model:value="config[name][locale]"
-                {% else %}
-                v-model="config[name][locale]"
-                {% endif %}
                 :disabled="disabled"
                 :label="getLabel(label, locale)"
-                {% if VUE3 %}
                 @update:value="onInput($event, name, locale)"
-                {% else %}
-                @input="onInput($event, name, locale)"
-                {% endif %}
             />
         </div>
     </template>
@@ -68,19 +60,11 @@
                 <sw-text-field
                     v-for="(label, name) in propertyNames"
                     :key="getInlineSnippet(name)"
-                    {% if VUE3 %}
                     v-model:value="config[name][locale]"
-                    {% else %}
-                    v-model="config[name][locale]"
-                    {% endif %}
                     class="sw-custom-field-translated-labels__translated-content-field"
                     :disabled="disabled"
                     :label="getLabel(label, locale)"
-                    {% if VUE3 %}
                     @update:value="onInput($event, name, locale)"
-                    {% else %}
-                    @input="onInput($event, name, locale)"
-                    {% endif %}
                 />
                 {% endblock %}
             </div>

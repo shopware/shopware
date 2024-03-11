@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1676272001AddAccountTypeToCustomerProfileImportExport extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,11 +21,6 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExport extends Mig
     public function update(Connection $connection): void
     {
         $this->addAccountTypeToCustomerProfileImportExport($connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 
     private function addAccountTypeToCustomerProfileImportExport(Connection $connection): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\ConfigurableFilesystemCache;
@@ -15,9 +17,8 @@ use Twig\Loader\LoaderInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\TemplateFinder
  */
+#[CoversClass(TemplateFinder::class)]
 class TemplateFinderTest extends TestCase
 {
     private NamespaceHierarchyBuilder&MockObject $hierarchyBuilder;
@@ -45,20 +46,17 @@ class TemplateFinderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider templateNameProvider
-     */
+    #[DataProvider('templateNameProvider')]
     public function testGetTemplateName(string $input, string $expectation): void
     {
         static::assertEquals($expectation, $this->finder->getTemplateName($input));
     }
 
     /**
-     * @dataProvider bundleTemplatesMappingProvider
-     *
      * @param array<int, string> $templateExists
      * @param array<string, bool> $bundles
      */
+    #[DataProvider('bundleTemplatesMappingProvider')]
     public function testFind(string $template, bool $ignoreMissing, array $templateExists, array $bundles, ?string $source = null, ?string $expectedTemplate = null): void
     {
         if ($expectedTemplate === null && $ignoreMissing === false) {

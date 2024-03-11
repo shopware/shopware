@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Address;
 
+use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressCountryRegionMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
+use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressCountryRegionMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
@@ -74,6 +76,18 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         if (!$customer->getActiveShippingAddress()->getSalutationId() && $validateShipping) {
             $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
         }
+
+        if ($customer->getActiveBillingAddress()->getCountry()?->getForceStateInRegistration()) {
+            if (!$customer->getActiveBillingAddress()->getCountryState()) {
+                $errors->add(new BillingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
+            }
+        }
+
+        if ($customer->getActiveShippingAddress()->getCountry()?->getForceStateInRegistration()) {
+            if (!$customer->getActiveBillingAddress()->getCountryState()) {
+                $errors->add(new ShippingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
+            }
+        }
     }
 
     public function reset(): void
@@ -87,11 +101,10 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return $this->available[$countryId];
         }
 
-        $criteria = new Criteria([$countryId]);
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('countryId', $countryId));
 
-        $salesChannelCountryIds = $this->repository->searchIds($criteria, $context->getContext());
-
-        return $this->available[$countryId] = $salesChannelCountryIds->has($countryId);
+        return $this->available[$countryId] = $this->repository->searchIds($criteria, $context->getContext())->getTotal() !== 0;
     }
 }

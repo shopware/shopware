@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
@@ -226,10 +226,6 @@ export default {
             });
         },
 
-        // @deprecated tag:v6.6.0 - Unused
-        loadTimezones() {
-        },
-
         async getUserData() {
             const routeUser = this.$route.params.user;
             if (routeUser) {
@@ -328,14 +324,6 @@ export default {
                 return;
             }
 
-            /**
-             * @deprecated tag:v6.6.0 - the "if" block will be removed
-             */
-            if (typeof context === 'string') {
-                context = { ...Shopware.Context.api };
-                context.authToken.access = context;
-            }
-
             this.userRepository.save(this.user, context).then(async () => {
                 await this.updateCurrentUser();
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
@@ -382,10 +370,6 @@ export default {
 
         onDropMedia(mediaItem) {
             this.setMediaItem({ targetId: mediaItem.id });
-        },
-
-        // @deprecated tag:v6.6.0 - Unused
-        onSubmitConfirmPassword() {
         },
 
         onCloseConfirmPasswordModal() {

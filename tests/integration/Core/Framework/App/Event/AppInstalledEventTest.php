@@ -26,10 +26,9 @@ class AppInstalledEventTest extends TestCase
         );
 
         static::assertEquals($app, $event->getApp());
-        static::assertInstanceOf(Manifest::class, $event->getManifest());
         static::assertEquals($context, $event->getContext());
-        static::assertEquals(AppInstalledEvent::NAME, $event->getName());
-        static::assertEquals([
+        static::assertSame(AppInstalledEvent::NAME, $event->getName());
+        static::assertSame([
             'appVersion' => '1.0.0',
         ], $event->getWebhookPayload());
     }

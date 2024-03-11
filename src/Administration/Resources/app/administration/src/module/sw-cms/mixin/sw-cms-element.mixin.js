@@ -6,15 +6,10 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default Mixin.register('cms-element', defineComponent({
     inject: ['cmsService'],
-
-    model: {
-        prop: 'element',
-        event: 'element-update',
-    },
 
     props: {
         element: {
@@ -54,7 +49,7 @@ export default Mixin.register('cms-element', defineComponent({
     methods: {
         initElementConfig(elementName) {
             let defaultConfig = this.defaultConfig;
-            if (!defaultConfig || defaultConfig === null) {
+            if (!defaultConfig) {
                 const elementConfig = this.cmsElements[elementName];
                 defaultConfig = elementConfig.defaultConfig || {};
             }

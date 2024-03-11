@@ -74,4 +74,9 @@ class ErrorTemplateStruct extends Struct
     {
         return 'twig_error_template';
     }
+
+    public function isErrorPage(): bool
+    {
+        return true;
+    }
 }

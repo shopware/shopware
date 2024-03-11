@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -10,9 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class DynamicPrimaryKeyChangeTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -79,9 +80,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         $this->importAfterChangeFixtures();
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function cleanupTables(): void
     {
         $connection = $this->getContainer()->get(Connection::class);

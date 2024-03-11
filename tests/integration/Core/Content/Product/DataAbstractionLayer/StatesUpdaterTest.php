@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('inventory')]
 class StatesUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -97,7 +99,7 @@ class StatesUpdaterTest extends TestCase
                 'states' => json_encode([State::IS_PHYSICAL]),
                 'ids' => Uuid::fromHexToBytesList([$ids->get('product-1'), $ids->get('product-2')]),
             ],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 }

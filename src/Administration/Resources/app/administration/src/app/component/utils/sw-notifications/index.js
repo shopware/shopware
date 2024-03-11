@@ -4,7 +4,6 @@ import './sw-notifications.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @private
  * @description
  * Wrapper element for all notifications of the administration.
@@ -40,11 +39,7 @@ Component.register('sw-notifications', {
 
     computed: {
         notifications() {
-            if (this.feature.isActive('VUE3')) {
-                return Object.values(Shopware.State.getters['notification/getGrowlNotificationsObject']);
-            }
-
-            return Shopware.State.getters['notification/getGrowlNotifications'];
+            return Object.values(Shopware.State.getters['notification/getGrowlNotificationsObject']);
         },
 
         notificationsStyle() {

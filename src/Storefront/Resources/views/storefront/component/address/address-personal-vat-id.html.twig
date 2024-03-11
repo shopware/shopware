@@ -3,9 +3,9 @@
     {% set violationLabel = null %}
     {% set violationPath = null %}
 
-    {% for violation in formViolations.getViolations("/vatIds") %}
-        {% set violationPath = "/vatIds" %}
-        {% set violationLabel = "address.companyVatLabel"|trans|sw_sanitize %}
+    {% for violation in formViolations.getViolations('/vatIds') %}
+        {% set violationPath = '/vatIds' %}
+        {% set violationLabel = 'address.companyVatLabel'|trans|sw_sanitize %}
         {% if violation.code === 'VIOLATION::IS_BLANK_ERROR' %}
             {% set vatIdValue = null %}
         {% elseif formViolations.getInputData()['vatIds'][0] is defined %}
@@ -13,22 +13,25 @@
         {% endif %}
     {% endfor %}
 
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_company_vatId_label %}
         <label class="form-label"
                for="vatIds">
-            {{ "address.companyVatLabel"|trans|sw_sanitize }}
+            {{ 'address.companyVatLabel'|trans|sw_sanitize }}
         </label>
     {% endblock %}
 
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_company_vatId_input %}
         <input type="text"
                class="form-control{% if violationPath %} is-invalid{% endif %}"
                id="vatIds"
-               placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
+               placeholder="{{ 'address.companyVatPlaceholder'|trans|striptags }}"
                name="vatIds[]"
                value="{{ vatIdValue }}">
     {% endblock %}
 
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_company_vatId_input_error %}
         {% if violationPath %}
             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}

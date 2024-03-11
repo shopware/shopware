@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleIndexingMessage extends EntityIndexingMessage
 {
 }

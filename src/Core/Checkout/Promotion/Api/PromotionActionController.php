@@ -5,20 +5,23 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionActionController extends AbstractController
 {
     /**
      * @internal
      */
-    public function __construct(private readonly LineItemGroupServiceRegistry $serviceRegistry)
-    {
+    public function __construct(
+        private readonly LineItemGroupServiceRegistry $serviceRegistry,
+        private readonly FilterServiceRegistry $filterServiceRegistry
+    ) {
     }
 
     #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
@@ -45,5 +48,17 @@ class PromotionActionController extends AbstractController
         }
 
         return new JsonResponse($sorterKeys);
+    }
+
+    #[Route(path: '/api/_action/promotion/discount/picker', name: 'api.action.promotion.discount.picker', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    public function getDiscountFilterPickers(): JsonResponse
+    {
+        $pickerKeys = [];
+
+        foreach ($this->filterServiceRegistry->getPickers() as $picker) {
+            $pickerKeys[] = $picker->getKey();
+        }
+
+        return new JsonResponse($pickerKeys);
     }
 }

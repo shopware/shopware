@@ -3,7 +3,7 @@ const { warn } = Shopware.Utils.debug;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * This plugin allows you to generate deprecations for components and properties.
  *
  * Usage in component:

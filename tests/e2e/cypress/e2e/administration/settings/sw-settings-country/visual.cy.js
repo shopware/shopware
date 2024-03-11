@@ -1,4 +1,7 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 describe('Country: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -11,7 +14,7 @@ describe('Country: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of country module', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of country module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
             method: 'POST',

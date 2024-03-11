@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class DiscountLineItem
 {
     /**

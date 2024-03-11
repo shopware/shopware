@@ -1,7 +1,7 @@
 import './acl';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */

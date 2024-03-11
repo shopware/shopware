@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
@@ -49,7 +48,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
 
     public function beforeWriteOrderItems(EntityWriteEvent $event): void
     {
-        if (!$this->isEnabled()) {
+        if (!$this->enableStockManagement) {
             return;
         }
 
@@ -93,7 +92,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
 
     public function stateChanged(StateMachineTransitionEvent $event): void
     {
-        if (!$this->isEnabled()) {
+        if (!$this->enableStockManagement) {
             return;
         }
 
@@ -126,11 +125,6 @@ final class OrderStockSubscriber implements EventSubscriberInterface
                 $event->getContext()
             );
         }
-    }
-
-    private function isEnabled(): bool
-    {
-        return $this->enableStockManagement && Feature::isActive('STOCK_HANDLING');
     }
 
     /**
@@ -210,7 +204,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
         $result = $this->connection->fetchAllAssociativeIndexed(
             $sql,
             ['ids' => $ids, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION), 'type' => LineItem::PRODUCT_LINE_ITEM_TYPE, 'cancelled_state' => OrderStates::STATE_CANCELLED],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return $result;
@@ -224,7 +218,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
         $orderIdBytes = Uuid::fromHexToBytes($orderId);
         $versionBytes = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT id, referenced_id as product_id, quantity
             FROM order_line_item
             WHERE type = :type

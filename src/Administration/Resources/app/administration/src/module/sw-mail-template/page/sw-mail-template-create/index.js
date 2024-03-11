@@ -2,6 +2,9 @@ import template from './sw-mail-template-create.html.twig';
 
 const utils = Shopware.Utils;
 
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

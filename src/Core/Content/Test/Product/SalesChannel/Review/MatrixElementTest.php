@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
 
@@ -17,9 +18,7 @@ class MatrixElementTest extends TestCase
         $this->element = new MatrixElement(1, 1, 0.3);
     }
 
-    /**
-     * @group reviews
-     */
+    #[Group('reviews')]
     public function testConstructor(): void
     {
         $points = 2;
@@ -35,9 +34,8 @@ class MatrixElementTest extends TestCase
 
     /**
      * test point getter and setter
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testPointsGetterSetter(): void
     {
         $expected = 2;
@@ -48,9 +46,8 @@ class MatrixElementTest extends TestCase
 
     /**
      * test count getter and setter
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testCountGetterSetter(): void
     {
         $expected = 2;
@@ -61,9 +58,8 @@ class MatrixElementTest extends TestCase
 
     /**
      * test percent getter and setter
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testPercentGetterSetter(): void
     {
         $expected = 0.35;

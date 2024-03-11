@@ -326,6 +326,11 @@ shopware.installer:
     database-configuration_field_ssl_cert_path: 'SSL certificate path'
     database-configuration_field_ssl_cert_key_path: 'SSL certificate key path'
     database-configuration_field_ssl_dont_verify_cert: 'Don''t verify server certificate'
+    database-configuration_fetch_error: 'An error occurred while fetching the database information'
+    database-configuration_access_denied: 'Access denied, credentials are incorrect'
+    database-configuration_host_not_found: 'Could not connect to database server'
+    database-configuration_invalid_requirements: 'Shopware 6 requires at least MySQL 8.0.17 or MariaDB 10.11'
+    database-configuration_refresh_databases: 'Refresh Databases'
     database-import_header: Installation
     database-import_skip_import: Skip
     database-import_progress: 'Progress: '

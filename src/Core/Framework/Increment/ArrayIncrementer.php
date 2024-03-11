@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Increment;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 #[Package('core')]
 class ArrayIncrementer extends AbstractIncrementer
@@ -12,11 +11,6 @@ class ArrayIncrementer extends AbstractIncrementer
      * @var array<string, array<string, int>>
      */
     private array $logs = [];
-
-    public function getDecorated(): AbstractIncrementer
-    {
-        throw new DecorationPatternException(self::class);
-    }
 
     public function increment(string $cluster, string $key): void
     {

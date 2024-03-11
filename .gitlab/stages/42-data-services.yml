@@ -1,0 +1,12 @@
+trigger schema upload:
+  stage: downstream
+  # Wait until tag in commercial is available
+  needs: ["commercial tag"]
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  inherit:
+    variables: false
+  variables:
+    SHOPWARE_VERSION: $CI_COMMIT_TAG
+  trigger:
+    project: shopware/machine-learning/data-pipeline/entityschemageneration

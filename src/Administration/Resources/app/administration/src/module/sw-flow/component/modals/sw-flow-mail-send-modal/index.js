@@ -8,7 +8,7 @@ const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -354,7 +354,7 @@ export default {
                 isNew: true,
             });
 
-            this.$nextTick(() => {
+            this.$nextTick().then(() => {
                 this.$refs.recipientsGrid.currentInlineEditId = newId;
                 this.$refs.recipientsGrid.enableInlineEdit();
             });

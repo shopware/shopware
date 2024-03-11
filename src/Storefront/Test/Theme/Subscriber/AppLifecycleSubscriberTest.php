@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme\Subscriber;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -40,9 +41,7 @@ class AppLifecycleSubscriberTest extends TestCase
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
-    /**
-     * @dataProvider themeProvideData
-     */
+    #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnDelete(bool $keepUserData): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../fixtures/Apps/theme/manifest.xml');

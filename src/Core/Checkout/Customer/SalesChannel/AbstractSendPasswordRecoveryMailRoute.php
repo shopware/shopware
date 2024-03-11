@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * The required parameters are: "email" and "storefrontUrl"
  * The process can be completed with the hash in the Route Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractSendPasswordRecoveryMailRoute
 {
     abstract public function getDecorated(): AbstractSendPasswordRecoveryMailRoute;

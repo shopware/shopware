@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Controller\SelectLanguagesController;
-use Shopware\Core\Installer\Finish\Notifier;
 use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Controller\SelectLanguagesController
- * @covers \Shopware\Core\Installer\Controller\InstallerController
  */
+#[CoversClass(SelectLanguagesController::class)]
+#[CoversClass(InstallerController::class)]
 class SelectLanguagesControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
@@ -24,11 +24,7 @@ class SelectLanguagesControllerTest extends TestCase
             ->with('@Installer/installer/language-selection.html.twig', $this->getDefaultViewParams())
             ->willReturn('languages');
 
-        $notifier = $this->createMock(Notifier::class);
-        $notifier->expects(static::once())->method('doTrackEvent')
-            ->with(Notifier::EVENT_INSTALL_STARTED);
-
-        $controller = new SelectLanguagesController($notifier);
+        $controller = new SelectLanguagesController();
         $controller->setContainer($this->getInstallerContainer($twig));
 
         $response = $controller->languageSelection();

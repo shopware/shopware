@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class HreflangLoaderParameter
 {
     /**

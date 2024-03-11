@@ -70,6 +70,11 @@ shopware.installer:
     database-configuration-create_new_database: 'Criar nova base de dados'
     database-configuration_non_empty_database: 'A base de dados selecionada já contém dados. Seleciona uma base de dados vazia ou cria uma nova.'
     database-configuration_error_required_fields: 'Preenche todos os campos.'
+    database-configuration_fetch_error: 'Ocorreu um erro ao obter as informações da base de dados'
+    database-configuration_access_denied: 'Acesso negado, as credenciais estão incorrectas'
+    database-configuration_host_not_found: 'Não foi possível ligar ao servidor da base de dados'
+    database-configuration_invalid_requirements: 'O Shopware 6 requer, pelo menos, MySQL 8.0.17 ou MariaDB 10.11'
+    database-configuration_refresh_databases: 'Atualizar bases de dados'
     database-import_header: Instalação
     database-import_skip_import: Saltar
     database-import_progress: 'Progressão: '

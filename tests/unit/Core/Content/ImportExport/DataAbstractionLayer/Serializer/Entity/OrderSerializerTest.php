@@ -2,12 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -15,17 +19,18 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Or
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer
  */
 #[Package('system-settings')]
+#[CoversClass(OrderSerializer::class)]
 class OrderSerializerTest extends TestCase
 {
     private OrderSerializer $serializer;
@@ -43,11 +48,10 @@ class OrderSerializerTest extends TestCase
     }
 
     /**
-     * @dataProvider serializeDataProvider
-     *
      * @param array<mixed>|Struct|null $entity
      * @param array<mixed> $expected
      */
+    #[DataProvider('serializeDataProvider')]
     public function testSerialize($entity, array $expected): void
     {
         $logEntity = new ImportExportLogEntity();
@@ -107,6 +111,36 @@ class OrderSerializerTest extends TestCase
             ]),
             'expected' => self::getExpected([
                 'deliveries' => [],
+            ]),
+        ];
+
+        yield 'with order empty transactions' => [
+            'entity' => self::createOrderEntity([
+                'transactions' => [],
+            ]),
+            'expected' => self::getExpected([
+                'transactions' => [],
+            ]),
+        ];
+
+        yield 'with order item rounding and total rounding' => [
+            'entity' => self::createOrderEntity([
+                'itemRounding' => self::createItemRounding(),
+                'totalRounding' => self::createTotalRounding(),
+            ]),
+            'expected' => self::getExpected([
+                'itemRounding' => [
+                    'extensions' => [],
+                    'decimals' => 2,
+                    'interval' => 0.01,
+                    'roundForNet' => true,
+                ],
+                'totalRounding' => [
+                    'extensions' => [],
+                    'decimals' => 2,
+                    'interval' => 0.1,
+                    'roundForNet' => false,
+                ],
             ]),
         ];
 
@@ -172,7 +206,30 @@ class OrderSerializerTest extends TestCase
                         'orderVersionId' => null,
                     ],
                     'stateId' => '',
-                    'stateMachineState' => null,
+                    'stateMachineState' => [
+                        'extensions' => [],
+                        '_uniqueIdentifier' => null,
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'name' => null,
+                        'technicalName' => null,
+                        'stateMachineId' => null,
+                        'stateMachine' => null,
+                        'fromStateMachineTransitions' => null,
+                        'toStateMachineTransitions' => null,
+                        'translations' => null,
+                        'orders' => null,
+                        'orderTransactionCaptures' => null,
+                        'orderTransactionCaptureRefunds' => null,
+                        'orderTransactions' => null,
+                        'orderDeliveries' => null,
+                        'fromStateMachineHistoryEntries' => null,
+                        'toStateMachineHistoryEntries' => null,
+                        'customFields' => null,
+                        'id' => null,
+                    ],
                     'shippingMethod' => null,
                     'order' => null,
                     'positions' => [],
@@ -180,6 +237,56 @@ class OrderSerializerTest extends TestCase
                     'customFields' => null,
                     'orderVersionId' => null,
                     'shippingOrderAddressVersionId' => null,
+                ],
+            ]),
+        ];
+
+        yield 'with order transactions' => [
+            'entity' => self::createOrderEntity([
+                'transactions' => self::createTransactions(),
+            ]),
+            'expected' => self::getExpected([
+                'transactions' => [
+                    'extensions' => [],
+                    '_uniqueIdentifier' => 'transaction-1',
+                    'versionId' => null,
+                    'translated' => [],
+                    'createdAt' => null,
+                    'updatedAt' => null,
+                    'orderId' => null,
+                    'orderVersionId' => null,
+                    'paymentMethodId' => null,
+                    'amount' => 42,
+                    'paymentMethod' => null,
+                    'order' => null,
+                    'stateMachineState' => [
+                        'extensions' => [],
+                        '_uniqueIdentifier' => null,
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'name' => null,
+                        'technicalName' => null,
+                        'stateMachineId' => null,
+                        'stateMachine' => null,
+                        'fromStateMachineTransitions' => null,
+                        'toStateMachineTransitions' => null,
+                        'translations' => null,
+                        'orders' => null,
+                        'orderTransactionCaptures' => null,
+                        'orderTransactionCaptureRefunds' => null,
+                        'orderTransactions' => null,
+                        'orderDeliveries' => null,
+                        'fromStateMachineHistoryEntries' => null,
+                        'toStateMachineHistoryEntries' => null,
+                        'customFields' => null,
+                        'id' => null,
+                    ],
+                    'stateId' => null,
+                    'captures' => null,
+                    'customFields' => null,
+                    'id' => null,
                 ],
             ]),
         ];
@@ -248,7 +355,30 @@ class OrderSerializerTest extends TestCase
                         'orderVersionId' => null,
                     ],
                     'stateId' => '',
-                    'stateMachineState' => null,
+                    'stateMachineState' => [
+                        'extensions' => [],
+                        '_uniqueIdentifier' => null,
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'name' => null,
+                        'technicalName' => null,
+                        'stateMachineId' => null,
+                        'stateMachine' => null,
+                        'fromStateMachineTransitions' => null,
+                        'toStateMachineTransitions' => null,
+                        'translations' => null,
+                        'orders' => null,
+                        'orderTransactionCaptures' => null,
+                        'orderTransactionCaptureRefunds' => null,
+                        'orderTransactions' => null,
+                        'orderDeliveries' => null,
+                        'fromStateMachineHistoryEntries' => null,
+                        'toStateMachineHistoryEntries' => null,
+                        'customFields' => null,
+                        'id' => null,
+                    ],
                     'shippingMethod' => null,
                     'order' => null,
                     'positions' => [],
@@ -256,6 +386,148 @@ class OrderSerializerTest extends TestCase
                     'customFields' => null,
                     'orderVersionId' => null,
                     'shippingOrderAddressVersionId' => null,
+                ],
+            ]),
+        ];
+
+        yield 'with order with line items and deliveries and transactions' => [
+            'entity' => self::createOrderEntity([
+                'lineItems' => self::createLineItems(),
+                'deliveries' => self::createDeliveries(),
+                'transactions' => self::createTransactions(),
+            ]),
+            'expected' => self::getExpected([
+                'lineItems' => '3x |2x ',
+                'deliveries' => [
+                    'extensions' => [],
+                    '_uniqueIdentifier' => 'delivery-1',
+                    'versionId' => null,
+                    'translated' => [],
+                    'createdAt' => null,
+                    'updatedAt' => null,
+                    'orderId' => null,
+                    'shippingOrderAddressId' => null,
+                    'shippingMethodId' => 'shipping-method-id',
+                    'trackingCodes' => 'CODE-1|CODE-2',
+                    'shippingDateEarliest' => null,
+                    'shippingDateLatest' => null,
+                    'shippingCosts' => [
+                        'unitPrice' => 1,
+                        'quantity' => 1,
+                        'totalPrice' => 1,
+                        'calculatedTaxes' => [],
+                        'taxRules' => [],
+                        'referencePrice' => null,
+                        'listPrice' => null,
+                        'regulationPrice' => null,
+                        'extensions' => [],
+                    ],
+                    'shippingOrderAddress' => [
+                        'city' => 'billing-address-city',
+                        'countryId' => 'billing-address-country-id',
+                        'firstName' => 'billing-address-first-name',
+                        'lastName' => 'billing-address-last-name',
+                        'salutationId' => 'billing-address-salutation-id',
+                        'street' => 'billing-address-street',
+                        'zipcode' => 'billing-address-zipcode',
+                        'extensions' => [],
+                        '_uniqueIdentifier' => null,
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'countryStateId' => null,
+                        'company' => null,
+                        'department' => null,
+                        'title' => null,
+                        'vatId' => null,
+                        'phoneNumber' => null,
+                        'additionalAddressLine1' => null,
+                        'additionalAddressLine2' => null,
+                        'country' => null,
+                        'countryState' => null,
+                        'order' => null,
+                        'salutation' => null,
+                        'orderDeliveries' => null,
+                        'orderId' => null,
+                        'id' => null,
+                        'customFields' => null,
+                        'orderVersionId' => null,
+                    ],
+                    'stateId' => '',
+                    'stateMachineState' => [
+                        'extensions' => [],
+                        '_uniqueIdentifier' => null,
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'name' => null,
+                        'technicalName' => null,
+                        'stateMachineId' => null,
+                        'stateMachine' => null,
+                        'fromStateMachineTransitions' => null,
+                        'toStateMachineTransitions' => null,
+                        'translations' => null,
+                        'orders' => null,
+                        'orderTransactionCaptures' => null,
+                        'orderTransactionCaptureRefunds' => null,
+                        'orderTransactions' => null,
+                        'orderDeliveries' => null,
+                        'fromStateMachineHistoryEntries' => null,
+                        'toStateMachineHistoryEntries' => null,
+                        'customFields' => null,
+                        'id' => null,
+                    ],
+                    'shippingMethod' => null,
+                    'order' => null,
+                    'positions' => [],
+                    'id' => null,
+                    'customFields' => null,
+                    'orderVersionId' => null,
+                    'shippingOrderAddressVersionId' => null,
+                ],
+                'transactions' => [
+                    'extensions' => [],
+                    '_uniqueIdentifier' => 'transaction-1',
+                    'versionId' => null,
+                    'translated' => [],
+                    'createdAt' => null,
+                    'updatedAt' => null,
+                    'orderId' => null,
+                    'orderVersionId' => null,
+                    'paymentMethodId' => null,
+                    'amount' => 42,
+                    'paymentMethod' => null,
+                    'order' => null,
+                    'stateMachineState' => [
+                        'extensions' => [],
+                        '_uniqueIdentifier' => null,
+                        'versionId' => null,
+                        'translated' => [],
+                        'createdAt' => null,
+                        'updatedAt' => null,
+                        'name' => null,
+                        'technicalName' => null,
+                        'stateMachineId' => null,
+                        'stateMachine' => null,
+                        'fromStateMachineTransitions' => null,
+                        'toStateMachineTransitions' => null,
+                        'translations' => null,
+                        'orders' => null,
+                        'orderTransactionCaptures' => null,
+                        'orderTransactionCaptureRefunds' => null,
+                        'orderTransactions' => null,
+                        'orderDeliveries' => null,
+                        'fromStateMachineHistoryEntries' => null,
+                        'toStateMachineHistoryEntries' => null,
+                        'customFields' => null,
+                        'id' => null,
+                    ],
+                    'stateId' => null,
+                    'captures' => null,
+                    'customFields' => null,
+                    'id' => null,
                 ],
             ]),
         ];
@@ -294,8 +566,8 @@ class OrderSerializerTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => null,
+            'totalRounding' => null,
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
@@ -309,7 +581,6 @@ class OrderSerializerTest extends TestCase
                 'title' => null,
                 'vatIds' => null,
             ],
-            'transactions' => [],
             'orderNumber' => '10000',
             'ruleIds' => [],
             'addresses' => [
@@ -326,9 +597,17 @@ class OrderSerializerTest extends TestCase
             'billingAddressVersionId' => null,
         ];
 
-        $data = array_merge_recursive($rawData, $data);
+        $mergedData = array_merge_recursive($rawData, $data);
 
-        return (new OrderEntity())->assign($data);
+        if (isset($data['itemRounding'])) {
+            $mergedData['itemRounding'] = $data['itemRounding'];
+        }
+
+        if (isset($data['totalRounding'])) {
+            $mergedData['totalRounding'] = $data['totalRounding'];
+        }
+
+        return (new OrderEntity())->assign($mergedData);
     }
 
     private static function createLineItems(): OrderLineItemCollection
@@ -454,8 +733,8 @@ class OrderSerializerTest extends TestCase
             'customerComment' => null,
             'affiliateCode' => null,
             'campaignCode' => null,
-            'itemRounding' => [],
-            'totalRounding' => [],
+            'itemRounding' => null,
+            'totalRounding' => null,
             'orderCustomer' => [
                 'company' => null,
                 'customFields' => null,
@@ -469,7 +748,7 @@ class OrderSerializerTest extends TestCase
                 'title' => null,
                 'vatIds' => null,
             ],
-            'transactions' => [],
+            'transactions' => null,
             'orderNumber' => '10000',
             'ruleIds' => [],
             'addresses' => [
@@ -516,6 +795,7 @@ class OrderSerializerTest extends TestCase
                 'zipcode' => 'billing-address-zipcode',
             ]),
             'stateId' => '',
+            'stateMachineState' => new StateMachineStateEntity(),
         ]);
 
         $delivery2 = (new OrderDeliveryEntity())->assign([
@@ -547,5 +827,34 @@ class OrderSerializerTest extends TestCase
         ]);
 
         return new OrderDeliveryCollection([$delivery1, $delivery2]);
+    }
+
+    private static function createTransactions(): OrderTransactionCollection
+    {
+        $transaction1 = (new OrderTransactionEntity())->assign([
+            '_uniqueIdentifier' => 'transaction-1',
+            'amount' => 42,
+            'stateMachineState' => new StateMachineStateEntity(),
+            'stateId' => null,
+        ]);
+
+        $transaction2 = (new OrderTransactionEntity())->assign([
+            '_uniqueIdentifier' => 'transaction-2',
+            'amount' => 50.05,
+            'stateMachineState' => null,
+            'stateId' => null,
+        ]);
+
+        return new OrderTransactionCollection([$transaction1, $transaction2]);
+    }
+
+    private static function createItemRounding(): CashRoundingConfig
+    {
+        return new CashRoundingConfig(2, 0.01, true);
+    }
+
+    private static function createTotalRounding(): CashRoundingConfig
+    {
+        return new CashRoundingConfig(2, 0.1, false);
     }
 }

@@ -27,11 +27,7 @@
             :process-success="isSaveSuccessful"
             :disabled="!acl.can('users_and_permissions.editor')"
             @click="onSave"
-            {% if VUE3 %}
             @update:process-success="onSaveFinish"
-            {% else %}
-            @process-finish="onSaveFinish"
-            {% endif %}
         >
             {{ $tc('global.default.save') }}
         </sw-button-process>

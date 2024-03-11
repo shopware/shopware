@@ -8,7 +8,7 @@ const { ShopwareError } = Shopware.Classes;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,

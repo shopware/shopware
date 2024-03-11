@@ -26,6 +26,24 @@
         }
     }
 
+    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    .sw-product-image__spatial-label {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        margin: 0;
+        min-width: 0;
+
+        &.sw-label {
+            margin: 0;
+        }
+
+        .sw-label__caption {
+            min-width: 0;
+            width: auto;
+        }
+    }
+
     .sw-product-image__image {
         width: 100%;
         height: 100%;
@@ -41,7 +59,7 @@
     }
 
     &:hover {
-        background-color: $color-black;
+        background-color: $color-gray-300;
 
         .sw-product-image__image {
             opacity: 0.7;
@@ -81,5 +99,17 @@
     &.is--cover {
         border-radius: $border-radius-default;
         border: 2px solid $color-shopware-brand-500;
+    }
+
+    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    &.is--cover.is--spatial .sw-product-image__spatial-label {
+        bottom: 32px;
+    }
+
+    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    &.is--drag-element .sw-media-preview-v2__placeholder {
+        object-fit: contain;
+        max-width: 64px;
+        max-height: 55px;
     }
 }

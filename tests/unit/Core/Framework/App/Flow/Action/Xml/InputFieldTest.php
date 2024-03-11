@@ -2,45 +2,41 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\InputField;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Action\Xml\InputField
  */
+#[CoversClass(InputField::class)]
 class InputFieldTest extends TestCase
 {
-    private \DOMDocument $document;
-
-    /**
-     * @var \DOMElement|null
-     */
-    private $config;
+    private \DOMElement $config;
 
     protected function setUp(): void
     {
-        $this->document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
+        $document = XmlUtils::loadFile(
+            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
-        /** @var \DOMElement $actions */
-        $actions = $this->document->getElementsByTagName('flow-actions')->item(0);
-        /** @var \DOMElement $action */
+        $actions = $document->getElementsByTagName('flow-actions')->item(0);
+        static::assertNotNull($actions);
         $action = $actions->getElementsByTagName('flow-action')->item(0);
+        static::assertNotNull($action);
 
-        $this->config = $action->getElementsByTagName('config')->item(0);
+        $config = $action->getElementsByTagName('config')->item(0);
+        static::assertNotNull($config);
+        $this->config = $config;
     }
 
     public function testFromXml(): void
     {
-        static::assertNotNull($this->config);
-        /** @var \DOMElement $inputField */
         $inputField = $this->config->getElementsByTagName('input-field')->item(0);
+        static::assertNotNull($inputField);
 
-        $expectedInputField = new InputField([
+        $expectedInputField = InputField::fromArray([
             'name' => 'textField',
             'label' => [
                 'en-GB' => 'To',
@@ -65,18 +61,17 @@ class InputFieldTest extends TestCase
 
     public function testFromXmlWithOption(): void
     {
-        static::assertNotNull($this->config);
-        /** @var \DOMElement $inputField */
         $inputField = $this->config->getElementsByTagName('input-field')->item(3);
+        static::assertNotNull($inputField);
 
-        $expectedInputField = new InputField([
+        $expectedInputField = InputField::fromArray([
             'name' => 'mailMethod',
             'label' => null,
             'required' => null,
             'defaultValue' => null,
             'placeHolder' => null,
             'type' => 'single-select',
-            'helpText' => [],
+            'helpText' => null,
             'options' => [
                 [
                     'value' => 'smtp',
@@ -101,7 +96,7 @@ class InputFieldTest extends TestCase
 
     public function testToArray(): void
     {
-        $inputField = new InputField([
+        $inputField = InputField::fromArray([
             'name' => 'textField',
             'label' => [
                 'en-GB' => 'To',

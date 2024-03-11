@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class GoodsPriceRule extends FilterRule
 {
     final public const RULE_NAME = 'cartGoodsPrice';

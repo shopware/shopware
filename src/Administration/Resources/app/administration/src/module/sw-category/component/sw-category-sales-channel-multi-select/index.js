@@ -3,7 +3,7 @@ import template from './sw-category-sales-channel-multi-select.html.twig';
 const { EntityCollection } = Shopware.Data;
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

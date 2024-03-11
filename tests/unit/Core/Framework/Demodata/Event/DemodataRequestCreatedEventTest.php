@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Demodata\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
@@ -10,9 +11,8 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent
  */
+#[CoversClass(DemodataRequestCreatedEvent::class)]
 class DemodataRequestCreatedEventTest extends TestCase
 {
     public function testGetter(): void

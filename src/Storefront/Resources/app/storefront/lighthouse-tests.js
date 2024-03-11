@@ -6,8 +6,7 @@
 const fse = require('fs-extra');
 const path = require('path');
 const puppeteer = require('puppeteer');
-const axios = require('axios');
-const _get = require('lodash/get');
+const _get = require('lodash.get');
 
 // just testing
 const APP_URL = process.env.APP_URL;
@@ -86,17 +85,25 @@ async function sendMetrics(metrics) {
 
     if (!DD_API_KEY) return undefined;
 
-    return axios({
+    return fetch('https://api.datadoghq.eu/api/v1/series', {
         method: 'post',
-        url: 'https://api.datadoghq.eu/api/v1/series',
         headers: {
             'Content-Type': 'application/json',
             'DD-API-KEY': DD_API_KEY,
         },
-        data: {
-            series,
-        },
-    });
+        body: JSON.stringify({ series }),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw Error(`[${response.status}] ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then((json) => {
+            console.log('\u2705 Metrics successfully send to DataDog', json);
+        }).catch((error) => {
+            console.error('\u274C Unable to send metrics to DataDog', error);
+        });
 }
 
 async function main() {

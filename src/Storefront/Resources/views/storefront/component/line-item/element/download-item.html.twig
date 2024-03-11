@@ -1,6 +1,6 @@
 {% block component_line_item_download_item_detail %}
     <div class="row order-detail-content-row order-download-row">
-        {% set downloadLink = path('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id}) %}
+        {% set downloadLink = path('frontend.account.order.single.download', {orderId: order.id, downloadId: download.id}) %}
 
         {% block component_line_item_download_item_detail_file_name %}
             <div class="col-8 download-item download-item-file-name">
@@ -23,7 +23,7 @@
                     <a href="{{ downloadLink }}"
                        target="_blank"
                        class="btn btn-light btn-sm download-item-view-file-text-btn">
-                        {{ "account.downloadFileButton"|trans|sw_sanitize }}
+                        {{ 'account.downloadFileButton'|trans|sw_sanitize }}
                     </a>
                 {% endblock %}
 

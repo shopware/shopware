@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term\Filter;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
@@ -26,12 +27,11 @@ class TokenFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider cases
-     *
      * @param list<string> $tokens
      * @param list<string> $excludedTerms
      * @param list<string> $expected
      */
+    #[DataProvider('cases')]
     public function testExcludedFilterFilter(array $tokens, array $excludedTerms, array $expected): void
     {
         $this->updateProductSearchConfig($excludedTerms);

@@ -1,6 +1,6 @@
-import type { DirectiveBinding } from 'vue/types/options';
+import type { ObjectDirective } from 'vue';
 
-interface ResponsiveDirectiveBinding extends DirectiveBinding {
+interface ResponsiveDirectiveBinding extends ObjectDirective {
     value?: {
         [key: string]: ((elementSizeValues: DOMRectReadOnly) => boolean) | number;
     }
@@ -9,7 +9,7 @@ interface ResponsiveDirectiveBinding extends DirectiveBinding {
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * Directive for responsive element classes
  *
  * Usage:
@@ -20,7 +20,7 @@ interface ResponsiveDirectiveBinding extends DirectiveBinding {
  */
 
 Shopware.Directive.register('responsive', {
-    inserted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
+    mounted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
         const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
 
         const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {

@@ -1,15 +1,6 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swFlowDetailFlow from 'src/module/sw-flow/view/detail/sw-flow-detail-flow';
-import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
-import swFlowTrigger from 'src/module/sw-flow/component/sw-flow-trigger';
-
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-Shopware.Component.register('sw-flow-detail-flow', swFlowDetailFlow);
-Shopware.Component.register('sw-flow-sequence', swFlowSequence);
-Shopware.Component.register('sw-flow-trigger', swFlowTrigger);
 
 const sequenceFixture = {
     id: '1',
@@ -109,64 +100,61 @@ function getSequencesCollection(collection = []) {
 }
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-detail-flow'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {};
-                    },
-                    get: (id) => Promise.resolve({
-                        id,
-                        name: 'Rule name',
-                        description: 'Rule description',
-                    }),
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+    return mount(await wrapTestComponent('sw-flow-detail-flow', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': {
+                    template: '<div class="sw-icon" v-on="$listeners"></div>',
                 },
-            },
-            flowActionService: {
-                getActions: jest.fn(() => {
-                    return Promise.resolve([]);
-                }),
-            },
-            ruleConditionDataProviderService: {
-                getRestrictedRules: () => Promise.resolve([]),
-            },
-        },
-
-        stubs: {
-            'sw-icon': {
-                template: '<div class="sw-icon" v-on="$listeners"></div>',
-            },
-            'sw-flow-sequence': await Shopware.Component.build('sw-flow-sequence'),
-            'sw-flow-sequence-selector': true,
-            'sw-flow-sequence-action': true,
-            'sw-flow-sequence-condition': true,
-            'sw-button': true,
-            'sw-label': true,
-            'sw-loader': true,
-            'sw-flow-trigger': {
-                props: ['eventName'],
-                template: `
+                'sw-flow-sequence': await wrapTestComponent('sw-flow-sequence'),
+                'sw-flow-sequence-selector': true,
+                'sw-flow-sequence-action': true,
+                'sw-flow-sequence-condition': true,
+                'sw-button': true,
+                'sw-label': true,
+                'sw-loader': true,
+                'sw-flow-trigger': {
+                    props: ['eventName'],
+                    template: `
                     <input
                         :value="eventName"
                         @input="$emit('option-select', $event.target.value)"
                         class="sw-flow-trigger" />
                 `,
+                },
+                'sw-alert': true,
             },
-            'sw-alert': true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {};
+                        },
+                        get: (id) => Promise.resolve({
+                            id,
+                            name: 'Rule name',
+                            description: 'Rule description',
+                        }),
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                flowActionService: {
+                    getActions: jest.fn(() => {
+                        return Promise.resolve([]);
+                    }),
+                },
+                ruleConditionDataProviderService: {
+                    getRestrictedRules: () => Promise.resolve([]),
+                },
+            },
         },
     });
 }
@@ -201,6 +189,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const wrapper = await createWrapper([
             'flow.editor',
         ]);
+        await flushPromises();
 
         let helpElement = wrapper.find('.sw-flow-detail-flow__trigger-explain');
         let flowDiagram = wrapper.find('.sw-flow-detail-flow__sequence-diagram');
@@ -211,6 +200,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const triggerInput = wrapper.find('.sw-flow-trigger');
         await triggerInput.setValue('checkout.customer');
         await triggerInput.trigger('input');
+        await flushPromises();
 
         helpElement = wrapper.find('.sw-flow-detail-flow__trigger-explain');
         flowDiagram = wrapper.find('.sw-flow-detail-flow__sequence-diagram');
@@ -234,6 +224,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const wrapper = await createWrapper([
             'flow.editor',
         ]);
+        await flushPromises();
 
         const sequences = wrapper.findAll('.sw-flow-sequence');
         expect(sequences).toHaveLength(4);
@@ -257,6 +248,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const wrapper = await createWrapper([
             'flow.editor',
         ]);
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-flow-detail-flow__position-plus .sw-icon');
         await addButton.trigger('click');
@@ -294,9 +286,10 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const wrapper = await createWrapper([
             'flow.editor',
         ]);
+        await flushPromises();
 
         const alertElement = wrapper.findAll('.sw-flow-detail-flow__warning-box');
-        expect(alertElement.exists()).toBe(true);
+        expect(alertElement).toHaveLength(1);
     });
 
     it('should not able to edit flow template', async () => {
@@ -317,10 +310,29 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const wrapper = await createWrapper([
             'flow.editor',
         ]);
+        await flushPromises();
 
         await wrapper.setProps({ isTemplate: true });
 
         const alertElement = wrapper.findAll('.sw-flow-detail-flow-template');
-        expect(alertElement.exists()).toBe(true);
+        expect(alertElement).toHaveLength(1);
+    });
+
+    it('should create a sequence when sequences is empty and eventName exists', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor',
+        ]);
+        await flushPromises();
+
+        Shopware.State.commit('swFlowState/setFlow', {
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: [],
+        });
+
+        const createSequenceMock = jest.spyOn(wrapper.vm, 'createSequence');
+        await flushPromises();
+
+        expect(createSequenceMock).toHaveBeenCalledTimes(1);
     });
 });

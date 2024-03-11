@@ -11,6 +11,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 #[Package('core')]
 class LocalFactory implements AdapterFactoryInterface
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function create(array $config): FilesystemAdapter
     {
         $options = $this->resolveOptions($config);
@@ -36,6 +39,11 @@ class LocalFactory implements AdapterFactoryInterface
         return 'local';
     }
 
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>
+     */
     private function resolveOptions(array $config): array
     {
         $options = new OptionsResolver();
@@ -57,6 +65,11 @@ class LocalFactory implements AdapterFactoryInterface
         return $config;
     }
 
+    /**
+     * @param array<string, mixed> $permissions
+     *
+     * @return array<string, mixed>
+     */
     private function resolveFilePermissions(array $permissions): array
     {
         $options = new OptionsResolver();
@@ -72,6 +85,11 @@ class LocalFactory implements AdapterFactoryInterface
         return $options->resolve($permissions);
     }
 
+    /**
+     * @param array<string, mixed> $permissions
+     *
+     * @return array<string, mixed>
+     */
     private function resolveDirectoryPermissions(array $permissions): array
     {
         $options = new OptionsResolver();

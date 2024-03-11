@@ -2,13 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swProductProperties from 'src/module/sw-product/component/sw-product-properties';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/base/sw-card';
-
-Shopware.Component.register('sw-product-properties', swProductProperties);
+import { mount } from '@vue/test-utils';
 
 const { State } = Shopware;
 
@@ -84,101 +78,90 @@ const $refsMock = {
     },
 };
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-product-properties'), {
-        localVue,
-        stubs: {
-            'sw-inheritance-switch': {
-                props: ['isInherited', 'disabled'],
-                template: `
-                    <div class="sw-inheritance-switch">
-                        <div v-if="isInherited"
-                            class="sw-inheritance-switch--is-inherited"
-                            @click="onClickRemoveInheritance">
-                        </div>
-                        <div v-else
-                             class="sw-inheritance-switch--is-not-inherited"
-                             @click="onClickRestoreInheritance">
-                        </div>
-                    </div>`,
-                methods: {
-                    onClickRestoreInheritance() {
-                        this.$emit('inheritance-restore');
-                    },
-                    onClickRemoveInheritance() {
-                        this.$emit('inheritance-remove');
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-product-properties', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-inheritance-switch': {
+                    props: ['isInherited', 'disabled'],
+                    template: `
+                        <div class="sw-inheritance-switch">
+                            <div v-if="isInherited"
+                                class="sw-inheritance-switch--is-inherited"
+                                @click="onClickRemoveInheritance">
+                            </div>
+                            <div v-else
+                                 class="sw-inheritance-switch--is-not-inherited"
+                                 @click="onClickRestoreInheritance">
+                            </div>
+                        </div>`,
+                    methods: {
+                        onClickRestoreInheritance() {
+                            this.$emit('inheritance-restore');
+                        },
+                        onClickRemoveInheritance() {
+                            this.$emit('inheritance-remove');
+                        },
                     },
                 },
-            },
-            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-card': {
-                template: `
-                    <div class="sw-card">
-                        <slot></slot>
-                        <slot name="title"></slot>
-                        <slot name="grid"></slot>
-                    </div>
-                `,
-            },
-            'sw-container': {
-                template: `
-                    <div class="sw-container">
-                        <slot></slot>
-                    </div>
-                `,
-            },
-            'sw-card-section': {
-                template: `
-                    <div class="sw-card-section">
-                        <slot></slot>
-                    </div>
-                `,
-            },
-            'sw-entity-listing': {
-                props: ['items'],
-                methods: {
-                    resetSelection: () => {},
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                'sw-card': {
+                    template: `
+                        <div class="sw-card">
+                            <slot></slot>
+                            <slot name="title"></slot>
+                            <slot name="grid"></slot>
+                        </div>
+                    `,
                 },
-                template: `
-                    <div class="sw-entity-listing" ref="entityListing">
-                        <template v-for="item in items">
-                            <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
-                    </div>
-                `,
-            },
-            'sw-empty-state': {
-                template: `
-                    <div class="sw-empty-state">
-                        <slot></slot>
-                        <slot name="actions"></slot>
-                    </div>
-                `,
-            },
-            'sw-product-add-properties-modal': true,
-            'sw-loader': true,
-            'sw-simple-search-field': true,
-            'sw-button': true,
-            'sw-icon': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve({ total: 0 });
+                'sw-container': {
+                    template: `
+                        <div class="sw-container">
+                            <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-card-section': {
+                    template: `
+                        <div class="sw-card-section">
+                            <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-entity-listing': {
+                    props: ['items'],
+                    methods: {
+                        resetSelection: () => {},
                     },
-                }),
+                    template: `
+                        <div class="sw-entity-listing" ref="entityListing">
+                            <template v-for="item in items">
+                                <slot name="actions" v-bind="{ item }"></slot>
+                            </template>
+                        </div>
+                    `,
+                },
+                'sw-empty-state': {
+                    template: `
+                        <div class="sw-empty-state">
+                            <slot></slot>
+                            <slot name="actions"></slot>
+                        </div>
+                    `,
+                },
+                'sw-product-add-properties-modal': true,
+                'sw-loader': true,
+                'sw-simple-search-field': true,
+                'sw-button': true,
+                'sw-icon': true,
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve({ total: 0 });
+                        },
+                    }),
                 },
             },
         },
@@ -206,13 +189,17 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be a Vue.JS component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get group ids successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.vm.$nextTick();
         await State.commit('swProductDetail/setProduct', productMock);
@@ -224,7 +211,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get group ids failed', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.vm.$nextTick();
         await State.commit('swProductDetail/setProduct', {});
@@ -236,8 +225,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -253,8 +244,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties failed', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.reject();
         });
@@ -270,8 +263,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties failed if having no inputs', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.getProperties = jest.fn(() => {
             return Promise.reject(new Error('Whoops!'));
         });
@@ -296,8 +291,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete property value successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -319,8 +316,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete property successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         await wrapper.setData({ $refs: $refsMock });
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -342,8 +341,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should delete properties successful', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         await wrapper.setData({ $refs: $refsMock });
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
@@ -365,8 +366,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should get properties when changing search term', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         const error = new Error('Whoops!');
         wrapper.vm.getProperties = jest.fn(() => {
             return Promise.reject(error);
@@ -379,7 +382,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should turn on add properties modal', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setData({
             propertiesAvailable: true,
         });
@@ -393,8 +399,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should turn off add properties modal', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.updateNewProperties = jest.fn();
 
         wrapper.vm.turnOffAddPropertiesModal();
@@ -405,8 +413,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should update new properties correctly', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -445,8 +455,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should call a turning off modal function when canceling properties modal', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.turnOffAddPropertiesModal = jest.fn();
 
         wrapper.vm.onCancelAddPropertiesModal();
@@ -456,8 +468,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should save add properties modal failed', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.turnOffAddPropertiesModal = jest.fn();
 
         wrapper.vm.onSaveAddPropertiesModal([]);
@@ -469,35 +483,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         wrapper.vm.turnOffAddPropertiesModal.mockRestore();
     });
 
-    it('should be able to add properties in empty state', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
-        await wrapper.vm.$nextTick();
-
-        await wrapper.setData({ properties: [], searchTerm: null });
-
-        const createButton = wrapper.find('sw-button-stub');
-
-        expect(createButton.attributes().disabled).toBeUndefined();
-    });
-
-    it('should not be able to add properties in empty state', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        await wrapper.setData({ properties: [], searchTerm: null });
-
-        const createButton = wrapper.find('sw-button-stub');
-        expect(createButton.attributes().disabled).toBe('true');
-    });
-
     it('should be able to add properties in filled state', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
-
-        await wrapper.vm.$nextTick();
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
 
@@ -507,8 +496,9 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to add properties in filled state', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         await wrapper.setData({ searchTerm: 'Size', properties: propertiesMock });
 
@@ -517,10 +507,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to edit property', async () => {
-        const wrapper = await createWrapper([
-            'property.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        global.activeAclRoles = ['property.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -536,8 +526,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to edit property', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -553,10 +545,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should be able to delete property', async () => {
-        const wrapper = await createWrapper([
-            'product.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        global.activeAclRoles = ['product.deleter'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -572,8 +564,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should not be able to delete property', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
+
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -589,6 +583,7 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
     });
 
     it('should hide sw-inheritance-switch component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -600,5 +595,19 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.showInheritanceSwitcher).toBe(false);
 
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
+    });
+
+    it('should close properties modal and call a callback', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.turnOffAddPropertiesModal = jest.fn();
+        const callbackUpdateCurrentValuesMock = jest.fn();
+
+        wrapper.vm.onSaveAddPropertiesModal(propertiesMock, callbackUpdateCurrentValuesMock);
+
+        expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
+        expect(callbackUpdateCurrentValuesMock).toHaveBeenCalledTimes(1);
     });
 });

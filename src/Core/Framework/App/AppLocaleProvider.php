@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
 
 #[Package('core')]
@@ -17,6 +17,8 @@ class AppLocaleProvider
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<UserCollection> $userRepository
      */
     public function __construct(
         private readonly EntityRepository $userRepository,
@@ -30,7 +32,6 @@ class AppLocaleProvider
             return $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId());
         }
 
-        /** @var AdminApiSource $source */
         $source = $context->getSource();
 
         if ($source->getUserId() === null) {
@@ -40,14 +41,14 @@ class AppLocaleProvider
         $criteria = new Criteria([$source->getUserId()]);
         $criteria->addAssociation('locale');
 
-        $user = $this->userRepository->search($criteria, $context)->first();
+        $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
 
         if ($user === null) {
             throw new EntityNotFoundException(UserDefinition::ENTITY_NAME, $source->getUserId());
         }
 
-        /** @var LocaleEntity $locale */
         $locale = $user->getLocale();
+        \assert($locale !== null);
 
         return $locale->getCode();
     }

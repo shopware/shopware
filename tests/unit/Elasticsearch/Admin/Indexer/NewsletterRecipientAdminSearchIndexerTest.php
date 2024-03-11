@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\NewsletterRecipientAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\NewsletterRecipientAdminSearchIndexer
  */
+#[CoversClass(NewsletterRecipientAdminSearchIndexer::class)]
 class NewsletterRecipientAdminSearchIndexerTest extends TestCase
 {
     private NewsletterRecipientAdminSearchIndexer $searchIndexer;

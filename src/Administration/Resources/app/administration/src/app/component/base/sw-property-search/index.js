@@ -10,7 +10,7 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-property-search', {
     template,
@@ -88,12 +88,16 @@ Component.register('sw-property-search', {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
+            criteria.addFilter(Criteria.contains('name', this.searchTerm.trim()));
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
             criteria.setTotalCountMode(1);
-            criteria.setTerm(this.searchTerm);
             criteria.addAssociation('group');
 
             return criteria;
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -175,7 +179,7 @@ Component.register('sw-property-search', {
             const validInput = input || '';
 
             this.optionPage = 1;
-            this.searchTerm = validInput.trim();
+            this.searchTerm = validInput;
             this.onFocusSearch();
         }, 400),
 
@@ -227,9 +231,7 @@ Component.register('sw-property-search', {
             this.displayTree = true;
             this.groupPage = 1;
             this.optionPage = 1;
-            if (this.collapsible) {
-                this.groupOptions = [];
-            }
+            this.groupOptions = [];
             this.loadGroups();
         },
 

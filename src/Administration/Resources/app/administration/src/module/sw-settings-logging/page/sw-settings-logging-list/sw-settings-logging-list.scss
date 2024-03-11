@@ -1,0 +1,13 @@
+.sw-settings-logging-list {
+    &__custom-content {
+        .sw-field {
+            height: 250px;
+            margin-bottom: 0;
+
+            .sw-block-field__block,
+            textarea {
+                height: 100%;
+            }
+        }
+    }
+}

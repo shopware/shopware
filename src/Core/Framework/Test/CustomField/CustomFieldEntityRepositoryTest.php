@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\CustomField;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -37,9 +38,8 @@ class CustomFieldEntityRepositoryTest extends TestCase
 
     /**
      * NEXT-16212 - This test sometimes triggers a "SQLSTATE[HY000]: General error: 2006 MySQL server has gone away" error
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testUpdateCustomFields(): void
     {
         $newSize = 22;

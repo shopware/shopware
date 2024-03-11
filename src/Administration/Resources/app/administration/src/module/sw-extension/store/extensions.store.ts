@@ -96,7 +96,7 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
 };
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default shopwareExtensionsStore;

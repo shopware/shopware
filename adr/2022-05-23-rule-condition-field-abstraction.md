@@ -1,9 +1,9 @@
 ---
 title: Rule condition field abstraction
 date: 2022-05-23
-area: business-ops
+area: services-settings
 tags: [rule, abstraction, administration]
---- 
+---
 
 ## Context
 Conditions for the Rule Builder consist of a `shopware.rule.definition` tagged service and a corresponding Vue component. Many of these Vue components follow a common scheme, so it is possible to use an abstracted single component for all of these.
@@ -37,6 +37,3 @@ Starting from now, newly introduced rule conditions will make use of the `Rule::
 The original components of conditions are being deprecated and marked to be removed by the next major release.
 
 If you used or extended any of these components, use/extend `sw-condition-generic` or `sw-condition-generic-line-item` instead and refer to `this.condition.type` to introduce changes for a specific type of condition.
-
-
-

@@ -54,6 +54,10 @@ export default {
 
             return this.$tc('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

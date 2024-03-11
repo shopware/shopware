@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<VariantStruct>
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class VariantCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

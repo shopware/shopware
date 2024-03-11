@@ -6,11 +6,7 @@
         :label="$tc('sw-cms.sorting.labelSort')"
         :value="sortingConditionConcatenation"
         :aside="true"
-        {% if VUE3 %}
         @update:value="onSortingChanged"
-        {% else %}
-        @change="onSortingChanged"
-        {% endif %}
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

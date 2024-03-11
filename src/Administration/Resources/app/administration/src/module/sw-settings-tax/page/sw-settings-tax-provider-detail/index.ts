@@ -1,5 +1,4 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import type { MetaInfo } from 'vue-meta';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-settings-tax-provider-detail.html.twig';
@@ -45,7 +44,7 @@ export default Component.wrapComponentConfig({
         };
     },
 
-    metaInfo(): MetaInfo {
+    metaInfo() {
         return {
             title: this.$createTitle(),
         };

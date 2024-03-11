@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Storefront\Theme\SalesChannelThemeLoader" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.reset" method="reset"/>
+            <deprecated package="shopware/storefront" version="6.7.0.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 use "DatabaseSalesChannelThemeLoader" instead.</deprecated>
+        </service>
+
+    </services>
+</container>

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\InvalidCriteriaIdsException;
@@ -14,15 +16,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria
- *
  * @internal
  */
+#[CoversClass(Criteria::class)]
 class CriteriaTest extends TestCase
 {
-    /**
-     * @dataProvider string_convert_provider
-     */
+    #[DataProvider('string_convert_provider')]
     public function testStringConvert(Criteria $criteria, string $expected): void
     {
         static::assertEquals(\json_decode($expected, true, 512, \JSON_THROW_ON_ERROR), \json_decode((string) $criteria, true, 512, \JSON_THROW_ON_ERROR));
@@ -86,10 +85,9 @@ class CriteriaTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidCriteriaIdsProvider
-     *
      * @param array<mixed> $ids
      */
+    #[DataProvider('invalidCriteriaIdsProvider')]
     public function testInvalidIdFormatsThrowException(array $ids): void
     {
         $wasThrown = false;
@@ -129,10 +127,9 @@ class CriteriaTest extends TestCase
     }
 
     /**
-     * @dataProvider validCriteriaIdsProvider
-     *
      * @param array<string>|array<array<string, string>> $ids
      */
+    #[DataProvider('validCriteriaIdsProvider')]
     public function testValidIdFormats(array $ids): void
     {
         $criteria = new Criteria($ids);

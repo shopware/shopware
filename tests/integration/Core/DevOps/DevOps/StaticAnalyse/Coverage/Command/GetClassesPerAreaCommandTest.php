@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\DevOps\DevOps;
@@ -25,11 +27,8 @@ class GetClassesPerAreaCommandTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function cleanUp(): void
     {
         $filesystem = new Filesystem();
@@ -164,8 +163,8 @@ class GetClassesPerAreaCommandTest extends TestCase
         static::assertNotFalse($xml);
         $corePhpUnit = json_decode((string) json_encode($xml), true);
 
-        static::assertNotEmpty($corePhpUnit['coverage']['include']['file'] ?? []);
+        static::assertNotEmpty($corePhpUnit['source']['include']['file'] ?? []);
 
-        return array_filter(array_map('realpath', $corePhpUnit['coverage']['include']['file']));
+        return array_filter(array_map('realpath', $corePhpUnit['source']['include']['file']));
     }
 }

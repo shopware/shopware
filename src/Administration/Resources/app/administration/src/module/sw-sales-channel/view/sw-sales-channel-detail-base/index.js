@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-base.html.twig';
@@ -359,23 +359,10 @@ export default {
             ];
         },
 
-        /**
-         * @deprecated tag:v6.6.0 will be removed. use maintenanceIpAllowlist instead
-         */
-        // eslint-disable-next-line inclusive-language/use-inclusive-words
-        maintenanceIpWhitelist: {
-            get() {
-                return this.maintenanceIpAllowlist;
-            },
-            set(value) {
-                this.maintenanceIpAllowlist = value;
-            },
-        },
-
         maintenanceIpAllowlist: {
             get() {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
-                return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];
+                return this.salesChannel.maintenanceIpWhitelist ?? [];
             },
             set(value) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
@@ -472,6 +459,10 @@ export default {
 
             return criteria;
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -563,8 +554,18 @@ export default {
             });
         },
 
-        copyToClipboard() {
-            domUtils.copyToClipboard(this.salesChannel.accessKey);
+        async copyToClipboard() {
+            try {
+                await domUtils.copyStringToClipboard(this.salesChannel.accessKey);
+                this.createNotificationSuccess({
+                    message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
+                });
+            } catch (err) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                });
+            }
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {

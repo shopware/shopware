@@ -2,7 +2,7 @@ import template from './sw-order-nested-line-items-modal.html.twig';
 import './sw-order-nested-line-items-modal.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Filter } = Shopware;
@@ -40,7 +40,7 @@ export default {
         },
 
         modalTitle() {
-            const price = Filter.getByName('currency')(this.lineItem.totalPrice, this.order.currency.shortName);
+            const price = Filter.getByName('currency')(this.lineItem.totalPrice, this.order.currency.isoCode);
 
             return this.$tc('sw-order.nestedLineItemsModal.titlePrefix', 0, {
                 lineItemLabel: this.lineItem.label,

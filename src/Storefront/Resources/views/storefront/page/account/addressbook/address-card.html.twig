@@ -1,16 +1,16 @@
 {% block page_account_address_item_content %}
-    <div class="col-lg-6 card-col address-card">
+    <div class="col-lg-6 card-col address-card{% if feature('v6.7.0.0') %} p-0{% endif %}">
         <div class="card {% if defaultBillingAddress is same as(address.id) %}billing-address{% elseif defaultShippingAddress is same as(address.id) %}shipping-address{% else %}other-address{% endif %}">
             {% block page_account_address_item_content_body %}
-                <div class="card-body">
+                <div class="card-body{% if feature('v6.7.0.0') %} p-3 border{% endif %}">
                     {% block page_account_address_item_content_title %}
                         {% if defaultBillingAddress is same as(address.id) or defaultShippingAddress is same as(address.id) %}
-                            <div class="card-title address-card-title">
+                            <div class="card-title{% if feature('v6.7.0.0') %} mb-4{% endif %}">
                                 {% if defaultShippingAddress is same as(address.id) %}
-                                    <div>{{ "account.addressesTitleDefaultShippingAddress"|trans|sw_sanitize }}</div>
+                                    <div>{{ 'account.addressesTitleDefaultShippingAddress'|trans|sw_sanitize }}</div>
                                 {% endif %}
                                 {% if defaultBillingAddress is same as(address.id) %}
-                                    <div>{{ "account.addressesTitleDefaultBillingAddress"|trans|sw_sanitize }}</div>
+                                    <div>{{ 'account.addressesTitleDefaultBillingAddress'|trans|sw_sanitize }}</div>
                                 {% endif %}
                             </div>
                         {% endif %}

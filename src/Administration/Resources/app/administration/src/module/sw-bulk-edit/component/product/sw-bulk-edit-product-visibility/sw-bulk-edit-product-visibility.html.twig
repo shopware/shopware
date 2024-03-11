@@ -5,11 +5,7 @@
     {% block sw_bulk_edit_product_visibility_select %}
     <sw-inherit-wrapper
         ref="productVisibilitiesInheritance"
-        {% if VUE3 %}
         v-model:value="product.visibilities"
-        {% else %}
-        v-model="product.visibilities"
-        {% endif %}
         :inherited-value="product.visibilities"
         class="sw-product-category-form__visibility_field"
         :custom-remove-inheritance-function="visibilitiesRemoveInheritanceFunction"
@@ -23,7 +19,7 @@
                 :entity-collection="currentValue"
                 :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
                 :disabled="disabled"
-                @change="updateCurrentValue"
+                @update:entity-collection="updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -58,6 +54,7 @@
         v-if="displayVisibilityDetail"
         :title="$tc('sw-product.visibility.textHeadline')"
         class="sw-product-category-form__visibility_modal"
+        variant="large"
         @modal-close="closeModal"
     >
         <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>

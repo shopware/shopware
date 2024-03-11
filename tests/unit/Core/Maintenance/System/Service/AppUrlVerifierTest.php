@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\RequestOptions;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -15,115 +15,118 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Service\AppUrlVerifier
  */
+#[CoversClass(AppUrlVerifier::class)]
 class AppUrlVerifierTest extends TestCase
 {
-    private Client&MockObject $guzzleMock;
+    private MockHandler $mockHandler;
+
+    private Client $client;
 
     private Connection&MockObject $connection;
 
     protected function setUp(): void
     {
-        $this->guzzleMock = $this->createMock(Client::class);
+        $this->mockHandler = new MockHandler();
+        $this->client = new Client(['handler' => $this->mockHandler]);
         $this->connection = $this->createMock(Connection::class);
     }
 
     public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void
     {
-        $this->guzzleMock->expects(static::never())
-            ->method('get');
-
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'dev', false);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'dev', false);
 
         static::assertTrue($verifier->isAppUrlReachable(new SymfonyRequest()));
+
+        $request = $this->mockHandler->getLastRequest();
+        static::assertNull($request);
     }
 
     public function testAppUrlReachableReturnsTrueIfAppUrlCheckIsDisabled(): void
     {
-        $this->guzzleMock->expects(static::never())
-            ->method('get');
-
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', true);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', true);
 
         static::assertTrue($verifier->isAppUrlReachable(new SymfonyRequest()));
+
+        $request = $this->mockHandler->getLastRequest();
+        static::assertNull($request);
     }
 
     public function testAppUrlReachableReturnsTrueIfRequestIsMadeToSameDomain(): void
     {
-        $this->guzzleMock->expects(static::never())
-            ->method('get');
-
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
 
         $request = SymfonyRequest::create(EnvironmentHelper::getVariable('APP_URL') . '/api/_info/config');
 
         static::assertTrue($verifier->isAppUrlReachable($request));
+
+        $request = $this->mockHandler->getLastRequest();
+        static::assertNull($request);
     }
 
     public function testAppUrlReachableReturnsTrueIfAppUrlIsReachable(): void
     {
-        $this->guzzleMock->expects(static::once())
-            ->method('get')
-            ->with(
-                EnvironmentHelper::getVariable('APP_URL') . '/api/_info/version',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer Token',
-                    ],
-                    RequestOptions::TIMEOUT => 1,
-                    RequestOptions::CONNECT_TIMEOUT => 1,
-                ]
-            )->willReturn(new Response());
+        $this->mockHandler->append(new Response());
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
 
         $request = SymfonyRequest::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
 
         static::assertTrue($verifier->isAppUrlReachable($request));
+
+        $request = $this->mockHandler->getLastRequest();
+        static::assertNotNull($request);
+
+        static::assertSame('GET', $request->getMethod());
+        static::assertSame(
+            EnvironmentHelper::getVariable('APP_URL') . '/api/_info/version',
+            (string) $request->getUri()
+        );
+
+        $authHeader = $request->getHeader('Authorization');
+        static::assertContains('Bearer Token', $authHeader);
+
+        $requestOptions = $this->mockHandler->getLastOptions();
+        static::assertSame(1, $requestOptions['timeout']);
+        static::assertSame(1, $requestOptions['connect_timeout']);
     }
 
     public function testAppUrlReachableReturnsFalseOnNot200Status(): void
     {
-        $this->guzzleMock->expects(static::once())
-            ->method('get')
-            ->with(
-                EnvironmentHelper::getVariable('APP_URL') . '/api/_info/version',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer Token',
-                    ],
-                    RequestOptions::TIMEOUT => 1,
-                    RequestOptions::CONNECT_TIMEOUT => 1,
-                ]
-            )->willReturn(new Response(404));
+        $this->mockHandler->append(new Response(404));
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
 
         $request = SymfonyRequest::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
 
         static::assertFalse($verifier->isAppUrlReachable($request));
+
+        $request = $this->mockHandler->getLastRequest();
+        static::assertNotNull($request);
+
+        static::assertSame('GET', $request->getMethod());
+        static::assertSame(
+            EnvironmentHelper::getVariable('APP_URL') . '/api/_info/version',
+            (string) $request->getUri()
+        );
+
+        $authHeader = $request->getHeader('Authorization');
+        static::assertContains('Bearer Token', $authHeader);
+
+        $requestOptions = $this->mockHandler->getLastOptions();
+        static::assertSame(1, $requestOptions['timeout']);
+        static::assertSame(1, $requestOptions['connect_timeout']);
     }
 
     public function testAppUrlReachableReturnsFalseOnException(): void
     {
-        $this->guzzleMock->expects(static::once())
-            ->method('get')
-            ->with(
-                EnvironmentHelper::getVariable('APP_URL') . '/api/_info/version',
-                [
-                    'headers' => [
-                        'Authorization' => 'Bearer Token',
-                    ],
-                    RequestOptions::TIMEOUT => 1,
-                    RequestOptions::CONNECT_TIMEOUT => 1,
-                ]
-            )->willThrowException(new TransferException());
+        $client = new Client([
+            'handler' => MockHandler::createWithMiddleware([new Response(500)]),
+        ]);
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($client, $this->connection, 'prod', false);
 
         $request = SymfonyRequest::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
@@ -137,7 +140,7 @@ class AppUrlVerifierTest extends TestCase
             ->method('fetchOne')
             ->willReturn('0');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
 
         static::assertFalse($verifier->hasAppsThatNeedAppUrl());
     }
@@ -148,7 +151,7 @@ class AppUrlVerifierTest extends TestCase
             ->method('fetchOne')
             ->willReturn('1');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
+        $verifier = new AppUrlVerifier($this->client, $this->connection, 'prod', false);
 
         static::assertTrue($verifier->hasAppsThatNeedAppUrl());
     }

@@ -4,7 +4,7 @@
 {% block sw_price_preview %}
 <div class="sw-price-preview">
     <span>
-        {{ priceForCurrency.gross | currency(currency.isoCode) }} | {{ priceForCurrency.net | currency(currency.isoCode) }}
+        {{ currencyFilter(priceForCurrency.gross, currency.isoCode) }} | {{ currencyFilter(priceForCurrency.net, currency.isoCode) }}
     </span>
 </div>
 {% endblock %}

@@ -12,11 +12,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @extends EntityCollection<OrderEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCurrencyIds(): array
     {
@@ -29,7 +29,7 @@ class OrderCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getSalesChannelIs(): array
     {

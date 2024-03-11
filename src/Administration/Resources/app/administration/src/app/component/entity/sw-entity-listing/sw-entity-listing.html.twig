@@ -67,6 +67,7 @@
 {% block sw_data_grid_bulk_delete_modal %}
 <sw-modal
     v-if="showBulkDeleteModal"
+    class="sw-entity-listing__confirm-bulk-delete-modal"
     variant="small"
     :title="$tc('global.default.warning')"
     @modal-close="showBulkDeleteModal = false"

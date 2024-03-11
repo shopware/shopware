@@ -79,12 +79,12 @@
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"
+                            :key="settingsGroup"
                             :name="settingsGroup"
                         >
                             <div
                                 v-show="active === settingsGroup"
                                 :id="`sw-settings__content-grid-${settingsGroup}`"
-                                :key="settingsGroup"
                                 class="sw-settings__content-grid"
                             >
                                 <sw-settings-item

@@ -42,13 +42,11 @@
             {% block single_cms_page_main %}
                 <main class="content-main">
                     {% block single_cms_page_main_content %}
-                        {# @deprecated tag:v6.6.0 - page.landingPage.cmsPage will be removed due to ununsed #}
-                        {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
+                        {% set cmsPage = page.cmsPage %}
                         {% set cmsPageClasses = ('cms-page ' ~ cmsPage.cssClass|striptags)|trim %}
                         <div class="{{ cmsPageClasses }}">
                             {% block page_content_blocks %}
-                                {# @deprecated tag:v6.6.0 - 'landingPage' will be removed due to ununsed #}
-                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': cmsPage, 'landingPage': page.landingPage} %}
+                                {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with { 'cmsPage': cmsPage } %}
                             {% endblock %}
                         </div>
                     {% endblock %}

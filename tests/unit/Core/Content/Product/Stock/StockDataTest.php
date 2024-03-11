@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\StockData
  */
+#[CoversClass(StockData::class)]
 class StockDataTest extends TestCase
 {
     public function testAccessors(): void

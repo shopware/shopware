@@ -2,14 +2,17 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Returns the cookie-configuration.html.twig template including all cookies returned by the "getCookieGroup"-method
@@ -29,7 +32,8 @@ class CookieController extends StorefrontController
      */
     public function __construct(
         private readonly CookieProviderInterface $cookieProvider,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $salesChannelAnalyticsRepository
     ) {
     }
 
@@ -38,9 +42,7 @@ class CookieController extends StorefrontController
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups();
         $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
-
         $cookieGroups = $this->filterComfortFeaturesCookie($context->getSalesChannelId(), $cookieGroups);
-
         $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
 
         $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', ['cookieGroups' => $cookieGroups]);
@@ -54,9 +56,7 @@ class CookieController extends StorefrontController
     {
         $cookieGroups = $this->cookieProvider->getCookieGroups();
         $cookieGroups = $this->filterGoogleAnalyticsCookie($context, $cookieGroups);
-
         $cookieGroups = $this->filterComfortFeaturesCookie($context->getSalesChannelId(), $cookieGroups);
-
         $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
 
         $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', ['cookieGroups' => $cookieGroups]);
@@ -72,7 +72,13 @@ class CookieController extends StorefrontController
      */
     private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array
     {
-        if ($context->getSalesChannel()->getAnalytics() && $context->getSalesChannel()->getAnalytics()->isActive()) {
+        $salesChannel = $context->getSalesChannel();
+
+        if (!$salesChannel->getAnalytics() && $salesChannel->getAnalyticsId()) {
+            $this->loadAnalytics($context);
+        }
+
+        if ($salesChannel->getAnalytics() && $salesChannel->getAnalytics()->isActive()) {
             return $cookieGroups;
         }
 
@@ -82,7 +88,7 @@ class CookieController extends StorefrontController
             if ($cookieGroup['snippet_name'] === 'cookie.groupStatistical') {
                 $cookieGroup['entries'] = array_filter($cookieGroup['entries'], fn ($item) => $item['snippet_name'] !== 'cookie.groupStatisticalGoogleAnalytics');
                 // Only add statistics cookie group if it has entries
-                if (\count((array) $cookieGroup['entries']) > 0) {
+                if (\count($cookieGroup['entries']) > 0) {
                     $filteredGroups[] = $cookieGroup;
                 }
 
@@ -92,6 +98,19 @@ class CookieController extends StorefrontController
         }
 
         return $filteredGroups;
+    }
+
+    private function loadAnalytics(SalesChannelContext $context): void
+    {
+        $salesChannel = $context->getSalesChannel();
+
+        $criteria = new Criteria([(string) $salesChannel->getAnalyticsId()]);
+        $criteria->setTitle('cookie-controller::load-analytics');
+
+        /** @var SalesChannelAnalyticsEntity|null $analytics */
+        $analytics = $this->salesChannelAnalyticsRepository->search($criteria, $context->getContext())->first();
+
+        $salesChannel->setAnalytics($analytics);
     }
 
     /**

@@ -2,38 +2,26 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/app/component/form/select/base/sw-grouped-single-select';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
+import { mount } from '@vue/test-utils';
 
-const createSelect = async (customOptions) => {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-
-    const options = {
-        localVue,
-        stubs: {
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>',
+const createWrapper = async (customOptions = {}) => {
+    const wrapper = mount(await wrapTestComponent('sw-grouped-single-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-icon': {
+                    template: '<div @click="$emit(\'click\', $event)"></div>',
+                },
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
             },
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
         },
-        propsData: {
+        props: {
             value: null,
             options: [
                 {
@@ -63,34 +51,32 @@ const createSelect = async (customOptions) => {
                 },
             ],
         },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-grouped-single-select'), {
-        ...options,
         ...customOptions,
     });
+
+    await flushPromises();
+
+    return wrapper;
 };
 
 describe('components/sw-grouped-single-select', () => {
-    it('should be a Vue.js component', async () => {
-        const swGroupedSingleSelect = await createSelect();
-
-        expect(swGroupedSingleSelect.vm).toBeTruthy();
-    });
-
     it('should open the result list on click on .sw-select__selection', async () => {
-        const swGroupedSingleSelect = await createSelect();
-        await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
+        const wrapper = await createWrapper();
 
-        const resultList = swGroupedSingleSelect.find('.sw-select-result-list__content');
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const resultList = wrapper.find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
     });
 
     it('should show the results items and groups', async () => {
-        const swGroupedSingleSelect = await createSelect();
-        await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
+        const wrapper = await createWrapper();
 
-        const listElements = swGroupedSingleSelect.findAll('.sw-select-result-list__item-list li');
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const listElements = wrapper.findAll('.sw-select-result-list__item-list li');
 
         expect(listElements.at(0).text()).toBe('Group 1');
         expect(listElements.at(1).text()).toBe('Entry 1');
@@ -100,22 +86,28 @@ describe('components/sw-grouped-single-select', () => {
     });
 
     it('should close the result list after clicking an item', async () => {
-        const swGroupedSingleSelect = await createSelect();
+        const wrapper = await createWrapper();
 
-        await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
-        await swGroupedSingleSelect.find('.sw-select-option--0').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
-        const resultList = swGroupedSingleSelect.find('.sw-select-result-list__content');
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
+        const resultList = wrapper.find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeFalsy();
     });
 
     it('should not close the result list after clicking a group', async () => {
-        const swGroupedSingleSelect = await createSelect();
+        const wrapper = await createWrapper();
 
-        await swGroupedSingleSelect.find('.sw-select__selection').trigger('click');
-        await swGroupedSingleSelect.find('.sw-grouped-single-select__group-separator').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
-        const resultList = swGroupedSingleSelect.find('.sw-select-result-list__content');
-        expect(resultList.exists()).toBeTruthy();
+        await wrapper.find('.sw-grouped-single-select__group-separator').trigger('click');
+        await flushPromises();
+
+        const resultList = wrapper.find('.sw-select-result-list__content');
+        expect(resultList.exists()).toBe(true);
     });
 });

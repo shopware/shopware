@@ -450,7 +450,7 @@ function mergeConfigs(defaultConfig: DragConfig|DropConfig, binding: { value: un
  * See the {DragConfig} for all possible config options.
  */
 Shopware.Directive.register('draggable', {
-    inserted(el: DragHTMLElement, binding: { value: unknown }) {
+    mounted(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
         el.dragConfig = dragConfig;
         el.boundDragListener = onDrag.bind(this, el, el.dragConfig);
@@ -462,7 +462,7 @@ Shopware.Directive.register('draggable', {
         }
     },
 
-    update(el: DragHTMLElement, binding: { value: unknown }) {
+    updated(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
         if (el.dragConfig && el.dragConfig.disabled !== dragConfig.disabled) {
@@ -489,7 +489,7 @@ Shopware.Directive.register('draggable', {
         Object.assign(el.dragConfig, dragConfig);
     },
 
-    unbind(el: DragHTMLElement, binding: { value: unknown }) {
+    unmounted(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
         el.classList.remove(dragConfig.draggableCls);
@@ -510,7 +510,7 @@ Shopware.Directive.register('draggable', {
  * See the {dropConfig} for all possible config options.
  */
 Shopware.Directive.register('droppable', {
-    inserted(el: HTMLElement, binding: { value: unknown }) {
+    mounted(el: HTMLElement, binding: { value: unknown }) {
         const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
         dropZones.push({ el, dropConfig });
@@ -520,7 +520,7 @@ Shopware.Directive.register('droppable', {
         el.addEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
     },
 
-    unbind(el: HTMLElement, binding: { value: unknown }) {
+    unmounted(el: HTMLElement, binding: { value: unknown }) {
         const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
         dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
@@ -530,7 +530,7 @@ Shopware.Directive.register('droppable', {
         el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
     },
 
-    update: (el: HTMLElement, binding: { value: unknown }) => {
+    updated: (el: HTMLElement, binding: { value: unknown }) => {
         const dropZone = dropZones.find(zone => zone.el === el);
         if (!dropZone) {
             return;
@@ -545,7 +545,7 @@ Shopware.Directive.register('droppable', {
 });
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export type { DragConfig, DropConfig };
 /* @private */

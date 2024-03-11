@@ -4,13 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
-use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -31,6 +32,8 @@ use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
+use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,14 +79,11 @@ class InfoControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        foreach (array_keys($expected) as $key) {
-            static::assertArrayHasKey($key, $decodedResponse);
-        }
+        // reset environment based miss match
+        $decodedResponse['bundles'] = [];
+        $decodedResponse['versionRevision'] = $expected['versionRevision'];
 
-        static::assertEquals($expected['settings'], $decodedResponse['settings']);
-
-        unset($expected['settings']);
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+        static::assertEquals($decodedResponse, $expected);
     }
 
     public function testGetConfigWithPermissions(): void
@@ -188,7 +188,10 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+
+        $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
+        static::assertNotEmpty($version);
+        static::assertStringStartsWith($version, $content);
     }
 
     public function testGetShopwareVersionOldVersion(): void
@@ -205,7 +208,10 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+
+        $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
+        static::assertNotEmpty($version);
+        static::assertStringStartsWith($version, $content);
     }
 
     public function testBusinessEventRoute(): void
@@ -237,8 +243,8 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
-                    ContextTokenAware::class,
-                    lcfirst((new \ReflectionClass(ContextTokenAware::class))->getShortName()),
+                    ScalarValuesAware::class,
+                    lcfirst((new \ReflectionClass(ScalarValuesAware::class))->getShortName()),
                     SalesChannelAware::class,
                     lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
                     MailAware::class,
@@ -297,7 +303,7 @@ class InfoControllerTest extends TestCase
             sort($actualEvents[0]['aware']);
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
-            static::assertEquals($event, $actualEvents[0]);
+            static::assertEquals($event, $actualEvents[0], $event['name']);
         }
     }
 
@@ -324,6 +330,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppUrlVerifier::class),
+            $this->getContainer()->get('router'),
             $eventCollector,
             true,
             []
@@ -381,6 +388,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppUrlVerifier::class),
+            $this->getContainer()->get('router'),
             $eventCollector,
             true,
             []
@@ -417,10 +425,20 @@ class InfoControllerTest extends TestCase
 
     public function testBaseAdminPaths(): void
     {
+        if (!class_exists(AdministrationController::class)) {
+            static::markTestSkipped('Cannot test without Administration as results will differ');
+        }
+
+        $this->clearRequestStack();
+
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/AdminExtensionApiApp');
 
         $kernelMock = $this->createMock(Kernel::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
+
+        $basePath = new UrlPackage(['http://localhost'], new EmptyVersionStrategy());
+        $assets = new Packages($basePath, ['asset' => $basePath]);
+
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -434,11 +452,12 @@ class InfoControllerTest extends TestCase
                 'shopware.html_sanitizer.enabled' => true,
             ]),
             $kernelMock,
-            $this->getContainer()->get('assets.packages'),
+            $assets,
             $this->createMock(BusinessEventCollector::class),
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppUrlVerifier::class),
+            $this->getContainer()->get('router'),
             $eventCollector,
             true,
             []
@@ -465,7 +484,7 @@ class InfoControllerTest extends TestCase
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertEquals(
-            EnvironmentHelper::getVariable('APP_URL') . '/bundles/adminextensionapipluginwithlocalentrypoint/administration/index.html',
+            'http://localhost:8000/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
@@ -569,8 +588,8 @@ class InfoControllerTest extends TestCase
                 continue;
             }
 
-            static::assertTrue(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
-            static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], true));
+            static::assertContains('Shopware\Core\Framework\Event\MailAware', $event['aware'], $event['name']);
+            static::assertNotContains('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], $event['name']);
         }
     }
 

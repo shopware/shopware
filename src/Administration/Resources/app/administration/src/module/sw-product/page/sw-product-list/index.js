@@ -106,8 +106,6 @@ export default {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
-            productCriteria.addAssociation('media');
-            productCriteria.addAssociation('configuratorSettings.option');
 
             this.filterCriteria.forEach(filter => {
                 productCriteria.addFilter(filter);
@@ -220,6 +218,22 @@ export default {
                 const { inlineEdit, ...restParams } = item;
                 return restParams;
             });
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
         },
     },
 

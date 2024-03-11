@@ -8,7 +8,7 @@ describe('Category: SDK Test', ()=> {
         cy.getSDKiFrame('sw-main-hidden')
             .should('exist');
     });
-    it('@sdk: add settings without searchbar', { tags: ['ct-admin'] }, () => {
+    it('@sdk: add settings without searchbar', { tags: ['ct-admin', 'VUE3'] }, () => {
         cy.contains('.sw-settings__content-header', 'Settings');
         cy.get('.sw-loader')
             .should('not.exist');
@@ -31,7 +31,7 @@ describe('Category: SDK Test', ()=> {
         cy.get('.sw-page__search-bar')
             .should('not.exist');
     });
-    it('@sdk: add settings with searchbar', { tags: ['ct-admin'] }, () => {
+    it('@sdk: add settings with searchbar', { tags: ['ct-admin', 'VUE3'] }, () => {
         cy.get('.sw-settings')
             .click();
         cy.get('.sw-settings__tab-plugins')

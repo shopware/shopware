@@ -1,8 +1,8 @@
 import 'src/app/mixin/salutation.mixin';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount({
+    return mount({
         template: `
             <div class="sw-mock">
               <slot></slot>
@@ -17,10 +17,6 @@ async function createWrapper() {
             };
         },
     }, {
-        stubs: {},
-        mocks: {},
-        propsData: {},
-        provide: {},
         attachTo: document.body,
     });
 }
@@ -41,14 +37,6 @@ describe('src/app/mixin/salutation.mixin.ts', () => {
         }
 
         wrapper = await createWrapper();
-
-        await flushPromises();
-    });
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
 
         await flushPromises();
     });

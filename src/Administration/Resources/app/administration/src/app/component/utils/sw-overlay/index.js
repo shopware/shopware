@@ -4,8 +4,7 @@ import template from './sw-overlay.html.twig';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Renders an overlay layer for panels, input fields, buttons, etc.
  * @status ready
  * @example-type dynamic

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<LicenseDomainStruct>
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class LicenseDomainCollection extends Collection
 {
     public function add($element): void

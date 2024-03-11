@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -10,10 +11,9 @@ use Shopware\Core\Migration\V6_5\Migration1675323588ChangeEnglishLocaleTranslati
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale
  */
 #[Package('system-settings')]
+#[CoversClass(Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale::class)]
 class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocaleTest extends TestCase
 {
     private Connection $connection;

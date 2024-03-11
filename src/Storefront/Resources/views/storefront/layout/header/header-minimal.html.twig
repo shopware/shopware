@@ -14,7 +14,7 @@
 
                         {% block layout_header_minimal_contact %}
                             <div class="col-md-4 header-minimal-contact">
-                                {{ "header.supportInfo"|trans|sw_sanitize }}
+                                {{ 'header.supportInfo'|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
@@ -22,8 +22,8 @@
                             <div class="col-md-4 header-minimal-back-to-shop">
                                 <a href="{{ path('frontend.home.page') }}"
                                    class="btn btn-outline-primary header-minimal-back-to-shop-button"
-                                   title="{{ "checkout.finishButtonBackToShop"|trans|striptags }}">
-                                    {{ "checkout.finishButtonBackToShop"|trans|striptags }}
+                                   title="{{ 'checkout.finishButtonBackToShop'|trans|striptags }}">
+                                    {{ 'checkout.finishButtonBackToShop'|trans|striptags }}
                                 </a>
                             </div>
                         {% endblock %}

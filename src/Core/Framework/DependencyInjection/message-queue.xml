@@ -13,8 +13,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="messenger.bus.shopware" alias="messenger.default_bus" />
-
         <!--Controller-->
         <service id="Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController" public="true">
             <argument type="service" id="messenger.receiver_locator"/>

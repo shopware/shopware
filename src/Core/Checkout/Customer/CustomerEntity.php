@@ -21,7 +21,7 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerEntity extends Entity implements \Stringable
 {
     use EntityCustomFieldsTrait;

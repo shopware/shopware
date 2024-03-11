@@ -22,10 +22,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     /**
@@ -141,7 +141,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->where('`customer_wishlist_id` = :id');
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
-        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), ArrayParameterType::STRING);
+        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), ArrayParameterType::BINARY);
         $result = $query->executeQuery();
 
         /** @var array<string, string> $values */

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\EventListener;
 
 use Composer\InstalledVersions;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
@@ -60,9 +61,7 @@ class ExpectationSubscriberTest extends TestCase
         $this->expectationSubscriber->checkExpectations($event);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testExpectMatchesShopwareVersion(): void
     {
         $request = $this->makeRequest();
@@ -95,9 +94,7 @@ class ExpectationSubscriberTest extends TestCase
         $this->expectationSubscriber->checkExpectations($event);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testExpectMatchesShopwareVersionAndPlugin(): void
     {
         $this->expectationSubscriber = new ExpectationSubscriber('6.3.0.0', [['composerName' => 'swag/paypal', 'active' => true, 'version' => '1.0.0']]);

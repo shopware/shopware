@@ -186,7 +186,7 @@ class SearchKeywordUpdater implements ResetInterface
             $this->connection->executeStatement(
                 'DELETE FROM product_search_keyword WHERE product_id IN (:ids) AND language_id = :language AND version_id = :versionId',
                 $params,
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
     }
@@ -284,7 +284,7 @@ class SearchKeywordUpdater implements ResetInterface
         $query->andWhere('config.language_id IN (:languageIds)');
         $query->andWhere('configField.searchable = 1');
 
-        $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::STRING);
+        $query->setParameter('languageIds', Uuid::fromHexToBytesList([$languageId, Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
 
         /** @var array<int, ConfigField> $all */
         $all = $query->executeQuery()->fetchAllAssociative();

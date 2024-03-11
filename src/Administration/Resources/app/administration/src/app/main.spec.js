@@ -36,6 +36,8 @@ describe('src/app/main.ts', () => {
         UserActivityService: undefined,
         EntityValidationService: undefined,
         CustomEntityDefinitionService: undefined,
+        addUsageDataConsentListener: undefined,
+        FileValidationService: undefined,
     };
 
     beforeAll(async () => {
@@ -162,6 +164,12 @@ describe('src/app/main.ts', () => {
         jest.mock('src/app/service/custom-entity-definition.service');
         serviceMocks.CustomEntityDefinitionService = (await import('src/app/service/custom-entity-definition.service')).default;
 
+        jest.mock('src/core/service/usage-data-consent-listener.service');
+        serviceMocks.addUsageDataConsentListener = (await import('src/core/service/usage-data-consent-listener.service')).default;
+
+        jest.mock('src/app/service/file-validation.service');
+        serviceMocks.FileValidationService = (await import('src/app/service/file-validation.service')).default;
+
         // Reset the Shopware object to make sure that the application is not already initialized
         Shopware = undefined;
         // Import the Shopware object
@@ -219,10 +227,10 @@ describe('src/app/main.ts', () => {
         expect(initializers).toContain('actionButton');
         expect(initializers).toContain('actions');
         expect(initializers).toContain('extensionDataHandling');
-        expect(initializers).toContain('cookies');
         expect(initializers).toContain('language');
         expect(initializers).toContain('userInformation');
         expect(initializers).toContain('worker');
+        expect(initializers).toContain('usageData');
     });
 
     it('should add all services to Application', () => {
@@ -259,6 +267,7 @@ describe('src/app/main.ts', () => {
         expect(services).toContain('recentlySearchService');
         expect(services).toContain('searchPreferencesService');
         expect(services).toContain('userActivityService');
+        expect(services).toContain('fileValidationService');
     });
 
     it('should create imported services on usage', () => {
@@ -388,5 +397,9 @@ describe('src/app/main.ts', () => {
         expect(serviceMocks.UserActivityService).not.toHaveBeenCalled();
         Shopware.Service('userActivityService');
         expect(serviceMocks.UserActivityService).toHaveBeenCalled();
+
+        expect(serviceMocks.FileValidationService).not.toHaveBeenCalled();
+        Shopware.Service('fileValidationService');
+        expect(serviceMocks.FileValidationService).toHaveBeenCalled();
     });
 });

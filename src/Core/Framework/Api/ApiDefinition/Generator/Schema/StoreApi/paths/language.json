@@ -41,6 +41,7 @@
                                                     }
                                                 }
                                             },
+                                            "required": ["elements"],
                                             "type": "object"
                                         },
                                         {

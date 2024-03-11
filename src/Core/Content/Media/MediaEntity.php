@@ -16,13 +16,16 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -30,7 +33,10 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('content')]
+/**
+ * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool}}
+ */
+#[Package('buyers-experience')]
 class MediaEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -180,6 +186,8 @@ class MediaEntity extends Entity
      */
     protected $thumbnailsRo;
 
+    protected ?string $path = null;
+
     /**
      * @var DocumentBaseConfigCollection|null
      */
@@ -230,9 +238,21 @@ class MediaEntity extends Entity
      */
     protected $appPaymentMethods;
 
+    /**
+     * @var EntityCollection<AppShippingMethodEntity>|null
+     */
+    protected ?EntityCollection $appShippingMethods = null;
+
     protected ?ProductDownloadCollection $productDownloads = null;
 
     protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
+
+    /**
+     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     *
+     * @var MediaConfig|null
+     */
+    protected ?array $config;
 
     public function get(string $property)
     {
@@ -423,7 +443,7 @@ class MediaEntity extends Entity
     {
         $hasFile = $this->mimeType !== null && $this->fileExtension !== null && $this->fileName !== null;
 
-        return $this->hasFile = $hasFile;
+        return $this->hasFile = $hasFile || $this->path !== null;
     }
 
     public function getFileName(): ?string
@@ -578,6 +598,7 @@ class MediaEntity extends Entity
     {
         $data = parent::jsonSerialize();
         unset($data['metaDataRaw'], $data['mediaTypeRaw']);
+        $data['hasFile'] = $this->hasFile();
 
         return $data;
     }
@@ -662,6 +683,22 @@ class MediaEntity extends Entity
         $this->appPaymentMethods = $appPaymentMethods;
     }
 
+    /**
+     * @return EntityCollection<AppShippingMethodEntity>|null
+     */
+    public function getAppShippingMethods(): ?EntityCollection
+    {
+        return $this->appShippingMethods;
+    }
+
+    /**
+     * @param EntityCollection<AppShippingMethodEntity> $appShippingMethods
+     */
+    public function setAppShippingMethods(EntityCollection $appShippingMethods): void
+    {
+        $this->appShippingMethods = $appShippingMethods;
+    }
+
     public function getProductDownloads(): ?ProductDownloadCollection
     {
         return $this->productDownloads;
@@ -680,5 +717,48 @@ class MediaEntity extends Entity
     public function setOrderLineItemDownloads(OrderLineItemDownloadCollection $orderLineItemDownloads): void
     {
         $this->orderLineItemDownloads = $orderLineItemDownloads;
+    }
+
+    public function hasPath(): bool
+    {
+        return $this->path !== null;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path ?? '';
+    }
+
+    public function setPath(?string $path): void
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     *
+     * @return MediaConfig|null
+     */
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    /**
+     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     *
+     * @param MediaConfig|null $configuration
+     */
+    public function setConfig(?array $configuration): void
+    {
+        $this->config = $configuration;
+    }
+
+    /**
+     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     */
+    public function isSpatialObject(): bool
+    {
+        return $this->mediaType instanceof SpatialObjectType;
     }
 }

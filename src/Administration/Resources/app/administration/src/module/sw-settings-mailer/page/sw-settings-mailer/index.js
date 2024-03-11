@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-settings-mailer.html.twig';
 import './sw-settings-mailer.scss';
@@ -47,7 +47,7 @@ export default {
                     name: this.$tc('sw-settings-mailer.sendmail.sync'),
                 },
                 {
-                    value: '-t',
+                    value: '-t -i',
                     name: this.$tc('sw-settings-mailer.sendmail.async'),
                 },
             ];
@@ -80,7 +80,7 @@ export default {
             if (Object.keys(this.mailerSettings).length === 0) {
                 this.mailerSettings = {
                     'core.mailerSettings.emailAgent': '',
-                    'core.mailerSettings.sendMailOptions': '-t',
+                    'core.mailerSettings.sendMailOptions': '-t -i',
                 };
             }
 

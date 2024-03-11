@@ -19,30 +19,30 @@
     <services>
         <defaults public="true"/>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler">
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\RefundTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\RefundTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
             <tag name="shopware.payment.method.refund"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\SyncTestFailedPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.sync"/>
         </service>
@@ -57,10 +57,6 @@
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NamedOptionalGroupDefinition">
             <tag name="shopware.entity.definition"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
-            <tag name="shopware.entity.definition" entity="calculated_price_field_test" />
         </service>
 
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition">
@@ -116,7 +112,9 @@
         </service>
 
         <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
-        <service id="messenger.bus.test_shopware" alias="messenger.bus.shopware" public="true"/>
+        <service id="messenger.bus.test_shopware" class="Symfony\Component\Messenger\TraceableMessageBus" decorates="messenger.bus.shopware">
+            <argument type="service" id=".inner"/>
+        </service>
 
         <service id="mailer.mailer" class="Symfony\Component\Mailer\Mailer">
             <argument type="service" id="mailer.transports" />
@@ -124,16 +122,16 @@
             <argument type="service" id="debug.event_dispatcher" on-invalid="ignore" />
         </service>
 
-        <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
+        <service id="test.browser" alias="test.client" />
+
+        <service id="test.client" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
-            <argument type="service" id="event_dispatcher"/>
             <argument>%test.client.parameters%</argument>
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Monolog\Handler\NullHandler">
-        </service>
+        <service id="Monolog\Handler\NullHandler"/>
 
         <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
             <tag name="messenger.message_handler"/>

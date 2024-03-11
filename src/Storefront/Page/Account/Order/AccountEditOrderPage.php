@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountEditOrderPage extends Page
 {
     /**

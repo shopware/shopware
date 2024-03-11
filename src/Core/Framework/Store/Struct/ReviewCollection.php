@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<ReviewStruct>
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ReviewCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

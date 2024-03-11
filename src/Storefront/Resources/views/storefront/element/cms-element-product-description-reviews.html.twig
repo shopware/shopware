@@ -25,12 +25,7 @@
                                             <a class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link description-tab"
                                                id="{{ descriptionTabId }}"
                                                data-bs-toggle="tab"
-                                                {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
-                                                {% if feature('v6.6.0.0') %}
-                                                    data-off-canvas-tabs="true"
-                                                {% else %}
-                                                    data-offcanvas-tabs="true"
-                                                {% endif %}
+                                               data-off-canvas-tabs="true"
                                                href="{{ descriptionTabHref }}"
                                                role="tab"
                                                aria-controls="{{ descriptionTabContent }}"
@@ -62,12 +57,7 @@
                                                 <a class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link review-tab"
                                                    id="{{ reviewTabId }}"
                                                    data-bs-toggle="tab"
-                                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
-                                                    {% if feature('v6.6.0.0') %}
-                                                        data-off-canvas-tabs="true"
-                                                    {% else %}
-                                                        data-offcanvas-tabs="true"
-                                                    {% endif %}
+                                                   data-off-canvas-tabs="true"
                                                    href="{{ reviewTabHref }}"
                                                    role="tab"
                                                    aria-controls="{{ reviewTabContent }}"

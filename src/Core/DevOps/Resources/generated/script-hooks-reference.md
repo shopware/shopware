@@ -442,6 +442,18 @@ All available Hooks that can be used to load additional data.
 | <!-- -->               | <!-- -->                                |
 |:-----------------------|:----------------------------------------|
 | **Name**               | country-sate-data-pagelet-loaded                         |
+| **Since**              | 6.7.0.0                        |
+| **Class**              | `Shopware\Storefront\Pagelet\Country\CountrySateDataPageletLoadedHook`                      |
+| **Description**        | Deprecated class with the typo in the HOOK_NAME constant.<br>                  |
+| **Available Data**     | pagelet: [`Shopware\Storefront\Pagelet\Country\CountryStateDataPagelet`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Pagelet/Country/CountryStateDataPagelet.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[request](./miscellaneous-script-services-reference.md#RequestFacade)<br> |
+| **Stoppable**          | `false`                  |
+
+#### country-state-data-pagelet-loaded
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | country-state-data-pagelet-loaded                         |
 | **Since**              | 6.4.8.0                        |
 | **Class**              | `Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook`                      |
 | **Description**        | Triggered when the CountryStateDataPagelet is loaded<br>                  |

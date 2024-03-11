@@ -45,7 +45,7 @@ export default {
 
     getters: {
         getActiveCampaign(state) {
-            if (Shopware.Service('shopwareDiscountCampaignService').isDiscountCampaignActive(state.campaign)) {
+            if (Shopware.Service('shopwareDiscountCampaignService')?.isDiscountCampaignActive(state.campaign)) {
                 return state.campaign;
             }
 

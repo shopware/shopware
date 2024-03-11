@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -29,6 +29,10 @@ class PluginService
 {
     final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<LanguageCollection> $languageRepo
+     */
     public function __construct(
         private readonly string $pluginDir,
         private readonly string $projectDir,
@@ -170,14 +174,11 @@ class PluginService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
-        $result = $this->languageRepo->search($criteria, $context);
+        $languageEntity = $this->languageRepo->search($criteria, $context)->getEntities()->first();
 
-        if ($result->getTotal() === 0) {
+        if ($languageEntity === null) {
             return '';
         }
-
-        /** @var LanguageEntity $languageEntity */
-        $languageEntity = $result->first();
 
         return $languageEntity->getId();
     }

@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
+
+Shopware Install (onPrem):
+  stage: unit
+  needs: []
+  services:
+    - name: mariadb:10.11
+      alias: database
+  tags:
+    - shopware
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+  image: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:${CI_BUILD_IMAGE_TAG}
+  script:
+    - mkdir project
+    - cd project
+    - export PROJECT_ROOT=$(pwd)
+    - touch .env
+    - touch .gitignore
+    - mkdir -p custom/plugins custom/apps custom/static-plugins
+    - cp ../.gitlab/composer-on-prem-install.json composer.json
+    - composer install
+    - ./bin/console system:install --basic-setup --create-database
+    - ./bin/console framework:demodata -e prod
+    - ./bin/console dal:refresh:index
+    - ./bin/build-administration.sh
+    - ./bin/build-storefront.sh

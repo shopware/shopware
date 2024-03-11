@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -30,17 +31,23 @@ class ManifestValidatorTest extends TestCase
         $this->manifestValidator->validate($manifest, Context::createDefaultContext());
     }
 
-    public function testValidateInvalidManifest(): void
+    #[DataProvider('invalidManifestProvider')]
+    public function testValidateInvalidManifest(string $exceptionMessage): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidManifest/manifest.xml');
 
-        static::expectException(AppValidationException::class);
-        static::expectExceptionMessage('The app "invalidName" is invalid');
-        static::expectExceptionMessage('Missing translations for "Metadata":');
-        static::expectExceptionMessage('The technical app name "invalidName" in the "manifest.xml" and the folder name must be equal.');
-        static::expectExceptionMessage('The following custom components are not allowed to be used in app configuration:');
-        static::expectExceptionMessage('The following webhooks are not hookable:');
-        static::expectExceptionMessage('The following permissions are missing:');
+        $this->expectException(AppValidationException::class);
+        $this->expectExceptionMessage($exceptionMessage);
         $this->manifestValidator->validate($manifest, Context::createDefaultContext());
+    }
+
+    public static function invalidManifestProvider(): \Generator
+    {
+        yield ['The app "invalidManifestName" is invalid'];
+        yield ['Missing translations for "Metadata":'];
+        yield ['The technical app name "invalidManifestName" in the "manifest.xml" and the folder name must be equal.'];
+        yield ['The following custom components are not allowed to be used in app configuration:'];
+        yield ['The following webhooks are not hookable:'];
+        yield ['The following permissions are missing:'];
     }
 }

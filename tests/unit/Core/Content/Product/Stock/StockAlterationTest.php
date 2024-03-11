@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockAlteration;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\StockAlteration
  */
+#[CoversClass(StockAlteration::class)]
 class StockAlterationTest extends TestCase
 {
     public function testAccessors(): void

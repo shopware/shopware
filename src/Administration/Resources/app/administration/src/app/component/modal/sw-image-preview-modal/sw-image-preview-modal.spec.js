@@ -2,11 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/modal/sw-image-preview-modal';
-import SwImageSlider from 'src/app/asyncComponent/media/sw-image-slider';
-
-Shopware.Component.register('sw-image-slider', SwImageSlider);
+import { mount } from '@vue/test-utils';
 
 const mediaItems = [
     {
@@ -88,22 +84,34 @@ function createImage(element = null, dimension = {}) {
     return image;
 }
 
-async function createWrapper(propsData = {}, listeners = {}) {
-    return shallowMount(await Shopware.Component.build('sw-image-preview-modal'), {
-        stubs: {
-            'sw-icon': true,
-            'sw-image-slider': await Shopware.Component.build('sw-image-slider'),
+async function createWrapper(props = {}, listeners = {}) {
+    return mount(await wrapTestComponent('sw-image-preview-modal', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-icon': true,
+                'sw-image-slider': await wrapTestComponent('sw-image-slider', {
+                    sync: true,
+                }),
+            },
+            listeners,
         },
-        listeners,
-        propsData: {
+        props: {
             mediaItems,
             activeItemId: '0',
-            ...propsData,
+            ...props,
         },
     });
 }
 
 describe('src/app/component/modal/sw-image-preview-modal', () => {
+    it('should render the component correctly', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm).toBeTruthy();
+    });
+
     it('should navigate image slider correctly when clicking on thumbnail item', async () => {
         const wrapper = await createWrapper();
         const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
@@ -118,12 +126,12 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         // Only display 1st item
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         // Show border around 1st item
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
@@ -136,11 +144,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         expect(containerScrollable.attributes().style)
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
@@ -154,12 +162,12 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         // Only display 4th item
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         // Show border around 4th item
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
@@ -173,11 +181,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         const arrowRight = wrapper.find('.sw-image-preview-modal__image-slider .arrow-right');
 
         let expectedIndex = 0;
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
@@ -185,11 +193,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         await arrowRight.trigger('click');
 
         expectedIndex = 1;
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
@@ -199,11 +207,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         await arrowRight.trigger('click');
 
         expectedIndex = 4;
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
@@ -212,11 +220,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         await arrowLeft.trigger('click');
 
         expectedIndex = 2;
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
@@ -230,58 +238,61 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         const thumbnailItems = wrapper.findAll('.sw-image-preview-modal__thumbnail-slider .sw-image-slider__element-container');
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
-        imageItems.wrappers.forEach((item, index) => {
+        imageItems.forEach((item, index) => {
             expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
-        thumbnailItems.wrappers.forEach((item, index) => {
+        thumbnailItems.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
 
     it('should able to click Zoom In button', async () => {
         const wrapper = await createWrapper();
-        const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
-        const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
-        const btnReset = wrapper.findComponent({ ref: 'btnReset' });
         const image = wrapper.find('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
         const staticStyles = 'object-fit: contain; transition: all 350ms ease 0s;';
 
         wrapper.vm.getActiveImage = jest.fn().mockImplementation(() => Promise.resolve());
 
         // Mock image with natural size bigger than offset size
-        await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage),
-        });
+        wrapper.vm.image = createImage(wrapper.vm.image, zoomableImage);
 
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        wrapper.vm.imageSliderMounted = false;
+        await wrapper.vm.afterComponentsMounted();
+
+        await flushPromises();
+
+        const btnZoomIn = wrapper.find({ ref: 'btnZoomIn' });
+        const btnZoomOut = wrapper.find({ ref: 'btnZoomOut' });
+        const btnReset = wrapper.find({ ref: 'btnReset' });
 
         /* Initial states of buttons after updating image,
             zoom in button is available since its natural size is bigger than offset sizes
         */
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         // Click on zoom in button
         await btnZoomIn.trigger('click');
+        await flushPromises();
 
         // The image is not zoomed in to max value
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBeFalsy();
-        expect(btnReset.attributes('disabled')).toBeFalsy();
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBeUndefined();
+        expect(btnReset.attributes('disabled')).toBeUndefined();
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
 
         // Further click on zoom in button
         await btnZoomIn.trigger('click');
+        await flushPromises();
 
         // The image is zoomed in to max value
-        expect(btnZoomIn.attributes('disabled')).toBe('disabled');
-        expect(btnZoomOut.attributes('disabled')).toBeFalsy();
-        expect(btnReset.attributes('disabled')).toBeFalsy();
+        expect(btnZoomIn.attributes('disabled')).toBe('');
+        expect(btnZoomOut.attributes('disabled')).toBeUndefined();
+        expect(btnReset.attributes('disabled')).toBeUndefined();
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
@@ -291,37 +302,39 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should able to click Zoom Out button', async () => {
         const wrapper = await createWrapper();
-        const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
-        const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
-        const btnReset = wrapper.findComponent({ ref: 'btnReset' });
+        const btnZoomIn = wrapper.find({ ref: 'btnZoomIn' });
+        const btnZoomOut = wrapper.find({ ref: 'btnZoomOut' });
+        const btnReset = wrapper.find({ ref: 'btnReset' });
         const image = wrapper.find('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
         const staticStyles = 'object-fit: contain; transition: all 350ms ease 0s;';
 
         wrapper.vm.getActiveImage = jest.fn().mockImplementation(() => Promise.resolve());
 
         // Mock image with natural size bigger than offset size
-        await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage),
-        });
+        wrapper.vm.image = createImage(wrapper.vm.image, zoomableImage);
 
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        wrapper.vm.imageSliderMounted = false;
+        await wrapper.vm.afterComponentsMounted();
+
+        await flushPromises();
 
         /* Initial states of buttons after updating image,
             zoom in button is available since its natural size is bigger than offset sizes
         */
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         // Click on zoom in button to max value
         await btnZoomIn.trigger('click');
         await btnZoomIn.trigger('click');
 
+        await flushPromises();
+
         // The image is zoomed in to max value
-        expect(btnZoomIn.attributes('disabled')).toBe('disabled');
-        expect(btnZoomOut.attributes('disabled')).toBeFalsy();
-        expect(btnReset.attributes('disabled')).toBeFalsy();
+        expect(btnZoomIn.attributes('disabled')).toBe('');
+        expect(btnZoomOut.attributes('disabled')).toBeUndefined();
+        expect(btnReset.attributes('disabled')).toBeUndefined();
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(${wrapper.vm.maxZoomValue});`);
@@ -330,9 +343,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         // Click on zoom out button
         await btnZoomOut.trigger('click');
         // The image is not zoomed in to max value
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBeFalsy();
-        expect(btnReset.attributes('disabled')).toBeFalsy();
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBeUndefined();
+        expect(btnReset.attributes('disabled')).toBeUndefined();
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(${wrapper.vm.scale});`);
@@ -340,9 +353,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         // Further click on zoom out button
         await btnZoomOut.trigger('click');
         // The image is zoomed out to offset value
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(1);`);
@@ -352,35 +365,35 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should able to click Reset button', async () => {
         const wrapper = await createWrapper();
-        const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
-        const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
-        const btnReset = wrapper.findComponent({ ref: 'btnReset' });
+        const btnZoomIn = wrapper.find({ ref: 'btnZoomIn' });
+        const btnZoomOut = wrapper.find({ ref: 'btnZoomOut' });
+        const btnReset = wrapper.find({ ref: 'btnReset' });
         const image = wrapper.find('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
         const staticStyles = 'object-fit: contain; transition: all 350ms ease 0s;';
 
         wrapper.vm.getActiveImage = jest.fn().mockImplementation(() => Promise.resolve());
 
         // Mock image with natural size bigger than offset size
-        await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage),
-        });
+        wrapper.vm.image = createImage(wrapper.vm.image, zoomableImage);
 
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        wrapper.vm.imageSliderMounted = false;
+        await wrapper.vm.afterComponentsMounted();
+
+        await flushPromises();
 
         /* Initial states of buttons after updating image,
             zoom in button is available since its natural size is bigger than offset sizes
         */
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         // Click on zoom in button to max value
         await btnZoomIn.trigger('click');
         await btnZoomIn.trigger('click');
 
         // The image is zoomed in to max value
-        expect(btnZoomIn.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBe('');
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
@@ -390,9 +403,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         // Click on zoom reset button
         await btnReset.trigger('click');
         // The image is reseted to initial offset size
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(1);`);
@@ -402,9 +415,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should able to zoom image with mouse wheel', async () => {
         const wrapper = await createWrapper();
-        const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
-        const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
-        const btnReset = wrapper.findComponent({ ref: 'btnReset' });
+        const btnZoomIn = wrapper.find({ ref: 'btnZoomIn' });
+        const btnZoomOut = wrapper.find({ ref: 'btnZoomOut' });
+        const btnReset = wrapper.find({ ref: 'btnReset' });
 
         const image = wrapper.find('.sw-image-preview-modal__image-slider .sw-image-slider__element-image.is--active');
         const staticStyles = 'object-fit: contain; transition: all 350ms ease 0s;';
@@ -412,24 +425,24 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         wrapper.vm.getActiveImage = jest.fn().mockImplementation(() => Promise.resolve());
 
         // Mock image with natural size bigger than offset size
-        await wrapper.setData({
-            image: createImage(wrapper.vm.image, zoomableImage),
-        });
+        wrapper.vm.image = createImage(wrapper.vm.image, zoomableImage);
 
-        await wrapper.vm.$forceUpdate();
-        await wrapper.vm.$nextTick();
+        wrapper.vm.imageSliderMounted = false;
+        await wrapper.vm.afterComponentsMounted();
+
+        await flushPromises();
 
         /* Initial states of buttons after updating image,
             zoom in button is available since its natural size is bigger than offset sizes
         */
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         // Wheel down to zoom
         await wrapper.trigger('wheel', { wheelDelta: 200 });
 
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
@@ -440,7 +453,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         // Wheel down to max value
         await wrapper.trigger('wheel', { wheelDelta: 600 });
 
-        expect(btnZoomIn.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBe('');
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
@@ -450,7 +463,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         // Further wheel down
         await wrapper.trigger('wheel', { wheelDelta: 2000 });
 
-        expect(btnZoomIn.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBe('');
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
@@ -461,7 +474,7 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         await wrapper.trigger('wheel', { wheelDelta: -300 });
 
         // The image is reseted to initial offset size
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
         expect(btnZoomOut.attributes('disabled')).toBeFalsy();
         expect(btnReset.attributes('disabled')).toBeFalsy();
 
@@ -472,9 +485,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         await wrapper.trigger('wheel', { wheelDelta: -2000 });
 
         // The image is reseted to initial offset size
-        expect(btnZoomIn.attributes('disabled')).toBeFalsy();
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBeUndefined();
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
 
         expect(image.attributes('style'))
             .toContain(`${staticStyles} transform: scale(1);`);
@@ -484,9 +497,9 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
     it('should update button states correctly when image is updated', async () => {
         const wrapper = await createWrapper();
-        const btnZoomIn = wrapper.findComponent({ ref: 'btnZoomIn' });
-        const btnZoomOut = wrapper.findComponent({ ref: 'btnZoomOut' });
-        const btnReset = wrapper.findComponent({ ref: 'btnReset' });
+        const btnZoomIn = wrapper.find({ ref: 'btnZoomIn' });
+        const btnZoomOut = wrapper.find({ ref: 'btnZoomOut' });
+        const btnReset = wrapper.find({ ref: 'btnReset' });
 
         wrapper.vm.getActiveImage = jest.fn().mockImplementation(() => Promise.resolve());
 
@@ -498,8 +511,8 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         await wrapper.vm.$forceUpdate();
         await wrapper.vm.$nextTick();
 
-        expect(btnZoomIn.attributes('disabled')).toBe('disabled');
-        expect(btnZoomOut.attributes('disabled')).toBe('disabled');
-        expect(btnReset.attributes('disabled')).toBe('disabled');
+        expect(btnZoomIn.attributes('disabled')).toBe('');
+        expect(btnZoomOut.attributes('disabled')).toBe('');
+        expect(btnReset.attributes('disabled')).toBe('');
     });
 });

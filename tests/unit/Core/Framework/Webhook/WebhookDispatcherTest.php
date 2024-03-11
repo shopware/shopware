@@ -8,23 +8,28 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
-use Shopware\Core\Test\CollectingMessageBus;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -32,9 +37,8 @@ use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\WebhookDispatcher
  */
+#[CoversClass(WebhookDispatcher::class)]
 class WebhookDispatcherTest extends TestCase
 {
     private EventDispatcherInterface&MockObject $dispatcher;
@@ -70,7 +74,6 @@ class WebhookDispatcherTest extends TestCase
         $this->prepareContainer($webhookEntity);
 
         $this->dispatcher->expects(static::once())->method('dispatch')->with($event, $event->getName())->willReturn($event);
-
         $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$event]);
 
         $expectedRequest = new Request(
@@ -125,7 +128,6 @@ class WebhookDispatcherTest extends TestCase
         $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
 
         $this->dispatcher->expects(static::once())->method('dispatch')->with($event, $event->getName())->willReturn($event);
-
         $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$event]);
 
         $this->getWebhookDispatcher(false)->dispatch($event, $event->getName());
@@ -160,6 +162,267 @@ class WebhookDispatcherTest extends TestCase
         static::assertEquals($message->getWebhookId(), $webhookEntity->getId());
     }
 
+    public function testWebhookSettingForLiveVersionOnlyIsIgnoredIfEventTypeDoesNotMatch(): void
+    {
+        $event = new AppFlowActionEvent('foobar', ['foo' => 'bar'], ['foo' => 'bar']);
+
+        $webhookEntity = $this->getWebhookEntity($event->getName());
+
+        $webhookEntity->setOnlyLiveVersion(true);
+
+        $this->prepareContainer($webhookEntity);
+        $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
+
+        $this->dispatcher->expects(static::once())->method('dispatch')->with($event, $event->getName())->willReturn($event);
+        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$event]);
+
+        $this->getWebhookDispatcher(false)->dispatch($event, $event->getName());
+
+        $messages = $this->bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $envelop = $messages[0];
+        static::assertInstanceOf(Envelope::class, $envelop);
+        $message = $envelop->getMessage();
+        static::assertInstanceOf(WebhookEventMessage::class, $message);
+    }
+
+    public function testWebhooksForLiveVersionOnlyAreCalledIfPayloadHasLiveVersion(): void
+    {
+        $entityRepository = new StaticEntityRepository([], new ProductDefinition());
+
+        $event = $entityRepository->create([
+            [
+                'id' => Uuid::randomHex(),
+                'versionId' => Defaults::LIVE_VERSION,
+            ],
+        ], Context::createDefaultContext());
+
+        /** @var EntityWrittenEvent $eventByEntityName */
+        $eventByEntityName = $event->getEventByEntityName('product');
+        $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
+
+        $webhookEntity = $this->getWebhookEntity('product.written');
+        $webhookEntity->setOnlyLiveVersion(true);
+
+        $this->prepareContainer($webhookEntity);
+        $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
+
+        $this->dispatcher->expects(static::once())->method('dispatch')->with($event, 'product.written')->willReturn($event);
+        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+
+        /** @var AppEntity $app */
+        $app = $webhookEntity->getApp();
+
+        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => Uuid::fromHexToBytes($app->getAclRoleId()),
+                'privileges' => json_encode(['product:read']),
+            ],
+        ]);
+
+        $this->getWebhookDispatcher(false)->dispatch($event, 'product.written');
+
+        $messages = $this->bus->getMessages();
+
+        static::assertCount(1, $messages);
+
+        $envelop = $messages[0];
+        static::assertInstanceOf(Envelope::class, $envelop);
+        $message = $envelop->getMessage();
+        static::assertInstanceOf(WebhookEventMessage::class, $message);
+    }
+
+    public function testWebhooksForLiveVersionOnlyAreIgnoredIfPayloadDoesNotHaveLiveVersion(): void
+    {
+        $entityRepository = new StaticEntityRepository([], new ProductDefinition());
+
+        $event = $entityRepository->create([
+            [
+                'id' => Uuid::randomHex(),
+                'versionId' => Uuid::randomHex(),
+            ],
+        ], Context::createDefaultContext());
+
+        /** @var EntityWrittenEvent $eventByEntityName */
+        $eventByEntityName = $event->getEventByEntityName('product');
+        $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
+
+        $webhookEntity = $this->getWebhookEntity('product.written');
+        $webhookEntity->setOnlyLiveVersion(true);
+
+        $this->container->set('webhook.repository', new StaticEntityRepository([new WebhookCollection([$webhookEntity])]));
+        $this->container->set(AppLocaleProvider::class, $this->createMock(AppLocaleProvider::class));
+        $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
+
+        $this->dispatcher->expects(static::once())->method('dispatch')->with($event, 'product.written')->willReturn($event);
+        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+
+        $this->getWebhookDispatcher(false)->dispatch($event, 'product.written');
+
+        $messages = $this->bus->getMessages();
+        static::assertEmpty($messages);
+    }
+
+    public function testWebhooksAreCalledForNonLiveVersionConfig(): void
+    {
+        $entityRepository = new StaticEntityRepository([], new ProductDefinition());
+
+        $event = $entityRepository->create([
+            [
+                'id' => Uuid::randomHex(),
+                'versionId' => Uuid::randomHex(),
+            ],
+        ], Context::createDefaultContext());
+
+        /** @var EntityWrittenEvent $eventByEntityName */
+        $eventByEntityName = $event->getEventByEntityName('product');
+        $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
+
+        $webhookEntity = $this->getWebhookEntity('product.written');
+        $webhookEntity->setOnlyLiveVersion(false);
+
+        $this->prepareContainer($webhookEntity);
+        $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
+
+        $this->dispatcher->expects(static::once())->method('dispatch')->with($event, 'product.written')->willReturn($event);
+        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+
+        /** @var AppEntity $app */
+        $app = $webhookEntity->getApp();
+
+        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => Uuid::fromHexToBytes($app->getAclRoleId()),
+                'privileges' => json_encode(['product:read']),
+            ],
+        ]);
+
+        $this->getWebhookDispatcher(false)->dispatch($event, 'product.written');
+
+        $messages = $this->bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $envelop = $messages[0];
+        static::assertInstanceOf(Envelope::class, $envelop);
+        $message = $envelop->getMessage();
+        static::assertInstanceOf(WebhookEventMessage::class, $message);
+    }
+
+    public function testPayloadOfWebhookForLiveVersionOnlyIsFiltered(): void
+    {
+        $entityRepository = new StaticEntityRepository([], new ProductDefinition());
+
+        $firstId = Uuid::randomHex();
+        $secondId = Uuid::randomHex();
+        $event = $entityRepository->create([
+            [
+                'id' => $firstId,
+                'versionId' => Defaults::LIVE_VERSION,
+            ],
+            [
+                'id' => $secondId,
+                'versionId' => Uuid::randomHex(),
+            ],
+        ], Context::createDefaultContext());
+
+        /** @var EntityWrittenEvent $eventByEntityName */
+        $eventByEntityName = $event->getEventByEntityName('product');
+        $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
+
+        $webhookEntity = $this->getWebhookEntity('product.written');
+        $webhookEntity->setOnlyLiveVersion(true);
+
+        $this->prepareContainer($webhookEntity);
+        $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
+
+        $this->dispatcher->expects(static::once())->method('dispatch')->with($event, 'product.written')->willReturn($event);
+        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+
+        /** @var AppEntity $app */
+        $app = $webhookEntity->getApp();
+
+        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => Uuid::fromHexToBytes($app->getAclRoleId()),
+                'privileges' => json_encode(['product:read']),
+            ],
+        ]);
+
+        $this->getWebhookDispatcher(false)->dispatch($event, 'product.written');
+
+        $messages = $this->bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $envelop = $messages[0];
+        static::assertInstanceOf(Envelope::class, $envelop);
+        $message = $envelop->getMessage();
+        static::assertInstanceOf(WebhookEventMessage::class, $message);
+
+        $payload = $message->getPayload();
+        static::assertCount(1, $payload['data']['payload']);
+        static::assertNotFalse(json_encode($payload));
+        static::assertStringContainsString($firstId, json_encode($payload));
+        static::assertStringNotContainsString($secondId, json_encode($payload));
+    }
+
+    public function testPayloadIsLeftUnchangedForNonLiveVersionConfig(): void
+    {
+        $entityRepository = new StaticEntityRepository([], new ProductDefinition());
+
+        $firstId = Uuid::randomHex();
+        $secondId = Uuid::randomHex();
+        $event = $entityRepository->create([
+            [
+                'id' => $firstId,
+                'versionId' => Defaults::LIVE_VERSION,
+            ],
+            [
+                'id' => $secondId,
+                'versionId' => Uuid::randomHex(),
+            ],
+        ], Context::createDefaultContext());
+
+        /** @var EntityWrittenEvent $eventByEntityName */
+        $eventByEntityName = $event->getEventByEntityName('product');
+        $hookableEvent = HookableEntityWrittenEvent::fromWrittenEvent($eventByEntityName);
+
+        $webhookEntity = $this->getWebhookEntity('product.written');
+        $webhookEntity->setOnlyLiveVersion(false);
+
+        $this->prepareContainer($webhookEntity);
+        $this->container->set('webhook_event_log.repository', new StaticEntityRepository([]));
+
+        $this->dispatcher->expects(static::once())->method('dispatch')->with($event, 'product.written')->willReturn($event);
+        $this->eventFactory->expects(static::once())->method('createHookablesFor')->with($event)->willReturn([$hookableEvent]);
+
+        /** @var AppEntity $app */
+        $app = $webhookEntity->getApp();
+
+        $this->connection->expects(static::once())->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => Uuid::fromHexToBytes($app->getAclRoleId()),
+                'privileges' => json_encode(['product:read']),
+            ],
+        ]);
+
+        $this->getWebhookDispatcher(false)->dispatch($event, 'product.written');
+
+        $messages = $this->bus->getMessages();
+        static::assertCount(1, $messages);
+
+        $envelop = $messages[0];
+        static::assertInstanceOf(Envelope::class, $envelop);
+        $message = $envelop->getMessage();
+        static::assertInstanceOf(WebhookEventMessage::class, $message);
+
+        $payload = $message->getPayload();
+        static::assertCount(2, $payload['data']['payload']);
+        static::assertNotFalse(json_encode($payload));
+        static::assertStringContainsString($firstId, json_encode($payload));
+        static::assertStringContainsString($secondId, json_encode($payload));
+    }
+
     private function getWebhookDispatcher(bool $isAdminWorkerEnabled): WebhookDispatcher
     {
         return new WebhookDispatcher(
@@ -191,6 +454,7 @@ class WebhookDispatcherTest extends TestCase
         $webhookEntity->setEventName($eventName);
         $webhookEntity->setApp($appEntity);
         $webhookEntity->setUrl('https://foo.bar');
+        $webhookEntity->setOnlyLiveVersion(false);
 
         return $webhookEntity;
     }

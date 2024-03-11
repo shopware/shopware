@@ -15,9 +15,9 @@ To improve the abilities of Apps, they should be able to execute code synchronou
 - shipping method calculation
 - flow builder extensions
 
-The app system requires that this code is in some way sandboxed, with no direct access to the database or filesystem and the code is not saved on the server.
+The app system requires that this code is in some way sandboxed, with no direct access to the database or filesystem, and the code is not saved on the server.
 
-Additionally, such Scripting feature generally improves the capabilities of the AppSystem, this feature is not bound to the AppSystem exclusively, it should be possible to add standalone scripts.
+Additionally, such a Scripting feature generally improves the capabilities of the AppSystem, this feature is not bound to the AppSystem exclusively, it should be possible to add standalone scripts.
 
 ## Decision
 
@@ -117,20 +117,20 @@ class ScriptEventRegistry
 ### Data Loading
 
 To allow apps to fetch additional data for the storefront, we will introduce PageLoaded-Hooks.
-Those hooks will orient themself on the Page and PageLoadedEvents already present in the storefront. So for each PageType and PageLoadedEvent we will create a seperate Hook class.
+Those hooks will orient themself on the Page and PageLoadedEvents already present in the storefront. So for each PageType and PageLoadedEvent we will create a separate Hook class.
 We will create separate HookClasses and not just one generic class, so we are able to type hint all the dynamic data that is available for that hook. That will improve the developer experience as it allows for autocompletion in the scripts and allows us to generate documentation for the hooks.
 The hooks will be instantiated and passed to the HookExecutor from the Controllers where the pages are loaded, so we are able to pass additional data if it is needed or makes sense.
 Additionally, we explicitly decided to not provide CriteriaEvent-Hooks, as that idea is contrary to the direction we may want to go with a separate and specialized data view for the storefront.
 
 ### Documentation
 
-To ensure app developers can use the full potential of the app scripts we need to ensure that we document the features of app scripts extensively and make sure that the documentation is always up-to-date.
-For this reason we decided to generate as much of the documentation as possible, so it never gets outdated and it's easier to generate full reference (e.g. all hook points that exist with the associated data and available services).
+To ensure app developers can use the full potential of the app scripts, we need to ensure that we document the features of app scripts extensively and make sure that the documentation is always up-to-date.
+For this reason we decided to generate as much of the documentation as possible, so it never gets outdated, and it's easier to generate full reference (e.g. all hook points that exist with the associated data and available services).
 
 ## Consequences
 
 - Added script events with the passed arguments need to be supported for a long time
 - We will create a new domain-specific way to interact with shopware core domain logic. This means we have to think of and develop a higher-level description of our core domain logic and represent it through new
-functions that perform domain-specific tasks. For example, the block cart function in the example above. Those domain objects represent the API of the AppScripts, therefore breaking changes need to be considered carefully and should definitely follow our general breaking change policy. 
-Additionally, the domain specific layer may allow us to not break the public interface, when the implementation in the underlying services may break, so we can try to ensure even longer compatibility in the domain layer.
-However, to make evolvability possible at all we need to inject the shopware version into the context of the app scripts, so that in the app scripts the version can be detected and new features used accordingly.
+functions that perform domain-specific tasks. For example, the block cart function in the example above. Those domain objects represent the API of the AppScripts, therefore, breaking changes need to be considered carefully and should definitely follow our general breaking change policy. 
+Additionally, the domain-specific layer may allow us to not break the public interface, when the implementation in the underlying services may break, so we can try to ensure even longer compatibility in the domain layer.
+However, to make evolvability possible at all, we need to inject the shopware version into the context of the app scripts, so that in the app scripts the version can be detected and new features used accordingly.

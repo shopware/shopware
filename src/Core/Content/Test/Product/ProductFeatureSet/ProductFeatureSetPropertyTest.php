@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\ProductFeatureSet;
 
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -15,9 +16,7 @@ class ProductFeatureSetPropertyTest extends TestCase
     use IntegrationTestBehaviour;
     use ProductFeatureSetFixtures;
 
-    /**
-     * @testWith    ["featureSet"]
-     */
+    #[TestWith(['featureSet'])]
     public function testDefinitionFieldsAreComplete(string $field): void
     {
         $definition = $this->getContainer()->get(ProductDefinition::class);
@@ -25,18 +24,14 @@ class ProductFeatureSetPropertyTest extends TestCase
         static::assertTrue($definition->getFields()->has($field));
     }
 
-    /**
-     * @testWith    ["getFeatureSet"]
-     */
+    #[TestWith(['getFeatureSet'])]
     public function testEntityIsComplete(string $method): void
     {
         static::assertTrue(method_exists(ProductEntity::class, $method));
     }
 
-    /**
-     * @testWith    ["FeatureSetBasic"]
-     *              ["FeatureSetComplete"]
-     */
+    #[TestWith(['FeatureSetBasic'])]
+    #[TestWith(['FeatureSetComplete'])]
     public function testFeatureSetsCanBeCreated(string $type): void
     {
         $this->getFeatureSetFixture($type);

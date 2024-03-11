@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -39,10 +40,9 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
- *
- * @group not-deterministic
  */
 #[Package('core')]
+#[Group('not-deterministic')]
 class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
 {
     use BasicTestDataBehaviour;
@@ -82,7 +82,10 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             ]
         );
 
-        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        $ruleIds = [];
+        if ($shippingRuleId = $shippingMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $shippingRuleId;
+        }
         if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
             $ruleIds[] = $paymentRuleId;
         }

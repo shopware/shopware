@@ -6,6 +6,7 @@ import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';
 import adminMenu from './admin-menu.store';
+import adminHelpCenter from './admin-help-center.store';
 import context from './context.store';
 import licenseViolation from './license-violation.store';
 import error from './error.store';
@@ -23,6 +24,7 @@ import modals from './modals.store';
 import actionButtons from './action-button.store';
 import ruleConditionsConfig from './rule-conditions-config.store';
 import sdkLocation from './sdk-location.store';
+import usageData from './usage-data.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -30,6 +32,7 @@ export default {
     session,
     system,
     adminMenu,
+    adminHelpCenter,
     licenseViolation,
     context,
     error,
@@ -47,4 +50,5 @@ export default {
     actionButtons,
     ruleConditionsConfig,
     sdkLocation,
+    usageData,
 };

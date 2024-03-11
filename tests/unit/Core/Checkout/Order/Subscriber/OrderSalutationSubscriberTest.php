@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEvents;
@@ -14,13 +15,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
- *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber
  */
-#[Package('customer-order')]
+#[Package('checkout')]
+#[CoversClass(OrderSalutationSubscriber::class)]
 class OrderSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;

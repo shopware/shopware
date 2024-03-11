@@ -2,34 +2,30 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
+import { mount } from '@vue/test-utils';
 
-const createWrapper = async (customOptions) => {
-    return shallowMount(await Shopware.Component.build('sw-select-base'), {
-        stubs: {
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>',
+import 'src/app/component/form/select/base/sw-single-select';
+
+const createWrapper = async () => {
+    const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-icon': {
+                    template: '<div @click="$emit(\'click\', $event)"></div>',
+                },
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
             },
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
         },
-        ...customOptions,
     });
+
+    await flushPromises();
+
+    return wrapper;
 };
 
 describe('components/sw-select-base', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not show the clearable icon in the select base when prop is not set', async () => {
         const wrapper = await createWrapper();
 

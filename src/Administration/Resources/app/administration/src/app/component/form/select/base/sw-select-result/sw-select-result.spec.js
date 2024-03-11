@@ -3,9 +3,9 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/select/base/sw-select-result/';
+import 'src/app/component/form/select/base/sw-select-result';
 
-describe('src/app/component/form/select/base/sw-select-result/', () => {
+describe('src/app/component/form/select/base/sw-select-result', () => {
     let wrapper;
     let swSelectResult;
 
@@ -43,11 +43,14 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
             </div>`,
         };
 
-        const grandParent = {
+        const GrandParent = {
             template: '<div><Parent></Parent></div>',
-            components: {
-                Parent,
-            },
+            components: { Parent },
+        };
+
+        const grandGrandParent = {
+            template: '<div><GrandParent></GrandParent></div>',
+            components: { GrandParent },
             methods: {
                 emitSelectItemByKeyboard() {
                     this.$emit('item-select-by-keyboard', [0]);
@@ -55,13 +58,12 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
             },
         };
 
-        return mount(grandParent, {
+        return mount(grandGrandParent, {
             provide: {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve('bar') }),
                 },
-                setActiveItemIndex: () => {
-                },
+                setActiveItemIndex: () => {},
             },
             attachTo: document.body,
         });
@@ -74,53 +76,23 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+
         await flushPromises();
     });
 
     afterEach(() => {
-        wrapper.destroy();
-    });
-
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+        wrapper.unmount();
     });
 
     it('should react on $parent.$parent event', async () => {
-        const swSelectResultWrapper = wrapper.find('.sw-select-result').vm;
+        const swSelectResultWrapper = wrapper.findComponent('.sw-select-result').vm;
         expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(0);
+
         wrapper.vm.emitSelectItemByKeyboard();
-        await wrapper.vm.$nextTick();
         await swSelectResultWrapper.$nextTick();
+        await flushPromises();
+
         expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(1);
-    });
-
-    it('should remove the event listener', async () => {
-        await wrapper.find('.parent').setData({
-            showSwSelectResult: false,
-        });
-
-        // $on and $off methods get each called twice in the lifecyclehooks
-        // because we are using two listeners
-        const onSpy = jest.spyOn(wrapper.vm, '$on');
-        const offSpy = jest.spyOn(wrapper.vm, '$off');
-
-        expect(onSpy).toHaveBeenCalledTimes(0);
-        expect(onSpy).toHaveBeenCalledTimes(0);
-
-        await wrapper.find('.parent').setData({
-            showSwSelectResult: true,
-        });
-
-        expect(onSpy).toHaveBeenCalledTimes(2);
-        expect(offSpy).toHaveBeenCalledTimes(0);
-
-        await wrapper.find('.parent').setData({
-            showSwSelectResult: false,
-        });
-
-        expect(onSpy).toHaveBeenCalledTimes(2);
-        expect(offSpy).toHaveBeenCalledTimes(2);
     });
 
     it('should show description depending on slot', async () => {

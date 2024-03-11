@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
@@ -44,9 +46,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\AppLifecycle
  */
+#[CoversClass(AppLifecycle::class)]
 class AppLifecycleTest extends TestCase
 {
     public function testInstallNotCompatibleApp(): void
@@ -57,10 +58,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects(static::never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle(new StaticEntityRepository([]), new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
+        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App test is not compatible with this Shopware version');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App test is not compatible with this Shopware version');
         $appLifecycle->install($manifest, false, Context::createDefaultContext());
     }
 
@@ -72,10 +73,10 @@ class AppLifecycleTest extends TestCase
         $appRepository = $this->createMock(EntityRepository::class);
         $appRepository->expects(static::never())->method('upsert');
 
-        $appLifecycle = $this->getAppLifecycle(new StaticEntityRepository([]), new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
+        $appLifecycle = $this->getAppLifecycle($appRepository, new StaticEntityRepository([]), null, $this->createMock(AppLoader::class));
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('App test is not compatible with this Shopware version');
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('App test is not compatible with this Shopware version');
         $appLifecycle->update($manifest, ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
     }
 
@@ -311,6 +312,9 @@ class AppLifecycleTest extends TestCase
         ?AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
         AbstractAppLoader $appLoader
     ): AppLifecycle {
+        /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
+        $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
+
         return new AppLifecycle(
             $appRepository,
             $this->createMock(PermissionPersister::class),
@@ -331,7 +335,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->createMock(ConfigValidator::class),
             $this->createMock(EntityRepository::class),
-            new StaticEntityRepository([new AclRoleCollection()]),
+            $aclRoleRepo,
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
             __DIR__,
@@ -342,7 +346,9 @@ class AppLifecycleTest extends TestCase
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',
             $this->createMock(FlowEventPersister::class),
-            'test'
+            'test',
+            $this->createMock(ShippingMethodPersister::class),
+            $this->createMock(EntityRepository::class),
         );
     }
 

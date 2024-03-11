@@ -3,21 +3,23 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction
  */
+#[Package('services-settings')]
+#[CoversClass(AddOrderAffiliateAndCampaignCodeAction::class)]
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -26,15 +28,11 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 
     private AddOrderAffiliateAndCampaignCodeAction $action;
 
-    private MockObject&StorableFlow $flow;
-
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new AddOrderAffiliateAndCampaignCodeAction($this->connection, $this->repository);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -54,44 +52,44 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
      * @param array<string, mixed> $config
      * @param array<string, mixed> $existedData
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, array $existedData, array $expected): void
     {
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturn($existedData);
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        $withData = [[...[
-            'id' => $this->flow->getData('orderId'),
-        ], ...$expected]];
+        $orderId = Uuid::randomHex();
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $orderId,
+        ]);
+        $flow->setConfig($config);
+
+        $expected['id'] = $orderId;
 
         $this->repository->expects(static::once())
             ->method('update')
-            ->with($withData);
+            ->with([$expected]);
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
-        $this->repository->expects(static::never())->method('update');
+        $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->action->handleFlow($this->flow);
+        $this->repository->expects(static::never())->method('update');
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => Uuid::randomHex(),
+        ]);
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator

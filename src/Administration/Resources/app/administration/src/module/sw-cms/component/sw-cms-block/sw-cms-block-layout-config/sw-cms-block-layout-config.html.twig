@@ -4,11 +4,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_layout_config_css_class %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="block.cssClass"
-        {% else %}
-        v-model="block.cssClass"
-        {% endif %}
         :label="$tc('sw-cms.detail.label.cssClassField')"
         :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
     />
@@ -17,11 +13,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_layout_config_top_margin_field %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="block.marginTop"
-        {% else %}
-        v-model="block.marginTop"
-        {% endif %}
         :label="$tc('sw-cms.detail.label.blockTopMarginField')"
     />
     {% endblock %}
@@ -29,11 +21,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_layout_config_bottom_margin_field %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="block.marginBottom"
-        {% else %}
-        v-model="block.marginBottom"
-        {% endif %}
         :label="$tc('sw-cms.detail.label.blockBottomMarginField')"
     />
     {% endblock %}
@@ -41,11 +29,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_layout_config_left_margin_field %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="block.marginLeft"
-        {% else %}
-        v-model="block.marginLeft"
-        {% endif %}
         :label="$tc('sw-cms.detail.label.blockLeftMarginField')"
     />
     {% endblock %}
@@ -53,11 +37,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_layout_config_right_margin_field %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="block.marginRight"
-        {% else %}
-        v-model="block.marginRight"
-        {% endif %}
         :label="$tc('sw-cms.detail.label.blockRightMarginField')"
     />
     {% endblock %}

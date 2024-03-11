@@ -15,11 +15,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_information_name %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="category.name"
-                {% else %}
-                v-model="category.name"
-                {% endif %}
                 required
                 name="categoryName"
                 validation="required"
@@ -33,11 +29,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_information_active %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="category.active"
-                {% else %}
-                v-model="category.active"
-                {% endif %}
                 :disabled="!acl.can('category.editor')"
                 name="categoryActive"
                 class="sw-category-detail-base__active"
@@ -50,11 +42,7 @@
         {% block sw_category_detail_information_tags %}
         <sw-entity-tag-select
             v-if="category && !isLoading"
-            {% if VUE3 %}
             v-model:entityCollection="category.tags"
-            {% else %}
-            v-model="category.tags"
-            {% endif %}
             class="sw-category-detail-base__tags"
             :label="$tc('sw-category.base.general.labelCategoryTags')"
             :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
@@ -69,11 +57,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_detail_information_type_select %}
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="category.type"
-                {% else %}
-                v-model="category.type"
-                {% endif %}
                 class="sw-category-detail-base__type-selection"
                 :help-text="categoryTypeHelpText"
                 :label="$tc('sw-category.base.general.types.title')"

@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

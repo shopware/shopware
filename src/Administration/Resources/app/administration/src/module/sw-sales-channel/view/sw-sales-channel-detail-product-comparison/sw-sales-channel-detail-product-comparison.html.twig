@@ -17,7 +17,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_input_header %}
             <sw-code-editor
-                v-model="productExport.headerTemplate"
+                v-model:value="productExport.headerTemplate"
                 :label="$tc('sw-sales-channel.detail.productComparison.inputHeaderLabel')"
                 :completer-function="outerCompleterFunctionHeader"
                 :editor-config="editorConfig"
@@ -26,7 +26,7 @@
                 :soft-wraps="true"
                 :set-focus="false"
                 :disabled="!acl.can('sales_channel.editor')"
-                @input="resetValid"
+                @update:value="resetValid"
                 @blur="resetValid"
             />
             {% endblock %}
@@ -39,7 +39,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_input_body %}
             <sw-code-editor
-                v-model="productExport.bodyTemplate"
+                v-model:value="productExport.bodyTemplate"
                 :label="$tc('sw-sales-channel.detail.productComparison.inputBodyLabel')"
                 :completer-function="outerCompleterFunctionBody"
                 :editor-config="editorConfig"
@@ -48,7 +48,7 @@
                 :soft-wraps="true"
                 :set-focus="false"
                 :disabled="!acl.can('sales_channel.editor')"
-                @input="resetValid"
+                @update:value="resetValid"
                 @blur="resetValid"
             />
             {% endblock %}
@@ -61,7 +61,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_input_footer %}
             <sw-code-editor
-                v-model="productExport.footerTemplate"
+                v-model:value="productExport.footerTemplate"
                 :label="$tc('sw-sales-channel.detail.productComparison.inputFooterLabel')"
                 :completer-function="outerCompleterFunctionFooter"
                 :editor-config="editorConfig"
@@ -70,7 +70,7 @@
                 :soft-wraps="true"
                 :set-focus="false"
                 :disabled="!acl.can('sales_channel.editor')"
-                @input="resetValid"
+                @update:value="resetValid"
                 @blur="resetValid"
             />
             {% endblock %}

@@ -3,7 +3,7 @@ title: Document template refactoring
 date: 2020-08-12
 area: customer-order
 tags: [document, template, twig]
---- 
+---
 
 ## Context
 Our document templates did not support nested line items. To make this possible, we had to split the document templates into smaller templates.

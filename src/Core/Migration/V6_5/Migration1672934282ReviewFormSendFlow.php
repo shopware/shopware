@@ -31,10 +31,6 @@ class Migration1672934282ReviewFormSendFlow extends MigrationStep
         $this->createFlow($connection, $templateId);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function createFlow(Connection $connection, string $mailtTemplateId): void
     {
         $flowId = Uuid::randomBytes();

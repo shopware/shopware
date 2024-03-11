@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -17,9 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ProductListRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -86,9 +86,7 @@ class ProductListRouteTest extends TestCase
         static::assertContains('Other translation', $names);
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testListingProductsLimit(): void
     {
         $this->browser->request(

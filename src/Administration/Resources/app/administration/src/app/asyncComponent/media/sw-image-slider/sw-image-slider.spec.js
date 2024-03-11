@@ -1,10 +1,7 @@
 /**
  * @package content
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import SwImageSlider from 'src/app/asyncComponent/media/sw-image-slider/index';
-
-Shopware.Component.register('sw-image-slider', SwImageSlider);
+import { mount } from '@vue/test-utils';
 
 const images = [
     {
@@ -35,18 +32,9 @@ function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) 
         : expectedIndex * itemPerPage * itemWidth;
 }
 
-async function createWrapper(propsData = {}, listeners = {}) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-image-slider'), {
-        localVue,
-        stubs: {
-            'sw-icon': true,
-        },
-        provide: {
-        },
-        listeners,
-        propsData: {
+async function createWrapper(additionalProps = {}) {
+    return mount(await wrapTestComponent('sw-image-slider', { sync: true }), {
+        props: {
             ...{
                 canvasWidth: 218,
                 canvasHeight: 229,
@@ -54,7 +42,12 @@ async function createWrapper(propsData = {}, listeners = {}) {
                 navigationType: 'all',
                 images,
             },
-            ...propsData,
+            ...additionalProps,
+        },
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
         },
     });
 }
@@ -334,7 +327,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         // Move to 1st page, mark 1st and 2nd images not hidden
         let expectedIndex;
         const imageWrappers = wrapper.findAll('.sw-image-slider__element-wrapper');
-        imageWrappers.wrappers.forEach((item, index) => {
+        imageWrappers.forEach((item, index) => {
             expect(item.attributes()['aria-hidden']).toBe((index === 0 || index === 1) ? undefined : 'true');
         });
 
@@ -342,7 +335,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         expectedIndex = 2;
         await buttons.at(expectedIndex).trigger('click');
 
-        imageWrappers.wrappers.forEach((item, index) => {
+        imageWrappers.forEach((item, index) => {
             expect(item.attributes()['aria-hidden']).toBe((index === 3 || index === 4) ? undefined : 'true');
         });
 
@@ -350,7 +343,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         expectedIndex = 1;
         await buttons.at(expectedIndex).trigger('click');
 
-        imageWrappers.wrappers.forEach((item, index) => {
+        imageWrappers.forEach((item, index) => {
             expect(item.attributes()['aria-hidden']).toBe((index === 2 || index === 3) ? undefined : 'true');
         });
     });
@@ -363,21 +356,21 @@ describe('src/app/component/media/sw-image-slider', () => {
         let expectedIndex = 0;
         const imageContainers = wrapper.findAll('.sw-image-slider__element-container');
 
-        imageContainers.wrappers.forEach((item, index) => {
+        imageContainers.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         expectedIndex = 1;
         await imageContainers.at(expectedIndex).trigger('click');
 
-        imageContainers.wrappers.forEach((item, index) => {
+        imageContainers.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         expectedIndex = 3;
         await imageContainers.at(expectedIndex).trigger('click');
 
-        imageContainers.wrappers.forEach((item, index) => {
+        imageContainers.forEach((item, index) => {
             expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });

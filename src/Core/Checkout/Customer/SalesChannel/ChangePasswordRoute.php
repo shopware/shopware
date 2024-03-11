@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -27,7 +26,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**
@@ -87,6 +86,9 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         $this->tryValidateEqualtoConstraint($data->all(), 'newPassword', $definition);
     }
 
+    /**
+     * @param mixed[] $data
+     */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
         $validations = $validation->getProperties();
@@ -95,13 +97,11 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             return;
         }
 
-        /** @var array $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
-        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;

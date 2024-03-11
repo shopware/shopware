@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class FileTest extends TestCase
 {
     public function testAddLastModDate(): void

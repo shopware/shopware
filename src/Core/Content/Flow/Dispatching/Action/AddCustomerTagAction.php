@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class AddCustomerTagAction extends FlowAction implements DelayableAction
 {
     /**

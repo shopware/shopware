@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -25,10 +26,9 @@ class LongTextFieldTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider exceptionCases
-     *
      * @param Flag[]           $flags
      */
+    #[DataProvider('exceptionCases')]
     public function testLongTextFieldSerializerThrowsWriteConstraintException(bool|string|null $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
@@ -55,10 +55,9 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @dataProvider longTextFieldDataProvider
-     *
      * @param Flag[]           $flags
      */
+    #[DataProvider('longTextFieldDataProvider')]
     public function testLongTextFieldSerializerEncodesValue(bool|string|null $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);

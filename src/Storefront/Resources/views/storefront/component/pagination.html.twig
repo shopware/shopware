@@ -1,7 +1,12 @@
 {% block component_pagination_nav %}
-    {% set currentPage = ((criteria.offset + 1) / criteria.limit)|round(0, 'ceil') %}
-    {% set totalEntities = total ? total : entities.total %}
-    {% set totalPages = (totalEntities / criteria.limit)|round(0, 'ceil') %}
+    {% set currentPage = currentPage ?? entities.page %}
+    {# @deprecated tag:v6.7.0 - variable `totalEntities` will be removed and the variable `total` will be removed and not considered anymore, set `totalPages` instead #}
+    {% if feature('v6.7.0.0') %}
+        {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
+    {% else %}
+        {% set totalEntities = total ? total : entities.total %}
+        {% set totalPages = (totalEntities / (criteria.limit ?: 1))|round(0, 'ceil') %}
+    {% endif %}
 
     {% set paginationSuffix = '' %}
     {% if paginationLocation %}
@@ -27,7 +32,7 @@
                         {% block component_pagination_first_label %}
                             <label class="page-link" for="p-first{{ paginationSuffix }}">
                                 {% block component_pagination_first_link %}
-                                    {% sw_icon 'arrow-medium-double-left' style { 'size': 'fluid', 'pack': 'solid'} %}
+                                    {% sw_icon 'arrow-medium-double-left' style { size: 'fluid', pack: 'solid'} %}
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -50,7 +55,7 @@
                             <label class="page-link" for="p-prev{{ paginationSuffix }}">
                                 {% block component_pagination_prev_link %}
                                     {% block component_pagination_prev_icon %}
-                                        {% sw_icon 'arrow-medium-left' style {'size': 'fluid', 'pack': 'solid'} %}
+                                        {% sw_icon 'arrow-medium-left' style {size: 'fluid', pack: 'solid'} %}
                                     {% endblock %}
                                 {% endblock %}
                             </label>
@@ -101,7 +106,6 @@
                                 {% endblock %}
                             </li>
                         {% endblock %}
-
                     {% endfor %}
                 {% endblock %}
 
@@ -121,7 +125,7 @@
                             <label class="page-link" for="p-next{{ paginationSuffix }}">
                                 {% block component_pagination_next_link %}
                                     {% block component_pagination_next_icon %}
-                                        {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
+                                        {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid'} %}
                                     {% endblock %}
                                 {% endblock %}
                             </label>
@@ -146,8 +150,8 @@
                                 {% block component_pagination_last_link %}
                                     {% block component_pagination_last_icon %}
                                         {% sw_icon 'arrow-medium-double-right' style {
-                                            'size': 'fluid',
-                                            'pack': 'solid'
+                                            size: 'fluid',
+                                            pack: 'solid'
                                         } %}
                                     {% endblock %}
                                 {% endblock %}

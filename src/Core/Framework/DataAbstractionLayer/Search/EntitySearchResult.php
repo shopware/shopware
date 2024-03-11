@@ -63,12 +63,12 @@ class EntitySearchResult extends EntityCollection
         parent::__construct($entities);
     }
 
-    public function filter(\Closure $closure)
+    public function filter(\Closure $closure): static
     {
         return $this->createNew($this->entities->filter($closure));
     }
 
-    public function slice(int $offset, ?int $length = null)
+    public function slice(int $offset, ?int $length = null): static
     {
         return $this->createNew($this->entities->slice($offset, $length));
     }
@@ -133,7 +133,7 @@ class EntitySearchResult extends EntityCollection
         return 'dal_entity_search_result';
     }
 
-    public function getPage(): ?int
+    public function getPage(): int
     {
         return $this->page;
     }
@@ -171,12 +171,7 @@ class EntitySearchResult extends EntityCollection
         return $this->entities->getAt($position);
     }
 
-    /**
-     * @return static
-     *
-     * @deprecated tag:v6.6.0  - reason:return-type-change - Return type will be changed to `static`
-     */
-    protected function createNew(iterable $elements = [])
+    protected function createNew(iterable $elements = []): static
     {
         if (!($elements instanceof EntityCollection)) {
             $elements = new EntityCollection($elements);

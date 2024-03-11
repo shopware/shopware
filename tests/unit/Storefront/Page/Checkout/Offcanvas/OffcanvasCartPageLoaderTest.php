@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Offcanvas;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
@@ -25,9 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader
  */
+#[CoversClass(OffcanvasCartPageLoader::class)]
 class OffcanvasCartPageLoaderTest extends TestCase
 {
     public function testOffcanvasCartPageReturned(): void

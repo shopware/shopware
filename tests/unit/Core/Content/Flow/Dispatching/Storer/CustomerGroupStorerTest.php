@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -14,16 +15,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer
  */
+#[Package('services-settings')]
+#[CoversClass(CustomerGroupStorer::class)]
 class CustomerGroupStorerTest extends TestCase
 {
     private CustomerGroupStorer $storer;
@@ -69,32 +68,6 @@ class CustomerGroupStorerTest extends TestCase
 
         $this->storer->restore($storable);
         static::assertEmpty($storable->data());
-    }
-
-    public function testLoadEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = new CustomerGroupEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $customerGroup = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($customerGroup, $entity);
-    }
-
-    public function testLoadNullEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $customerGroup = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($customerGroup, $entity);
     }
 
     public function testLazyLoadEntity(): void

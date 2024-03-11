@@ -16,12 +16,4 @@ class IntField extends Field
     use TranslatableTrait;
 
     protected string $type = 'int';
-
-    /**
-     * @internal
-     */
-    public static function fromXml(\DOMElement $element): Field
-    {
-        return new self(self::parse($element));
-    }
 }

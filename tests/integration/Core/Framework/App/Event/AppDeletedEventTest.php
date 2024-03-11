@@ -24,8 +24,8 @@ class AppDeletedEventTest extends TestCase
 
         static::assertEquals($appId, $event->getAppId());
         static::assertEquals($context, $event->getContext());
-        static::assertEquals(AppDeletedEvent::NAME, $event->getName());
-        static::assertEquals([], $event->getWebhookPayload());
+        static::assertSame(AppDeletedEvent::NAME, $event->getName());
+        static::assertSame([], $event->getWebhookPayload());
     }
 
     public function testIsAllowed(): void

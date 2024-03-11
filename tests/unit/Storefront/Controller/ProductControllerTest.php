@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
@@ -40,9 +42,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\ProductController
  */
+#[CoversClass(ProductController::class)]
 class ProductControllerTest extends TestCase
 {
     private MockObject&ProductPageLoader $productPageLoaderMock;
@@ -104,24 +105,6 @@ class ProductControllerTest extends TestCase
         static::assertEquals('@Storefront/storefront/page/content/product-detail.html.twig', $this->controller->renderStorefrontView);
     }
 
-    public function testIndexNoCmsPage(): void
-    {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
-        $this->productEntity = new SalesChannelProductEntity();
-        $this->productEntity->setId('test');
-        $this->productPage = new ProductPage();
-        $this->productPage->setProduct($this->productEntity);
-
-        $this->productPageLoaderMock->method('load')->willReturn($this->productPage);
-
-        $response = $this->controller->index($this->createMock(SalesChannelContext::class), new Request());
-
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        static::assertInstanceOf(ProductPage::class, $this->controller->renderStorefrontParameters['page']);
-        static::assertEquals('@Storefront/storefront/page/product-detail/index.html.twig', $this->controller->renderStorefrontView);
-    }
-
     public function testSwitchNoVariantReturn(): void
     {
         $response = $this->controller->switch(Uuid::randomHex(), new Request(), $this->createMock(SalesChannelContext::class));
@@ -145,15 +128,17 @@ class ProductControllerTest extends TestCase
             ]
         );
 
-        $this->findVariantRouteMock->method('load')->with(
-            $ids->get('product'),
-            new Request(
-                [
-                    'options' => $options,
-                    'switchedGroup' => $ids->get('element'),
-                ]
+        $expectedDuplicatedRequestData = [
+            'options' => $options,
+            'switchedGroup' => $ids->get('element'),
+        ];
+        $expectedClonedRequest = $request->duplicate($expectedDuplicatedRequestData);
+
+        $this->findVariantRouteMock->method('load')
+            ->with(
+                $ids->get('product'),
+                static::equalTo($expectedClonedRequest)
             )
-        )
             ->willReturn(
                 new FindProductVariantRouteResponse(new FoundCombination($ids->get('variantId'), $options))
             );
@@ -211,7 +196,12 @@ class ProductControllerTest extends TestCase
 
         $requestBag = new RequestDataBag(['test' => 'test']);
 
-        static::expectException(ReviewNotActiveExeption::class);
+        if (Feature::isActive('v6.7.0.0')) {
+            $this->expectException(StorefrontException::class);
+        } else {
+            $this->expectException(ReviewNotActiveExeption::class);
+        }
+        $this->expectExceptionMessage('Reviews not activated');
 
         $this->controller->saveReview(
             $ids->get('productId'),
@@ -322,7 +312,6 @@ class ProductControllerTest extends TestCase
 
         $this->systemConfigServiceMock->method('get')->with('core.listing.showReview')->willReturn(true);
 
-        $requestBag = new RequestDataBag(['test' => 'test']);
         $request = new Request(['test' => 'test']);
 
         $productReview = new ProductReviewEntity();
@@ -342,7 +331,6 @@ class ProductControllerTest extends TestCase
 
         $response = $this->controller->loadReviews(
             $request,
-            $requestBag,
             $this->createMock(SalesChannelContext::class)
         );
 

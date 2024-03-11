@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
@@ -10,6 +12,7 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
@@ -21,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowExecutor
 {
     /**
@@ -37,6 +40,7 @@ class FlowExecutor
         private readonly AppFlowActionProvider $appFlowActionProvider,
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly FlowRuleScopeBuilder $scopeBuilder,
+        private readonly Connection $connection,
         $actions
     ) {
         $this->actions = $actions instanceof \Traversable ? iterator_to_array($actions) : $actions;
@@ -54,7 +58,13 @@ class FlowExecutor
             try {
                 $this->executeSequence($sequence, $event);
             } catch (\Exception $e) {
-                throw new ExecuteSequenceException($sequence->flowId, $sequence->sequenceId, $e->getMessage(), $e->getCode(), $e);
+                throw new ExecuteSequenceException(
+                    $sequence->flowId,
+                    $sequence->sequenceId,
+                    $e->getMessage(),
+                    $e->getCode(),
+                    $e
+                );
             }
 
             if ($state->stop) {
@@ -135,7 +145,29 @@ class FlowExecutor
             return;
         }
 
-        $action->handleFlow($event);
+        if (!$action instanceof TransactionalAction) {
+            $action->handleFlow($event);
+
+            return;
+        }
+
+        $this->connection->beginTransaction();
+
+        try {
+            $action->handleFlow($event);
+        } catch (\Throwable $e) {
+            $this->connection->rollBack();
+
+            throw FlowException::transactionFailed($e);
+        }
+
+        try {
+            $this->connection->commit();
+        } catch (DBALException $e) {
+            $this->connection->rollBack();
+
+            throw FlowException::transactionFailed($e);
+        }
     }
 
     private function callApp(ActionSequence $sequence, StorableFlow $event): void

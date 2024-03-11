@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -22,15 +24,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxCollection;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
  *
  * @package content
- *
- * @covers \Shopware\Core\Content\Category\Subscriber\CategorySubscriber
  */
+#[CoversClass(CategorySubscriber::class)]
 class CategorySubscriberTest extends TestCase
 {
     public function testHasEvents(): void
@@ -43,9 +44,7 @@ class CategorySubscriberTest extends TestCase
         static::assertEquals($expectedEvents, CategorySubscriber::getSubscribedEvents());
     }
 
-    /**
-     * @dataProvider entityLoadedEventDataProvider
-     */
+    #[DataProvider('entityLoadedEventDataProvider')]
     public function testEntityLoadedEvent(SystemConfigService $systemConfigService, CategoryEntity $categoryEntity, ?string $cmsPageIdBeforeEvent, ?string $cmsPageIdAfterEvent, ?string $salesChannelId): void
     {
         $categorySubscriber = new CategorySubscriber($systemConfigService);

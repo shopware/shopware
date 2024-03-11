@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_3\Migration1599570560FixSlovakiaDisplayedAsSlovenia;
@@ -60,10 +61,9 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     }
 
     /**
-     * @dataProvider migrationCases
-     *
      * @param array<string, bool|string> $data
      */
+    #[DataProvider('migrationCases')]
     public function testMigration(array $data): void
     {
         $this->setDB($data);

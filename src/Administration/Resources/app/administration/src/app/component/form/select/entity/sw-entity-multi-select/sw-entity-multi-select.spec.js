@@ -1,42 +1,32 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+/**
+ * @package admin
+ */
+
+import { mount } from '@vue/test-utils';
+
 import EntityCollection from 'src/core/data/entity-collection.data';
-import utils from 'src/core/service/util.service';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/base/sw-label';
-import 'src/app/component/utils/sw-loader';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/base/sw-product-variant-info';
-import 'src/app/component/base/sw-icon';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
+    { id: 'ae12b3c2-8236-4eb2-84a1-b933863a7905', name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
 ];
 
 const propertyFixture = [
     {
-        id: utils.createId(),
+        id: '46a40e8d-671b-4c91-b0c7-cecee1bdea4a',
         name: 'first entry',
         group: {
             name: 'example',
         },
     },
     {
-        id: utils.createId(),
+        id: 'c8637a67-cf98-4533-ac42-48513b7cb96f',
         name: 'second entry',
         group: {
             name: 'example',
         },
     },
     {
-        id: utils.createId(),
+        id: '4eed437b-b242-418e-be58-b3fa3f2d15f9',
         name: 'third',
         group: {
             name: 'entry',
@@ -68,61 +58,54 @@ function getPropertyCollection() {
     );
 }
 
-const createEntityMultiSelect = async (customOptions) => {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-    localVue.directive('tooltip', {});
-
-    const options = {
-        localVue,
-        stubs: {
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-icon': await Shopware.Component.build('sw-icon'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
-            'sw-label': true,
+const createWrapper = async (customOptions = {}) => {
+    const wrapper = mount(await wrapTestComponent('sw-entity-multi-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-icon': await wrapTestComponent('sw-icon'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-loader': await wrapTestComponent('sw-loader'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
+                'sw-label': await wrapTestComponent('sw-label'),
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: (value) => Promise.resolve({ id: value, name: value }),
+                            search: () => Promise.resolve(getCollection()),
+                        };
+                    },
+                },
+                ...customOptions.global?.provide,
+            },
         },
-        propsData: {
+        props: {
             entity: 'test',
             entityCollection: getCollection(),
             showClearableButton: true,
+            ...customOptions.props,
         },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: (value) => Promise.resolve({ id: value, name: value }),
-                        search: () => Promise.resolve(getCollection()),
-                    };
-                },
-            },
-        },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-entity-multi-select'), {
-        ...options,
-        ...customOptions,
+        slots: customOptions?.slots,
     });
+
+    await flushPromises();
+
+    return wrapper;
 };
 
 describe('components/sw-entity-multi-select', () => {
-    it('should be a Vue.js component', async () => {
-        const swEntityMultiSelect = await createEntityMultiSelect();
-
-        expect(swEntityMultiSelect.vm).toBeTruthy();
-    });
-
     it('should emit the correct search term', async () => {
-        const swEntityMultiSelect = await createEntityMultiSelect({
-            propsData: {
+        const swEntityMultiSelect = await createWrapper({
+            props: {
                 entity: 'property_group_option',
                 entityCollection: getPropertyCollection(),
             },
@@ -138,6 +121,8 @@ describe('components/sw-entity-multi-select', () => {
         });
 
         await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+
         await swEntityMultiSelect.find('input').setValue('first');
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
@@ -146,15 +131,15 @@ describe('components/sw-entity-multi-select', () => {
     });
 
     it('should not display variations', async () => {
-        const swEntityMultiSelect = await createEntityMultiSelect();
+        const swEntityMultiSelect = await createWrapper();
         const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
 
         expect(productVariantInfo.exists()).toBe(false);
     });
 
     it('should display variations', async () => {
-        const swEntityMultiSelect = await createEntityMultiSelect({
-            propsData: {
+        const wrapper = await createWrapper({
+            props: {
                 value: fixture[0].id,
                 entity: 'test',
                 entityCollection: getCollection(),
@@ -162,8 +147,7 @@ describe('components/sw-entity-multi-select', () => {
             },
         });
 
-        const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
-
+        const productVariantInfo = wrapper.find('.sw-product-variant-info');
         expect(productVariantInfo.exists()).toBe(true);
 
         expect(productVariantInfo.find('.sw-product-variant-info__product-name').text())
@@ -177,44 +161,46 @@ describe('components/sw-entity-multi-select', () => {
     });
 
     it('should show description line in results list', async () => {
-        const swEntityMultiSelect = await createEntityMultiSelect({
-            scopedSlots: {
+        const wrapper = await createWrapper({
+            slots: {
                 'result-label-property': `<template>
-                        {{ props.item.name }}
+                        {{ item.name }}
                     </template>`,
                 'result-description-property': `<template>
-                        {{ props.item.group.name }}
+                        {{ item.group.name }}
                     </template>`,
             },
-            propsData: {
+            props: {
                 entity: 'property_group_option',
                 entityCollection: getPropertyCollection(),
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getPropertyCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getPropertyCollection()),
+                            };
+                        },
                     },
                 },
             },
         });
 
-        await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
-        await swEntityMultiSelect.find('input').trigger('change');
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('input').trigger('change');
         await flushPromises();
 
-        const firstListEntry = swEntityMultiSelect.findAll('.sw-select-result-list__item-list li').at(0);
+        const firstListEntry = wrapper.findAll('.sw-select-result-list__item-list li').at(0);
 
-        expect(firstListEntry.find('.sw-select-result').classes()).toContain('has--description');
+        expect(firstListEntry.classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
     });
 
     it('should render select indicator', async () => {
-        const swEntityMultiSelect = await createEntityMultiSelect({
-            propsData: {
+        const swEntityMultiSelect = await createWrapper({
+            props: {
                 entity: 'test',
                 entityCollection: new EntityCollection(
                     '/property-group-option',
@@ -226,12 +212,14 @@ describe('components/sw-entity-multi-select', () => {
                     null,
                 ),
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getPropertyCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getPropertyCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -245,13 +233,13 @@ describe('components/sw-entity-multi-select', () => {
     });
 
     it('should be possible to clear the selection', async () => {
-        const wrapper = await createEntityMultiSelect();
+        const wrapper = await createWrapper();
 
         await wrapper.find('.sw-select__selection').trigger('click');
         await wrapper.find('input').trigger('change');
         await flushPromises();
 
         await wrapper.find('.sw-select__select-indicator-clear').trigger('click');
-        expect(wrapper.emitted('change')[0][0].total).toBeNull();
+        expect(wrapper.emitted('update:entityCollection')[0][0].total).toBeNull();
     });
 });

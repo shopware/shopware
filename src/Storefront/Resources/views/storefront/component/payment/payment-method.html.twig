@@ -23,12 +23,12 @@
                                     {% sw_thumbnails 'payment-method-image-thumbnails' with {
                                         media: payment.media,
                                         sizes: {
-                                            'default': '100px'
+                                            default: '100px'
                                         },
                                         attributes: {
-                                            'class': 'payment-method-image',
-                                            'alt': (payment.media.translated.alt ?: payment.translated.name),
-                                            'title': (payment.media.translated.title ?: payment.translated.name)
+                                            class: 'payment-method-image',
+                                            alt: (payment.media.translated.alt ?: payment.translated.name),
+                                            title: (payment.media.translated.title ?: payment.translated.name)
                                         }
                                     } %}
                                 {% endif %}

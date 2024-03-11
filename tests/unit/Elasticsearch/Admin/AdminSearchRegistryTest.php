@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -22,7 +24,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -31,9 +33,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\AdminSearchRegistry
  */
+#[CoversClass(AdminSearchRegistry::class)]
 class AdminSearchRegistryTest extends TestCase
 {
     private MockObject&AbstractAdminIndexer $indexer;
@@ -110,7 +111,7 @@ class AdminSearchRegistryTest extends TestCase
             [],
             []
         );
-        $this->expectException(ElasticsearchIndexingException::class);
+        $this->expectException(ElasticsearchException::class);
         $registry->getIndexer('test');
     }
 
@@ -172,9 +173,8 @@ class AdminSearchRegistryTest extends TestCase
 
     /**
      * @param array{index: array{number_of_shards: int|null, number_of_replicas: int|null, test?: int}} $constructorConfig
-     *
-     * @dataProvider providerCreateIndices
      */
+    #[DataProvider('providerCreateIndices')]
     public function testIterate(array $constructorConfig): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
@@ -290,9 +290,7 @@ class AdminSearchRegistryTest extends TestCase
         static::assertTrue($calledFinishEvent, 'Event ProgressFinishedEvent was not dispatched');
     }
 
-    /**
-     * @dataProvider refreshIndicesProvider
-     */
+    #[DataProvider('refreshIndicesProvider')]
     public function testRefresh(bool $refreshIndices): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
@@ -466,7 +464,7 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
-        $this->expectException(ElasticsearchIndexingException::class);
+        $this->expectException(ElasticsearchException::class);
         $index->__invoke(new AdminSearchIndexingMessage(
             'promotion',
             'promotion',

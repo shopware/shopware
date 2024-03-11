@@ -306,6 +306,7 @@
 
         <service id="Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
             <tag name="messenger.message_handler"/>
         </service>

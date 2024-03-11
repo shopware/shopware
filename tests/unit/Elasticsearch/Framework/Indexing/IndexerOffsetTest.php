@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -14,16 +14,14 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\IndexerOffset
  */
+#[CoversClass(IndexerOffset::class)]
 class IndexerOffsetTest extends TestCase
 {
     public function testItConvertsDefinitionsToSerializableNamesAndCanDoAnDefinitionRoundTrip(): void
     {
         $timestamp = (new \DateTime())->getTimestamp();
         $offset = new IndexerOffset(
-            ['foo', 'bar'],
             ['product', 'product_manufacturer'],
             $timestamp
         );
@@ -53,24 +51,6 @@ class IndexerOffsetTest extends TestCase
         static::assertEquals(['offset' => 42], $offset->getLastId());
     }
 
-    public function testItConvertsLanguagesToSerializableIdsAndCanDoAnLanguageRoundTrip(): void
-    {
-        Feature::skipTestIfActive('ES_MULTILINGUAL_INDEX', $this);
-
-        $offset = new IndexerOffset(
-            ['foo', 'bar'],
-            [],
-            (new \DateTime())->getTimestamp()
-        );
-
-        static::assertEquals('foo', $offset->getLanguageId());
-        static::assertEquals(['bar'], $offset->getLanguages());
-        static::assertTrue($offset->hasNextLanguage());
-        $offset->selectNextLanguage();
-        static::assertEquals('bar', $offset->getLanguageId());
-        static::assertFalse($offset->hasNextLanguage());
-    }
-
     public function testSerialize(): void
     {
         $serialize = new Serializer(
@@ -83,7 +63,6 @@ class IndexerOffsetTest extends TestCase
         );
 
         $before = new IndexerOffset(
-            ['foo', 'bar'],
             ['product', 'product_manufacturer'],
             (new \DateTime())->getTimestamp()
         );

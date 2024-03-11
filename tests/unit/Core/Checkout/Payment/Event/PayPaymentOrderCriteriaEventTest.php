@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent
  */
+#[CoversClass(PayPaymentOrderCriteriaEvent::class)]
 class PayPaymentOrderCriteriaEventTest extends TestCase
 {
     public function testEvent(): void

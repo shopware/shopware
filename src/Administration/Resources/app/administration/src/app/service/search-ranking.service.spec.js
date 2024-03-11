@@ -8,6 +8,7 @@ Shopware.Service().register('userConfigService', () => {
     };
 });
 
+
 Shopware.Service().register('loginService', () => {
     return {
         addOnLoginListener: () => {},
@@ -112,8 +113,7 @@ describe('app/service/search-ranking.service.js', () => {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
-                .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75),
+                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
             'term has just one word with word has 1 character',
@@ -130,12 +130,8 @@ describe('app/service/search-ranking.service.js', () => {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
-                .addQuery(Criteria.equals('product.name', 'order category'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'order category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
-                .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75)
-                .addQuery(Criteria.equals('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75),
+                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING)
+                .addQuery(Criteria.contains('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING),
 
         ],
         [
@@ -145,10 +141,7 @@ describe('app/service/search-ranking.service.js', () => {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
-                .addQuery(Criteria.equals('product.name', 'order c'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'order c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
-                .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75),
+                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING),
 
         ],
         [
@@ -158,9 +151,7 @@ describe('app/service/search-ranking.service.js', () => {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
-                .addQuery(Criteria.equals('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75),
-
+                .setTerm('o c'),
         ],
         [
             'term has just two words with the same',
@@ -169,10 +160,7 @@ describe('app/service/search-ranking.service.js', () => {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
-                .addQuery(Criteria.equals('product.name', 'same same'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'same same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
-                .addQuery(Criteria.equals('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75),
+                .addQuery(Criteria.contains('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING),
         ],
         [
             'term is undefined',
@@ -333,14 +321,6 @@ describe('app/service/search-ranking.service.js', () => {
                     {
                         score: searchRankingPoint.HIGH_SEARCH_RANKING,
                         query: {
-                            type: 'equals',
-                            field: 'product.name',
-                            value: 'order',
-                        },
-                    },
-                    {
-                        score: searchRankingPoint.HIGH_SEARCH_RANKING * 0.75,
-                        query: {
                             type: 'contains',
                             field: 'product.name',
                             value: 'order',
@@ -355,14 +335,6 @@ describe('app/service/search-ranking.service.js', () => {
                 query: [
                     {
                         score: searchRankingPoint.HIGH_SEARCH_RANKING,
-                        query: {
-                            type: 'equals',
-                            field: 'property_group.name',
-                            value: 'order',
-                        },
-                    },
-                    {
-                        score: searchRankingPoint.HIGH_SEARCH_RANKING * 0.75,
                         query: {
                             type: 'contains',
                             field: 'property_group.name',

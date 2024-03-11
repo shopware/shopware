@@ -2,13 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraint;
@@ -31,9 +31,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer
  */
+#[CoversClass(PasswordFieldSerializer::class)]
 class PasswordFieldSerializerTest extends TestCase
 {
     protected PasswordFieldSerializer $serializer;
@@ -58,11 +57,7 @@ class PasswordFieldSerializerTest extends TestCase
 
     public function testEncodeNotPasswordField(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::expectException(DataAbstractionLayerException::class);
-        } else {
-            static::expectException(InvalidSerializerFieldException::class);
-        }
+        static::expectException(DataAbstractionLayerException::class);
 
         $existence = new EntityExistence('product', [], false, false, false, []);
         $field = new StringField('password', 'password');
@@ -75,10 +70,9 @@ class PasswordFieldSerializerTest extends TestCase
     }
 
     /**
-     * @dataProvider encodeProvider
-     *
      * @param array<int, Constraint> $constraints
      */
+    #[DataProvider('encodeProvider')]
     public function testEncode(string $for, int $minPasswordValue, array $constraints, bool $shouldThrowViolationException, ?string $inputPassword): void
     {
         $constraintViolations = new ConstraintViolationList();

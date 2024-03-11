@@ -11,38 +11,22 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_import_settings_create_switch %}
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="profile.config.createEntities"
-        {% else %}
-        v-model="profile.config.createEntities"
-        {% endif %}
         class="sw-import-export-edit-profile-import-settings__create-switch"
         :label="$tc('sw-import-export.profile.createEntitiesLabel')"
         :disabled="profile.systemDefault"
-        {% if VUE3 %}
         @update:value="onChange($event, 'updateEntities')"
-        {% else %}
-        @change="onChange($event, 'updateEntities')"
-        {% endif %}
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_edit_profile_import_settings_update_switch %}
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="profile.config.updateEntities"
-        {% else %}
-        v-model="profile.config.updateEntities"
-        {% endif %}
         class="sw-import-export-edit-profile-import-settings__update-switch"
         :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
         :disabled="profile.systemDefault"
-        {% if VUE3 %}
         @update:value="onChange($event, 'createEntities')"
-        {% else %}
-        @change="onChange($event, 'createEntities')"
-        {% endif %}
     />
     {% endblock %}
 </div>

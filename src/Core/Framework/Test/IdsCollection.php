@@ -146,4 +146,9 @@ class IdsCollection
 
         return implode(', ', $keys);
     }
+
+    public function reset(): void
+    {
+        $this->ids = [];
+    }
 }

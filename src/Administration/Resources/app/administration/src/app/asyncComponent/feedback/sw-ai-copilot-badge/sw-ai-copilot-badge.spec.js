@@ -1,16 +1,22 @@
-import { shallowMount } from '@vue/test-utils';
-import SwAiCopilotBadge from './index';
+/**
+ * @package admin
+ */
+
+import { mount } from '@vue/test-utils';
 
 jest.useFakeTimers();
 jest.spyOn(global, 'setTimeout');
 
-Shopware.Component.register('sw-ai-copilot-badge', SwAiCopilotBadge);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-ai-copilot-badge'), {
+    return mount(await wrapTestComponent('sw-ai-copilot-badge', { sync: true }), {
         attachTo: document.body,
-        stubs: {
-            'sw-icon': true,
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
+            directives: {
+                tooltip: Shopware.Directive.getByName('tooltip'),
+            },
         },
     });
 }
@@ -21,14 +27,6 @@ describe('src/app/asyncComponent/feedback/sw-ai-copilot-badge/index.ts', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-
-        await flushPromises();
-    });
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
 
         await flushPromises();
     });

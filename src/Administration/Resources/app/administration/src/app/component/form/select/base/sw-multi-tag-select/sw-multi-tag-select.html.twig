@@ -19,11 +19,13 @@
         {% block sw_multi_tag_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
-            :selections="objectValues"
+            :selections="visibleValues"
+            :invisible-count="invisibleValueCount"
             :disabled="disabled"
             label-property="value"
             value-property="value"
             v-bind="{ size, placeholder, searchTerm }"
+            @total-count-click="expandValueLimit"
             @item-remove="remove"
             @last-item-delete="removeLastItem"
             @search-term-change="onSearchTermChange"

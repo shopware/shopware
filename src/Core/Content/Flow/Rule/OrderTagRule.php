@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class OrderTagRule extends FlowRule
 {
     final public const RULE_NAME = 'orderTag';
@@ -60,7 +60,7 @@ class OrderTagRule extends FlowRule
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function extractTagIds(OrderEntity $order): array
     {

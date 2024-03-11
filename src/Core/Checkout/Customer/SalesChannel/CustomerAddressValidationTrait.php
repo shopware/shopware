@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 trait CustomerAddressValidationTrait
 {
     private function validateAddress(string $id, SalesChannelContext $context, CustomerEntity $customer): void

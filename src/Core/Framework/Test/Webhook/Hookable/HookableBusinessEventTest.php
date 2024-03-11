@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Webhook\Hookable;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -43,9 +44,7 @@ class HookableBusinessEventTest extends TestCase
         static::assertEquals($scalarEvent->getEncodeValues($shopwareVersion), $event->getWebhookPayload());
     }
 
-    /**
-     * @dataProvider getEventsWithoutPermissions
-     */
+    #[DataProvider('getEventsWithoutPermissions')]
     public function testIsAllowedForNonEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(
@@ -56,9 +55,7 @@ class HookableBusinessEventTest extends TestCase
         static::assertTrue($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
     }
 
-    /**
-     * @dataProvider getEventsWithPermissions
-     */
+    #[DataProvider('getEventsWithPermissions')]
     public function testIsAllowedForEntityBasedEvents(FlowEventAware $rootEvent): void
     {
         $event = HookableBusinessEvent::fromBusinessEvent(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Newsletter\DataAbstractionLayer\Indexing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -24,7 +25,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -152,9 +153,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         static::assertNull($customer->getNewsletterSalesChannelIds());
     }
 
-    /**
-     * @dataProvider createDataProvider
-     */
+    #[DataProvider('createDataProvider')]
     public function testUpdateEmailNewsletterRecipientUpdateCustomer(\Closure $newsletterRecipientClosure, \Closure $criteriaClosure): void
     {
         $context = Context::createDefaultContext();

@@ -1,30 +1,42 @@
 /**
- * @package content
+ * @package inventory
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryDetailMenu from 'src/module/sw-category/component/sw-category-detail-menu';
-
-Shopware.Component.register('sw-category-detail-menu', swCategoryDetailMenu);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-category-detail-menu'), {
-        stubs: {
-            'sw-card': true,
-            'sw-switch-field': true,
-            'sw-upload-listener': true,
-            'sw-media-upload-v2': true,
-            'sw-text-editor': true,
-            'sw-media-modal-v2': {
-                template: '<div class="sw-media-modal-v2-mock"><button @click="onEmitSelection">Add media</button></div>',
-                methods: {
-                    onEmitSelection() {
-                        this.$emit('media-modal-selection-change', [{ id: 'id' }]);
+    return mount(await wrapTestComponent('sw-category-detail-menu', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': {
+                    template: '<div class="sw-media-upload-v2"></div>',
+                    props: ['disabled'],
+                },
+                'sw-switch-field': {
+                    template: '<input class="sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
+                    props: ['value', 'disabled'],
+                },
+                'sw-text-editor': {
+                    template: '<div class="sw-text-editor"></div>',
+                    props: ['disabled'],
+                },
+                'sw-media-modal-v2': {
+                    template: '<div class="sw-media-modal-v2"><button @click="onEmitSelection">Add media</button></div>',
+                    methods: {
+                        onEmitSelection() {
+                            this.$emit('media-modal-selection-change', [{ id: 'id' }]);
+                        },
                     },
                 },
             },
         },
-        propsData: {
+        props: {
             category: {
+                id: 'id',
+                visible: true,
                 getEntityName: () => {},
             },
         },
@@ -36,28 +48,22 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should enable the visibility switch field when the acl privilege is missing', async () => {
         global.activeAclRoles = ['category.editor'];
 
         const wrapper = await createWrapper();
 
-        const switchField = wrapper.find('sw-switch-field-stub');
+        const switchField = wrapper.getComponent('.sw-switch-field');
 
-        expect(switchField.attributes().disabled).toBeUndefined();
+        expect(switchField.props('disabled')).toBe(false);
     });
 
     it('should disable the visibility switch field when the acl privilege is missing', async () => {
         const wrapper = await createWrapper();
 
-        const switchField = wrapper.find('sw-switch-field-stub');
+        const switchField = wrapper.getComponent('.sw-switch-field');
 
-        expect(switchField.attributes().disabled).toBe('true');
+        expect(switchField.props('disabled')).toBe(true);
     });
 
     it('should enable the media upload', async () => {
@@ -65,17 +71,17 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const wrapper = await createWrapper();
 
-        const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
+        const mediaUpload = wrapper.getComponent('.sw-media-upload-v2');
 
-        expect(mediaUpload.attributes().disabled).toBeUndefined();
+        expect(mediaUpload.props('disabled')).toBe(false);
     });
 
     it('should disable the media upload', async () => {
         const wrapper = await createWrapper();
 
-        const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
+        const mediaUpload = wrapper.getComponent('.sw-media-upload-v2');
 
-        expect(mediaUpload.attributes().disabled).toBe('true');
+        expect(mediaUpload.props('disabled')).toBe(true);
     });
 
     it('should enable the text editor for the description', async () => {
@@ -83,49 +89,44 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         const wrapper = await createWrapper();
 
-        const textEditor = wrapper.find('sw-text-editor-stub');
+        const textEditor = wrapper.getComponent('.sw-text-editor');
 
-        expect(textEditor.attributes().disabled).toBeUndefined();
+        expect(textEditor.props('disabled')).toBe(false);
     });
 
     it('should disable the text editor for the description', async () => {
         const wrapper = await createWrapper();
 
-        const textEditor = wrapper.find('sw-text-editor-stub');
+        const textEditor = wrapper.getComponent('.sw-text-editor');
 
-        expect(textEditor.attributes().disabled).toBe('true');
+        expect(textEditor.props('disabled')).toBe(true);
     });
 
     it('should open media modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
         await wrapper.setData({ showMediaModal: true });
 
-        const mediaModal = wrapper.find('.sw-media-modal-v2-mock');
+        const mediaModal = wrapper.find('.sw-media-modal-v2');
 
-        expect(mediaModal.exists()).toBeTruthy();
+        expect(mediaModal.exists()).toBe(true);
     });
 
     it('should turn off media modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
-        await wrapper.setData({ showMediaModal: false });
-
-        const mediaModal = wrapper.find('.sw-media-modal-v2-mock');
+        const mediaModal = wrapper.find('.sw-media-modal-v2');
 
         expect(mediaModal.exists()).toBeFalsy();
     });
 
     it('should be able to change category media', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
         wrapper.vm.mediaRepository.get = jest.fn(() => Promise.resolve({ id: 'id' }));
 
         await wrapper.setData({ showMediaModal: true });
-        const button = wrapper.find('.sw-media-modal-v2-mock button');
+        const button = wrapper.find('.sw-media-modal-v2 button');
         await button.trigger('click');
 
         expect(wrapper.vm.mediaRepository.get).toHaveBeenCalledWith('id');
@@ -136,7 +137,6 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
     it('should not change category media when selected media is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
         wrapper.vm.mediaRepository.get = jest.fn(() => Promise.resolve({}));
         wrapper.vm.onMediaSelectionChange([]);

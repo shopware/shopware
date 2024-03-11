@@ -58,7 +58,7 @@
                 href="#"
                 @click.prevent="onShowLog(item)"
             >
-                {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}
+                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
             </a>
         </template>
         {% endblock %}

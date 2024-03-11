@@ -10,10 +10,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -106,5 +109,61 @@ class ManyToManyAssociationFieldTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByEntityName(ProductCategoryDefinition::ENTITY_NAME));
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByEntityName(ProductDefinition::ENTITY_NAME));
         static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent->getEventByEntityName(ProductTranslationDefinition::ENTITY_NAME));
+    }
+
+    public function testReadPartialWithoutAssociationFields(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => $id,
+            'stock' => 1,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->productRepository->create([$data], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addFields(['name']);
+        $criteria->addAssociation('properties');
+
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(PartialEntity::class, $product);
+        static::assertEquals('test', $product->get('name'));
+        static::assertNull($product->get('properties'));
+    }
+
+    public function testReadPartialWithAssociationFields(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => $id,
+            'stock' => 1,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->productRepository->create([$data], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addFields(['name', 'properties']);
+        $criteria->addAssociation('properties');
+
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(PartialEntity::class, $product);
+        static::assertEquals('test', $product->get('name'));
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $product->get('properties'));
     }
 }

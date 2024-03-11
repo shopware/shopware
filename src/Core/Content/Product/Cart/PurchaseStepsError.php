@@ -8,36 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class PurchaseStepsError extends Error
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
-     */
-    protected $id;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
-     */
-    protected $name;
-
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
-     */
-    protected $quantity;
-
     public function __construct(
-        string $id,
-        string $name,
-        int $quantity
+        private readonly string $id,
+        private readonly string $name,
+        private readonly int $quantity
     ) {
-        $this->id = $id;
-        $this->name = $name;
-        $this->quantity = $quantity;
-
         $this->message = sprintf(
             'Your input quantity does not match with the setup of the %s. The quantity was changed to %d',
             $name,

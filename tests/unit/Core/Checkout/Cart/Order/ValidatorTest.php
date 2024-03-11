@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
@@ -14,9 +15,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  *
  * @package checkout
- *
- * @covers \Shopware\Core\Checkout\Cart\Validator
  */
+#[CoversClass(Validator::class)]
 class ValidatorTest extends TestCase
 {
     public function testValidate(): void

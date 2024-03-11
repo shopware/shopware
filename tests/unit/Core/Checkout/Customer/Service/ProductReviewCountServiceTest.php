@@ -3,17 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Service\ProductReviewCountService
  */
+#[Package('services-settings')]
+#[CoversClass(ProductReviewCountService::class)]
 class ProductReviewCountServiceTest extends TestCase
 {
     private ProductReviewCountService $productReviewCountService;

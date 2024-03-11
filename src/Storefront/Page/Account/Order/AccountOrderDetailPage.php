@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOrderDetailPage extends Page
 {
     /**

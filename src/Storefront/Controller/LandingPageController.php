@@ -8,14 +8,14 @@ use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageController extends StorefrontController
 {
     /**

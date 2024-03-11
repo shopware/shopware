@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\DevOps\Test\Environment;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\DevOps\Environment\EnvironmentHelperTransformerInterface;
@@ -166,11 +168,8 @@ class EnvironmentHelperTest extends TestCase
         EnvironmentHelper::addTransformer(self::class);
     }
 
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function removeAllTransformers(): void
     {
         EnvironmentHelper::removeAllTransformers();

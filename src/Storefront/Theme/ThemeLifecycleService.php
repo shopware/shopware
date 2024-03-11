@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\MimeType;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -31,8 +30,6 @@ class ThemeLifecycleService
      * @param EntityRepository<MediaCollection> $mediaRepository
      *
      * @internal
-     *
-     * @decrecated tag:v6.6.0 argument $pluginConfigurationFactory will be mandatory
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $pluginRegistry,
@@ -46,7 +43,7 @@ class ThemeLifecycleService
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
-        private readonly ?AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
     ) {
     }
 
@@ -173,19 +170,12 @@ class ThemeLifecycleService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
-        $criteria->addAssociation('defaultFolder');
         $criteria->setLimit(1);
-        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
-        $defaultFolderId = null;
-        if ($defaultFolder->count() === 1) {
-            $defaultFolder = $defaultFolder->first();
 
-            if ($defaultFolder instanceof MediaFolderEntity) {
-                $defaultFolderId = $defaultFolder->getId();
-            }
-        }
+        /** @var array<string> $defaultFolderIds */
+        $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
 
-        return $defaultFolderId;
+        return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;
     }
 
     /**
@@ -352,7 +342,7 @@ class ThemeLifecycleService
         $themeFolderId = $this->getMediaDefaultFolderId($context);
 
         $installedConfiguration = null;
-        if ($theme && \is_array($theme->getThemeJson()) && $this->pluginConfigurationFactory) {
+        if ($theme && \is_array($theme->getThemeJson())) {
             $installedConfiguration = $this->pluginConfigurationFactory->createFromThemeJson(
                 $theme->getTechnicalName() ?? 'childTheme',
                 $theme->getThemeJson(),
@@ -565,10 +555,11 @@ class ThemeLifecycleService
         if ($lastNotSameTheme !== null) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('technicalName', $lastNotSameTheme));
-            /** @var ThemeEntity|null $parentTheme */
-            $parentTheme = $this->themeRepository->search($criteria, $context)->first();
-            if ($parentTheme) {
-                $themeData['parentThemeId'] = $parentTheme->getId();
+
+            $parentThemeId = $this->themeRepository->searchIds($criteria, $context)->firstId();
+
+            if ($parentThemeId) {
+                $themeData['parentThemeId'] = $parentThemeId;
             }
         }
 

@@ -7,7 +7,7 @@ import template from './sw-purchase-price-field.html.twig';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-purchase-price-field', {
     template,
@@ -79,7 +79,7 @@ Component.register('sw-purchase-price-field', {
                     this.price.push(newPurchasePrice);
                 }
 
-                this.$emit('input', this.price);
+                this.$emit('update:value', this.price);
             },
         },
     },

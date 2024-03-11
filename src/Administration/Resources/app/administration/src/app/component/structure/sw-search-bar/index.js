@@ -9,8 +9,7 @@ const { cloneDeep } = utils.object;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders the search bar. This component uses the search service to find entities in the administration.
  * @status ready
@@ -368,6 +367,10 @@ Component.register('sw-search-bar', {
                 this.showTypeContainer();
                 this.filterTypeSelectResults(match[1]);
 
+                return;
+            }
+
+            if (this.searchTerm.trim().length > 155) {
                 return;
             }
 

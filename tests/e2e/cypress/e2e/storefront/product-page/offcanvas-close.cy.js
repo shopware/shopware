@@ -27,7 +27,7 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
         cy.get('.search-suggest-product-name').click();
         cy.get('.product-detail-name').contains(product.name);
 
-        cy.get('#description-tab').click();
+        cy.get('.description-tab').click();
 
         cy.get('.offcanvas.show').should('be.visible');
         cy.get('.offcanvas .product-detail-description-title').contains(product.name);

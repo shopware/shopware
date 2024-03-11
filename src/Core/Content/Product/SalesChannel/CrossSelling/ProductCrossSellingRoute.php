@@ -25,7 +25,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
@@ -172,6 +172,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         /** @var ProductCollection $products */
         $products = $result->getEntities();
 
+        $ids = $criteria->getIds();
         $products->sortByIdArray($ids);
 
         $element->setProducts($products);

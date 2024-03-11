@@ -2,24 +2,25 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerTagRule
  */
+#[Package('services-settings')]
+#[CoversClass(CustomerTagRule::class)]
+#[Group('rules')]
 class CustomerTagRuleTest extends TestCase
 {
     private CustomerTagRule $rule;
@@ -41,7 +42,7 @@ class CustomerTagRuleTest extends TestCase
                 'isMatchAny' => 1,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [
@@ -73,11 +74,10 @@ class CustomerTagRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param string|list<string>|null $givenIdentifier
      * @param array<string> $ruleIdentifiers
      */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, array|string|null $givenIdentifier, bool $noCustomer = false): void
     {
         $customer = new CustomerEntity();

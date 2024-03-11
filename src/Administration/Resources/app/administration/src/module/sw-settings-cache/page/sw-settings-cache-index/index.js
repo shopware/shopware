@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-settings-cache-index.html.twig';
@@ -19,22 +19,21 @@ export default {
         Mixin.getByName('notification'),
     ],
 
-
     data() {
         return {
+            componentIsBuilding: true,
             isLoading: true,
             cacheInfo: null,
             processes: {
                 normalClearCache: false,
-                clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
             processSuccess: {
                 normalClearCache: false,
-                clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
-            skip: [],
+            indexingMethod: 'skip',
+            indexerSelection: [],
             indexers: {
                 'category.indexer': [
                     'category.child-count',
@@ -133,6 +132,7 @@ export default {
         createdComponent() {
             this.cacheApiService.info().then(result => {
                 this.cacheInfo = result.data;
+                this.componentIsBuilding = false;
                 this.isLoading = false;
             });
         },
@@ -140,7 +140,6 @@ export default {
         resetButtons() {
             this.processSuccess = {
                 normalClearCache: false,
-                clearAndWarmUpCache: false,
                 updateIndexes: false,
             };
         },
@@ -176,29 +175,19 @@ export default {
             });
         },
 
-        clearAndWarmUpCache() {
-            this.processes.clearAndWarmUpCache = true;
-            this.cacheApiService.clearAndWarmup().then(() => {
-                this.decreaseWorkerPoll();
-                setTimeout(() => {
-                    this.cacheApiService.cleanupOldCaches();
-                }, 30000);
-
-                this.createNotificationInfo({
-                    message: this.$tc('sw-settings-cache.notifications.clearCacheAndWarmup.started'),
-                });
-
-                this.processSuccess.clearAndWarmUpCache = true;
-            }).catch(() => {
-                this.processSuccess.clearAndWarmUpCache = false;
-            }).finally(() => {
-                this.processes.clearAndWarmUpCache = false;
-            });
-        },
-
         updateIndexes() {
             this.processes.updateIndexes = true;
-            this.cacheApiService.index(this.skip).then(() => {
+
+            let skip = [];
+            const only = [];
+
+            if (this.indexingMethod === 'skip') {
+                skip = this.indexerSelection;
+            } else {
+                this.createOnlySelection(only);
+            }
+
+            this.cacheApiService.index(skip, only).then(() => {
                 this.decreaseWorkerPoll();
                 this.createNotificationInfo({
                     message: this.$tc('sw-settings-cache.notifications.index.started'),
@@ -211,18 +200,58 @@ export default {
             });
         },
 
-        changeSkip(selected, name) {
+        changeSelection(selected, name) {
             if (selected) {
-                this.skip.push(name);
+                this.indexerSelection.push(name);
 
                 return;
             }
 
-            const index = this.skip.indexOf(name);
-
-            if (index > -1) {
-                this.skip.splice(index, 1);
+            const selectedIndex = this.indexerSelection.indexOf(name);
+            if (selectedIndex > -1) {
+                this.indexerSelection.splice(selectedIndex, 1);
             }
+        },
+
+        createOnlySelection(only) {
+            // eslint-disable-next-line no-restricted-syntax
+            for (const [indexerName, updaters] of Object.entries(this.indexers)) {
+                if (this.indexerSelection.indexOf(indexerName) > -1) {
+                    only.push(indexerName);
+                }
+
+                const selectedUpdaters = [];
+                // eslint-disable-next-line no-restricted-syntax
+                for (const updater of updaters) {
+                    if (this.indexerSelection.indexOf(updater) > -1) {
+                        selectedUpdaters.push(updater);
+                    }
+                }
+
+                if (selectedUpdaters.length > 0) {
+                    only.push(indexerName);
+                }
+
+                only.push(...selectedUpdaters);
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        flipIndexers() {
+            const leafs = [];
+
+            // eslint-disable-next-line no-restricted-syntax
+            for (const [indexerName, updaters] of Object.entries(this.indexers)) {
+                if (updaters.length > 0) {
+                    leafs.push(...updaters);
+                } else {
+                    leafs.push(indexerName);
+                }
+            }
+
+            this.indexerSelection = leafs.filter(entry => this.indexerSelection.indexOf(entry) === -1);
         },
     },
 };

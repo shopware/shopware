@@ -10,15 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -35,14 +33,13 @@ class SnippetService
         private readonly SnippetFileCollection $snippetFileCollection,
         private readonly EntityRepository $snippetRepository,
         private readonly EntityRepository $snippetSetRepository,
-        private readonly EntityRepository $salesChannelDomain,
         private readonly SnippetFilterFactory $snippetFilterFactory,
         /**
          * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
          * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
          */
         private readonly ContainerInterface $container,
-        private readonly ?SalesChannelThemeLoader $salesChannelThemeLoader = null
+        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
     }
 
@@ -210,33 +207,6 @@ class SnippetService
         return $result;
     }
 
-    /**
-     * @decrecated tag:v6.6.0 - will be removed, use findSnippetSetId instead
-     */
-    public function getSnippetSet(string $salesChannelId, string $languageId, string $locale, Context $context): ?SnippetSetEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('salesChannelId', $salesChannelId),
-            new EqualsFilter('languageId', $languageId)
-        );
-        $criteria->addAssociation('snippetSet');
-
-        /** @var SalesChannelDomainEntity|null $salesChannelDomain */
-        $salesChannelDomain = $this->salesChannelDomain->search($criteria, $context)->first();
-
-        if ($salesChannelDomain === null) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('iso', $locale));
-            /** @var SnippetSetEntity|null $snippetSet */
-            $snippetSet = $this->snippetSetRepository->search($criteria, $context)->first();
-        } else {
-            $snippetSet = $salesChannelDomain->getSnippetSet();
-        }
-
-        return $snippetSet;
-    }
-
     public function findSnippetSetId(string $salesChannelId, string $languageId, string $locale): string
     {
         $snippetSetId = $this->connection->fetchOne(
@@ -343,12 +313,7 @@ class SnippetService
             return [StorefrontPluginRegistry::BASE_THEME_NAME];
         }
 
-        $saleChannelThemes = $this->salesChannelThemeLoader->load($salesChannelId);
-
-        $usedThemes = array_filter([
-            $saleChannelThemes['themeName'] ?? null,
-            $saleChannelThemes['parentThemeName'] ?? null,
-        ]);
+        $usedThemes = $this->salesChannelThemeLoader->load($salesChannelId);
 
         /** @var list<string> */
         return array_values(array_unique([

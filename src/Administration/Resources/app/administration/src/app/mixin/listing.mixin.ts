@@ -3,10 +3,9 @@
  */
 
 /* @private */
-import type { Dictionary } from 'vue-router/types/router';
-import type { RawLocation } from 'vue-router';
-import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
+import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 
 /* @private */
 export {};
@@ -15,7 +14,7 @@ export {};
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('listing', defineComponent({
     inject: ['searchRankingService', 'feature'],
@@ -33,6 +32,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
         searchConfigEntity: string|null,
         entitySearchable: boolean,
         freshSearchTerm: boolean,
+        previousRouteName: string,
         } {
         return {
             page: 1,
@@ -47,6 +47,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
             searchConfigEntity: null,
             entitySearchable: true,
             freshSearchTerm: false,
+            previousRouteName: '',
         };
     },
 
@@ -88,25 +89,20 @@ export default Shopware.Mixin.register('listing', defineComponent({
     },
 
     created() {
+        this.previousRouteName = this.$route.name as string;
+
         if (this.disableRouteParams) {
             this.getList();
             return;
         }
 
-        const actualQueryParameters: Dictionary<(string|null)[]|string|boolean> = this.$route.query;
+        const actualQueryParameters: LocationQuery = this.$route.query;
 
         // When no route information are provided
         if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
             this.resetListing();
         } else {
-            // When we get the parameters on the route, true and false will be a string so we should convert to boolean
-            Object.keys(actualQueryParameters).forEach((key) => {
-                if (actualQueryParameters[key] === 'true') {
-                    actualQueryParameters[key] = true;
-                } else if (actualQueryParameters[key] === 'false') {
-                    actualQueryParameters[key] = false;
-                }
-            });
+            this.parseBooleanQueryParams(actualQueryParameters);
 
             // otherwise update local data and fetch from server
             this.updateData(actualQueryParameters);
@@ -117,7 +113,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
     watch: {
         // Watch for changes in query parameters and update listing
         '$route'(newRoute, oldRoute) {
-            if (this.disableRouteParams) {
+            if (this.disableRouteParams || (this.previousRouteName !== newRoute.name)) {
                 return;
             }
 
@@ -126,6 +122,8 @@ export default Shopware.Mixin.register('listing', defineComponent({
             if (Shopware.Utils.types.isEmpty(query)) {
                 this.resetListing();
             }
+
+            this.parseBooleanQueryParams(query);
 
             // Update data information from the url
             this.updateData(query);
@@ -206,9 +204,9 @@ export default Shopware.Mixin.register('listing', defineComponent({
 
             // If query is empty then replace route, otherwise push
             if (Shopware.Utils.types.isEmpty(routeQuery)) {
-                void this.$router.replace(route as unknown as RawLocation);
+                void this.$router.replace(route as unknown as RouteLocationNamedRaw);
             } else {
-                void this.$router.push(route as unknown as RawLocation);
+                void this.$router.push(route as unknown as RouteLocationNamedRaw);
             }
         },
 
@@ -371,6 +369,22 @@ export default Shopware.Mixin.register('listing', defineComponent({
                 term,
                 originalCriteria,
             );
+        },
+
+        /**
+         * Parses all string representations of boolean values to actual boolean values.
+         * Only works on root level of the query object.
+         */
+        parseBooleanQueryParams(query: LocationQuery) {
+            Object.keys(query).forEach((key) => {
+                if (String(query[key]).toLowerCase() === 'true') {
+                    // @ts-expect-error
+                    query[key] = true;
+                } else if (String(query[key]).toLowerCase() === 'false') {
+                    // @ts-expect-error
+                    query[key] = false;
+                }
+            });
         },
     },
 }));

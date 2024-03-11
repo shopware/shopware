@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Provides a wrapper to create a wizard modal. The wizard pages are placed in the default slot of the
  * component. Dot navigation as well as the navigation buttons are dynamically within the wizard itself.
  * Please use `sw-wizard-page` for the different wizard pages. When a more sophisticated wizard page is necessary,
@@ -30,6 +29,8 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-wizard', {
     template,
+
+    inject: ['feature'],
 
     props: {
         showNavigationDots: {
@@ -102,6 +103,8 @@ Component.register('sw-wizard', {
         addPage(component) {
             this.pages.push(component);
             this.$emit('pages-updated', this.pages, component, 'add');
+
+            this.changePage(this.currentlyActivePage);
         },
 
         removePage(component) {

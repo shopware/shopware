@@ -2,7 +2,7 @@
     <div class="form-group {{ additionalClass }}">
         {% block cms_element_form_textarea_label %}
             <label class="form-label" for="form-{{ fieldName }}">
-                {{ label|trans }}{% if required %} {{ "general.required"|trans }}{% endif %}
+                {{- label|trans -}}{% if required %} {{- 'general.required'|trans -}}{% endif %}
             </label>
         {% endblock %}
 

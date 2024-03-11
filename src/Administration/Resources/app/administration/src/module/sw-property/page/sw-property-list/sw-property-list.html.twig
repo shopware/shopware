@@ -129,11 +129,7 @@
                     {% block sw_property_list_grid_columns_filterable_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="item.filterable"
-                            {% else %}
-                            v-model="item.filterable"
-                            {% endif %}
                         />
                     </template>
                     {% endblock %}

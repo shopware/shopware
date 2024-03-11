@@ -14,7 +14,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_customfields_state_image %}
             <img
-                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/settings-empty-state.svg')"
                 :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
             >
             {% endblock %}
@@ -63,20 +63,12 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_field_editor %}
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="currentCustomFieldId"
-                    {% else %}
-                    v-model="currentCustomFieldId"
-                    {% endif %}
                     class="sw-settings-search-custom-field-select"
                     entity="custom_field"
                     :criteria="customFieldFilteredCriteria"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="(id, customfield) => onSelectCustomField(customfield)"
-                    {% else %}
-                    @change="(id, customfield) => onSelectCustomField(customfield)"
-                    {% endif %}
                 >
 
                     <template #selection-label-property="{ item }">
@@ -107,11 +99,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_ranking_editor %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="item.ranking"
-                    {% else %}
-                    v-model="item.ranking"
-                    {% endif %}
                     number-type="int"
                     size="small"
                 />
@@ -127,11 +115,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_searchable_editor %}
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="item.searchable"
-                    {% else %}
-                    v-model="item.searchable"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>
@@ -163,11 +147,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_customfields_tokenize_editor %}
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="item.tokenize"
-                    {% else %}
-                    v-model="item.tokenize"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>

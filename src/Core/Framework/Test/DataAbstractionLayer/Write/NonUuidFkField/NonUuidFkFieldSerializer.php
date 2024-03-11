@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -16,9 +15,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
  */
 class NonUuidFkFieldSerializer implements FieldSerializerInterface
 {
+    /**
+     * @param NonUuidFkField $field
+     */
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
-        /** @var StorageAware $field */
         yield $field->getStorageName() => $data->getValue();
     }
 

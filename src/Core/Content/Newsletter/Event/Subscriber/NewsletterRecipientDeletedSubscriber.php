@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
 {
     /**
@@ -34,6 +34,7 @@ class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
     {
         $message = new NewsletterRecipientIndexingMessage($event->getIds(), null, $event->getContext());
         $message->setDeletedNewsletterRecipients(true);
+        $message->setIndexer('newsletter_recipient.indexer');
 
         $this->messageBus->dispatch($message);
     }

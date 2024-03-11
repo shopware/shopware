@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountOrderDetailPageLoader
 {
     /**
@@ -57,14 +57,17 @@ class AccountOrderDetailPageLoader
         $criteria
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
+            ->addAssociation('stateMachineState')
             ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('lineItems.cover');
 
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $salesChannelContext, $criteria);
         $this->eventDispatcher->dispatch($event);

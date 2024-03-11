@@ -433,7 +433,7 @@ class CartServiceTest extends TestCase
 
         $this->createCustomer($addressId, $mail, $password, $context->getContext());
 
-        $newtoken = $this->accountService->login($mail, $context);
+        $newtoken = $this->accountService->loginByCredentials($mail, $password, $context);
 
         $context = $contextService->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $newtoken));
 

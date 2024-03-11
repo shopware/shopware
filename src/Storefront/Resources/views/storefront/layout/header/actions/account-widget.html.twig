@@ -4,17 +4,12 @@
             <button class="btn account-menu-btn header-actions-btn"
                     type="button"
                     id="accountWidget"
-                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-account-menu" is deprecated. Use "data-account-menu" instead #}
-                    {% if feature('v6.6.0.0') %}
-                        data-account-menu="true"
-                    {% else %}
-                        data-offcanvas-account-menu="true"
-                    {% endif %}
+                    data-account-menu="true"
                     data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    aria-label="{{ "account.myAccount"|trans|striptags }}"
-                    title="{{ "account.myAccount"|trans|striptags }}">
+                    aria-label="{{ 'account.myAccount'|trans|striptags }}"
+                    title="{{ 'account.myAccount'|trans|striptags }}">
                 {% sw_icon 'avatar' %}
             </button>
         {% endblock %}

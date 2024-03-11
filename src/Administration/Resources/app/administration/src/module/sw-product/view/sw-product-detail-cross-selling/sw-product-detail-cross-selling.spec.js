@@ -2,62 +2,53 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProductDetailCrossSelling from 'src/module/sw-product/view/sw-product-detail-cross-selling';
-import Vuex from 'vuex';
-
-Shopware.Component.register('sw-product-detail-cross-selling', swProductDetailCrossSelling);
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 const product = {};
-const store = new Vuex.Store({
-    modules: {
-        swProductDetail: {
-            namespaced: true,
-            getters: {
-                isLoading: () => false,
-            },
-            state: {
-                product: product,
-            },
-        },
-        context: {
-            namespaced: true,
-
-            getters: {
-                isSystemDefaultLanguage() {
-                    return true;
-                },
-            },
-        },
-    },
-});
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.filter('asset', () => {});
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-product-detail-cross-selling'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-detail-cross-selling', { sync: true }), {
+        props: {
             crossSelling: null,
         },
-        stubs: {
-            'sw-card': true,
-            'sw-button': true,
-            'sw-product-cross-selling-form': true,
-            'sw-empty-state': true,
-            'sw-skeleton': true,
-        },
-        mocks: {
-            $store: store,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve('bar') }),
+        global: {
+            stubs: {
+                'sw-card': true,
+                'sw-button': true,
+                'sw-product-cross-selling-form': true,
+                'sw-empty-state': true,
+                'sw-skeleton': true,
             },
-            acl: { can: () => true },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({ search: () => Promise.resolve('bar') }),
+                },
+                acl: { can: () => true },
+            },
+            mocks: {
+                $store: createStore({
+                    modules: {
+                        swProductDetail: {
+                            namespaced: true,
+                            getters: {
+                                isLoading: () => false,
+                            },
+                            state: {
+                                product: product,
+                            },
+                        },
+                        context: {
+                            namespaced: true,
+
+                            getters: {
+                                isSystemDefaultLanguage() {
+                                    return true;
+                                },
+                            },
+                        },
+                    },
+                }),
+            },
         },
     });
 }
@@ -67,6 +58,7 @@ function buildProduct() {
         crossSellings: [
             {
                 assignedProducts: [
+                    'bar',
                 ],
             },
         ],
@@ -80,18 +72,16 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should load assigned products', async () => {
         const customProduct = buildProduct();
-        await wrapper.setData({ product: customProduct });
 
-        expect(customProduct.crossSellings[0].assignedProducts).toBe('bar');
+        await wrapper.setData({ product: customProduct });
+        await flushPromises();
+
+        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual(['bar']);
     });
 });

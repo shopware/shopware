@@ -2,7 +2,7 @@
 
 import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-channel.page-object';
 
-describe('Sales Channel: Test acl', () => {
+describe('Sales Channel: Test acl', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.openInitialPage(Cypress.env('admin'));
     });
@@ -18,7 +18,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('#sw-field--salesChannel-name').should('have.value', 'Storefront');
+        cy.get('.sw-field--salesChannel-name input').should('have.value', 'Storefront');
 
         cy.get('.sw-tabs-item').eq(1).click();
         cy.get('.sw-sales-channel-detail-products').should('be.visible');
@@ -45,8 +45,8 @@ describe('Sales Channel: Test acl', () => {
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('#sw-field--salesChannel-name').should('have.value', 'Storefront');
-        cy.get('#sw-field--salesChannel-name').clearTypeAndCheck('Shopsite');
+        cy.get('.sw-field--salesChannel-name input').should('have.value', 'Storefront');
+        cy.get('.sw-field--salesChannel-name input').clearTypeAndCheck('Shopsite');
 
         cy.get('.sw-sales-channel-detail__save-action').click();
         cy.contains('.sw-admin-menu__sales-channel-item--1', 'Shopsite');

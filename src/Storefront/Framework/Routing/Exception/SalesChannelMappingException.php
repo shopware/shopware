@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Routing\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('storefront')]
 class SalesChannelMappingException extends ShopwareHttpException
@@ -19,5 +20,10 @@ class SalesChannelMappingException extends ShopwareHttpException
     public function getErrorCode(): string
     {
         return 'FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 }

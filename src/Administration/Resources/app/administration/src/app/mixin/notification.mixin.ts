@@ -18,7 +18,7 @@ interface notification {
 }
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Mixin.register('notification', defineComponent({
     methods: {

@@ -44,6 +44,11 @@ class SyncComposerVersionCommand extends Command
         $changed = false;
 
         foreach ($bundleJsons as $bundleJsonPath) {
+            if ($bundleJsonPath === $this->projectDir . '/src/WebInstaller/composer.json') {
+                // WebInstaller is distributed separately, therefore, it has other composer requirements
+                continue;
+            }
+
             $bundleJson = json_decode((string) file_get_contents($bundleJsonPath), true, 512, \JSON_THROW_ON_ERROR);
 
             foreach (['require', 'require-dev'] as $field) {

@@ -122,7 +122,7 @@ class InheritanceUpdater
                 $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => ArrayParameterType::STRING]
+                    ['ids' => ArrayParameterType::BINARY]
                 );
             });
         }
@@ -172,7 +172,7 @@ class InheritanceUpdater
                 $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => ArrayParameterType::STRING]
+                    ['ids' => ArrayParameterType::BINARY]
                 );
             });
 
@@ -199,7 +199,7 @@ class InheritanceUpdater
                 $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => ArrayParameterType::STRING]
+                    ['ids' => ArrayParameterType::BINARY]
                 );
             });
         }

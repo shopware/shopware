@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Validation;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\Constraint;
@@ -16,9 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class HappyPathValidatorTest extends TestCase
 {
-    /**
-     * @dataProvider constraintDataProvider
-     */
+    #[DataProvider('constraintDataProvider')]
     public function testValidator(Constraint $constraint, $value, bool $isValid): void
     {
         $inner = $this->createMock(ValidatorInterface::class);

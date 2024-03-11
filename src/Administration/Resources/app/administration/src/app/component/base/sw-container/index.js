@@ -7,8 +7,7 @@ const { warn } = Shopware.Utils.debug;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Provides a container element which is divided in multiple sections with the use of CSS grid.
  * @status ready
  * @example-type static

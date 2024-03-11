@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Configuration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
@@ -9,9 +10,8 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Configuration\EnvConfigWriter
  */
+#[CoversClass(EnvConfigWriter::class)]
 class EnvConfigWriterTest extends TestCase
 {
     protected function tearDown(): void

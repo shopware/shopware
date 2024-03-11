@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -29,7 +28,7 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
@@ -102,6 +101,7 @@ class SeoUrlGenerator
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
             $copy->setError($mapping->getError());
+
             $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
@@ -157,7 +157,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string>
      */
     private function getAssociations(string $template, EntityDefinition $definition): array
     {
@@ -171,7 +171,6 @@ class SeoUrlGenerator
         foreach ($variables as $variable) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
 
-            /** @var Field|null $lastField */
             $lastField = end($fields);
 
             $runtime = new Runtime();

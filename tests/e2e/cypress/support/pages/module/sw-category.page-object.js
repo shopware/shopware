@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import elements from '../sw-general.page-object';
 
 export default class CategoryPageObject {
@@ -9,7 +12,7 @@ export default class CategoryPageObject {
                 categoryListName: `${elements.dataGridColumn}--name`,
                 categoryTreeItem: '.sw-tree-item',
                 categoryTreeItemInner: '.sw-category-tree__inner .sw-tree-item'
-            }
+            },
         };
     }
 

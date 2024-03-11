@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Flow\FlowAction\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Action;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -13,7 +12,7 @@ class MetadataTest extends TestCase
 {
     public function testFromXml(): void
     {
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/../_fixtures/valid/major/flow.xml' : '/../_fixtures/valid/minor/flow-action.xml';
+        $flowActionsFile = '/../_fixtures/valid/major/flow.xml';
         $flowActions = Action::createFromXmlFile(__DIR__ . $flowActionsFile);
 
         static::assertNotNull($flowActions->getActions());
@@ -22,11 +21,11 @@ class MetadataTest extends TestCase
         $firstAction = $flowActions->getActions()->getActions()[0];
         $meta = $firstAction->getMeta();
 
-        static::assertEquals('abc.cde.ccc', $meta->getName());
-        static::assertEquals(['order', 'customer'], $meta->getRequirements());
-        static::assertEquals('https://example.xyz', $meta->getUrl());
-        static::assertEquals('sw-pencil', $meta->getSwIcon());
-        static::assertEquals('resource/pencil', $meta->getIcon());
+        static::assertSame('abc.cde.ccc', $meta->getName());
+        static::assertSame(['order', 'customer'], $meta->getRequirements());
+        static::assertSame('https://example.xyz', $meta->getUrl());
+        static::assertSame('sw-pencil', $meta->getSwIcon());
+        static::assertSame('resource/pencil', $meta->getIcon());
         static::assertEquals(
             [
                 'en-GB' => 'First action app',

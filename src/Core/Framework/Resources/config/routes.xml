@@ -4,16 +4,16 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Api/Controller/**/*Controller.php" type="annotation" />
-    <import resource="../../Plugin/**/*Controller.php" type="annotation" />
-    <import resource="../../Store/**/*Controller.php" type="annotation" />
-    <import resource="../../Update/**/*Controller.php" type="annotation" />
-    <import resource="../../MessageQueue/**/*Controller.php" type="annotation" />
-    <import resource="../../Increment/Controller/*Controller.php" type="annotation" />
-    <import resource="../../Migration/**/*Controller.php" type="annotation" />
-    <import resource="../../App/**/*Controller.php" type="annotation" />
-    <import resource="../../App/**/*Route.php" type="annotation" />
-    <import resource="../../Script/Api/*Route.php" type="annotation" />
-    <import resource="../../Rule/Api/*Controller.php" type="annotation" />
+    <import resource="../../Api/Controller/**/*Controller.php" type="attribute" />
+    <import resource="../../Plugin/**/*Controller.php" type="attribute" />
+    <import resource="../../Store/**/*Controller.php" type="attribute" />
+    <import resource="../../Update/**/*Controller.php" type="attribute" />
+    <import resource="../../MessageQueue/**/*Controller.php" type="attribute" />
+    <import resource="../../Increment/Controller/*Controller.php" type="attribute" />
+    <import resource="../../Migration/**/*Controller.php" type="attribute" />
+    <import resource="../../App/**/*Controller.php" type="attribute" />
+    <import resource="../../App/**/*Route.php" type="attribute" />
+    <import resource="../../Script/Api/*Route.php" type="attribute" />
+    <import resource="../../Rule/Api/*Controller.php" type="attribute" />
 
 </routes>

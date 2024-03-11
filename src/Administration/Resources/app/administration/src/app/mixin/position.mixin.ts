@@ -1,12 +1,11 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
  * Mixin which contains helpers to work with position integers.
  */
 import type Repository from 'src/core/data/repository.data';
 import Criteria from 'src/core/data/criteria.data';
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import { defineComponent } from 'vue';
 
 /**

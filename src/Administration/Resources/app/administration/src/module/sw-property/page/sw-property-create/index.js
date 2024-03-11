@@ -14,6 +14,12 @@ export default {
         };
     },
 
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     methods: {
         createdComponent() {
             if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {

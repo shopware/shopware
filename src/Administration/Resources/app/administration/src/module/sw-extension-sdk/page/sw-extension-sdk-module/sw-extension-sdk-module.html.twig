@@ -1,13 +1,30 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_sdk_module %}
-<sw-page :show-search-bar="showSearchBar">
+<sw-page
+    class="sw-extension-sdk-module"
+    :show-search-bar="showSearchBar"
+>
     <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_header %}
         <template v-if="!isLoading">
-            <h2>{{ module.heading }}</h2>
+            <h2>{{ $tc(module.heading ?? '') }}</h2>
         </template>
         {% endblock %}
+    </template>
+
+    <template
+        v-if="back"
+        #smart-bar-back
+    >
+        <router-link
+            :to="{ name: back }"
+        >
+            <sw-icon
+                name="regular-chevron-left"
+                small
+            />
+        </router-link>
     </template>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -21,7 +38,7 @@
             :variant="button.variant"
             @click="button.onClickCallback"
         >
-            {{ button.label }}
+            {{ $tc(button.label ?? '') }}
         </sw-button>
     </template>
     {% endblock %}
@@ -36,6 +53,7 @@
             ref="iframeRenderer"
             :src="module.baseUrl"
             :location-id="module.locationId"
+            full-screen
         />
         {% endblock %}
 

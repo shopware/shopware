@@ -6,11 +6,7 @@
     {% block sw_promotion_v2_cart_condition_form_rules_field %}
     <sw-promotion-v2-rule-select
         v-if="promotion"
-        {% if VUE3 %}
         v-model:collection="promotion.cartRules"
-        {% else %}
-        v-model="promotion.cartRules"
-        {% endif %}
         class="sw-promotion-v2-cart-condition-form__rule-select-cart"
         :local-mode="promotion.isNew()"
         :criteria="ruleFilter"
@@ -25,11 +21,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_cart_condition_form_use_setgroups_field %}
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="promotion.useSetGroups"
-        {% else %}
-        v-model="promotion.useSetGroups"
-        {% endif %}
         class="sw-promotion-v2-cart-condition-form__use-setgroups"
         :disabled="!acl.can('promotion.editor')"
         :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')"
@@ -95,11 +87,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="group.packagerKey"
-                    {% else %}
-                    v-model="group.packagerKey"
-                    {% endif %}
                     class="sw-promotion-v2-cart-condition-form__setgroup-mode"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
                     :disabled="isEditingDisabled"
@@ -117,11 +105,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_value_field %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="group.value"
-                    {% else %}
-                    v-model="group.value"
-                    {% endif %}
                     class="sw-promotion-v2-cart-condition-form__setgroup-value"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
                     :disabled="isEditingDisabled"
@@ -137,11 +121,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="group.sorterKey"
-                    {% else %}
-                    v-model="group.sorterKey"
-                    {% endif %}
                     class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
                     :disabled="isEditingDisabled"
@@ -166,11 +146,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
                 <sw-promotion-v2-rule-select
-                    {% if VUE3 %}
                     v-model:collection="group.setGroupRules"
-                    {% else %}
-                    v-model="group.setGroupRules"
-                    {% endif %}
                     class="sw-promotion-v2-cart-condition-form__setgroup-rules"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
                     :placeholder="$tc('sw-promotion-v2.detail.conditions.setgroups.placeholder')"

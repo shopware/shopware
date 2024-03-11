@@ -9,10 +9,24 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
+use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
+use Shopware\Core\Framework\Framework;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Kernel;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -27,12 +41,30 @@ class DomainExceptionRule implements Rule
     private const VALID_EXCEPTION_CLASSES = [
         DecorationPatternException::class,
         ConstraintViolationException::class,
+        PermissionDeniedException::class,
+        LoaderError::class, // Twig
+        ServiceNotFoundException::class, // Symfony
+        UnrecoverableMessageHandlingException::class, // Symfony
+        RecoverableMessageHandlingException::class, // Symfony
+        NotFoundHttpException::class, // Symfony
+        BadRequestException::class, // Symfony
     ];
 
     private const VALID_SUB_DOMAINS = [
         'Cart',
         'Payment',
         'Order',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    private const REMAPPED_DOMAINS = [
+        Kernel::class => FrameworkException::class,
+        Framework::class => FrameworkException::class,
+        VarnishReverseProxyGateway::class => ReverseProxyException::class,
+        FastlyReverseProxyGateway::class => ReverseProxyException::class,
+        RedisReverseProxyGateway::class => ReverseProxyException::class,
     ];
 
     public function __construct(
@@ -99,9 +131,17 @@ class DomainExceptionRule implements Rule
         if (!\str_starts_with($reflection->getName(), 'Shopware\\Core\\')) {
             return [];
         }
+
+        if ($this->isRemapped($reflection->getName(), $exceptionClass)) {
+            return [];
+        }
+
         $parts = \explode('\\', $reflection->getName());
 
-        $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $parts[2], $parts[3], $parts[3]);
+        $domain = $parts[2] ?? '';
+        $sub = $parts[3] ?? '';
+
+        $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $domain, $sub, $sub);
 
         if ($exceptionClass !== $expected && !$exception->isSubclassOf($expected)) {
             // Is it in a subdomain?
@@ -118,5 +158,14 @@ class DomainExceptionRule implements Rule
         }
 
         return [];
+    }
+
+    private function isRemapped(string $source, string $exceptionClass): bool
+    {
+        if (!\array_key_exists($source, self::REMAPPED_DOMAINS)) {
+            return false;
+        }
+
+        return self::REMAPPED_DOMAINS[$source] === $exceptionClass;
     }
 }

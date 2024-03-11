@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -20,8 +21,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -34,9 +34,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\CmsController
  */
+#[Package('buyers-experience')]
+#[CoversClass(CmsController::class)]
 class CmsControllerTest extends TestCase
 {
     private MockObject&CmsRoute $cmsRouteMock;
@@ -87,11 +87,7 @@ class CmsControllerTest extends TestCase
 
     public function testCategoryNoId(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(RoutingException::class);
-        } else {
-            $this->expectException(MissingRequestParameterException::class);
-        }
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('Parameter "navigationId" is missing.');
 
         $this->controller->category(null, new Request(), $this->createMock(SalesChannelContext::class));
@@ -182,6 +178,26 @@ class CmsControllerTest extends TestCase
                 'elementId' => $ids->get('element'),
             ]
         );
+    }
+
+    public function testSwitchBuyBoxVariantWithInvalidJsonOptions(): void
+    {
+        $ids = new IdsCollection();
+
+        $request = new Request(
+            [
+                'elementId' => $ids->get('element'),
+                'options' => 'invalidJsonString',
+            ]
+        );
+
+        $response = $this->controller->switchBuyBoxVariant(
+            $ids->get('product'),
+            $request,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 }
 

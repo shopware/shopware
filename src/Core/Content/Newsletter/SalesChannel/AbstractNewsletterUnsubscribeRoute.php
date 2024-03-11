@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route is used to unsubscribe the newsletter
  * The required parameters is "email"
  */
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 abstract class AbstractNewsletterUnsubscribeRoute
 {
     abstract public function getDecorated(): AbstractNewsletterUnsubscribeRoute;

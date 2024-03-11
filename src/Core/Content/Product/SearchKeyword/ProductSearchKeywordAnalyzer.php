@@ -67,7 +67,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     /**
      * @param array<int, string> $values
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     private function tokenize(array $values, Context $context): array
     {

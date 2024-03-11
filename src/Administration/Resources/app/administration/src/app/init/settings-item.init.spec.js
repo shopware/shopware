@@ -1,5 +1,5 @@
 import initializeSettingItems from 'src/app/init/settings-item.init';
-import { ui } from '@shopware-ag/admin-extension-sdk';
+import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 let stateDispatchBackup = null;
 describe('src/app/init/settings-item.init.ts', () => {
@@ -56,15 +56,13 @@ describe('src/app/init/settings-item.init.ts', () => {
             group: 'system',
             icon: 'default-object-books',
             id: 'settings-location-id',
-            label: {
-                label: 'App Settings',
-                translated: true,
-            },
+            label: 'App Settings',
             name: 'settings-location-id',
             to: {
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: expect.any(String),
+                    back: 'sw.settings.index.system',
                 },
             },
         });
@@ -92,15 +90,13 @@ describe('src/app/init/settings-item.init.ts', () => {
             group: 'plugins',
             icon: 'default-object-books',
             id: 'settings-location-id',
-            label: {
-                label: 'App Settings',
-                translated: true,
-            },
+            label: 'App Settings',
             name: 'settings-location-id',
             to: {
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: expect.any(String),
+                    back: 'sw.settings.index.plugins',
                 },
             },
         });
@@ -129,15 +125,13 @@ describe('src/app/init/settings-item.init.ts', () => {
             group: 'plugins',
             icon: 'default-object-books',
             id: 'settings-location-id',
-            label: {
-                label: 'App Settings',
-                translated: true,
-            },
+            label: 'App Settings',
             name: 'settings-location-id',
             to: {
                 name: 'sw.extension.sdk.index',
                 params: {
                     id: expect.any(String),
+                    back: 'sw.settings.index.plugins',
                 },
             },
         });

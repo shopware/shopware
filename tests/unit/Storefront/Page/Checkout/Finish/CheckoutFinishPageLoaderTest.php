@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Finish;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -30,9 +31,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader
  */
+#[CoversClass(CheckoutFinishPageLoader::class)]
 class CheckoutFinishPageLoaderTest extends TestCase
 {
     public function testRobotsMetaNotSetIfGiven(): void

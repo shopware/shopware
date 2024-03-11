@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
@@ -16,9 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader
  */
+#[CoversClass(LineItemDownloadLoader::class)]
 class LineItemDownloadLoaderTest extends TestCase
 {
     private MockObject&EntityRepository $productDownloadRepository;

@@ -2,7 +2,7 @@ import template from './sw-settings-rule-tree-item.html.twig';
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -15,9 +15,7 @@ export default {
         hideActions: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
+            default: false,
         },
     },
 

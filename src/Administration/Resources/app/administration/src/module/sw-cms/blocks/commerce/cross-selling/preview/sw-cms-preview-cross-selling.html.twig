@@ -8,16 +8,18 @@
             size="10"
         />
 
-        <template v-for="block in 4">
+        <template
+            v-for="block in 4"
+            :key="block"
+        >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_block_cross_selling_preview_box %}
             <div
-                :key="block"
                 class="sw-cms-block-preview-cross-selling__product-box"
             >
                 <img
                     class="sw-cms-block-preview-cross-selling__product-image"
-                    :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset"
+                    :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
                     alt=""
                 >
 

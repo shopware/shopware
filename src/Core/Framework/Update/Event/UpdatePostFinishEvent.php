@@ -35,6 +35,6 @@ class UpdatePostFinishEvent extends UpdateEvent
 
     public function appendPostUpdateMessage(string $postUpdateMessage): void
     {
-        $this->postUpdateMessage .= \PHP_EOL . $postUpdateMessage . \PHP_EOL;
+        $this->postUpdateMessage .= $postUpdateMessage . \PHP_EOL;
     }
 }

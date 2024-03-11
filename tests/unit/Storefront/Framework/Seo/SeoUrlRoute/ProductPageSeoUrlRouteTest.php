@@ -2,21 +2,21 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\SeoUrlRoute;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @package sales-channel
- *
- * @covers \Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute
  */
+#[Package('buyers-experience')]
+#[CoversClass(ProductPageSeoUrlRoute::class)]
 class ProductPageSeoUrlRouteTest extends TestCase
 {
     public function testGetConfig(): void

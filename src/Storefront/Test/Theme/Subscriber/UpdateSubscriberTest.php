@@ -31,7 +31,6 @@ class UpdateSubscriberTest extends TestCase
     {
         $themeService = $this->createMock(ThemeService::class);
         $themeLifecycleService = $this->createMock(ThemeLifecycleService::class);
-        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
@@ -88,12 +87,15 @@ class UpdateSubscriberTest extends TestCase
         $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
         $event = new UpdatePostFinishEvent($context, 'v6.2.0', 'v6.2.1');
 
-        $themeLifecycleService->expects(static::once())->method('refreshThemes');
+        $themeLifecycleService->expects(static::never())->method('refreshThemes');
         $themeService->expects(static::never())->method('compileThemeById');
 
         $updateSubscriber->updateFinished($event);
     }
 
+    /**
+     * @return array<string, array{id: string, salesChannelId: string}>
+     */
     private function setupThemes(Context $context): array
     {
         /** @var EntityRepository $themeRepository */

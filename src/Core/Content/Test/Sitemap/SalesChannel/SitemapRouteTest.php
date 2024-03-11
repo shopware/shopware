@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Sitemap\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -12,10 +13,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
+#[Group('store-api')]
 class SitemapRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

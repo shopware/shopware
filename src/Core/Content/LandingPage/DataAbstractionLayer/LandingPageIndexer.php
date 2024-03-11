@@ -9,23 +9,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageIndexer extends EntityIndexer
 {
-    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
-
     /**
      * @internal
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
         private readonly EntityRepository $repository,
-        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
@@ -68,19 +65,14 @@ class LandingPageIndexer extends EntityIndexer
             return;
         }
 
-        $context = $message->getContext();
-
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            $this->manyToManyIdFieldUpdater->update(LandingPageDefinition::ENTITY_NAME, $ids, $context);
-        }
-
-        $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context, $message->getSkip()));
+        // This indexer is only used to update the seo urls over the SeoUrlUpdater, so we only dispatch the event here
+        $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
     public function getOptions(): array
     {
         return [
-            self::MANY_TO_MANY_ID_FIELD_UPDATER,
+            SeoUrlUpdateListener::LANDING_PAGE_SEO_URL_UPDATER,
         ];
     }
 

@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->append($this->createHttpCacheSection())
                 ->append($this->createNumberRangeSection())
                 ->append($this->createProfilerSection())
                 ->append($this->createFilesystemSection())
@@ -41,6 +42,8 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTwigSection())
                 ->append($this->createDompdfSection())
                 ->append($this->createStockSection())
+                ->append($this->createUsageDataSection())
+                ->append($this->createFeatureToggleNode())
             ->end();
 
         return $treeBuilder;
@@ -314,6 +317,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
                         ->booleanNode('major')->defaultFalse()->end()
+                        ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
                 ->end()
@@ -386,8 +390,15 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('delay')
                             ->defaultValue(0)
                         ->end()
-                        ->integerNode('count')
-                            ->defaultValue(150)
+                        ->arrayNode('delay_options')
+                            ->children()
+                                ->scalarNode('storage')
+                                    ->defaultValue('redis')
+                                ->end()
+                                ->scalarNode('dsn')
+                                    ->defaultValue('redis://localhost')
+                                ->end()
+                            ->end()
                         ->end()
                         ->arrayNode('http_cache')
                             ->performNoDeepMerging()
@@ -706,6 +717,88 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enable_stock_management')->defaultTrue()->end()
             ->end();
+
+        return $rootNode;
+    }
+
+    private function createUsageDataSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('usage_data');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('gateway')
+                    ->children()
+                        ->scalarNode('dispatch_enabled')->end()
+                        ->scalarNode('base_uri')->end()
+                        ->scalarNode('batch_size')->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createFeatureToggleNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('feature_toggle');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->booleanNode('enable')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createHttpCacheSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('http_cache');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
+                ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->arrayNode('ignored_url_parameters')
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('reverse_proxy')
+                    ->children()
+                        ->booleanNode('enabled')->end()
+                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
+                        ->arrayNode('hosts')->performNoDeepMerging()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
+                        ->scalarNode('redis_url')->end()
+                        ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                        ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('purge_all')
+                            ->children()
+                                ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                                ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()->end()
+                                ->arrayNode('urls')->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('fastly')
+                            ->children()
+                                ->booleanNode('enabled')->defaultFalse()->end()
+                                ->scalarNode('api_key')->defaultValue('')->end()
+                                ->scalarNode('instance_tag')->defaultValue('')->end()
+                                ->scalarNode('service_id')->defaultValue('')->end()
+                                ->scalarNode('soft_purge')->defaultValue('0')->end()
+                                ->scalarNode('tag_prefix')->defaultValue('')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
 
         return $rootNode;
     }

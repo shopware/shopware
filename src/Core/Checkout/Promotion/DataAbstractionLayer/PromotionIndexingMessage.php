@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionIndexingMessage extends EntityIndexingMessage
 {
 }

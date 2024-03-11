@@ -21,6 +21,15 @@
             <argument type="service" id="parameter_bag"/>
         </service>
 
+        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider">
+            <argument type="tagged" tag="shopware.scheduled.task" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="scheduler.schedule_provider">
+                <attribute name="name">shopware</attribute>
+            </tag>
+        </service>
+
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
 
@@ -31,10 +40,6 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry"/>
             <argument type="service" id="cache.messenger.restart_workers_signal" />
 
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Compatibility\ScheduledTaskCompatibilitySubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 

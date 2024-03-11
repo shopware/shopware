@@ -14,5 +14,8 @@ interface ActionButtonResponseFactoryInterface
 {
     public function supports(string $actionType): bool;
 
+    /**
+     * @param array<string, mixed> $payload
+     */
     public function create(AppAction $action, array $payload, Context $context): ActionButtonResponse;
 }

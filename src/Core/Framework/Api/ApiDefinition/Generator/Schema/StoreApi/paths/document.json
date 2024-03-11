@@ -58,7 +58,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

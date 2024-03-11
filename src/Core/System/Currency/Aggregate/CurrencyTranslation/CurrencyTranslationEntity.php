@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

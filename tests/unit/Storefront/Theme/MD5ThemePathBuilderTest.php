@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\MD5ThemePathBuilder
  */
+#[CoversClass(MD5ThemePathBuilder::class)]
 class MD5ThemePathBuilderTest extends TestCase
 {
     public function testAssemblePath(): void

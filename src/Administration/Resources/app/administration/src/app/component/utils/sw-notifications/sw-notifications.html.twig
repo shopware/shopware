@@ -36,13 +36,15 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_notifications_item_actions_slot %}
                 <template #actions>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_notifications_item_actions %}
-                    <template v-for="action in notification.actions">
+                    <template
+                        v-for="action in notification.actions"
+                        :key="action.label"
+                    >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_notifications_item_action_item %}
                         <sw-button
-                            :key="action.label"
                             :disabled="action.disabled"
                             @click="handleAction(action, notification)"
                         >

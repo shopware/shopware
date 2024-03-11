@@ -1,13 +1,16 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/v-on-event-hyphenation -->
 {% block sw_form_field_renderer %}
 <component
     :is="componentName"
     v-if="!config.hidden"
     v-bind="bind"
     ref="component"
-    v-model="currentValue"
+    v-model:value="currentValue"
+    v-model:entity-collection="currentValue"
     class="sw-form-field-renderer"
-    @change="$emit('change', $event)"
+    @update:value="emitUpdate"
+    @update:ids="emitUpdate"
+    @update:entity-collection="emitUpdate"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_inner %}

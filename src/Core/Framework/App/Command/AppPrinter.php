@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
+use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,13 +26,15 @@ class AppPrinter
         AclRoleDefinition::PRIVILEGE_DELETE => 'delete',
     ];
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(private readonly EntityRepository $appRepository)
     {
     }
 
     public function printInstalledApps(ShopwareStyle $io, Context $context): void
     {
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         if (empty($apps->getElements())) {
@@ -121,6 +123,9 @@ class AppPrinter
         }
     }
 
+    /**
+     * @param array<string> $hosts
+     */
     private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
     {
         $io->caution(
@@ -164,6 +169,9 @@ class AppPrinter
         );
     }
 
+    /**
+     * @return array<string, list<string>>
+     */
     private function reducePermissions(Permissions $permissions): array
     {
         $reduced = [];

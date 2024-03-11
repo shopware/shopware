@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @experimental This is an experimental payment struct to make generic subscription informations available without relying as an payment handler to a specific subscription extensions
+ * This is an experimental payment struct to make generic subscription informations available without relying as an payment handler to a specific subscription extensions
  */
 #[Package('checkout')]
 class RecurringDataStruct extends Struct

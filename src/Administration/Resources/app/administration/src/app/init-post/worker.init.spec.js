@@ -68,7 +68,6 @@ describe('src/app/init-post/worker.init.ts', () => {
 
     it.each([
         'Shopware\\Core\\Framework\\DataAbstractionLayer\\Indexing\\MessageQueue\\IndexerMessage',
-        'Shopware\\Storefront\\Framework\\Cache\\CacheWarmer\\WarmUpMessage',
         'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
         'Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage',
         'Shopware\\Core\\Checkout\\Promotion\\DataAbstractionLayer\\PromotionIndexingMessage',

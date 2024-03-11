@@ -9,7 +9,6 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\Type\ObjectType;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
 use Shopware\Core\Framework\Log\Package;
@@ -55,13 +54,8 @@ class NoFlowStoreFunctionRule implements Rule
             return [];
         }
 
-        $type = $scope->getVariableType($node->var->name);
-
-        if (!$type instanceof ObjectType) {
-            return [];
-        }
-
-        if ($type->getClassName() !== StorableFlow::class) {
+        $classNames = $scope->getVariableType($node->var->name)->getObjectClassNames();
+        if (!\in_array(StorableFlow::class, $classNames, true)) {
             return [];
         }
 

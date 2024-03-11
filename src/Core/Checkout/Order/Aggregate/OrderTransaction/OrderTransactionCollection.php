@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<OrderTransactionEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionCollection extends EntityCollection
 {
     public function filterByState(string $state): self
@@ -22,7 +22,7 @@ class OrderTransactionCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getOrderIds(): array
     {
@@ -35,7 +35,7 @@ class OrderTransactionCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPaymentMethodIds(): array
     {

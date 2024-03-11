@@ -26,8 +26,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Renders an icon from the icon library.
  * @status ready
  * @example-type static
@@ -125,6 +124,10 @@ Component.register('sw-icon', {
     watch: {
         name: {
             handler(newName) {
+                if (!newName) {
+                    return;
+                }
+
                 const [variant, ...iconName] = newName.split('-');
                 this.loadIconSvgData(variant, iconName.join('-'), newName);
             },

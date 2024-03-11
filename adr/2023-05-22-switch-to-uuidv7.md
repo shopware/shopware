@@ -7,13 +7,13 @@ tags: [DAL]
 
 ## Context
 
-Using UUIDs as primary keys eases the integration of several different datasources,
+Using UUIDs as primary keys eases the integration of several different data sources,
 but it also brings some performance issues.
 
 Currently, we're using UUIDv4, which is a random UUID the completely random prefix means
 that the B-tree indexes of the database are not very efficient.
 
-UUIDv7 time based prefix is less spread than that of UUIDv4, this helps the database to keep the index more compact.
+UUIDv7 time-based prefix is less spread than that of UUIDv4, this helps the database to keep the index more compact.
 It allows the Index to allocate fewer new pages and to keep the index smaller.
 
 ## Decision

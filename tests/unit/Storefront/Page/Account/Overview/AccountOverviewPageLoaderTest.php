@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Overview;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -16,9 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
-use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -27,9 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader
  */
+#[CoversClass(AccountOverviewPageLoader::class)]
 class AccountOverviewPageLoaderTest extends TestCase
 {
     private CollectingEventDispatcher $eventDispatcher;
@@ -81,7 +80,6 @@ class AccountOverviewPageLoaderTest extends TestCase
         $customer = new CustomerEntity();
         $page = $this->pageLoader->load(new Request(), $this->createMock(SalesChannelContext::class), $customer);
 
-        static::assertInstanceOf(AccountOverviewPage::class, $page);
         static::assertEquals($order, $page->getNewestOrder());
 
         $events = $this->eventDispatcher->getEvents();

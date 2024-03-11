@@ -22,8 +22,11 @@ class AppScriptConditionConstraintsSubscriber implements EventSubscriberInterfac
 
     public function unserialize(EntityLoadedEvent $event): void
     {
-        /** @var AppScriptConditionEntity $entity */
         foreach ($event->getEntities() as $entity) {
+            if (!$entity instanceof AppScriptConditionEntity) {
+                continue;
+            }
+
             $constraints = $entity->getConstraints();
             if ($constraints === null || !\is_string($constraints)) {
                 continue;

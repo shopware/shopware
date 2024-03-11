@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\CompilerConfiguration
  */
+#[CoversClass(CompilerConfiguration::class)]
 class CompilerConfigurationTest extends TestCase
 {
     public function testGetNotSetValue(): void

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class TaxRuleTypeDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'tax_rule_type';

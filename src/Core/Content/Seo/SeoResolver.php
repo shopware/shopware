@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoResolver extends AbstractSeoResolver
 {
     /**
@@ -31,24 +31,32 @@ class SeoResolver extends AbstractSeoResolver
      */
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        $seoPathInfo = ltrim($pathInfo, '/');
+        $seoPathInfo = trim($pathInfo, '/');
 
         $query = (new QueryBuilder($this->connection))
             ->select('id', 'path_info pathInfo', 'is_canonical isCanonical', 'sales_channel_id salesChannelId')
             ->from('seo_url')
             ->where('language_id = :language_id')
             ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
-            ->andWhere('seo_path_info = :seoPath')
+            ->andWhere('(seo_path_info = :seoPath OR seo_path_info = :seoPathWithSlash)')
             ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
             ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
-            ->setParameter('seoPath', $seoPathInfo);
+            ->setParameter('seoPath', $seoPathInfo)
+            ->setParameter('seoPathWithSlash', $seoPathInfo . '/');
 
         $query->setTitle('seo-url::resolve');
 
         $seoPaths = $query->executeQuery()->fetchAllAssociative();
 
-        // sort seoPaths by filled salesChannelId, save file sort on SQL server
+        // sort seoPaths by filled salesChannelId and isCanonical, save file sort on SQL server
         usort($seoPaths, static function ($a, $b) {
+            if ($a['isCanonical'] === null) {
+                return 1;
+            }
+            if ($b['isCanonical'] === null) {
+                return -1;
+            }
+
             if ($a['salesChannelId'] === null) {
                 return 1;
             }
@@ -62,7 +70,7 @@ class SeoResolver extends AbstractSeoResolver
         $seoPath = $seoPaths[0] ?? ['pathInfo' => $seoPathInfo, 'isCanonical' => false];
 
         if (!$seoPath['isCanonical']) {
-            $query = $this->connection->createQueryBuilder()
+            $query = (new QueryBuilder($this->connection))
                 ->select('path_info pathInfo', 'seo_path_info seoPathInfo')
                 ->from('seo_url')
                 ->where('language_id = :language_id')
@@ -74,15 +82,17 @@ class SeoResolver extends AbstractSeoResolver
                 ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
                 ->setParameter('pathInfo', '/' . ltrim((string) $seoPath['pathInfo'], '/'));
 
+            $query->setTitle('seo-url::resolve-fallback');
+
             // we only have an id when the hit seo url was not a canonical url, save the one filter condition
             if (isset($seoPath['id'])) {
                 $query->andWhere('id != :id')
                     ->setParameter('id', $seoPath['id']);
             }
 
-            $canonical = $query->executeQuery()->fetchAssociative();
-            if ($canonical) {
-                $seoPath['canonicalPathInfo'] = '/' . ltrim((string) $canonical['seoPathInfo'], '/');
+            $canonicalQueryResult = $query->executeQuery()->fetchAssociative();
+            if ($canonicalQueryResult) {
+                $seoPath['canonicalPathInfo'] = '/' . ltrim((string) $canonicalQueryResult['seoPathInfo'], '/');
             }
         }
 

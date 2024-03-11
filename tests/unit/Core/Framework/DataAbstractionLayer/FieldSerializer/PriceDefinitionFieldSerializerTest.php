@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -23,9 +24,8 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceDefinitionFieldSerializer
  */
+#[CoversClass(PriceDefinitionFieldSerializer::class)]
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
     private MockObject&RuleConditionRegistry $ruleConditionRegistry;

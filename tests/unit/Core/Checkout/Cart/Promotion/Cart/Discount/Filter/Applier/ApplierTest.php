@@ -2,23 +2,23 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount\Filter\Applier;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier
  */
+#[CoversClass(Applier::class)]
 class ApplierTest extends TestCase
 {
     /**
      * This test verifies that we get an empty
      * array of indexes if we want to use all cart items.
      * Empty array means, use all indexes.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCartAllItems(): void
     {
         $applier = new Applier();
@@ -39,9 +39,8 @@ class ApplierTest extends TestCase
      * This test verifies that we only get index
      * 0 and 1 (first 2 items) if we have a cart (1 package)
      * that has no appliers, but a max item limitation.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCart2Items(): void
     {
         $applier = new Applier();
@@ -69,9 +68,8 @@ class ApplierTest extends TestCase
      * The result should be 3 items (because we have 3 packages),
      * out of the second PACKAGE.
      * This is index 3, 4 and 5.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testSetGroupHorizontalItems(): void
     {
         $applier = new Applier();
@@ -98,9 +96,8 @@ class ApplierTest extends TestCase
      * The applier should find the second package with 3 items
      * (because we have 3 packages).
      * But only use 2 of the items, which leads to index 3 + 4.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testSetGroupHorizontalItemsMax2(): void
     {
         $applier = new Applier();

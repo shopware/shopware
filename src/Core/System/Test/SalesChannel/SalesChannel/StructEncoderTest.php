@@ -25,7 +25,7 @@ use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class StructEncoderTest extends TestCase
 {
     use KernelTestBehaviour;

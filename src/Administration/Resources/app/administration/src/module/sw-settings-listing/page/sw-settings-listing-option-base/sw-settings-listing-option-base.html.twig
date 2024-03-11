@@ -42,6 +42,8 @@
             v-if="productSortingEntity"
             :sorting-option="productSortingEntity"
             :is-default-sorting="isDefaultSorting"
+            :label-error="sortingOptionLabelError"
+            :technical-name-error="sortingOptionTechnicalNameError"
         />
         {% endblock %}
 

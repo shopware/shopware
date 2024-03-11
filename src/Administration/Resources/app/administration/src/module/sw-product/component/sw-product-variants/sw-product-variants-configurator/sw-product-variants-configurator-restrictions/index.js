@@ -47,6 +47,9 @@ export default {
         },
 
         filteredRestrictions() {
+            if (!Array.isArray(this.product.variantRestrictions)) {
+                return [];
+            }
             if (this.term.length <= 0) {
                 return this.product.variantRestrictions;
             }
@@ -154,7 +157,7 @@ export default {
         },
 
         filterEmptyValues() {
-            if (!this.product.variantRestrictions) {
+            if (!Array.isArray(this.product.variantRestrictions)) {
                 return false;
             }
             this.product.variantRestrictions = this.product.variantRestrictions.filter((restriction) => {
@@ -197,7 +200,7 @@ export default {
         },
 
         saveAddRestriction() {
-            if (this.product.variantRestrictions === null) {
+            if (!Array.isArray(this.product.variantRestrictions)) {
                 this.product.variantRestrictions = [];
             }
 

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelTypeTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'sales_channel_type_translation';

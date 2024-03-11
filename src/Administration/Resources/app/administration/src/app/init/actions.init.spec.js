@@ -1,5 +1,5 @@
 import initActions from 'src/app/init/actions.init';
-import { actionExecute } from '@shopware-ag/admin-extension-sdk/es/app/action';
+import { actionExecute } from '@shopware-ag/meteor-admin-sdk/es/app/action';
 import ExtensionSdkService from '../../core/service/api/extension-sdk.service';
 import extensionsStore from '../state/extensions.store';
 

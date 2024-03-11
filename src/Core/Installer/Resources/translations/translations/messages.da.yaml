@@ -75,6 +75,11 @@ shopware.installer:
     database-configuration_field_ssl_cert_path: 'SSL certifikat sti'
     database-configuration_field_ssl_cert_key_path: 'SSL certifikat nøgle sti'
     database-configuration_field_ssl_dont_verify_cert: 'Verificer ikke server certifikatet'
+    database-configuration_fetch_error: 'Der opstod en fejl under hentning af databaseoplysninger'
+    database-configuration_access_denied: 'Adgang nægtet, legitimationsoplysninger er forkerte'
+    database-configuration_host_not_found: 'Kunne ikke oprette forbindelse til databaseserveren'
+    database-configuration_invalid_requirements: 'Shopware 6 kræver mindst MySQL 8.0.17 eller MariaDB 10.11'
+    database-configuration_refresh_databases: 'Opdater databaser'
     database-import_header: Installation
     database-import_skip_import: 'Spring over'
     database-import_progress: 'Gå videre: '

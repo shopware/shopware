@@ -10,6 +10,7 @@
       "headlineForm": "Log in to your Shopware store",
       "labelUsername": "Username",
       "labelPassword": "Password",
+      "labelKeepLoggedIn": "Stay signed in",
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
@@ -48,7 +49,7 @@
       "text": "Enter the email address linked to your account.",
       "email": {
         "label": "Email address:",
-        "placeholder": "shop@example.com"
+        "placeholder": "shop{'@'}example.com"
       },
       "submit": "Send recovery link"
     }

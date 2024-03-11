@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Log\Package;
  * @template-covariant TKey
  * @template-covariant TValue
  *
- * @implements \ArrayAccess<string|int, mixed>
- * @implements \IteratorAggregate<string|int, mixed>
+ * @implements \ArrayAccess<array-key, mixed>
+ * @implements \IteratorAggregate<array-key, mixed>
  */
 #[Package('core')]
 class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
-     * @param array<string|int, mixed> $data
+     * @param array<array-key, mixed> $data
      */
     public function __construct(
         protected array $data = [],
@@ -59,7 +59,7 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
     }
 
     /**
-     * @param array<string|int, mixed> $options
+     * @param array<array-key, mixed> $options
      */
     public function assign(array $options)
     {
@@ -69,7 +69,7 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return array<array-key, mixed>
      */
     public function all(): array
     {
@@ -80,9 +80,9 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
     {
         $jsonArray = parent::jsonSerialize();
 
-        // The key-values pairs from the property $data are now serialized in the JSON property "data". But the
-        // key-value pairs from data should appear in the serialization as they were properties of the ArrayStruct
-        // itself. Therefore the key-values moved one level up.
+        // The key-values pairs from the property $data are now serialized in the JSON property "data".
+        // But the key-value pairs from data should appear in the serialization as they were properties of the ArrayStruct itself.
+        // Therefore, the key-values moved one level up.
         unset($jsonArray['data']);
         $data = $this->data;
         $this->convertDateTimePropertiesToJsonStringRepresentation($data);
@@ -96,7 +96,7 @@ class ArrayStruct extends Struct implements \ArrayAccess, \IteratorAggregate, \C
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return array<array-key, mixed>
      */
     public function getVars(): array
     {

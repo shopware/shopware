@@ -2,16 +2,26 @@
  * @package admin
  */
 
-import type Vue from 'vue';
-import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
-import { get, debounce } from 'lodash';
-import { selectData } from '@shopware-ag/admin-extension-sdk/es/data/_internals/selectData';
-import MissingPrivilegesError from '@shopware-ag/admin-extension-sdk/es/privileges/missing-privileges-error';
+import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
+import { get, debounce, cloneDeepWith } from 'lodash';
+import type { App } from 'vue';
+import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
+import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
+import Entity from 'src/core/data/entity.data';
 
-type publishOptions = {
+interface scopeInterface {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $set(target: object, key: string, value: any): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $watch(path: string, callback: (value: any) => void, options: { deep: boolean, immediate: boolean }): () => void;
+    $once(event: string, callback: () => void): void;
+}
+interface publishOptions {
     id: string,
     path: string,
-    scope: Vue,
+    scope: scopeInterface
 }
 
 type dataset = {
@@ -29,10 +39,76 @@ type ParsedPath = {
     lastSegment: string,
 };
 
-type vueWithUid = Partial<Vue> & { _uid: number };
+type vueWithUid = Partial<App<Element>> & { _uid: number };
 
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Deep clone with custom handling for entities and entity collections
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function deepCloneWithEntity(data: any): any {
+    return cloneDeepWith(data, (value: {
+        __identifier__?: () => string;
+        source?: string;
+        entity?: keyof EntitySchema.Entities;
+        criteria?: Criteria;
+        total?: number;
+        aggregations?: unknown;
+        id?: string;
+        _entityName?: keyof EntitySchema.Entities;
+        _draft?: unknown;
+        _origin?: unknown;
+        _isDirty?: boolean;
+        _isNew?: boolean;
+    }) => {
+        // If value is a entity collection, we need to clone it custom
+        if (
+            value?.__identifier__ &&
+            typeof value.__identifier__ === 'function' &&
+            value.__identifier__() === 'EntityCollection'
+        ) {
+            return new EntityCollection(
+                value.source!,
+                value.entity!,
+                // @ts-expect-error - we don't want to provide a context
+                {},
+                value.criteria === null ? value.criteria : Criteria.fromCriteria(value.criteria!),
+                // @ts-expect-error - value is an array inside a entity collection
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                deepCloneWithEntity(Array.from(value)),
+                value.total,
+                value.aggregations,
+            );
+        }
+
+        // If value is a entity, we need to clone it custom
+        if (
+            value?.__identifier__ &&
+            typeof value.__identifier__ === 'function' &&
+            value.__identifier__() === 'Entity'
+        ) {
+            return new Entity(
+                value.id!,
+                value._entityName!,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                deepCloneWithEntity(value._draft),
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    originData: deepCloneWithEntity(value._origin),
+                    isDirty: value._isDirty,
+                    isNew: value._isNew,
+                },
+            );
+        }
+
+        return undefined;
+    });
+}
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 handleGet((data, additionalOptions) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -49,7 +125,11 @@ handleGet((data, additionalOptions) => {
         return registeredDataSet.data;
     }
 
-    const selectedData = selectData(registeredDataSet.data, selectors, 'datasetGet', origin);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const clonedData = deepCloneWithEntity(registeredDataSet.data);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const selectedData = selectData(clonedData, selectors, 'datasetGet', origin);
 
     if (selectedData instanceof MissingPrivilegesError) {
         console.error(selectedData);
@@ -84,6 +164,7 @@ function parsePath(path :string): ParsedPath | null {
 export function publishData({ id, path, scope }: publishOptions): void {
     const registeredDataSet = publishedDataSets.find(s => s.id === id);
 
+    // @ts-expect-error
     // Dataset registered from different scope? Prevent update.
     if (registeredDataSet && registeredDataSet.scope !== (scope as vueWithUid)._uid) {
         console.error(`The dataset id "${id}" you tried to publish is already registered.`);
@@ -91,6 +172,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
         return;
     }
 
+    // @ts-expect-error
     // Dataset registered from same scope? Update.
     if (registeredDataSet && registeredDataSet.scope === (scope as vueWithUid)._uid) {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -141,7 +223,8 @@ export function publishData({ id, path, scope }: publishOptions): void {
                 }
 
                 scope.$set(
-                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment) as Vue,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
                     parsedPath.lastSegment,
                     transferObject[property],
                 );
@@ -178,7 +261,8 @@ export function publishData({ id, path, scope }: publishOptions): void {
                 return;
             }
 
-            scope.$set(Shopware.Utils.object.get(scope, newPath) as Vue, lastPath, value.data);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
 
             return;
         }
@@ -187,11 +271,12 @@ export function publishData({ id, path, scope }: publishOptions): void {
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
-    const unwatch = scope.$watch(path, debounce((value: Vue) => {
-        // const preparedValue = prepareValue(value);
+    const unwatch = scope.$watch(path, debounce((value: App<Element>) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const clonedValue = deepCloneWithEntity(value);
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        register({ id: id, data: value }).catch(() => {});
+        register({ id: id, data: clonedValue }).catch(() => {});
 
         const dataSet = publishedDataSets.find(set => set.id === id);
         if (dataSet) {
@@ -202,7 +287,8 @@ export function publishData({ id, path, scope }: publishOptions): void {
 
         publishedDataSets.push({
             id,
-            data: value,
+            data: clonedValue,
+            // @ts-expect-error
             scope: (scope as vueWithUid)._uid,
         });
     }, 750), {

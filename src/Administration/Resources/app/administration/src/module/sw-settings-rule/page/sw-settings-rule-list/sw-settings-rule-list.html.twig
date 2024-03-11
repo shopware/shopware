@@ -120,10 +120,10 @@
                 {% block sw_settings_rule_list_grid_column_assignments %}
                 <template
                     v-for="(propertyName, index) in assignmentProperties"
+                    :key="index"
                     #[`column-${propertyName}`]="{ item }"
                 >
                     <span
-                        :key="index"
                         class="sw-data-grid__cell-value"
                     >
                         {{ getCounts(propertyName, item.id) }}
@@ -142,11 +142,11 @@
                 </template>
 
                 <template #column-updatedAt="{item}">
-                    {{ item.updatedAt|date }}
+                    {{ dateFilter(item.updatedAt) }}
                 </template>
 
                 <template #column-createdAt="{item}">
-                    {{ item.createdAt|date }}
+                    {{ dateFilter(item.createdAt) }}
                 </template>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { notification, context, data, window } from '@shopware-ag/admin-extension-sdk';
+import { notification, context, data, window } from '@shopware-ag/meteor-admin-sdk';
 import { SwButton, SwTextField, SwTextarea } from '@shopware-ag/meteor-component-library';
 
 const { repository, Classes: { Criteria } } = data;
@@ -116,7 +116,7 @@ export default Vue.extend({
                 <div class="test">Test</div>
                 <sw-button @click="getApilanguage" id="getlanguage">DB Query</sw-button>
                 <sw-text-field v-if="apiLanguageEntity" name="apilanguage" id="apiLanguage" v-model="apiLanguageEntity.name" />
-                <sw-button @click="saveApilangugage" id="saveusername">Save name</sw-button>
+                <sw-button @click="saveApilanguage" id="saveusername">Save name</sw-button>
             </div>
         </div>
     `,
@@ -257,7 +257,7 @@ export default Vue.extend({
                 this.apiLanguageEntity = response.first();
             })
         },
-        saveApilangugage() {
+        saveApilanguage() {
             repository('language').save(this.apiLanguageEntity)
                 .then(() => {
                     notification.dispatch({

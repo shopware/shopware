@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('core
-Contains all registered RouteScopes in the system')]
+/**
+ * Contains all registered RouteScopes in the system
+ */
+#[Package('core')]
 class RouteScopeRegistry
 {
     /**

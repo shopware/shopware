@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException;
 use Shopware\Core\Framework\Log\Package;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Exception\CustomTriggerByNameNotFoundException
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(CustomTriggerByNameNotFoundException::class)]
 class CustomTriggerByNameNotFoundExceptionTest extends TestCase
 {
     public function testException(): void

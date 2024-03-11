@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
@@ -9,7 +10,6 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as A
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Entities;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,10 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException
  */
+#[CoversClass(CustomEntityEnrichmentService::class)]
+#[CoversClass(CustomEntityConfigurationException::class)]
 class CustomEntityEnrichmentServiceTest extends TestCase
 {
     private const FIXTURE_PATH = '%s/../../_fixtures/CustomEntityEnrichmentServiceTest/%s';
@@ -56,8 +55,8 @@ class CustomEntityEnrichmentServiceTest extends TestCase
         $this->entitySchema = $this->getCustomEntities();
         $this->adminUiXmlSchema = $this->getAdminUiXmlSchema();
 
-        /** @var Entities $outerEntities */
         $outerEntities = $this->entitySchema->getEntities();
+        static::assertNotNull($outerEntities);
         $this->customEntities = $outerEntities->getEntities();
     }
 
@@ -77,7 +76,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
         );
         static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
-        /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
         $enrichedCustomEntities = $outerEnrichedCustomEntities->getEntities();
 
@@ -124,7 +122,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
         );
         static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
-        /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
         $enrichedCustomEntities = $outerEnrichedCustomEntities->getEntities();
 
@@ -163,13 +160,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $this->entitySchema,
             $this->adminUiXmlSchema
         );
-        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
-        /** @var Entities $outerEnrichedCustomEntities */
         $outerEnrichedCustomEntities = $enrichedEntities->getEntities();
-        $enrichedCustomEntities = $outerEnrichedCustomEntities->getEntities();
+        static::assertNotNull($outerEnrichedCustomEntities);
 
-        foreach ($enrichedCustomEntities as $enrichedCustomEntity) {
+        foreach ($outerEnrichedCustomEntities->getEntities() as $enrichedCustomEntity) {
             if (!\in_array($enrichedCustomEntity->getName(), self::EXPECTED_ADMIN_UI_ENTITY_NAMES, true)) {
                 continue;
             }
@@ -181,8 +176,8 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
             static::assertNotNull($enrichedCustomEntity->getFlags()['admin-ui']);
 
-            /** @var AdminUiEntity $adminUi */
             $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
+            static::assertInstanceOf(AdminUiEntity::class, $adminUi);
             static::assertEquals('sw-content', $adminUi->getVars()['navigationParent']);
             static::assertEquals(50, $adminUi->getVars()['position']);
             static::assertEquals('regular-tools-alt', $adminUi->getVars()['icon']);
@@ -192,8 +187,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(3, $listingColumns);
 
             $listingColumnNames = array_map(static fn ($column) => $column->getVars()['ref'], $listingColumns);
-
-            static::assertIsArray($listingColumns);
 
             static::assertContains('test_string', $listingColumnNames);
             static::assertFalse($listingColumns[0]->isHidden());
@@ -235,7 +228,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $this->entitySchema,
             $this->adminUiXmlSchema
         );
-        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
         static::assertNotNull(
             $enrichedCustomEntities = $enrichedEntities->getEntities()?->getEntities()
         );
@@ -294,7 +286,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
                 $enrichedCustomEntity->getFlags()['admin-ui']->getName(),
             );
 
-            /** @var AdminUiEntity $adminUi */
             $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
             static::assertEquals('sw-content', $adminUi->getVars()['navigationParent']);
             static::assertEquals(50, $adminUi->getVars()['position']);
@@ -365,7 +356,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $this->entitySchema,
             $this->adminUiXmlSchema
         );
-        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         static::assertNotNull(
             $enrichedCustomEntities = $enrichedEntities->getEntities()?->getEntities()
@@ -382,14 +372,13 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             static::assertCount(4, $enrichedCustomEntity->getFields());
             static::assertCount(1, $enrichedCustomEntity->getFlags());
             static::assertArrayNotHasKey('cms-aware', $enrichedCustomEntity->getFlags());
-            static::assertNotNull($enrichedCustomEntity->getFlags()['admin-ui']);
+            $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
+            static::assertInstanceOf(AdminUiEntity::class, $adminUi);
             static::assertEquals(
                 self::EXPECTED_ADMIN_UI_ENTITY_NAMES['adminUiOnly'],
-                $enrichedCustomEntity->getFlags()['admin-ui']->getName(),
+                $adminUi->getName(),
             );
 
-            /** @var AdminUiEntity $adminUi */
-            $adminUi = $enrichedCustomEntity->getFlags()['admin-ui'];
             static::assertEquals('sw-content', $adminUi->getVars()['navigationParent']);
             static::assertEquals(50, $adminUi->getVars()['position']);
 
@@ -420,7 +409,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             $this->entitySchema,
             $this->adminUiXmlSchema
         );
-        static::assertInstanceOf(CustomEntityXmlSchema::class, $enrichedEntities);
 
         static::assertNotNull(
             $enrichedCustomEntities = $enrichedEntities->getEntities()?->getEntities()
@@ -450,7 +438,6 @@ class CustomEntityEnrichmentServiceTest extends TestCase
             );
             static::fail('no Exception was thrown');
         } catch (CustomEntityConfigurationException $exception) {
-            static::assertInstanceOf(CustomEntityConfigurationException::class, $exception);
             static::assertEquals(
                 'The entities ce_not_defined0, ce_not_defined1 are not given in the entities.xml but are configured in admin-ui.xml',
                 $exception->getMessage()

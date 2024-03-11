@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,12 +14,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerSalutationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -101,6 +101,7 @@ class CustomerSalutationSubscriberTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test',
                     'active' => true,
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,

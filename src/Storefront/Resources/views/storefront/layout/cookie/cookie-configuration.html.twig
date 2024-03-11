@@ -7,21 +7,21 @@
 {% endblock %}
 
 {% block utilities_offcanvas_close_text %}
-    {{ "cookie.headline"|trans|sw_sanitize }}
+    {{ 'cookie.headline'|trans|sw_sanitize }}
 {% endblock %}
 
 {% block utilities_offcanvas_content %}
     <div class="offcanvas-cookie">
         <div class="offcanvas-cookie-description">
             <p>
-                {{ "cookie.messageText"|trans({
+                {{ 'cookie.messageText'|trans({
                     '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                 })|raw }}
             </p>
 
             <div class="row align-items-center h6 offcanvas-cookie-header">
                 <div class="col">
-                    {{ "cookie.configuration"|trans|sw_sanitize }}
+                    {{ 'cookie.configuration'|trans|sw_sanitize }}
                 </div>
             </div>
         </div>
@@ -29,6 +29,7 @@
         <div class="offcanvas-cookie-list">
             {% for cookieGroup in cookieGroups %}
                 {% sw_include '@Storefront/storefront/layout/cookie/cookie-configuration-group.html.twig' with {
+                    themeIconConfig: themeIconConfig,
                     cookieGroup: cookieGroup
                 } only %}
             {% endfor %}
@@ -36,11 +37,13 @@
 
         {% if config('core.basicInformation.acceptAllCookies') %}
             {% block layout_cookie_configuration_allow_all_button %}
-                <button
-                    type="submit"
-                    class="btn btn-primary btn-block js-offcanvas-cookie-accept-all">
-                    {{ "cookie.acceptAll"|trans|sw_sanitize }}
-                </button>
+                <div class="d-grid mb-2">
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-block js-offcanvas-cookie-accept-all">
+                        {{ 'cookie.acceptAll'|trans|sw_sanitize }}
+                    </button>
+                </div>
             {% endblock %}
         {% endif %}
 
@@ -49,10 +52,9 @@
                 <button
                     type="submit"
                     class="btn btn-primary js-offcanvas-cookie-submit">
-                    {{ "cookie.save"|trans|sw_sanitize }}
+                    {{ 'cookie.save'|trans|sw_sanitize }}
                 </button>
             </div>
         {% endblock %}
-
     </div>
 {% endblock %}

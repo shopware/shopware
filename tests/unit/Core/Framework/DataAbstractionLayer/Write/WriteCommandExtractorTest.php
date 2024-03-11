@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Write;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
@@ -17,28 +19,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor
  */
+#[CoversClass(WriteCommandExtractor::class)]
 class WriteCommandExtractorTest extends TestCase
 {
     /**
      * @param array<string, mixed> $payload
-     *
-     * @dataProvider writeProtectedFieldsProvider
      */
+    #[DataProvider('writeProtectedFieldsProvider')]
     public function testExceptionForWriteProtectedFields(array $payload, ContextSource $scope, bool $valid): void
     {
-        $extractor = new WriteCommandExtractor(
-            $this->createMock(EntityWriteGateway::class)
-        );
-
         $data = [
             'name' => 'My super webhook',
             'eventName' => 'product.written',
@@ -53,7 +49,10 @@ class WriteCommandExtractorTest extends TestCase
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );
-
+        $extractor = new WriteCommandExtractor(
+            $this->createMock(EntityWriteGateway::class),
+            $registry
+        );
         $context = Context::createDefaultContext($scope);
 
         $parameters = new WriteParameterBag(

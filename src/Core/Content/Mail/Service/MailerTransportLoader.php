@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -19,6 +20,8 @@ use Symfony\Component\Mailer\Transport\Transports;
 #[Package('system-settings')]
 class MailerTransportLoader
 {
+    private const VALID_OPTIONS = ['-bs', '-i', '-t'];
+
     /**
      * @internal
      */
@@ -86,7 +89,7 @@ class MailerTransportLoader
         return match ($emailAgent) {
             'smtp' => $this->createSmtpTransport($this->configService),
             'local' => new SendmailTransport($this->getSendMailCommandLineArgument($this->configService)),
-            default => throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent)),
+            default => throw MailException::givenMailAgentIsInvalid($emailAgent),
         };
     }
 
@@ -119,16 +122,20 @@ class MailerTransportLoader
     {
         $command = '/usr/sbin/sendmail ';
 
-        $option = $configService->getString('core.mailerSettings.sendMailOptions');
+        $sendMailOptions = trim($configService->getString('core.mailerSettings.sendMailOptions'));
 
-        if ($option === '') {
-            $option = '-t';
+        if ($sendMailOptions === '') {
+            $sendMailOptions = '-t -i';
         }
 
-        if ($option !== '-bs' && $option !== '-t') {
-            throw new \RuntimeException(sprintf('Given sendmail option "%s" is invalid', $option));
+        $options = preg_split('/\s+/', $sendMailOptions) ?: [$sendMailOptions];
+
+        foreach ($options as $sendMailOption) {
+            if (!\in_array(trim($sendMailOption), self::VALID_OPTIONS, true)) {
+                throw MailException::givenSendMailOptionIsInvalid($sendMailOption, self::VALID_OPTIONS);
+            }
         }
 
-        return $command . $option;
+        return $command . $sendMailOptions;
     }
 }

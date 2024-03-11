@@ -1,12 +1,14 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_change_type_field_renderer %}
 <div class="sw-bulk-edit-change-field-renderer">
-    <template v-for="(formField, index) in formFields">
+    <template
+        v-for="(formField, index) in formFields"
+        :key="`formField-${index}`"
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_change_type_field_renderer_container %}
         <sw-container
             v-if="formField && bulkEditData[formField.name]"
-            :key="`formField-${index}`"
             columns="240px 1fr"
             gap="32px"
             :class="`sw-bulk-edit-change-field__container sw-bulk-edit-change-field-${formField.name}`"
@@ -17,20 +19,12 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="bulkEditData[formField.name].isChanged"
-                    {% else %}
-                    v-model="bulkEditData[formField.name].isChanged"
-                    {% endif %}
                     class="sw-bulk-edit-change-field__change"
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
-                    {% if VUE3 %}
-                    @update:value="onChangeValue($event, formField.name)"
-                    {% else %}
-                    @change="onChangeValue($event, formField.name)"
-                    {% endif %}
+                    @update:value="onChangeToggle($event, formField.name)"
                 />
                 {% endblock %}
 
@@ -47,11 +41,7 @@
             {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field %}
             <sw-bulk-edit-change-type
                 v-if="showSelectBoxType(formField)"
-                {% if VUE3 %}
                 v-model:value="bulkEditData[formField.name].type"
-                {% else %}
-                v-model="bulkEditData[formField.name].type"
-                {% endif %}
                 :allow-overwrite="getConfigValue(formField, 'allowOverwrite')"
                 :allow-clear="getConfigValue(formField, 'allowClear')"
                 :allow-add="getConfigValue(formField, 'allowAdd')"
@@ -72,8 +62,8 @@
                                 <sw-bulk-edit-form-field-renderer
                                     v-bind="formField"
                                     :key="`formField-${index}`"
-                                    v-model="entity[formField.name]"
-                                    @input="onChangeValue($event, formField.name)"
+                                    v-model:value="entity[formField.name]"
+                                    @update:value="onChangeValue($event, formField.name)"
                                 />
                             </div>
                         </template>
@@ -82,8 +72,8 @@
                                 v-if="isDisplayingValue"
                                 v-bind="formField"
                                 :key="`formField-${index}`"
-                                v-model="entity[formField.name]"
-                                @input="onChangeValue($event, formField.name)"
+                                v-model:value="entity[formField.name]"
+                                @update:value="onChangeValue($event, formField.name)"
                             />
                         </template>
                     </slot>
@@ -108,8 +98,8 @@
                             <sw-bulk-edit-form-field-renderer
                                 v-bind="formField"
                                 :key="`formField-${index}`"
-                                v-model="entity[formField.name]"
-                                @input="onChangeValue($event, formField.name)"
+                                v-model:value="entity[formField.name]"
+                                @update:value="onChangeValue($event, formField.name)"
                             />
                         </div>
                     </template>
@@ -117,8 +107,8 @@
                         <sw-bulk-edit-form-field-renderer
                             v-bind="formField"
                             :key="`formField-${index}`"
-                            v-model="entity[formField.name]"
-                            @input="onChangeValue($event, formField.name)"
+                            v-model:value="entity[formField.name]"
+                            @update:value="onChangeValue($event, formField.name)"
                         />
                     </template>
                 </slot>

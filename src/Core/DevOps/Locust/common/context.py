@@ -40,7 +40,7 @@ class Context:
         if response.status_code == 200:
             return response.json()['access_token']
         else:
-            raise Exception('Error: ' + response.content)
+            raise Exception(f'Error: {response.content}')
 
     def __get_env(self):
         env = self.__get_json_file('/../env.json')

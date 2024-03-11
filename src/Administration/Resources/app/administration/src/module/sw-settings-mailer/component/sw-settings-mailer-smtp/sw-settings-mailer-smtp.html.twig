@@ -4,48 +4,32 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_host %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.host']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.host']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.host')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
         :error="hostError"
         required
-        @change="$emit('host-changed')"
+        @update:value="$emit('host-changed')"
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_port %}
     <sw-number-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.port']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.port']"
-        {% endif %}
         :max="65536"
         :label="$tc('sw-settings-mailer.card-smtp.port')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
         :error="portError"
         required
-        {% if VUE3 %}
         @update:value="$emit('port-changed')"
-        {% else %}
-        @change="$emit('port-changed')"
-        {% endif %}
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_username %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.username']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.username']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.username')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.username-placeholder')"
     />
@@ -54,11 +38,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_password %}
     <sw-password-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.password']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.password']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.password')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
     />
@@ -67,11 +47,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_encryption %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.encryption']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.encryption']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.encryption')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.encryption-placeholder')"
         :options="encryptionOptions"
@@ -82,11 +58,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_sender_address %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.senderAddress']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.senderAddress']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.sender-address')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.sender-address-placeholder')"
         validation="email"
@@ -96,11 +68,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_delivery_address %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.deliveryAddress']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.deliveryAddress']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.delivery-address')"
         :placeholder="$tc('sw-settings-mailer.card-smtp.delivery-address-placeholder')"
         :help-text="$tc('sw-settings-mailer.card-smtp.delivery-address-helptext')"
@@ -111,11 +79,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_mailer_smtp_disable_delivery %}
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
-        {% else %}
-        v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-        {% endif %}
         :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
     />
     {% endblock %}

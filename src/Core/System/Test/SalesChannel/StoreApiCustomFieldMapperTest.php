@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -10,10 +11,9 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
+#[CoversClass(StoreApiCustomFieldMapper::class)]
 class StoreApiCustomFieldMapperTest extends TestCase
 {
     public function testMapping(): void

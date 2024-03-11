@@ -17,8 +17,6 @@ async function createWrapper() {
             };
         },
     }, {
-        stubs: {},
-        mocks: {},
         attachTo: document.body,
     });
 }
@@ -38,10 +36,6 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
     });
 
     afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
         await flushPromises();
     });
 

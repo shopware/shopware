@@ -5,7 +5,7 @@
 let isInitialized = false;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function LanguageAutoFetchingService() {
     if (isInitialized) return;

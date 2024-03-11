@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class SalesChannelException extends HttpException
 {
     final public const SALES_CHANNEL_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS';
@@ -22,16 +22,13 @@ class SalesChannelException extends HttpException
 
     final public const COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION';
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed as the name was misleading, use SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION instead
-     */
-    final public const SALES_CHANNEL_NOT_AVAILABLE_EXCEPTION = self::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION;
-
     final public const SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION = 'SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION';
 
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
 
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
+
+    final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
 
     public static function salesChannelNotFound(string $salesChannelId): self
     {
@@ -48,8 +45,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CURRENCY_DOES_NOT_EXISTS_EXCEPTION,
-            'Currency with id "{{ currencyId }}" not found!.',
-            ['currencyId' => $currencyId]
+            self::$couldNotFindMessage,
+            ['entity' => 'currency', 'field' => 'id', 'value' => $currencyId]
         );
     }
 
@@ -58,8 +55,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION,
-            'Country state with id "{{ countryStateId }}" not found!.',
-            ['countryStateId' => $countryStateId]
+            self::$couldNotFindMessage,
+            ['entity' => 'country state', 'field' => 'id', 'value' => $countryStateId]
         );
     }
 
@@ -73,8 +70,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_NOT_FOUND,
             self::COUNTRY_DOES_NOT_EXISTS_EXCEPTION,
-            'Country with id "{{ countryId }}" not found!.',
-            ['countryId' => $countryId]
+            self::$couldNotFindMessage,
+            ['entity' => 'country', 'field' => 'id', 'value' => $countryId]
         );
     }
 
@@ -102,8 +99,8 @@ class SalesChannelException extends HttpException
         return new self(
             Response::HTTP_PRECONDITION_FAILED,
             self::LANGUAGE_NOT_FOUND,
-            'The language "{{ languageId }}" was not found.',
-            ['languageId' => $languageId]
+            self::$couldNotFindMessage,
+            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
         );
     }
 
@@ -121,6 +118,17 @@ class SalesChannelException extends HttpException
 
     public static function unknownPaymentMethod(string $paymentMethodId): ShopwareHttpException
     {
-        return PaymentException::unknownPaymentMethod($paymentMethodId);
+        return PaymentException::unknownPaymentMethodById($paymentMethodId);
+    }
+
+    public static function salesChannelDomainInUse(?\Throwable $previous = null): ShopwareHttpException
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_DOMAIN_IN_USE,
+            'The sales channel domain cannot be deleted because it is still referenced in product exports.',
+            [],
+            $previous
+        );
     }
 }

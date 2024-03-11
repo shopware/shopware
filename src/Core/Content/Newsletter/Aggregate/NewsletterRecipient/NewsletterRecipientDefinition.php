@@ -20,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterRecipientDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'newsletter_recipient';

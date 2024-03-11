@@ -8,11 +8,6 @@ describe('Offcanvas filter tests', () => {
     let mockDomElement = undefined;
 
     beforeEach(() => {
-        /**
-         * @deprecated tag:v6.6.0 - Remove feature init
-         */
-        Feature.init({ 'v6.6.0.0': true });
-
         window.PluginManager.getPluginInstances = () => {
             return [
                 {
@@ -66,34 +61,6 @@ describe('Offcanvas filter tests', () => {
         jest.useRealTimers();
     });
 
-    /** @deprecated tag:v6.6.0 - Remove this test case */
-    test('opens offCanvas with content from data-attribute (legacy selector)', () => {
-        Feature.init({ 'v6.6.0.0': false });
-
-        jest.useFakeTimers();
-
-        document.body.innerHTML = `
-            <div data-offcanvas-filter-content="true">
-                <div class="filter-panel">I will be moved to the OffCanvas</div>
-            </div>
-        `;
-
-        // Open offCanvas filter and wait until opened
-        mockDomElement.click();
-        jest.advanceTimersByTime(OffCanvas.REMOVE_OFF_CANVAS_DELAY);
-
-        // Verify filter offCanvas exists and is shown
-        expect(document.querySelector('.offcanvas.offcanvas-filter.show')).toBeTruthy();
-
-        // Verify filter-panel was moved inside OffCanvas
-        expect(document.querySelector('.offcanvas.offcanvas-filter .filter-panel').textContent).toBe('I will be moved to the OffCanvas');
-
-        // Verify filter-panel was removed from the inside data-attribute
-        expect(document.querySelector('[data-offcanvas-filter-content] .filter-panel')).toBe(null);
-
-        jest.useRealTimers();
-    });
-
     test('_onClickOffCanvasFilter get called on click', () => {
         const shouldBeClicked = jest.fn();
 
@@ -120,33 +87,6 @@ describe('Offcanvas filter tests', () => {
 
         const targetDomNode = document.createElement('div');
         targetDomNode.setAttribute('data-off-canvas-filter-content', 'true');
-        document.body.appendChild(targetDomNode);
-
-        const mockEvent = {
-            detail: {
-                offCanvasContent: [
-                    sourceDomNode
-                ]
-            }
-        };
-
-        expect(targetDomNode.innerHTML).toBe('');
-
-        offcanvasFilter._onCloseOffCanvas(mockEvent);
-
-        expect(targetDomNode.innerHTML).toBe('<h1></h1>');
-    });
-
-    /** @deprecated tag:v6.6.0 - Remove this test case */
-    test('_onCloseOffCanvas replaces the dom innerHTML (legacy selector)', () => {
-        Feature.init({ 'v6.6.0.0': false });
-
-        const sourceDomNode = document.createElement('div');
-        sourceDomNode.appendChild(document.createElement('h1'));
-        sourceDomNode.setAttribute('id', 'itWorksReallyGood');
-
-        const targetDomNode = document.createElement('div');
-        targetDomNode.setAttribute('data-offcanvas-filter-content', 'true');
         document.body.appendChild(targetDomNode);
 
         const mockEvent = {

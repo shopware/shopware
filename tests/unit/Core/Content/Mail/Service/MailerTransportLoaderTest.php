@@ -4,14 +4,17 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
 use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransport;
@@ -22,9 +25,8 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\MailerTransportLoader
  */
+#[CoversClass(MailerTransportLoader::class)]
 class MailerTransportLoaderTest extends TestCase
 {
     public function testUseSymfonyTransportDefault(): void
@@ -72,9 +74,7 @@ class MailerTransportLoaderTest extends TestCase
         static::assertInstanceOf(SendmailTransport::class, $decorated);
     }
 
-    /**
-     * @dataProvider providerSmtpEncryption
-     */
+    #[DataProvider('providerSmtpEncryption')]
     public function testLoaderWithSmtpConfig(?string $encryption): void
     {
         $transport = $this->getTransportFactory();
@@ -120,17 +120,34 @@ class MailerTransportLoaderTest extends TestCase
             $this->getTransportFactory(),
             new StaticSystemConfigService([
                 'core.mailerSettings.emailAgent' => 'local',
-                'core.mailerSettings.sendMailOptions' => '-t && echo bla',
+                'core.mailerSettings.sendMailOptions' => '-t bla',
             ]),
             $this->createMock(MailAttachmentsBuilder::class),
             $this->createMock(FilesystemOperator::class),
             $this->createMock(EntityRepository::class)
         );
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Given sendmail option "-t && echo bla" is invalid');
+        static::expectException(MailException::class);
+        static::expectExceptionMessage('Given sendmail option "bla" is invalid');
 
         $loader->fromString('null://null');
+    }
+
+    public function testFactoryWithLocalAndValidConfig(): void
+    {
+        $loader = new MailerTransportLoader(
+            $this->getTransportFactory(),
+            new StaticSystemConfigService([
+                'core.mailerSettings.emailAgent' => 'local',
+                'core.mailerSettings.sendMailOptions' => '-t    -i',
+            ]),
+            $this->createMock(MailAttachmentsBuilder::class),
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(EntityRepository::class)
+        );
+
+        $res = $loader->fromString('null://null');
+        static::assertInstanceOf(MailerTransportDecorator::class, $res);
     }
 
     public function testFactoryInvalidAgent(): void
@@ -145,7 +162,7 @@ class MailerTransportLoaderTest extends TestCase
             $this->createMock(EntityRepository::class)
         );
 
-        static::expectException(\RuntimeException::class);
+        static::expectException(MailException::class);
         static::expectExceptionMessage('Invalid mail agent given "test"');
 
         $loader->fromString('null://null');

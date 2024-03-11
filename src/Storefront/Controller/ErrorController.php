@@ -13,6 +13,7 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -24,21 +25,15 @@ use Symfony\Component\Validator\ConstraintViolationList;
 class ErrorController extends StorefrontController
 {
     /**
-     * @var ErrorTemplateResolver
-     */
-    protected $errorTemplateResolver;
-
-    /**
      * @internal
      */
     public function __construct(
-        ErrorTemplateResolver $errorTemplateResolver,
+        private readonly ErrorTemplateResolver $errorTemplateResolver,
         private readonly HeaderPageletLoaderInterface $headerPageletLoader,
         private readonly SystemConfigService $systemConfigService,
         private readonly ErrorPageLoaderInterface $errorPageLoader,
         private readonly FooterPageletLoaderInterface $footerPageletLoader
     ) {
-        $this->errorTemplateResolver = $errorTemplateResolver;
     }
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
@@ -49,7 +44,7 @@ class ErrorController extends StorefrontController
             $is404StatusCode = $exception instanceof HttpException
                 && $exception->getStatusCode() === Response::HTTP_NOT_FOUND;
 
-            if (!$is404StatusCode && $session !== null && method_exists($session, 'getFlashBag') && !$session->getFlashBag()->has('danger')) {
+            if (!$is404StatusCode && $session !== null && $session instanceof FlashBagAwareSessionInterface && !$session->getFlashBag()->has('danger')) {
                 $session->getFlashBag()->add('danger', $this->trans('error.message-default'));
             }
 
@@ -92,7 +87,7 @@ class ErrorController extends StorefrontController
         // After this controllers content is rendered (even if the flashbag was not used e.g. on a 404 page),
         // clear the existing flashbag messages
 
-        if ($session !== null && method_exists($session, 'getFlashBag')) {
+        if ($session !== null && $session instanceof FlashBagAwareSessionInterface) {
             $session->getFlashBag()->clear();
         }
 

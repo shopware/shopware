@@ -6,7 +6,6 @@
     :variant="modalSize"
     @modal-close="onCloseAddModal"
 >
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_add_assignment_modal_listing %}
     <sw-settings-rule-add-assignment-listing
@@ -25,6 +24,8 @@
         :rule="rule"
         :association="entityContext.addContext.association"
         :categories-collection="entities"
+        :hide-headline="true"
+        :hide-search="true"
         placeholder="Add categories"
         @on-selection="onSelect"
     />
@@ -37,6 +38,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_add_assignment_modal_cancel %}
         <sw-button
+            class="sw-settings-rule-add-assignment-modal__cancel-button"
             size="small"
             @click="onCloseAddModal"
         >
@@ -47,6 +49,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_rule_add_assignment_modal_confirm %}
         <sw-button
+            class="sw-settings-rule-add-assignment-modal__confirm-button"
             size="small"
             variant="primary"
             @click="onAdd"

@@ -11,7 +11,7 @@ export default {
         currentUser: null,
         userPending: true,
         languageId: '', // move me to session/currentLanguageId
-        currentLocale: null, // move me to session/currentLanguageId
+        currentLocale: null, // move me to session/currentLanguageId,
     },
 
     getters: {

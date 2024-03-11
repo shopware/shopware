@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Decoder;
 use Lcobucci\JWT\Encoder;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
@@ -31,15 +32,17 @@ class JWTConfigurationFactory
             $publicKey = InMemory::plainText($publicKeyText, $publicKey->getPassPhrase() ?? '');
         } else {
             $privateKey = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase() ?? '');
-            $publicKey = InMemory::file($publicKey->getKeyPath(), $publicKey->getPassPhrase() ?? '');
+            $publicKeyPath = $publicKey->getKeyPath();
+            \assert($publicKeyPath !== '');
+            $publicKey = InMemory::file($publicKeyPath, $publicKey->getPassPhrase() ?? '');
         }
 
         $configuration = Configuration::forAsymmetricSigner(
             $signer,
             $privateKey,
             $publicKey,
-            $encoder,
-            $decoder
+            $encoder ?? new JoseEncoder(),
+            $decoder ?? new JoseEncoder()
         );
 
         // add basic constraint for token signature validation

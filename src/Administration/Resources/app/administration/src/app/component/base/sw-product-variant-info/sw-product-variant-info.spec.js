@@ -2,13 +2,12 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-product-variant-info';
+import { mount } from '@vue/test-utils';
 
 describe('components/base/sw-product-variant-info', () => {
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-product-variant-info'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-product-variant-info', { sync: true }), {
+            props: {
                 variations: [{
                     group: 'Size',
                     option: 'M',

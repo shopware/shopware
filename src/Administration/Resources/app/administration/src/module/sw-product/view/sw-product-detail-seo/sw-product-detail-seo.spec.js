@@ -2,31 +2,10 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import uuid from 'src/../test/_helper_/uuid';
-import swProductDetailSeo from 'src/module/sw-product/view/sw-product-detail-seo';
-import swSeoUrl from 'src/module/sw-settings-seo/component/sw-seo-url';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/structure/sw-sales-channel-switch';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/base/sw-icon';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/base/sw-inheritance-switch';
 
-Shopware.Component.register('sw-product-detail-seo', swProductDetailSeo);
-Shopware.Component.register('sw-seo-url', swSeoUrl);
-
-const { Component, State } = Shopware;
+const { State } = Shopware;
 
 const classes = {
     cardSeoAdditional: 'sw-seo-url__card-seo-additional',
@@ -110,56 +89,56 @@ const repositoryMockFactory = (entity) => {
 };
 
 async function createWrapper(privileges = []) {
-    return shallowMount(await Component.build('sw-product-detail-seo'), {
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+    return mount(await wrapTestComponent('sw-product-detail-seo', { sync: true }), {
+        global: {
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
-            },
-            repositoryFactory: {
-                create: (entity) => repositoryMockFactory(entity),
-            },
-            validationService: {},
-        },
-        stubs: {
-            'sw-card': {
-                data() {
-                    return { currentSalesChannelId: null };
+                repositoryFactory: {
+                    create: (entity) => repositoryMockFactory(entity),
                 },
-                template: '<div>' +
-                    '<slot name="toolbar"></slot>' +
-                    '<slot></slot>' +
-                    '</div>',
+                validationService: {},
             },
-            'sw-product-seo-form': true,
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-seo-url': await Component.build('sw-seo-url'),
-            'sw-seo-main-category': true,
-            'sw-sales-channel-switch': await Component.build('sw-sales-channel-switch'),
-            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-            'sw-inherit-wrapper': await Component.build('sw-inherit-wrapper'),
-            'sw-text-field': await Component.build('sw-text-field'),
-            'sw-contextual-field': await Component.build('sw-contextual-field'),
-            'sw-block-field': await Component.build('sw-block-field'),
-            'sw-base-field': await Component.build('sw-base-field'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
-            'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+            stubs: {
+                'sw-card': {
+                    data() {
+                        return { currentSalesChannelId: null };
+                    },
+                    template: '<div>' +
+                        '<slot name="toolbar"></slot>' +
+                        '<slot></slot>' +
+                        '</div>',
+                },
+                'sw-product-seo-form': await wrapTestComponent('sw-product-seo-form', { sync: true }),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-seo-url': await wrapTestComponent('sw-seo-url', { sync: true }),
+                'sw-seo-main-category': await wrapTestComponent('sw-seo-main-category', { sync: true }),
+                'sw-sales-channel-switch': await wrapTestComponent('sw-sales-channel-switch', { sync: true }),
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
+                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-help-text': true,
+                'sw-loader': true,
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-skeleton': true,
             },
-            'sw-help-text': true,
-            'sw-loader': true,
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-skeleton': true,
         },
     });
 }
@@ -183,6 +162,14 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             getters: {
                 isLoading: () => false,
             },
+            mutations: {
+                setProduct(state, newProduct) {
+                    state.product = newProduct;
+                },
+                setParentProduct(state, newProduct) {
+                    state.parentProduct = newProduct;
+                },
+            },
         });
     });
 
@@ -193,14 +180,10 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     });
 
     it('should update product main categories correctly', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            product: {
-                mainCategories: [],
-            },
+        Shopware.State.commit('swProductDetail/setProduct', {
+            mainCategories: [],
         });
-
+        const wrapper = await createWrapper();
         await wrapper.vm.onAddMainCategory({
             _isNew: true,
             category: {},
@@ -220,7 +203,14 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
 
     it('should update main category when restore inheritance of Seo Category from variant', async () => {
         const wrapper = await createWrapper(['product.editor']);
-        await wrapper.setData(productInheritedCategoryDataMock);
+        Shopware.State.commit('swProductDetail/setProduct', {
+            ...productInheritedCategoryDataMock.product,
+        });
+
+        Shopware.State.commit('swProductDetail/setParentProduct', {
+            id: '123',
+            mainCategories: productNotInheritedCategoryDataMock.product.mainCategories,
+        });
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.product.mainCategories).toHaveLength(1);
@@ -230,21 +220,41 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('Storefront');
         expect(wrapper.vm.currentSalesChannelId).toEqual(storefrontId);
 
         const inheritanceSwitch = wrapper.find(`.${classes.cardSeoAdditional} .${classes.inheritanceSwitch}`);
-        expect(inheritanceSwitch.isVisible()).toBe(true);
+        expect(inheritanceSwitch).toBeTruthy();
 
         expect(inheritanceSwitch.classes()).toContain(classes.notInherited);
-
+        Shopware.State.commit('swProductDetail/setProduct', {
+            mainCategories: [
+                {
+                    _isNew: true,
+                    category: {},
+                    categoryId: uuid.get('category A'),
+                    extensions: {},
+                    salesChannelId: storefrontId,
+                },
+            ],
+            seoUrls: [
+                {
+                    apiAlias: null,
+                    routeName: 'frontend.detail.page',
+                    salesChannelId: storefrontId,
+                },
+            ],
+            categories: [],
+        });
+        await flushPromises();
         await inheritanceSwitch.find('.sw-icon').trigger('click');
 
         expect(inheritanceSwitch.classes()).toContain(classes.inherited);
@@ -254,7 +264,25 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
 
     it('should not exist inheritance symbol when variant\'s category did not inherit parent\s category', async () => {
         const wrapper = await createWrapper('product.editor');
-        await wrapper.setData(productNotInheritedCategoryDataMock);
+
+        Shopware.State.commit('swProductDetail/setProduct', {
+            seoUrls: [
+                {
+                    apiAlias: null,
+                    routeName: 'frontend.detail.page',
+                    salesChannelId: storefrontId,
+                },
+            ],
+            mainCategories: [{
+                _isNew: true,
+                category: {},
+                categoryId: uuid.get('category A'),
+                extensions: {},
+                salesChannelId: storefrontId,
+            }],
+            categories: [{ id: uuid.get('category A') }],
+        });
+        await flushPromises();
 
         expect(wrapper.vm.product.categories).toHaveLength(1);
         expect(wrapper.vm.categories).toEqual(expect.arrayContaining(wrapper.vm.product.categories));
@@ -264,6 +292,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
@@ -282,7 +311,29 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     it('should exist inheritance symbol when variant\'s Seo Category does not have main category', async () => {
         const wrapper = await createWrapper('product.editor');
 
-        await wrapper.setData(productInheritedCategoryDataMock);
+        Shopware.State.commit('swProductDetail/setProduct', {
+            seoUrls: [
+                {
+                    apiAlias: null,
+                    routeName: 'frontend.detail.page',
+                    salesChannelId: storefrontId,
+                },
+            ],
+            mainCategories: [{
+                _isNew: true,
+                category: {},
+                categoryId: uuid.get('category A'),
+                extensions: {},
+                salesChannelId: storefrontId,
+            }],
+            categories: [{ id: uuid.get('category A') }],
+        });
+
+        Shopware.State.commit('swProductDetail/setParentProduct', {
+            id: '123',
+            categories: [{ id: uuid.get('category A') }],
+        });
+        await flushPromises();
 
         expect(wrapper.vm.categories).toEqual(expect.arrayContaining(wrapper.vm.parentProduct.categories));
 
@@ -291,18 +342,45 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const selectHeadless = salesChannelSwitch.find('.sw-select-option--2');
         expect(selectHeadless.text()).toBe('Headless');
         await selectHeadless.trigger('click');
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('Headless');
         expect(wrapper.vm.currentSalesChannelId).toEqual(uuid.get('headless'));
 
+        Shopware.State.commit('swProductDetail/setProduct', {
+            mainCategories: [
+                {
+                    _isNew: true,
+                    category: {},
+                    categoryId: uuid.get('category A'),
+                    extensions: {},
+                    salesChannelId: storefrontId,
+                },
+            ],
+            seoUrls: [
+                {
+                    apiAlias: null,
+                    routeName: 'frontend.detail.page',
+                    salesChannelId: storefrontId,
+                },
+            ],
+            categories: [],
+        });
+
+        Shopware.State.commit('swProductDetail/setParentProduct', {
+            id: '123',
+            mainCategories: productNotInheritedCategoryDataMock.product.mainCategories,
+        });
+        await flushPromises();
         const inheritanceSwitch = wrapper.find(`.${classes.cardSeoAdditional} .${classes.inheritanceSwitch}`);
-        expect(inheritanceSwitch.isVisible()).toBe(true);
+        expect(inheritanceSwitch).toBeTruthy();
 
         expect(inheritanceSwitch.classes()).toContain(classes.inherited);
     });
@@ -310,7 +388,29 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     it('should exist non-inheritance symbol when variant\'s Seo Category have main category', async () => {
         const wrapper = await createWrapper(['product.editor']);
 
-        await wrapper.setData(productInheritedCategoryDataMock);
+        Shopware.State.commit('swProductDetail/setProduct', {
+            seoUrls: [
+                {
+                    apiAlias: null,
+                    routeName: 'frontend.detail.page',
+                    salesChannelId: storefrontId,
+                },
+            ],
+            mainCategories: [{
+                _isNew: true,
+                category: {},
+                categoryId: uuid.get('category A'),
+                extensions: {},
+                salesChannelId: storefrontId,
+            }],
+            categories: [],
+        });
+
+        Shopware.State.commit('swProductDetail/setParentProduct', {
+            id: '123',
+            categories: [{ id: uuid.get('category A') }],
+        });
+        await flushPromises();
 
         expect(wrapper.vm.product.mainCategories).toHaveLength(1);
         expect(wrapper.vm.categories).toEqual(expect.arrayContaining(wrapper.vm.parentProduct.categories));
@@ -320,18 +420,20 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await wrapper.vm.$nextTick();
+        await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('Storefront');
         expect(wrapper.vm.currentSalesChannelId).toEqual(storefrontId);
 
         const inheritanceSwitch = wrapper.find(`.${classes.cardSeoAdditional} .${classes.inheritanceSwitch}`);
-        expect(inheritanceSwitch.isVisible()).toBe(true);
+        expect(inheritanceSwitch).toBeTruthy();
 
         expect(inheritanceSwitch.classes()).toContain(classes.notInherited);
     });

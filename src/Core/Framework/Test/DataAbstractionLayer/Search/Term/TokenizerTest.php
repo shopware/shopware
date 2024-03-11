@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 
@@ -10,9 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
  */
 class TokenizerTest extends TestCase
 {
-    /**
-     * @dataProvider cases
-     */
+    #[DataProvider('cases')]
     public function testInterpreter(string $term, array $expected): void
     {
         $tokens = (new Tokenizer(2))->tokenize($term);

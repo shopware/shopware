@@ -33,14 +33,14 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: '0'
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
 
       - name: Install Dependencies
         run: |

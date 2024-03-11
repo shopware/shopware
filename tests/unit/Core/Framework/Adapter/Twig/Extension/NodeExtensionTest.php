@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -13,9 +14,8 @@ use Twig\TokenParser\TokenParserInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension
  */
+#[CoversClass(NodeExtension::class)]
 class NodeExtensionTest extends TestCase
 {
     public function testGetTokenParsers(): void

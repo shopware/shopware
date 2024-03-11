@@ -12,23 +12,25 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ExtensionStoreActionsController extends AbstractController
 {
     public function __construct(
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly ExtensionDownloader $extensionDownloader,
         private readonly PluginService $pluginService,
-        private readonly PluginManagementService $pluginManagementService
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly Filesystem $fileSystem
     ) {
     }
 
@@ -45,13 +47,16 @@ class ExtensionStoreActionsController extends AbstractController
     {
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
-
         if (!$file) {
             throw RoutingException::missingRequestParameter('file');
         }
 
         if ($file->getMimeType() !== 'application/zip') {
-            unlink($file->getPathname());
+            try {
+                $this->fileSystem->remove($file->getPathname());
+            } catch (\Throwable $e) {
+                // Do nothing because the tmp file is already deleted by os
+            }
 
             throw new PluginNotAZipFileException((string) $file->getMimeType());
         }
@@ -59,7 +64,11 @@ class ExtensionStoreActionsController extends AbstractController
         try {
             $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
-            unlink($file->getPathname());
+            try {
+                $this->fileSystem->remove($file->getPathname());
+            } catch (\Throwable $e) {
+                // Do nothing because the tmp file is already deleted by os
+            }
 
             throw $e;
         }

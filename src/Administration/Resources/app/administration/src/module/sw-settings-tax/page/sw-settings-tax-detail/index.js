@@ -2,7 +2,7 @@ import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -17,6 +17,7 @@ export default {
         'acl',
         'customFieldDataProviderService',
         'systemConfigApiService',
+        'feature',
     ],
 
     mixins: [
@@ -140,7 +141,6 @@ export default {
         createdComponent() {
             this.isLoading = true;
             if (this.taxId) {
-                this.taxId = this.$route.params.id;
                 this.taxRepository.get(this.taxId).then((tax) => {
                     this.tax = tax;
                     this.isLoading = false;

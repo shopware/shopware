@@ -26,6 +26,7 @@
                                     </a>
                                 {% endblock %}
                             {% endif %}
+
                             {% block layout_navigation_categories_recoursion %}
                                 {% if level < navigationMaxDepth %}
                                     {% sw_include '@Storefront/storefront/layout/sidebar/category-navigation.html.twig' with {

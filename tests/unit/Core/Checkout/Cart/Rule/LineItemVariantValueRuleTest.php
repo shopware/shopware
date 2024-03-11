@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -17,14 +20,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
+ * @package services-settings
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemVariantValueRule
  */
+#[CoversClass(LineItemVariantValueRule::class)]
+#[Group('rules')]
 class LineItemVariantValueRuleTest extends TestCase
 {
     private LineItemVariantValueRule $rule;
@@ -51,19 +52,18 @@ class LineItemVariantValueRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param list<string> $identifiers
      * @param list<string> $itemOptionIds
      */
+    #[DataProvider('getMatchValues')]
     public function testCartScopeMatching(bool $expected, array $itemOptionIds, array $identifiers, string $operator): void
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $lineItem->setPayloadValue('optionIds', $itemOptionIds);
         $lineItems = new LineItemCollection([$lineItem]);
 
-        $cart = $this->createMock(Cart::class);
-        $cart->method('getLineItems')->willReturn($lineItems);
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setLineItems($lineItems);
 
         $context = $this->createMock(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $context);
@@ -77,11 +77,10 @@ class LineItemVariantValueRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param list<string> $identifiers
      * @param list<string> $itemOptionIds
      */
+    #[DataProvider('getMatchValues')]
     public function testLineItemScopeMatching(bool $expected, array $itemOptionIds, array $identifiers, string $operator): void
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);

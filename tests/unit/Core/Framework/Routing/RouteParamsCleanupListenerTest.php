@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\RouteParamsCleanupListener;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,16 +12,14 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Routing\RouteParamsCleanupListener
  */
+#[CoversClass(RouteParamsCleanupListener::class)]
 class RouteParamsCleanupListenerTest extends TestCase
 {
     /**
      * @param array<mixed> $attributes
-     *
-     * @dataProvider provideListens
      */
+    #[DataProvider('provideListens')]
     public function testListener(Request $request, array $attributes): void
     {
         $listener = new RouteParamsCleanupListener();

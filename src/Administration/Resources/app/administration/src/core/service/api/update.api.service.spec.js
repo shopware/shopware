@@ -55,14 +55,6 @@ describe('updateApiService', () => {
         });
     });
 
-    it('test pluginCompatibility', async () => {
-        const { updateApiService } = createUpdateApiService();
-
-        const result = await updateApiService.pluginCompatibility();
-
-        expect(result).toEqual({});
-    });
-
     it('test extensionCompatibility', async () => {
         const { updateApiService, clientMock } = createUpdateApiService();
 

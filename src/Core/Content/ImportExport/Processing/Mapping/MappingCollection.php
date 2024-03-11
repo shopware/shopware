@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @phpstan-import-type MappingArray from Mapping
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MappingCollection extends Collection
 {
     /**
@@ -58,7 +58,7 @@ class MappingCollection extends Collection
     }
 
     /**
-     * @param iterable<string|MappingArray|Mapping|MappingCollection> $data
+     * @param iterable<string|MappingArray|Mapping>|MappingCollection $data
      */
     public static function fromIterable(iterable $data): self
     {

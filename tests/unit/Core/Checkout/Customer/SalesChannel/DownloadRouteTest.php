@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -20,9 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute
  */
+#[CoversClass(DownloadRoute::class)]
 class DownloadRouteTest extends TestCase
 {
     private MockObject&EntityRepository $downloadRepository;

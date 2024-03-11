@@ -3,6 +3,9 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -32,9 +35,7 @@ class JoinFilterTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -44,9 +45,7 @@ class JoinFilterTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -127,9 +126,7 @@ class JoinFilterTest extends TestCase
         return $ids;
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOneToOne(IdsCollection $ids): void
     {
         $criteria = new Criteria();
@@ -182,9 +179,7 @@ class JoinFilterTest extends TestCase
         static::assertContains($ids->get('without-avatar'), $media->getIds());
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAggregationWithFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria();
@@ -211,9 +206,7 @@ class JoinFilterTest extends TestCase
         static::assertContains($ids->get('L'), $aggregation->getKeys());
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAggregationWithNegatedFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria();
@@ -242,9 +235,7 @@ class JoinFilterTest extends TestCase
         static::assertNotContains($ids->get('L'), $aggregation->getKeys());
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNestedManyToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('category-'));
@@ -265,9 +256,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('category-3')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTranslatedFields(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -286,9 +275,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testContainsFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -307,9 +294,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-2')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testPrefixFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -330,9 +315,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-2')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSuffixFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -353,9 +336,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-2')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testRangeFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('category-'));
@@ -373,9 +354,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('category-3')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNegatedRangeFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('category-'));
@@ -393,9 +372,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('category-3')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOrFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -414,9 +391,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOneToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -450,9 +425,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOneToManyWithMultipleFilters(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -471,9 +444,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToOne(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('category-'));
@@ -494,9 +465,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('category-3')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -515,9 +484,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToManyWithOneFilter(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -536,9 +503,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOneToManyTranslated(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('manufacturer-'));
@@ -574,9 +539,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('manufacturer-2')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToOneTranslated(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -610,9 +573,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToManyTranslated(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -631,9 +592,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-2')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOneToManyInherited(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -653,9 +612,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1-variant')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToOneInherited(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -675,9 +632,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-3')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testManyToManyInherited(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -697,9 +652,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1-variant')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testHasOneToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -717,9 +670,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testHasManyToOne(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -737,9 +688,7 @@ class JoinFilterTest extends TestCase
         static::assertTrue($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testHasManyToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -758,9 +707,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-3')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testHasNotOneToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -778,9 +725,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-2')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testHasNotManyToOne(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));
@@ -798,9 +743,7 @@ class JoinFilterTest extends TestCase
         static::assertFalse($result->has($ids->get('product-1')));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testHasNotManyToMany(IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed('product-'));

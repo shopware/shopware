@@ -26,7 +26,7 @@ class ScheduledTaskApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/run`, null, { headers })
+            .post<unknown>(`/_action/${this.getApiBasePath()}/run`, null, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -41,10 +41,8 @@ class ScheduledTaskApiService extends ApiService {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .get(`/_action/${this.getApiBasePath()}/min-run-interval`, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            }) as Promise<{ minRunInterval: number }>;
+            .get<{ minRunInterval: number }>(`/_action/${this.getApiBasePath()}/min-run-interval`, { headers })
+            .then(ApiService.handleResponse.bind(this));
     }
 }
 

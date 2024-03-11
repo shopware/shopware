@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('business-ops
-MatchAllLineItemsRule returns true, if all rules are true for all line items')]
+/**
+ * MatchAllLineItemsRule returns true, if all rules are true for all line items
+ */
+#[Package('services-settings')]
 class MatchAllLineItemsRule extends Container
 {
     final public const RULE_NAME = 'allLineItemsContainer';

@@ -5,11 +5,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_text_editor_toolbar_table_button_table_head_switch %}
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="addTableHead"
-        {% else %}
-        v-model="addTableHead"
-        {% endif %}
         :label="$tc('sw-text-editor-toolbar.table.addHeading')"
     />
     {% endblock %}
@@ -18,21 +14,13 @@
     {% block sw_text_editor_toolbar_table_button_table_grid_input %}
     <div class="sw-text-editor-toolbar-table-button__grid-input">
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="selectedCols"
-            {% else %}
-            v-model="selectedCols"
-            {% endif %}
             number-type="int"
             :min="0"
             :max="colMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.cols')"
             @input-change="setSelectedCols"
-            {% if VUE3 %}
             @update:value="setSelectedCols"
-            {% else %}
-            @change="setSelectedCols"
-            {% endif %}
         />
         <sw-icon
             class="sw-text-editor-toolbar-table-button__grid-input-icon"
@@ -40,21 +28,13 @@
             size="12"
         />
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="selectedRows"
-            {% else %}
-            v-model="selectedRows"
-            {% endif %}
             number-type="int"
             :min="0"
             :max="rowMaxLimit"
             :label="$tc('sw-text-editor-toolbar.table.rows')"
             @input-change="setSelectedRows"
-            {% if VUE3 %}
             @update:value="setSelectedRows"
-            {% else %}
-            @change="setSelectedRows"
-            {% endif %}
         />
     </div>
     {% endblock %}

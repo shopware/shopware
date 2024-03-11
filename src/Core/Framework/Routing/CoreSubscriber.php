@@ -52,7 +52,9 @@ class CoreSubscriber implements EventSubscriberInterface
         if ($event->getRequest()->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
-        $response->headers->set('X-Frame-Options', 'deny');
+        if (!$response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS)) {
+            $response->headers->set(PlatformRequest::HEADER_FRAME_OPTIONS, 'deny');
+        }
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 

@@ -31,15 +31,10 @@ class Migration1669291632MigrateLineItemsInCartRule extends MigrationStep
         $connection->executeStatement('UPDATE rule SET payload = NULL WHERE id in (:rule_ids)', [
             'rule_ids' => $ruleIds,
         ], [
-            'rule_ids' => ArrayParameterType::STRING,
+            'rule_ids' => ArrayParameterType::BINARY,
         ]);
 
         // rebuild payload on rule (because it contains the conditions serialized)
         $this->registerIndexer($connection, 'rule.indexer');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

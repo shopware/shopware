@@ -14,17 +14,22 @@ class DataBag extends ParameterBag
      */
     final public function __construct(array $parameters = [])
     {
-        foreach ($parameters as $key => $value) {
-            if (\is_array($value)) {
-                $parameters[$key] = new static($value);
-            }
-        }
+        $parameters = $this->wrapArrayParameters($parameters);
 
         parent::__construct($parameters);
     }
 
+    public function __clone(): void
+    {
+        foreach ($this->parameters as &$value) {
+            if ($value instanceof self) {
+                $value = clone $value;
+            }
+        }
+    }
+
     /**
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     public function all(?string $key = null): array
     {
@@ -40,11 +45,24 @@ class DataBag extends ParameterBag
             return $data;
         }
 
-        if (!\is_array($data = $data[$key] ?? [])) {
-            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($data)));
+        if (!\is_array($value = $data[$key] ?? [])) {
+            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($value)));
         }
 
-        return $data;
+        return $value;
+    }
+
+    /**
+     * @param array<mixed> $parameters
+     */
+    public function add(array $parameters = []): void
+    {
+        parent::add($this->wrapArrayParameters($parameters));
+    }
+
+    public function set(string $key, mixed $value): void
+    {
+        parent::set($key, $this->wrapArrayParameters([$value])[0]);
     }
 
     /**
@@ -58,5 +76,21 @@ class DataBag extends ParameterBag
     public function toRequestDataBag(): RequestDataBag
     {
         return new RequestDataBag($this->all());
+    }
+
+    /**
+     * @param array<mixed> $parameters
+     *
+     * @return array<mixed>
+     */
+    private function wrapArrayParameters(array $parameters): array
+    {
+        foreach ($parameters as $key => $value) {
+            if (\is_array($value)) {
+                $parameters[$key] = new static($value);
+            }
+        }
+
+        return $parameters;
     }
 }

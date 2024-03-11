@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\Plugin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
@@ -9,9 +11,8 @@ use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginZipDetector
  */
+#[CoversClass(PluginZipDetector::class)]
 class PluginZipDetectorTest extends TestCase
 {
     private PluginZipDetector $zipDetector;
@@ -51,9 +52,7 @@ class PluginZipDetectorTest extends TestCase
         $this->zipDetector->detect(__DIR__ . '/_fixture/archives/NoPlugin.zip');
     }
 
-    /**
-     * @dataProvider archiveProvider
-     */
+    #[DataProvider('archiveProvider')]
     public function testDetect(string $archivePath, string $expectedType): void
     {
         static::assertEquals(

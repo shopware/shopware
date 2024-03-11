@@ -42,40 +42,53 @@
     },
     "/product/{productId}": {
       "post": {
-        "tags": [
-          "Product"
-        ],
-        "summary": "Fetch a single product",
-        "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
-        "operationId": "readProductDetail",
-        "parameters": [
-          {
-            "name": "productId",
-            "in": "path",
-            "description": "Product ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Product information along with variant groups and options",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProductDetailResponse"
-                }
+          "tags": ["Product"],
+          "summary": "Fetch a single product",
+          "description": "This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
+          "operationId": "readProductDetail",
+          "parameters": [
+              {
+                  "name": "productId",
+                  "in": "path",
+                  "description": "Product ID",
+                  "required": true,
+                  "schema": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{32}$'"
+                  }
               }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ]
+          ],
+          "requestBody": {
+              "required": false,
+              "content": {
+                  "application/json": {
+                      "schema": {
+                          "allOf": [
+                              {
+                                  "$ref": "#/components/schemas/Criteria"
+                              }
+                          ]
+                      }
+                  }
+              }
+          },
+          "responses": {
+              "200": {
+                  "description": "Product information along with variant groups and options",
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/ProductDetailResponse"
+                          }
+                      }
+                  }
+              }
+          },
+          "security": [
+              {
+                  "ApiKey": []
+              }
+          ]
       }
     },
     "/product": {
@@ -267,7 +280,8 @@
         },
         "security": [
           {
-            "ApiKey": []
+            "ApiKey": [],
+            "ContextToken": []
           }
         ]
       }

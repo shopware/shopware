@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
 
@@ -10,9 +11,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
  */
 class ComparisonExtensionTest extends TestCase
 {
-    /**
-     * @dataProvider comparisonProvider
-     */
+    #[DataProvider('comparisonProvider')]
     public function testCompare(bool $shouldBeTrue, string $operator, mixed $value, mixed $comparable = null): void
     {
         $extension = new ComparisonExtension();

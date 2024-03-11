@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Rule\Container\ZipCodeRule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ShippingZipCodeRule extends ZipCodeRule
 {
     final public const RULE_NAME = 'customerShippingZipCode';

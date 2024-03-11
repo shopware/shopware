@@ -63,6 +63,9 @@ class HookableEventCollector
         return $this->hookableEventNamesWithPrivileges;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getPrivilegesFromBusinessEventDefinition(BusinessEventDefinition $businessEventDefinition): array
     {
         $privileges = [];
@@ -78,6 +81,9 @@ class HookableEventCollector
         return $privileges;
     }
 
+    /**
+     * @return array<string, array{privileges: list<string>}>
+     */
     public function getEntityWrittenEventNamesWithPrivileges(): array
     {
         $entityWrittenEventNames = [];

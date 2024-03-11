@@ -10,7 +10,7 @@ describe('Delivery time: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: can view delivery time', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -38,7 +38,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.contains('.sw-delivery-time-detail__field-unit', 'Day');
     });
 
-    it('@settings: can edit delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: can edit delivery time', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -89,7 +89,7 @@ describe('Delivery time: Test acl privileges', () => {
             .contains('Week');
     });
 
-    it('@settings: can create delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: can create delivery time', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

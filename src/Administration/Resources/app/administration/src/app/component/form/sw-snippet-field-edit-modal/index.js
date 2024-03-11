@@ -6,7 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @status ready
  * @description The modal component used to edit snippet values in `<sw-snippet-field>`.
  * @example-type code-only

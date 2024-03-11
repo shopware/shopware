@@ -2,19 +2,20 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\MediaEntity
  */
+#[Package('buyers-experience')]
+#[CoversClass(MediaEntity::class)]
 class MediaEntityTest extends TestCase
 {
-    /**
-     * @dataProvider filenameExtensionProvider
-     */
+    #[DataProvider('filenameExtensionProvider')]
     public function testGetFilenameIncludingExtension(?string $file, ?string $ext, ?string $expected): void
     {
         $media = new MediaEntity();

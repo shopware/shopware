@@ -44,6 +44,7 @@ function createClient() {
     globalErrorHandlingInterceptor(client);
     storeSessionExpiredInterceptor(client);
     client.CancelToken = CancelToken;
+    tracingInterceptor(client);
 
     /**
      * Don´t use cache in unit tests because it is possible
@@ -129,7 +130,6 @@ function globalErrorHandlingInterceptor(client) {
 function handleErrorStates({ status, errors, error = null, data }) {
     // Get $tc for translations and bind the Vue component scope to make it working
     const viewRoot = Shopware.Application.view.root;
-    const $tc = viewRoot.$tc.bind(viewRoot);
 
     // Handle sync-api errors
     if (status === 400 &&
@@ -172,8 +172,8 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 system: true,
                 autoClose: false,
                 growl: true,
-                title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
-                message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`,
+                title: Shopware.Snippet.tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
+                message: `${Shopware.Snippet.tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`,
             });
         });
     }
@@ -186,10 +186,10 @@ function handleErrorStates({ status, errors, error = null, data }) {
             system: true,
             autoClose: false,
             growl: true,
-            title: $tc('sw-extension.errors.storeSessionExpired.title'),
-            message: $tc('sw-extension.errors.storeSessionExpired.message'),
+            title: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.title'),
+            message: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.message'),
             actions: [{
-                label: $tc('sw-extension.errors.storeSessionExpired.actionLabel'),
+                label: Shopware.Snippet.tc('sw-extension.errors.storeSessionExpired.actionLabel'),
                 method: () => {
                     viewRoot.$router.push({
                         name: 'sw.extension.my-extensions.account',
@@ -208,18 +208,18 @@ function handleErrorStates({ status, errors, error = null, data }) {
 
             blockingEntities = parameters.usages.reduce((message, usageObject) => {
                 const times = usageObject.count;
-                const timesSnippet = $tc('global.default.xTimesIn', times);
-                const blockingEntitiesSnippet = $tc(`global.entities.${usageObject.entityName}`, times[1]);
+                const timesSnippet = Shopware.Snippet.tc('global.default.xTimesIn', times);
+                const blockingEntitiesSnippet = Shopware.Snippet.tc(`global.entities.${usageObject.entityName}`, times[1]);
                 return `${message}<br>${timesSnippet} <b>${blockingEntitiesSnippet}</b>`;
             }, '');
 
             Shopware.State.dispatch('notification/createNotification', {
                 variant: 'error',
-                title: $tc('global.default.error'),
-                message: `${$tc(
+                title: Shopware.Snippet.tc('global.default.error'),
+                message: `${Shopware.Snippet.tc(
                     'global.notification.messageDeleteFailed',
                     3,
-                    { entityName: $tc(`global.entities.${entityName}`) },
+                    { entityName: Shopware.Snippet.tc(`global.entities.${entityName}`) },
                 )
                 }${blockingEntities}`,
             });
@@ -342,6 +342,31 @@ function storeSessionExpiredInterceptor(client) {
 
         return Promise.reject(error);
     });
+
+    return client;
+}
+
+/**
+ * Sets up an interceptor to add tracing information to the request headers on which admin page this request has been fired
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function tracingInterceptor(client) {
+    /**
+     * axios-client-mock does not work with request interceptors. So we have to disable it for tests.
+     */
+    if (process.env.NODE_ENV !== 'test') {
+        client.interceptors.request.use((config) => {
+            const currentRoute = Shopware?.Application?.view?.router?.history?.current?.name;
+
+            if (currentRoute) {
+                config.headers['shopware-admin-active-route'] = currentRoute;
+            }
+
+            return config;
+        });
+    }
 
     return client;
 }

@@ -137,14 +137,15 @@
                 <sw-loader v-if="isLoading" />
                 {% endblock %}
 
+                <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                 <template
                     v-for="(entity, column) in results"
                     v-else-if="!isResultEmpty()"
+                    :key="entity.entity"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_list %}
                     <div
-                        :key="entity.entity"
                         class="sw-search-bar__results-column"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -184,7 +185,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_search_bar_results_list_bar_item %}
                             <li
-                                v-if="entity.entity !== 'module' && entity.total > searchLimit"
+                                v-if="entity.entity !== 'module'"
                                 class="sw-search-bar-item sw-search-bar-item--v2"
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -413,11 +414,13 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_trends_results_content %}
             <div class="sw-search-bar__results-wrapper-content">
-                <template v-for="(entity, column) in resultsSearchTrends">
+                <template
+                    v-for="(entity, column) in resultsSearchTrends"
+                    :key="entity.entity"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_trends_results_list %}
                     <div
-                        :key="entity.entity"
                         class="sw-search-bar__results-column"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

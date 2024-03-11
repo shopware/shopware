@@ -15,7 +15,7 @@ describe('Dynamic product groups: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic product stream workflow', { tags: ['pa-business-ops'] }, () => {
+    it('@visual: check appearance of basic product stream workflow', { tags: ['pa-services-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST',

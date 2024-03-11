@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -11,9 +12,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent
  */
+#[CoversClass(CustomerBeforeLoginEvent::class)]
 class CustomerBeforeLoginEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void

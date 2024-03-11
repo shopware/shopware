@@ -3,28 +3,30 @@
 namespace Shopware\Storefront\Test\Framework\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
+use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
-use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\HttpCache\HttpCache;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @group skip-paratest
- * @group cache
  */
+#[Group('skip-paratest')]
+#[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -209,17 +211,18 @@ class HttpCacheIntegrationTest extends TestCase
         $route = '/storefront/script/custom-cache-config';
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event): void {
+            static::assertEquals(5, $event->getResponse()->getMaxAge());
+            static::assertEquals('logged-in', $event->getResponse()->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
+        }, -1501);
+
         $response = $kernel->handle($request);
         static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
-        static::assertEquals(5, $response->getMaxAge());
-        static::assertEquals('logged-in', $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
 
         $response = $kernel->handle($request);
         static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
         static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
-        static::assertEquals(5, $response->getMaxAge());
-        static::assertEquals('logged-in', $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
     }
 
     private function createRequest(?string $url = null): Request
@@ -236,10 +239,8 @@ class HttpCacheIntegrationTest extends TestCase
             ->transform($request);
     }
 
-    private function getCacheKernel(): HttpCache
+    private function getCacheKernel(): HttpCacheKernel
     {
-        $store = $this->getContainer()->get(CacheStore::class);
-
-        return new HttpCache($this->getKernel(), $store, null, ['debug' => true]);
+        return $this->getContainer()->get('http_kernel.cache');
     }
 }

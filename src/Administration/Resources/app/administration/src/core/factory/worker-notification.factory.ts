@@ -6,7 +6,7 @@
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
-import type Vue from 'vue';
+import type { App } from 'vue';
 
 /** @private */
 export type NotificationConfig = {
@@ -26,7 +26,7 @@ export type NotificationService = {
 ;}
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     getRegistry,
@@ -68,7 +68,7 @@ export type NotificationWorkerOptions = {
     name: string,
     fn: (
         next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
-        opts: { entry: { size: number }, $root: Vue, notification: NotificationService }
+        opts: { entry: { size: number }, $root: App<Element>, notification: NotificationService }
     ) => unknown
 };
 

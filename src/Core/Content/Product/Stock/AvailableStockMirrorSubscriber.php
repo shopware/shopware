@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,19 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class AvailableStockMirrorSubscriber
 {
-    private readonly bool $enableAvailableStockMirror;
-
-    public function __construct()
-    {
-        $this->enableAvailableStockMirror = Feature::isActive('STOCK_HANDLING');
-    }
-
     public function __invoke(EntityWriteEvent $event): void
     {
-        if (!$this->enableAvailableStockMirror) {
-            return;
-        }
-
         if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }

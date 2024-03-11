@@ -23,7 +23,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -120,7 +120,7 @@ class OrderEntity extends Entity
     protected $languageId;
 
     /**
-     * @var LanguageEntity
+     * @var LanguageEntity|null
      */
     protected $language;
 
@@ -371,12 +371,12 @@ class OrderEntity extends Entity
         $this->languageId = $languageId;
     }
 
-    public function getLanguage(): LanguageEntity
+    public function getLanguage(): ?LanguageEntity
     {
         return $this->language;
     }
 
-    public function setLanguage(LanguageEntity $language): void
+    public function setLanguage(?LanguageEntity $language): void
     {
         $this->language = $language;
     }

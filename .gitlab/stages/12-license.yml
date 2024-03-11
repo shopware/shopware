@@ -1,9 +1,11 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
 
 .security-base:
-  extends: .base-no-setup
+  extends: .base-with-node
   variables:
     WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
+  before_script: []
 
 PHP License check:
   extends: .security-base
@@ -13,7 +15,7 @@ PHP License check:
         - 'composer.json'
   script:
     - !reference [ .scripts, init, composer ]
-    - vendor/bin/composer-license-checker check -a $(sed -z 's/\n/ -a /g' .allowed-licenses)
+    - vendor/bin/composer-license-checker check $(xargs -n1 echo -a < .allowed-licenses)
 
 Storefront License check:
   extends: .security-base
@@ -22,11 +24,10 @@ Storefront License check:
     - changes:
         - 'src/Storefront/Resources/app/storefront/package.json'
   script:
-    - !reference [ .scripts, install-node, script ]
     - !reference [ .scripts, init, npm, storefront ]
     - export PROJECT_ROOT=${PWD}
     - cd ${STOREFRONT_PATH}
-    - node_modules/.bin/license-checker-rseidelsohn --onlyAllow "$(sed -z 's/\n/;/g' ${PROJECT_ROOT}/.allowed-licenses)" --excludePackages "${WHITELISTED_JS_PACKAGES}" --excludePrivatePackages
+    - node_modules/.bin/license-checker-rseidelsohn --onlyAllow "$(tr \\n \; < ${PROJECT_ROOT}/.allowed-licenses)" --excludePackages "${WHITELISTED_JS_PACKAGES}" --excludePrivatePackages
 
 Administration License check:
   extends: .security-base
@@ -35,8 +36,7 @@ Administration License check:
     - changes:
         - 'src/Administration/Resources/app/administration/package.json'
   script:
-    - !reference [ .scripts, install-node, script ]
     - !reference [ .scripts, init, npm, admin ]
     - export PROJECT_ROOT=${PWD}
     - cd ${ADMIN_PATH}
-    - node_modules/.bin/license-checker-rseidelsohn --onlyAllow "$(sed -z 's/\n/;/g' ${PROJECT_ROOT}/.allowed-licenses)" --excludePackages "${WHITELISTED_JS_PACKAGES}" --excludePrivatePackages
+    - node_modules/.bin/license-checker-rseidelsohn --onlyAllow "$(tr \\n \; < ${PROJECT_ROOT}/.allowed-licenses)" --excludePackages "${WHITELISTED_JS_PACKAGES}" --excludePrivatePackages

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -23,21 +25,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator
  */
+#[CoversClass(ApiCriteriaValidator::class)]
 class ApiCriteriaValidatorTest extends TestCase
 {
     /**
-     * @dataProvider criteriaProvider
-     *
      * @param class-string<\Exception>|null $expectedException
      */
+    #[DataProvider('criteriaProvider')]
     public function testCriteria(Criteria $criteria, Context $context, ?string $expectedException): void
     {
         $validator = new ApiCriteriaValidator(

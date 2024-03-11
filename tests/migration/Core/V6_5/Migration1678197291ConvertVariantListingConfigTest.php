@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -18,9 +19,8 @@ use Shopware\Core\Migration\V6_5\Migration1678197291ConvertVariantListingConfig;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1678197291ConvertVariantListingConfig
  */
+#[CoversClass(Migration1678197291ConvertVariantListingConfig::class)]
 class Migration1678197291ConvertVariantListingConfigTest extends TestCase
 {
     use KernelTestBehaviour;

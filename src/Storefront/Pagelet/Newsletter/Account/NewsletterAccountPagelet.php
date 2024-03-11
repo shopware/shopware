@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class NewsletterAccountPagelet extends Pagelet
 {
     protected CustomerEntity $customer;

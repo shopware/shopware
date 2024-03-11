@@ -1,57 +1,58 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsTaxDetail from 'src/module/sw-settings-tax/page/sw-settings-tax-detail';
-
-Shopware.Component.register('sw-settings-tax-detail', swSettingsTaxDetail);
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
  */
 async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
-    return shallowMount(await Shopware.Component.build('sw-settings-tax-detail'), {
-        mocks: {
-            $te: () => isShopwareDefaultTax,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    get: () => {
-                        return Promise.resolve({
-                            isNew: () => false,
-                        });
-                    },
-
-                    create: () => {
-                        return Promise.resolve({
-                            isNew: () => true,
-                        });
-                    },
-
-                    save: () => {
-                        return Promise.resolve();
-                    },
-                }),
+    return mount(await wrapTestComponent('sw-settings-tax-detail', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $te: () => isShopwareDefaultTax,
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        get: () => {
+                            return Promise.resolve({
+                                isNew: () => false,
+                            });
+                        },
 
-                    return privileges.includes(identifier);
+                        create: () => {
+                            return Promise.resolve({
+                                isNew: () => true,
+                            });
+                        },
+
+                        save: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
+                systemConfigApiService: {
+                    getConfig: () => Promise.resolve({
+                        'core.tax.defaultTaxRate': '',
+                    }),
                 },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
-            },
-            systemConfigApiService: {
-                getConfig: () => Promise.resolve({
-                    'core.tax.defaultTaxRate': '',
-                }),
-            },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -64,18 +65,19 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                         <slot></slot>
                     </div>
                 `,
+                },
+                'sw-alert': true,
+                'sw-card-view': true,
+                'sw-language-switch': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-switch-field': true,
+                'sw-text-field': true,
+                'sw-number-field': true,
+                'sw-skeleton': true,
             },
-            'sw-alert': true,
-            'sw-card-view': true,
-            'sw-language-switch': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-switch-field': true,
-            'sw-text-field': true,
-            'sw-number-field': true,
-            'sw-skeleton': true,
         },
     });
 }

@@ -132,7 +132,7 @@ Core
     // or with a static plugin list
     $plugins = [
         [
-            'baseClass' => 'SwagTest\\SwagTest',
+            'baseClass' => 'SwagTest\\SwagTestPlugin',
             'active' => true,
             'path' => 'platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTest',
             'autoload' => ['psr-4' => ['SwagTest\\' => 'src/']],

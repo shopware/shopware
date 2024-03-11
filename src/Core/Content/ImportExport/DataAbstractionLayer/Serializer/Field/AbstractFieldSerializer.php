@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
-use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -13,9 +12,17 @@ abstract class AbstractFieldSerializer
 {
     protected SerializerRegistry $serializerRegistry;
 
+    /**
+     * @param mixed $value
+     *
+     * @return iterable<string, mixed>
+     */
     abstract public function serialize(Config $config, Field $field, $value): iterable;
 
-    abstract public function deserialize(Config $config, Field $field, $value);
+    /**
+     * @param mixed $value
+     */
+    abstract public function deserialize(Config $config, Field $field, $value): mixed;
 
     abstract public function supports(Field $field): bool;
 
@@ -24,8 +31,5 @@ abstract class AbstractFieldSerializer
         $this->serializerRegistry = $serializerRegistry;
     }
 
-    protected function getDecorated(): AbstractEntitySerializer
-    {
-        throw new \RuntimeException('Implement getDecorated');
-    }
+    abstract public function getDecorated(): AbstractFieldSerializer;
 }

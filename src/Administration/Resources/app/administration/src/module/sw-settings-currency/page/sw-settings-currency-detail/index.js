@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 
@@ -186,7 +189,6 @@ export default {
     methods: {
         createdComponent() {
             if (this.currencyId) {
-                this.currencyId = this.$route.params.id;
                 return Promise.all([
                     this.loadEntityData(),
                     this.loadCustomFieldSets(),

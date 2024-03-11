@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryIndexer extends EntityIndexer
 {
     final public const CHILD_COUNT_UPDATER = 'category.child-count';
@@ -60,7 +60,10 @@ class CategoryIndexer extends EntityIndexer
             return null;
         }
 
-        return new CategoryIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new CategoryIndexingMessage(
+            data: array_values($ids),
+            offset: $iterator->getOffset()
+        );
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -100,7 +103,8 @@ class CategoryIndexer extends EntityIndexer
             $this->treeUpdater->batchUpdate(
                 $idsWithChangedParentIds,
                 CategoryDefinition::ENTITY_NAME,
-                $event->getContext()
+                $event->getContext(),
+                true
             );
         }
 
@@ -130,7 +134,12 @@ class CategoryIndexer extends EntityIndexer
             }
 
             if ($message->allow(self::TREE_UPDATER)) {
-                $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
+                $this->treeUpdater->batchUpdate(
+                    $ids,
+                    CategoryDefinition::ENTITY_NAME,
+                    $context,
+                    !$message->isFullIndexing
+                );
             }
 
             if ($message->allow(self::BREADCRUMB_UPDATER)) {
@@ -139,7 +148,7 @@ class CategoryIndexer extends EntityIndexer
             }
         });
 
-        $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context, $message->getSkip()));
+        $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context, $message->getSkip(), $message->isFullIndexing));
     }
 
     public function getOptions(): array

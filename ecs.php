@@ -103,6 +103,7 @@ return static function (ECSConfig $ecsConfig): void {
         'include' => [NativeFunctionInvocationFixer::SET_COMPILER_OPTIMIZED],
         'scope' => 'namespaced',
         'strict' => false,
+        'exclude' => ['ini_get'],
     ]);
     $ecsConfig->ruleWithConfiguration(ConcatSpaceFixer::class, ['spacing' => 'one']);
     $ecsConfig->ruleWithConfiguration(GeneralPhpdocAnnotationRemoveFixer::class, ['annotations' => ['copyright', 'category']]);

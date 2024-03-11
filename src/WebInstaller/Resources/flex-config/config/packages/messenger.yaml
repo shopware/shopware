@@ -9,6 +9,7 @@ framework:
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             # async: '%env(MESSENGER_TRANSPORT_DSN)%'
+            # low_priority: '%env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN)%'
             # failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
 

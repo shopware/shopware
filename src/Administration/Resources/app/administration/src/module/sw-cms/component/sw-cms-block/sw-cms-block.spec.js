@@ -1,15 +1,14 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swCmsBlock from 'src/module/sw-cms/component/sw-cms-block';
-
-Shopware.Component.register('sw-cms-block', swCmsBlock);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-block'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-block', {
+        sync: true,
+    }), {
+        props: {
             block: {
                 visibility: {
                     desktop: true,
@@ -18,13 +17,15 @@ async function createWrapper() {
                 },
             },
         },
-        provide: {
-            cmsService: {},
-        },
-        stubs: {
-            'sw-icon': true,
-            'sw-cms-visibility-toggle': {
-                template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
+        global: {
+            provide: {
+                cmsService: {},
+            },
+            stubs: {
+                'sw-icon': true,
+                'sw-cms-visibility-toggle': {
+                    template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
+                },
             },
         },
     });
@@ -94,7 +95,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         });
 
         expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');
-        wrapper.get('.sw-cms-visibility-toggle-wrapper').vm.$emit('toggle');
+        wrapper.getComponent('.sw-cms-visibility-toggle-wrapper').vm.$emit('toggle');
         await wrapper.vm.$nextTick();
         expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).toContain('is--expanded');
     });

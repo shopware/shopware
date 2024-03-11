@@ -6,16 +6,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @Annotation
- *
- * @Target({"METHOD", "CLASS"})
  */
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
 #[Package('core')]
 final class DisabledFeatures
 {
     /**
-     * @var array<string>
+     * @param array<string> $features
      */
-    public array $features;
+    public function __construct(public array $features = [])
+    {
+    }
 }

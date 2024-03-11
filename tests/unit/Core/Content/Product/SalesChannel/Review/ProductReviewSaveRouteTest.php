@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -13,18 +14,16 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute
  */
+#[CoversClass(ProductReviewSaveRoute::class)]
 class ProductReviewSaveRouteTest extends TestCase
 {
     private MockObject&EntityRepository $repository;
@@ -127,9 +126,6 @@ class ProductReviewSaveRouteTest extends TestCase
             ->method('dispatch')
             ->with($event, ReviewFormEvent::EVENT_NAME);
 
-        static::assertInstanceOf(
-            NoContentResponse::class,
-            $this->route->save($productId, $data, $salesChannelContext)
-        );
+        $this->route->save($productId, $data, $salesChannelContext);
     }
 }

@@ -2,19 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Requirements;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Requirements\IniConfigReader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Requirements\IniConfigReader
  */
+#[CoversClass(IniConfigReader::class)]
 class IniConfigReaderTest extends TestCase
 {
-    /**
-     * @dataProvider configProvider
-     */
+    #[DataProvider('configProvider')]
     public function testGet(string $key, string|false $configValue, string $expectedValue): void
     {
         \ini_set($key, (string) $configValue);

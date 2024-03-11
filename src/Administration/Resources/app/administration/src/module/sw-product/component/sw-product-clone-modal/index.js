@@ -55,6 +55,11 @@ export default {
         },
 
         async cloneParent(number) {
+            const variantListingConfigOverwrite = this.product.variantListingConfig;
+            if (variantListingConfigOverwrite && variantListingConfigOverwrite.mainVariantId) {
+                variantListingConfigOverwrite.mainVariantId = null;
+            }
+
             const behavior = {
                 cloneChildren: false,
                 overwrites: {
@@ -62,11 +67,12 @@ export default {
                     name: `${this.product.name} ${this.$tc('global.default.copy')}`,
                     active: false,
                     mainVariantId: null,
+                    variantListingConfig: variantListingConfigOverwrite,
                 },
             };
 
             await this.repository.save(this.product);
-            const clone = await this.repository.clone(this.product.id, Shopware.Context.api, behavior);
+            const clone = await this.repository.clone(this.product.id, behavior, Shopware.Context.api);
 
             return { id: clone.id, productNumber: number.number };
         },
@@ -119,7 +125,7 @@ export default {
             };
 
             this.repository
-                .clone(id, Shopware.Context.api, behavior)
+                .clone(id, behavior, Shopware.Context.api)
                 .then(() => {
                     this.cloneProgress += 1;
                     this.duplicateVariant(duplicate, ids, callback);

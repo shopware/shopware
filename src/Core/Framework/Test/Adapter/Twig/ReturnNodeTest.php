@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -14,9 +15,7 @@ class ReturnNodeTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @dataProvider nodeProvider
-     */
+    #[DataProvider('nodeProvider')]
     public function testNode(string $template, $expected, array $data = []): void
     {
         $file = __DIR__ . '/fixtures/return-node/' . $template;

@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @final tag:v6.6.0
+ * @final
  */
 #[Package('checkout')]
 class LineItemFactoryRegistry

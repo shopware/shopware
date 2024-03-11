@@ -18,7 +18,6 @@ async function importComponent(componentName) {
      * @see type componentInfo in scripts/componentImportResolver/generate.ts
      */
     const componentConfig = components[componentName];
-
     /**
      * Contains the component configuration in all cases.
      * Depending on how the component is registered or extended, the component may or may not be registered or extended just by the import statement.
@@ -54,6 +53,9 @@ async function importComponent(componentName) {
  * @returns Promise<Component>
  */
 export default async function wrapTestComponent(componentName, config = {}) {
+    if (arguments.length > 2) {
+        throw new Error('wrapTestComponent expects only two arguments.');
+    }
     // Imports the component and handles registration and extensions
     await importComponent(componentName);
 

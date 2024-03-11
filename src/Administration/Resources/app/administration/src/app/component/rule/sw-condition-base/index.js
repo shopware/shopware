@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @description Base condition for the condition-tree. This component must be a child of sw-condition-tree.
  * @status prototype
  * @example-type code-only
@@ -22,6 +22,12 @@ Component.register('sw-condition-base', {
         'availableTypes',
         'childAssociationField',
         'availableGroups',
+    ],
+
+    emits: [
+        'create-before',
+        'create-after',
+        'condition-delete',
     ],
 
     props: {

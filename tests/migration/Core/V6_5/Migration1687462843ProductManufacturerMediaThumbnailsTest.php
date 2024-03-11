@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_5\Migration1687462843ProductManufacturerMediaThumbnails;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1687462843ProductManufacturerMediaThumbnails
  */
+#[CoversClass(Migration1687462843ProductManufacturerMediaThumbnails::class)]
 class Migration1687462843ProductManufacturerMediaThumbnailsTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'document_base_config_sales_channel';

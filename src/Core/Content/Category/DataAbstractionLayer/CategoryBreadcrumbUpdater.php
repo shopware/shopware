@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryBreadcrumbUpdater
 {
     /**
@@ -47,7 +47,7 @@ class CategoryBreadcrumbUpdater
         $query->where('category.id IN (:ids)');
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', $versionId);
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
 
         $paths = $query->executeQuery()->fetchFirstColumn();
 
@@ -59,7 +59,7 @@ class CategoryBreadcrumbUpdater
             }
         }
 
-        $all = array_filter(array_values(array_keys(array_flip($all))));
+        $all = array_filter(array_keys(array_flip($all)));
 
         $languages = $this->languageRepository->search(new Criteria(), $context);
 

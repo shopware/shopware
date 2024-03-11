@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
@@ -12,16 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Routing\RequestTransformer
  */
+#[CoversClass(RequestTransformer::class)]
 class RequestTransformerTest extends TestCase
 {
     /**
      * @param list<string> $registeredApiPrefixes
-     *
-     * @dataProvider notRequiredSalesChannelProvider
      */
+    #[DataProvider('notRequiredSalesChannelProvider')]
     public function testSalesChannelIsNotRequired(array $registeredApiPrefixes, string $requestUri): void
     {
         $decorated = $this->createMock(RequestTransformerInterface::class);

@@ -3,7 +3,7 @@ title: Mapping of product area
 date: 2022-09-28
 area: product-operations
 tags: [workflow]
---- 
+---
 
 ## Context
 
@@ -23,12 +23,10 @@ The areas are:
 - core
 - inventory
 - checkout
-- sales-channel
 - content
-- business-ops
-- merchant-services
 - customer-order
-- system-settings
+- services-settings
+- buyers-experience
 
 ## Consequences
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -33,9 +34,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute
  */
+#[CoversClass(CachedProductDetailRoute::class)]
 class CachedProductDetailRouteTest extends TestCase
 {
     private MockObject&AbstractProductDetailRoute $decorated;

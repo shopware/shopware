@@ -52,6 +52,9 @@ class ConfigValidator extends AbstractManifestValidator
         return $errors;
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     private function getConfiguration(string $appFolder): array
     {
         $configPath = sprintf('%s/Resources/config/config.xml', $appFolder);

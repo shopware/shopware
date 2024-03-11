@@ -6,11 +6,8 @@
 >
     <div class="sw-flow-grant-download-access-modal__content">
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="value"
-            {% else %}
-            v-model="value"
-            {% endif %}
+            name="sw-field--value"
             class="sw-flow-grant-download-access-modal__value-field"
             required
             :label="$tc('sw-flow.modals.downloadAccess.labelValueField')"

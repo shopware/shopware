@@ -2,7 +2,7 @@ import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
 /**
- * @package content
+ * @package buyers-experience
  */
 
 const { Filter, State } = Shopware;

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-searchable-content-customfields.html.twig';
 
@@ -98,11 +98,15 @@ export default {
 
             return criteria;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
         searchConfigs(newData) {
-            if (newData[0] && newData[0]._isNew) {
+            if (newData[0] && newData[0]._isNew && this.$refs.customGrid) {
                 this.$refs.customGrid.enableInlineEdit();
                 this.$refs.customGrid.onDbClickCell(this.$refs.customGrid.records[0]);
             }

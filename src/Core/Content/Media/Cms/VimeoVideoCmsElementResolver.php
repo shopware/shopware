@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Cms;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class VimeoVideoCmsElementResolver extends YoutubeVideoCmsElementResolver
 {
     public function getType(): string

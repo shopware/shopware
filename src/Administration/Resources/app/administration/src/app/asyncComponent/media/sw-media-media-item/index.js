@@ -54,6 +54,18 @@ export default {
                 'sw-context-menu__group': this.$slots.default,
             };
         },
+
+        mediaNameFilter() {
+            return Shopware.Filter.getByName('mediaName');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        fileSizeFilter() {
+            return Shopware.Filter.getByName('fileSize');
+        },
     },
 
     methods: {
@@ -73,13 +85,31 @@ export default {
                     message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
-            } catch {
-                this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+            } catch (exception) {
+                const errors = exception.response.data.errors;
+
+                errors.forEach((error) => {
+                    this.handleErrorMessage(error);
                 });
             } finally {
                 item.isLoading = false;
                 endInlineEdit();
+            }
+        },
+
+        handleErrorMessage(error) {
+            switch (error.code) {
+                case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
+                    this.createNotificationError({
+                        message: this.$tc('global.sw-media-media-item.notification.fileNameTooLong.message', 0, {
+                            length: error.meta.parameters.maxLength,
+                        }),
+                    });
+                    break;
+                default:
+                    this.createNotificationError({
+                        message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+                    });
             }
         },
 
@@ -95,11 +125,7 @@ export default {
             const input = event.target.value;
 
             if (input !== item.fileName) {
-                return;
-            }
-
-            if (!input || !input.trim()) {
-                this.rejectRenaming(item, 'empty-name', endInlineEdit);
+                this.onChangeName(input, item, endInlineEdit);
                 return;
             }
 
@@ -118,11 +144,18 @@ export default {
             this.removeFromSelection(originalDomEvent);
         },
 
-        copyItemLink(item) {
-            dom.copyToClipboard(item.url);
-            this.createNotificationSuccess({
-                message: this.$tc('sw-media.general.notification.urlCopied.message'),
-            });
+        async copyItemLink(item) {
+            try {
+                await dom.copyStringToClipboard(item.url);
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                });
+            } catch (err) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                });
+            }
         },
 
         openModalDelete() {

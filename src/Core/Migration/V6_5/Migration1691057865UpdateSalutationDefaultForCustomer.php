@@ -11,7 +11,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1691057865UpdateSalutationDefaultForCustomer extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -47,10 +47,5 @@ class Migration1691057865UpdateSalutationDefaultForCustomer extends MigrationSte
                 ['limit' => \PDO::PARAM_INT]
             );
         } while ($updatedRowCount === $limit);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

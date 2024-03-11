@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class LicenseHostChangedSubscriber implements EventSubscriberInterface
 {
     public function __construct(

@@ -25,7 +25,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 trait OrderActionTrait
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -199,6 +199,16 @@ trait OrderActionTrait
                         'city' => 'Schöppingen',
                         'countryId' => $this->getValidCountryId(),
                     ],
+                    [
+                        'id' => $this->ids->create('shipping-address'),
+                        'countryId' => $this->getValidCountryId(),
+                        'salutationId' => $this->getValidSalutationId(),
+                        'firstName' => 'Max',
+                        'lastName' => 'Mustermann',
+                        'street' => 'Ebbinghoff 10',
+                        'zipcode' => '48624',
+                        'city' => 'Schöppingen',
+                    ],
                 ],
                 'lineItems' => [
                     [
@@ -214,7 +224,7 @@ trait OrderActionTrait
                 'deliveries' => [
                     [
                         'id' => $this->ids->create('delivery'),
-                        'shippingOrderAddressId' => $this->ids->create('shipping-address'),
+                        'shippingOrderAddressId' => $this->ids->get('shipping-address'),
                         'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
                         'stateId' => $this->getStateId('open', 'order_delivery.state'),
                         'trackingCodes' => [],

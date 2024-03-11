@@ -91,6 +91,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 }
             }
 
+            // run price calculator in batch
+            $this->recalculate(array_column($lineItems, 'item'), $data, $context, $behavior);
+
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
                 $this->enrich($context, $match['item'], $data, $behavior);
@@ -339,7 +342,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $payload = [
             'isCloseout' => $product->getIsCloseout(),
-            'customFields' => $product->getCustomFields(),
+            'customFields' => $product->getTranslation('customFields'),
             'createdAt' => $product->getCreatedAt() ? $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
@@ -363,8 +366,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
     {
-        $this->priceCalculator->calculate([$product], $context);
-
         if ($product->getCalculatedPrices()->count() === 0) {
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);
         }
@@ -463,7 +464,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 
@@ -520,5 +521,39 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     private function getDataKey(string $id): string
     {
         return 'product-' . $id;
+    }
+
+    /**
+     * @param array<LineItem> $lineItems
+     */
+    private function recalculate(array $lineItems, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        $affected = [];
+
+        foreach ($lineItems as $lineItem) {
+            if (!$this->shouldPriceBeRecalculated($lineItem, $behavior)) {
+                continue;
+            }
+
+            $id = $lineItem->getReferencedId();
+
+            $product = $data->get(
+                $this->getDataKey((string) $id)
+            );
+
+            // no data for enrich exists
+            if (!$product instanceof SalesChannelProductEntity) {
+                continue;
+            }
+
+            $affected[] = $product;
+        }
+
+        // Check if the price has to be updated
+        if (empty($affected)) {
+            return;
+        }
+
+        $this->priceCalculator->calculate($affected, $context);
     }
 }

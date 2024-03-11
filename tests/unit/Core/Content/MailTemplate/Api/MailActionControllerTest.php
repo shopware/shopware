@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
@@ -15,10 +16,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\MailTemplate\Api\MailActionController
  */
-#[Package('customer-order')]
+#[Package('checkout')]
+#[CoversClass(MailActionController::class)]
 class MailActionControllerTest extends TestCase
 {
     private AbstractMailService&MockObject $mailService;

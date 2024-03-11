@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Newsletter\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class NewsletterRecipientTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -82,6 +83,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
     {
         return new NewsletterRecipientTaskHandler(
             $this->getContainer()->get('scheduled_task.repository'),
+            $this->createMock(LoggerInterface::class),
             $this->getContainer()->get('newsletter_recipient.repository')
         );
     }

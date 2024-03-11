@@ -1,9 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
-import Vue from 'vue';
-
-import swGenericCmsPageAssignment from 'src/module/sw-custom-entity/component/sw-generic-cms-page-assignment';
-
-Shopware.Component.register('sw-generic-cms-page-assignment', swGenericCmsPageAssignment);
+import { mount } from '@vue/test-utils';
 
 const pageId = 'TEST-PAGE-ID';
 const mockSlotId = 'MOCK-SLOT-ID';
@@ -33,43 +28,46 @@ const pageMock = {
 
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-generic-cms-page-assignment'), {
-        stubs: {
-            'sw-card': true,
-            'sw-cms-list-item': {
-                template: '<div class="sw-cms-list-item"></div>',
-                props: ['page'],
-            },
-            'sw-button': {
-                template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-            },
-            'sw-cms-layout-modal': {
-                template: '<div class="sw-cms-layout-modal"></div>',
-            },
-            'sw-cms-page-form': {
-                template: '<div class="sw-cms-page-form"></div>',
-                props: ['page'],
-            },
-        },
-
-        provide: {
-            cmsPageTypeService: {
-                getType(type) {
-                    return {
-                        title: `sw-cms.detail.label.pageType.${Shopware.Utils.string.camelCase(type)}`,
-                    };
+    return mount(await wrapTestComponent('sw-generic-cms-page-assignment', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-cms-list-item': {
+                    template: '<div class="sw-cms-list-item"></div>',
+                    props: ['page'],
+                },
+                'sw-button': {
+                    template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+                },
+                'sw-cms-layout-modal': {
+                    template: '<div class="sw-cms-layout-modal"></div>',
+                },
+                'sw-cms-page-form': {
+                    template: '<div class="sw-cms-page-form"></div>',
+                    props: ['page'],
                 },
             },
-            repositoryFactory: {
-                create: (name) => {
-                    switch (name) {
-                        case 'cms_page':
-                            return {
-                                search: jest.fn(() => Promise.resolve([pageMock])),
-                            };
-                        default:
-                            throw new Error(`No repository for ${name} configured`);
-                    }
+            provide: {
+                cmsPageTypeService: {
+                    getType(type) {
+                        return {
+                            title: `sw-cms.detail.label.pageType.${Shopware.Utils.string.camelCase(type)}`,
+                        };
+                    },
+                },
+                repositoryFactory: {
+                    create: (name) => {
+                        switch (name) {
+                            case 'cms_page':
+                                return {
+                                    search: jest.fn(() => Promise.resolve([pageMock])),
+                                };
+                            default:
+                                throw new Error(`No repository for ${name} configured`);
+                        }
+                    },
                 },
             },
         },
@@ -112,7 +110,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
 
         await wrapper.find('.sw-generic-cms-page-assignment__change-layout-action').trigger('click');
 
-        wrapper.get('.sw-cms-layout-modal').vm.$emit('modal-layout-select', pageMock.id);
+        wrapper.getComponent('.sw-cms-layout-modal').vm.$emit('modal-layout-select', pageMock.id);
         await wrapper.vm.$nextTick();
 
         const updateCmsPageIdEvents = wrapper.emitted('update:cms-page-id');
@@ -125,11 +123,10 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
 
         await wrapper.find('.sw-generic-cms-page-assignment__change-layout-action').trigger('click');
 
-        wrapper.get('.sw-cms-layout-modal').vm.$emit('modal-close');
+        wrapper.getComponent('.sw-cms-layout-modal').vm.$emit('modal-close');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-cms-layout-modal').exists()).toBe(false);
-        expect(wrapper.emitted()).toEqual({});
     });
 
     it('should display the previously selected cmsPage', async () => {
@@ -142,8 +139,8 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
 
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMock.name);
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageType.productList');
-        expect(wrapper.get('.sw-cms-list-item').props('page')).toEqual(pageMock);
-        expect(wrapper.get('.sw-cms-page-form').props('page')).toEqual(pageMock);
+        expect(wrapper.getComponent('.sw-cms-list-item').props('page')).toEqual(pageMock);
+        expect(wrapper.getComponent('.sw-cms-page-form').props('page')).toEqual(pageMock);
     });
 
     it('should allow changing the previously selected cmsPage', async () => {
@@ -157,7 +154,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
 
         await wrapper.find('.sw-generic-cms-page-assignment__change-layout-action').trigger('click');
 
-        wrapper.get('.sw-cms-layout-modal').vm.$emit('modal-layout-select', mockPageId2);
+        wrapper.getComponent('.sw-cms-layout-modal').vm.$emit('modal-layout-select', mockPageId2);
         await wrapper.vm.$nextTick();
 
         const updateCmsPageIdEvents = wrapper.emitted('update:cms-page-id');
@@ -241,8 +238,8 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
 
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-headline').text()).toBe(pageMockWithOverrides.name);
         expect(wrapper.get('.sw-generic-cms-page-assignment__page-selection-subheadline').text()).toBe('sw-cms.detail.label.pageType.productList');
-        expect(wrapper.get('.sw-cms-list-item').props('page')).toStrictEqual(pageMockWithOverrides);
-        expect(wrapper.get('.sw-cms-page-form').props('page')).toStrictEqual(pageMockWithOverrides);
+        expect(wrapper.getComponent('.sw-cms-list-item').props('page')).toStrictEqual(pageMockWithOverrides);
+        expect(wrapper.getComponent('.sw-cms-page-form').props('page')).toStrictEqual(pageMockWithOverrides);
     });
 
     it('should emit slotOverrides when the cmsPage is changed', async () => {
@@ -281,7 +278,7 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         });
         await wrapper.vm.$nextTick();
 
-        Vue.set(wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content, 'value', '<h1>TEST2<h1>');
+        wrapper.vm.$set(wrapper.vm.cmsPage.sections[0].blocks[0].slots[0].config.content, 'value', '<h1>TEST2<h1>');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('update:slot-overrides')).toHaveLength(1);

@@ -33,7 +33,6 @@
                 {% block sw_order_promotion_tag_field_tag_item %}
                 <sw-label
                     v-if="item.isInvalid"
-                    :key="item.code + item.isInvalid"
                     :size="size"
                     :dismissable="!disabled"
                     variant="danger"
@@ -45,7 +44,6 @@
 
                 <sw-label
                     v-else
-                    :key="item.code + item.isInvalid"
                     v-tooltip="{
                         message: getPromotionCodeDescription(item),
                         width: 220

@@ -2,16 +2,16 @@
  * @package admin
  */
 
-import type VueRouter from 'vue-router';
 import type { FullState } from 'src/core/factory/state.factory';
-import type { VueConstructor } from 'vue';
-import type Vue from 'vue';
+import type { App } from 'vue';
+import type { Router } from 'vue-router';
 import type AsyncComponentFactory from 'src/core/factory/async-component.factory';
+import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type ApplicationBootstrapper from 'src/core/application';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * View Adapter Boilerplate class which provides a blueprint for view adapters (like for React, VueJS, ...)
  */
 export default abstract class ViewAdapter {
@@ -25,9 +25,9 @@ export default abstract class ViewAdapter {
 
     public localeFactory: typeof LocaleFactory;
 
-    public root: Vue | null;
+    public root: App<Element> | null;
 
-    public router: VueRouter | undefined;
+    public router: Router | undefined;
 
     /**
      * @constructor
@@ -50,12 +50,12 @@ export default abstract class ViewAdapter {
      * Creates the main instance for the view layer.
      * Is used on startup process of the main application.
      */
-    abstract init(renderElement: string, router: VueRouter, providers: { [key: string]: unknown }): Vue | null;
+    abstract init(renderElement: string, router: Router, providers: { [key: string]: unknown }): App | null;
 
     /**
      * Initializes all core components as Vue components.
      */
-    abstract initComponents(renderElement: string, router: VueRouter, providers: unknown[]): void
+    abstract initComponents(renderElement: string, router: Router, providers: unknown[]): void
 
     abstract initDependencies(): void
 
@@ -63,28 +63,30 @@ export default abstract class ViewAdapter {
      * Returns the component as a Vue component.
      * Includes the full rendered template with all overrides.
      */
-    abstract createComponent(componentName: string): Promise<Vue>
+    abstract createComponent(componentName: string): Promise<App<Element>>
 
     /**
      * Returns a final Vue component by its name.
      */
-    abstract getComponent(componentName: string): Vue | null
+    abstract getComponent(componentName: string): App<Element> | null
 
     /**
      * Returns a final Vue component by its name without defineAsyncComponent
      * which cannot be used in the router.
      */
-    abstract getComponentForRoute(componentName: string): Vue | null
+    abstract getComponentForRoute(componentName: string): () => (
+        Promise<boolean | ComponentConfig> | App<Element> | undefined
+    )
 
     /**
      * Returns the complete set of available Vue components.
      */
-    abstract getComponents(): { [componentName: string]: Vue }
+    abstract getComponents(): { [componentName: string]: App<Element> }
 
     /**
      * Returns the adapter wrapper
      */
-    abstract getWrapper(): VueConstructor<Vue>
+    abstract getWrapper(): App<Element> | undefined
 
     /**
      * Returns the name of the adapter
@@ -94,10 +96,10 @@ export default abstract class ViewAdapter {
     /**
      * Returns the Vue.set function
      */
-    abstract setReactive(target: Vue, propertyName: string, value: unknown): unknown
+    abstract setReactive(target: unknown, propertyName: string, value: unknown): unknown
 
     /**
      * Returns the Vue.delete function
      */
-    abstract deleteReactive(target: Vue, propertyName: string): void
+    abstract deleteReactive(target: unknown, propertyName: string): void
 }

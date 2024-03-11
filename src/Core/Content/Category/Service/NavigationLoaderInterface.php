@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('content')]
+#[Package('inventory')]
 interface NavigationLoaderInterface
 {
     /**

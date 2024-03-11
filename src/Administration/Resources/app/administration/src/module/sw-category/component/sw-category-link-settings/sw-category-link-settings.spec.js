@@ -1,10 +1,7 @@
 /**
- * @package content
+ * @package inventory
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryLinkSettings from 'src/module/sw-category/component/sw-category-link-settings';
-
-Shopware.Component.register('sw-category-link-settings', swCategoryLinkSettings);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(category = {}) {
     const responses = global.repositoryFactoryMock.responses;
@@ -26,16 +23,20 @@ async function createWrapper(category = {}) {
         },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-category-link-settings'), {
-        stubs: {
-            'sw-card': true,
-            'sw-text-field': true,
-            'sw-single-select': true,
-            'sw-entity-single-select': true,
-            'sw-switch-field': true,
-            'sw-category-tree-field': true,
+    return mount(await wrapTestComponent('sw-category-link-settings', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-single-select': true,
+                'sw-entity-single-select': true,
+                'sw-switch-field': true,
+                'sw-category-tree-field': true,
+            },
         },
-        propsData: {
+        props: {
             category,
         },
     });
@@ -44,12 +45,6 @@ async function createWrapper(category = {}) {
 describe('src/module/sw-category/component/sw-category-link-settings', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an enabled text field for old configuration', async () => {
@@ -139,10 +134,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
             externalLink: 'https://',
         });
 
-        await wrapper.setData({
-            mainType: 'internal',
-        });
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-category-link-settings__type').vm.$emit('update:value', 'internal');
 
         expect(wrapper.vm.category.externalLink).toBeNull();
     });
@@ -155,9 +147,8 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
             internalLink: 'someUuid',
         });
 
-        await wrapper.setData({
-            mainType: 'external',
-        });
+        await wrapper.getComponent('.sw-category-link-settings__type').vm.$emit('update:value', 'external');
+
 
         expect(wrapper.vm.category.internalLink).toBeNull();
     });

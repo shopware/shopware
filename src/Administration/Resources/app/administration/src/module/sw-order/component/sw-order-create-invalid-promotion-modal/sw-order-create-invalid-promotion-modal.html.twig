@@ -16,8 +16,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_invalid_promotion_modal_lists %}
-    <template v-for="item in invalidPromotionCodes">
-        <li :key="item.code">
+    <template
+        v-for="item in invalidPromotionCodes"
+        :key="item.code"
+    >
+        <li
+        >
             - <strong>{{ item.code }}</strong>
         </li>
     </template>

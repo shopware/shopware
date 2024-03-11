@@ -4,11 +4,13 @@ const { Component, Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-entity-multi-id-select', {
     template,
     inheritAttrs: false,
+
+    emits: ['update:value'],
 
     inject: ['feature'],
 
@@ -16,13 +18,8 @@ Component.register('sw-entity-multi-id-select', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'ids',
-        event: 'change',
-    },
-
     props: {
-        ids: {
+        value: {
             type: Array,
             required: false,
             default() {
@@ -79,13 +76,13 @@ Component.register('sw-entity-multi-id-select', {
     },
 
     watch: {
-        ids() {
+        value() {
             if (this.collection === null) {
                 this.createdComponent();
                 return;
             }
 
-            if (this.collection.getIds() === this.ids) {
+            if (this.collection.getIds() === this.value) {
                 return;
             }
 
@@ -109,20 +106,20 @@ Component.register('sw-entity-multi-id-select', {
                 this.collection = collection;
             }
 
-            if (this.ids.length <= 0) {
+            if (this.value.length <= 0) {
                 this.collection = collection;
                 return Promise.resolve(this.collection);
             }
 
             const criteria = Criteria.fromCriteria(this.criteria);
-            criteria.setIds(this.ids);
+            criteria.setIds(this.value);
             criteria.setTerm('');
             criteria.queries = [];
 
             return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
 
-                if (!this.collection.length && this.ids.length) {
+                if (!this.collection.length && this.value.length) {
                     this.updateIds(this.collection);
                 }
 
@@ -133,13 +130,7 @@ Component.register('sw-entity-multi-id-select', {
         updateIds(collection) {
             this.collection = collection;
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:ids', collection.getIds());
-
-                return;
-            }
-
-            this.$emit('change', collection.getIds());
+            this.$emit('update:value', collection.getIds());
         },
     },
 });

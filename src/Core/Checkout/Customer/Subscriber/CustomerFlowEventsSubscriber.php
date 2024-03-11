@@ -18,7 +18,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CustomerFlowEventsSubscriber implements EventSubscriberInterface
 {
     /**

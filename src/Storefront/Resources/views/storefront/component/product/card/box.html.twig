@@ -7,33 +7,33 @@
     {% endif %}
 
     {% set sizes = {
-        'xs': '500px',
-        'sm': '315px',
-        'md': '390px',
-        'lg': '350px',
-        'xl': '280px'
+        xs: '500px',
+        sm: '315px',
+        md: '390px',
+        lg: '350px',
+        xl: '280px'
     } %}
 
     {% if layout == 'image' %}
         {% set sizes = {
-            'xs': '500px',
-            'sm': '500px',
-            'md': '390px',
-            'lg': '350px',
-            'xl': '280px'
+            xs: '500px',
+            sm: '500px',
+            md: '390px',
+            lg: '350px',
+            xl: '280px'
         } %}
     {% endif %}
 
     {% if layout == 'standard' %}
-        {% sw_include "@Storefront/storefront/component/product/card/box-standard.html.twig" %}
+        {% sw_include '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
     {% elseif layout == 'image' %}
-        {% sw_include "@Storefront/storefront/component/product/card/box-image.html.twig" %}
+        {% sw_include '@Storefront/storefront/component/product/card/box-image.html.twig' %}
     {% elseif layout == 'minimal' %}
-        {% sw_include "@Storefront/storefront/component/product/card/box-minimal.html.twig" %}
+        {% sw_include '@Storefront/storefront/component/product/card/box-minimal.html.twig' %}
     {% elseif layout == 'wishlist' %}
-        {% sw_include "@Storefront/storefront/component/product/card/box-wishlist.html.twig" %}
+        {% sw_include '@Storefront/storefront/component/product/card/box-wishlist.html.twig' %}
     {% else %}
-        {% set template = "@Storefront/storefront/component/product/card/box-" ~ layout ~ ".html.twig" %}
+        {% set template = '@Storefront/storefront/component/product/card/box-' ~ layout ~ '.html.twig' %}
         {% sw_include template ignore missing %}
     {% endif %}
 {% endblock %}

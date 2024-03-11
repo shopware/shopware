@@ -1,0 +1,22 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "SeoUrl": {
+                "type": "object",
+                "properties": {
+                    "routeName": {
+                        "type": "string",
+                        "enum": [
+                            "frontend.navigation.page",
+                            "frontend.landing.page",
+                            "frontend.detail.page"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

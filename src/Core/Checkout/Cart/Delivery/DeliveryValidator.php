@@ -15,15 +15,18 @@ class DeliveryValidator implements CartValidatorInterface
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         foreach ($cart->getDeliveries() as $delivery) {
-            $matches = \in_array($delivery->getShippingMethod()->getAvailabilityRuleId(), $context->getRuleIds(), true);
+            $shippingMethod = $delivery->getShippingMethod();
+            $ruleId = $shippingMethod->getAvailabilityRuleId();
 
-            if ($matches && $delivery->getShippingMethod()->getActive()) {
+            $matches = \in_array($ruleId, $context->getRuleIds(), true) || $ruleId === null;
+
+            if ($matches && $shippingMethod->getActive()) {
                 continue;
             }
 
             $errors->add(
                 new ShippingMethodBlockedError(
-                    (string) $delivery->getShippingMethod()->getTranslation('name')
+                    (string) $shippingMethod->getTranslation('name')
                 )
             );
         }

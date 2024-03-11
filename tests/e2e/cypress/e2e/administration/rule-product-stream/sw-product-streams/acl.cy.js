@@ -7,7 +7,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
         });
     });
 
-    it('@catalogue: can view product stream ', { tags: ['pa-business-ops'] }, () => {
+    it('@catalogue: can view product stream ', { tags: ['pa-services-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_stream',
@@ -78,7 +78,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
         cy.get('.sw-modal').should('be.visible');
     });
 
-    it('@catalogue: can edit product streams', { tags: ['pa-business-ops'] }, () => {
+    it('@catalogue: can edit product streams', { tags: ['pa-services-settings'] }, () => {
         cy.createProductFixture();
 
         cy.loginAsUserWithPermissions([
@@ -134,7 +134,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
         cy.contains('.sw-product-variant-info__product-name', 'Product name');
     });
 
-    it('@catalogue: can create product streams', { tags: ['pa-business-ops'] }, () => {
+    it('@catalogue: can create product streams', { tags: ['pa-services-settings'] }, () => {
         cy.createProductFixture();
 
         cy.intercept({
@@ -179,7 +179,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
         cy.contains('.sw-product-variant-info__product-name', 'Product name');
     });
 
-    it('@catalogue: can delete product streams', { tags: ['pa-business-ops'] }, () => {
+    it('@catalogue: can delete product streams', { tags: ['pa-services-settings'] }, () => {
         cy.createDefaultFixture('product-stream', {
             name: '2nd Productstream',
         });

@@ -1,0 +1,14 @@
+{% block page_account_default_address_actions %}
+    <div class="row">
+        {% block page_account_default_address_actions_edit %}
+            <div class="col p-0 pe-3">
+                <a href="{{ path('frontend.account.address.edit.page', {addressId: address.id}) }}"
+                   title="{{ 'account.addressesContentItemActionEdit'|trans|striptags }}"
+                   class="btn btn-link btn-sm p-0 address-action-edit">
+                    {% sw_icon 'paper-pencil' style {size: 'xs'} %}
+                    {{ 'account.addressesContentItemActionEdit'|trans|sw_sanitize }}
+                </a>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

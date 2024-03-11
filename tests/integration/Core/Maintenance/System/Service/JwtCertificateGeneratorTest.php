@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Maintenance\System\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 
 /**
- * @covers \Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator
- *
  * @internal
  */
+#[CoversClass(JwtCertificateGenerator::class)]
 class JwtCertificateGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

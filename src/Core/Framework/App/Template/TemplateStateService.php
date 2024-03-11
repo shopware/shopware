@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class TemplateStateService
@@ -20,28 +20,24 @@ class TemplateStateService
 
     public function activateAppTemplates(string $appId, Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
-        $criteria->addFilter(new EqualsFilter('active', false));
-
-        /** @var array<string> $templates */
-        $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
-
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $templates);
-
-        $this->templateRepo->update($updateSet, $context);
+        $this->updateAppTemplates($appId, $context, false, true);
     }
 
     public function deactivateAppTemplates(string $appId, Context $context): void
     {
+        $this->updateAppTemplates($appId, $context, true, false);
+    }
+
+    private function updateAppTemplates(string $appId, Context $context, bool $currentActiveState, bool $newActiveState): void
+    {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
-        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
         /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }

@@ -1,5 +1,4 @@
-image:
-  file: .gitpod.Dockerfile
+image: friendsofshopware/gitpod-shopware-workspace:latest
 
 tasks:
   - name: Shopware
@@ -11,27 +10,31 @@ tasks:
       composer config --global github-oauth.github.com $(printf '%s\n' host=github.com | gp credential-helper get | sort | head -2 | tail -1 | sed 's;password=;;')
       composer install
       ./bin/console system:setup -n --database-url "mysql://root:root@127.0.0.1:3306/shopware" --app-url "$(gp url 8000)" --app-env dev
+
+      mkdir -p config/packages
+
       # Setup Trusted Proxies
-      echo "TRUSTED_PROXIES=192.168.0.0/16" >> .env
+      echo "framework:" > config/packages/framework.yaml
+      echo "  trusted_proxies: '192.168.0.0/16'" >> config/packages/framework.yaml
       composer run setup
-      
+
       ./bin/console framework:demodata --products 300 -e prod
       ./bin/console dal:refresh:index -e prod
     command: |
       # Gitpod registers the ports on first docker command
       docker ps
-      
+
       # Wait for port open
       gp ports await 3306
-      
+
       # Wait until MySQL is reachable
       until mysqladmin ping; do
           sleep 1
       done
-      
+
       # Update domain url
       ./bin/console sales-channel:update:domain $(gp url 8000 | awk -F[/:] '{print $4}')
-      
+
       # Start Webserver
       symfony server:start --port 8000
   - name: Getting Started

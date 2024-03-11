@@ -55,8 +55,8 @@ class OpenApiDefinitionSchemaBuilder
         $requiredAttributes = [];
         $relationships = [];
 
-        $uuid = Uuid::randomHex();
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+        $uuid = Uuid::fromStringToHex($schemaName);
         $exampleDetailPath = $path . '/' . $uuid;
 
         $extensions = [];
@@ -226,12 +226,10 @@ class OpenApiDefinitionSchemaBuilder
     private function shouldFieldBeIncluded(Field $field, bool $forSalesChannel): bool
     {
         if ($field->getPropertyName() === 'translations'
-            || $field->getPropertyName() === 'id'
             || preg_match('#translations$#i', $field->getPropertyName())) {
             return false;
         }
 
-        /** @var ApiAware|null $flag */
         $flag = $field->getFlag(ApiAware::class);
         if ($flag === null) {
             return false;
@@ -270,7 +268,7 @@ class OpenApiDefinitionSchemaBuilder
                         'id' => [
                             'type' => 'string',
                             'pattern' => '^[0-9a-f]{32}$',
-                            'example' => Uuid::randomHex(),
+                            'example' => Uuid::fromStringToHex($field->getPropertyName()),
                         ],
                     ],
                 ],
@@ -311,7 +309,7 @@ class OpenApiDefinitionSchemaBuilder
                             ],
                             'id' => [
                                 'type' => 'string',
-                                'example' => Uuid::randomHex(),
+                                'example' => Uuid::fromStringToHex($field->getPropertyName()),
                             ],
                         ],
                     ],
@@ -505,7 +503,6 @@ class OpenApiDefinitionSchemaBuilder
 
     private function isWriteProtected(Field $field): bool
     {
-        /** @var WriteProtected|null $writeProtection */
         $writeProtection = $field->getFlag(WriteProtected::class);
         if ($writeProtection && !$writeProtection->isAllowed(Context::USER_SCOPE)) {
             return true;
@@ -516,7 +513,6 @@ class OpenApiDefinitionSchemaBuilder
 
     private function isDeprecated(Field $field): bool
     {
-        /** @var Deprecated|null $deprecated */
         $deprecated = $field->getFlag(Deprecated::class);
         if ($deprecated) {
             return true;

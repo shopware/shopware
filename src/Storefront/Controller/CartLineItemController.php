@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -15,7 +14,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -24,7 +23,7 @@ use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -234,6 +233,10 @@ class CartLineItemController extends StorefrontController
             $criteria = new Criteria();
             $criteria->setLimit(1);
             $criteria->addFilter(new EqualsFilter('productNumber', $number));
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('childCount', 0),
+                new EqualsFilter('childCount', null),
+            ]));
 
             $data = $this->productListRoute->load($criteria, $context)->getProducts()->getIds();
 
@@ -318,31 +321,7 @@ class CartLineItemController extends StorefrontController
                             return $this->createActionResponse($request);
                         }
 
-                        if ($e->getErrorCode() !== CartException::CART_LINE_ITEM_TYPE_NOT_SUPPORTED_CODE) {
-                            throw $e;
-                        }
-
-                        /**
-                         * @deprecated tag:v6.6.0 - remove complete catch below and just leave the try content
-                         */
-                        Feature::triggerDeprecationOrThrow(
-                            'v6.6.0.0',
-                            'With Shopware 6.6.0.0, you will only be able to create line items only with registered LineItemFactories',
-                        );
-
-                        $lineItem = new LineItem(
-                            $lineItemData->getAlnum('id'),
-                            $lineItemData->getAlnum('type'),
-                            $lineItemData->get('referencedId'),
-                            $lineItemData->getInt('quantity', 1)
-                        );
-
-                        $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
-                        $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
-
-                        $count += $lineItem->getQuantity();
-
-                        $items[] = $lineItem;
+                        throw $e;
                     }
                 }
 

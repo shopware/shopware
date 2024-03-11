@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
@@ -9,9 +11,8 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation
  */
+#[CoversClass(DatabaseConnectionInformation::class)]
 class DatabaseConnectionInformationTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -102,6 +103,52 @@ class DatabaseConnectionInformationTest extends TestCase
         ], $info->toDBALParameters());
     }
 
+    public function testAssignWithRequestStringValues(): void
+    {
+        $info = new DatabaseConnectionInformation();
+        $info->assign([
+            'hostname' => 'localhost',
+            'port' => '3307',
+            'username' => 'root',
+            'password' => 'root',
+            'databaseName' => 'shopware',
+            'sslDontVerifyServerCert' => 'on',
+        ]);
+
+        static::assertSame('localhost', $info->getHostname());
+        static::assertSame(3307, $info->getPort());
+        static::assertSame('root', $info->getUsername());
+        static::assertSame('root', $info->getPassword());
+        static::assertSame('shopware', $info->getDatabaseName());
+        static::assertNull($info->getSslCaPath());
+        static::assertNull($info->getSslCertPath());
+        static::assertNull($info->getSslCertKeyPath());
+        static::assertTrue($info->getSslDontVerifyServerCert());
+
+        static::assertTrue($info->hasAdvancedSetting());
+
+        // is valid, should not throw exception
+        $info->validate();
+
+        static::assertEquals([
+            'url' => 'mysql://root:root@localhost:3307/shopware',
+            'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::ATTR_STRINGIFY_FETCHES => true,
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ],
+        ], $info->toDBALParameters());
+
+        static::assertEquals([
+            'url' => 'mysql://root:root@localhost:3307',
+            'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::ATTR_STRINGIFY_FETCHES => true,
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ],
+        ], $info->toDBALParameters(true));
+    }
+
     public function testInvalid(): void
     {
         $info = new DatabaseConnectionInformation();
@@ -123,9 +170,7 @@ class DatabaseConnectionInformationTest extends TestCase
         $info->validate();
     }
 
-    /**
-     * @dataProvider dsnProvider
-     */
+    #[DataProvider('dsnProvider')]
     public function testAsDsn(DatabaseConnectionInformation $connectionInformation, bool $withoutDB, string $expectedDsn): void
     {
         $dsn = $connectionInformation->asDsn($withoutDB);
@@ -194,10 +239,9 @@ class DatabaseConnectionInformationTest extends TestCase
     }
 
     /**
-     * @dataProvider validEnvProvider
-     *
      * @param array<string, string|bool> $env
      */
+    #[DataProvider('validEnvProvider')]
     public function testFromEnv(array $env, DatabaseConnectionInformation $expected): void
     {
         $this->setEnvVars($env);
@@ -292,10 +336,9 @@ class DatabaseConnectionInformationTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidEnvProvider
-     *
      * @param array<string, string|bool> $env
      */
+    #[DataProvider('invalidEnvProvider')]
     public function testFromEnvWithInvalidEnv(array $env, string $expectedException): void
     {
         $this->setEnvVars($env);

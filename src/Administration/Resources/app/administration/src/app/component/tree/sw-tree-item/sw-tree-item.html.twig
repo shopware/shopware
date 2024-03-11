@@ -47,11 +47,7 @@
                 :disabled="currentEditElement === item.data.id"
                 :ghost-value="checkedGhost"
                 :value="checked"
-                {% if VUE3 %}
                 @update:value="toggleItemCheck($event, item)"
-                {% else %}
-                @change="toggleItemCheck($event, item)"
-                {% endif %}
             />
         </div>
         {% endblock %}
@@ -109,8 +105,8 @@
                         :prevent-empty-submit="true"
                         :placeholder="$tc(`${translationContext}.general.buttonCreate`)"
                         @input="onFinishNameingElement"
-                        @blur="onCancelSubmit(item)"
-                        @submit-cancel="onBlurTreeItemInput(item)"
+                        @blur="onBlurTreeItemInput(item)"
+                        @submit-cancel="onCancelSubmit(item)"
                     />
                 </template>
                 {% endblock %}

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
-use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\Context;
@@ -18,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class CmsBlockPersister
 {
+    /**
+     * @param EntityRepository<AppCmsBlockCollection> $cmsBlockRepository
+     */
     public function __construct(
         private readonly EntityRepository $cmsBlockRepository,
         private readonly AbstractBlockTemplateLoader $blockTemplateLoader,
@@ -42,7 +44,6 @@ class CmsBlockPersister
             $payload['template'] = $template;
             $payload['styles'] = $this->blockTemplateLoader->getStylesForBlock($cmsExtensions, $cmsBlock->getName());
 
-            /** @var AppCmsBlockEntity|null $existing */
             $existing = $existingCmsBlocks->filterByProperty('name', $cmsBlock->getName())->first();
             if ($existing) {
                 $payload['id'] = $existing->getId();
@@ -61,7 +62,6 @@ class CmsBlockPersister
 
     private function deleteOldCmsBlocks(AppCmsBlockCollection $toBeRemoved, Context $context): void
     {
-        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
@@ -76,9 +76,6 @@ class CmsBlockPersister
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
 
-        /** @var AppCmsBlockCollection $cmsBlocks */
-        $cmsBlocks = $this->cmsBlockRepository->search($criteria, $context)->getEntities();
-
-        return $cmsBlocks;
+        return $this->cmsBlockRepository->search($criteria, $context)->getEntities();
     }
 }

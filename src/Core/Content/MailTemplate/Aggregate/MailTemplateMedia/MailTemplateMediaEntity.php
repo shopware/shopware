@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailTemplateMediaEntity extends Entity
 {
     use EntityIdTrait;

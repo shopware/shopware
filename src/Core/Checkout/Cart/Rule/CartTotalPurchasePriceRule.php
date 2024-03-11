@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CartTotalPurchasePriceRule extends Rule
 {
     final public const RULE_NAME = 'cartTotalPurchasePrice';
@@ -56,7 +56,7 @@ class CartTotalPurchasePriceRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
-            ->selectField('type', ['gross', 'net'], false, ['class' => 'is--max-content'])
+            ->selectField('type', ['gross', 'net'], false)
             ->numberField('amount');
     }
 }

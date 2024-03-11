@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -16,17 +18,15 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator
  */
+#[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     /**
-     * @dataProvider dataProviderTestValidateSuccess
-     *
      * @param array<string, mixed> $inputValues
      * @param array<string, mixed> $formConfigs
      */
+    #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateSuccess(array $inputValues, array $formConfigs): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -45,11 +45,10 @@ class SystemConfigValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderTestValidateFailure
-     *
      * @param array<string, mixed> $inputValues
      * @param array<string, mixed> $formConfigs
      */
+    #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -72,10 +71,9 @@ class SystemConfigValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderTestValidateSuccess
-     *
      * @param array<string, mixed> $inputValues
      */
+    #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateWithEmptyConfig(array $inputValues): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -129,11 +127,10 @@ class SystemConfigValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderTestGetRuleByKey
-     *
      * @param array<string, mixed> $elementConfig
      * @param array<int, mixed> $expected
      */
+    #[DataProvider('dataProviderTestGetRuleByKey')]
     public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);

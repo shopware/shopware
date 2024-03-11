@@ -36,7 +36,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
     /**
      * @template TEntityCollection of EntityCollection
      *
-     * @param EntitySearchResult<TEntityCollection> $searchResult
+     * @param EntitySearchResult<covariant TEntityCollection> $searchResult
      * @param array<string, mixed>                 $parameters
      *
      * @return array{first?: string, prev?: string, next?: string, last?: string}

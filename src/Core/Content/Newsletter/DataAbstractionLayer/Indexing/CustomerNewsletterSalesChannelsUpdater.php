@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class CustomerNewsletterSalesChannelsUpdater
 {
     /**
@@ -83,7 +83,7 @@ SQL;
             $this->connection->executeStatement(
                 $resetSql,
                 $parameters,
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -91,7 +91,7 @@ SQL;
             $this->connection->executeStatement(
                 $sql,
                 $parameters,
-                ['ids' => ArrayParameterType::STRING, 'states' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY, 'states' => ArrayParameterType::STRING]
             );
         });
     }
@@ -141,7 +141,7 @@ SQL;
         $customers = $this->connection->fetchAllAssociative(
             'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $parameters = [];
@@ -151,10 +151,11 @@ SQL;
                 continue;
             }
 
+            $newsletterIds = array_keys(json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR));
+            $newsletterIds = array_map('\strval', $newsletterIds);
+
             $parameters[] = [
-                'newsletter_ids' => array_keys(
-                    json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR)
-                ),
+                'newsletter_ids' => $newsletterIds,
                 'email' => $customer['email'],
                 'first_name' => $customer['first_name'],
                 'last_name' => $customer['last_name'],
@@ -175,7 +176,7 @@ SQL;
                         'firstName' => $parameter['first_name'],
                         'lastName' => $parameter['last_name'],
                     ],
-                    ['ids' => ArrayParameterType::STRING],
+                    ['ids' => ArrayParameterType::BINARY],
                 );
             });
         }

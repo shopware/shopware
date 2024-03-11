@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\PaymentHandler;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
@@ -37,11 +39,10 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(PaymentHandlerRegistry::class)]
 class PaymentHandlerRegistryTest extends TestCase
 {
     /**
@@ -275,11 +276,10 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @dataProvider appPaymentMethodUrlProvider
-     *
      * @param array<string> $urls
      * @param class-string<PaymentHandlerInterface>|null $expectedResult
      */
+    #[DataProvider('appPaymentMethodUrlProvider')]
     public function testRegistryAppPaymentMethodResolve(array $urls, ?string $testedType, ?string $expectedResult): void
     {
         $result = $this->createMock(Result::class);

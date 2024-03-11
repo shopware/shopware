@@ -6,10 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-internal - Type hint to AbstractIncrementer, implementations are internal and should not be used for type hints
+ * @internal
  */
 #[Package('core')]
 class MySQLIncrementer extends AbstractIncrementer
@@ -19,11 +18,6 @@ class MySQLIncrementer extends AbstractIncrementer
      */
     public function __construct(private readonly Connection $connection)
     {
-    }
-
-    public function getDecorated(): AbstractIncrementer
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function increment(string $cluster, string $key): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Requirements\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
@@ -11,9 +13,8 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection
  */
+#[CoversClass(RequirementsCheckCollection::class)]
 class RequirementsCheckCollectionTest extends TestCase
 {
     public function testGetExpectedClass(): void
@@ -29,9 +30,8 @@ class RequirementsCheckCollectionTest extends TestCase
     /**
      * @param RequirementCheck[] $elements
      * @param RequirementCheck[] $expected
-     *
-     * @dataProvider pathCheckProvider
      */
+    #[DataProvider('pathCheckProvider')]
     public function testGetPathChecks(array $elements, array $expected): void
     {
         $collection = new RequirementsCheckCollection($elements);
@@ -68,9 +68,8 @@ class RequirementsCheckCollectionTest extends TestCase
     /**
      * @param RequirementCheck[] $elements
      * @param RequirementCheck[] $expected
-     *
-     * @dataProvider systemCheckProvider
      */
+    #[DataProvider('systemCheckProvider')]
     public function testGetSystemChecks(array $elements, array $expected): void
     {
         $collection = new RequirementsCheckCollection($elements);
@@ -106,9 +105,8 @@ class RequirementsCheckCollectionTest extends TestCase
 
     /**
      * @param RequirementCheck[] $elements
-     *
-     * @dataProvider errorProvider
      */
+    #[DataProvider('errorProvider')]
     public function testHasError(array $elements, bool $expected): void
     {
         $collection = new RequirementsCheckCollection($elements);
@@ -145,9 +143,8 @@ class RequirementsCheckCollectionTest extends TestCase
 
     /**
      * @param RequirementCheck[] $elements
-     *
-     * @dataProvider pathErrorProvider
      */
+    #[DataProvider('pathErrorProvider')]
     public function testHasPathError(array $elements, bool $expected): void
     {
         $collection = new RequirementsCheckCollection($elements);
@@ -184,9 +181,8 @@ class RequirementsCheckCollectionTest extends TestCase
 
     /**
      * @param RequirementCheck[] $elements
-     *
-     * @dataProvider systemErrorProvider
      */
+    #[DataProvider('systemErrorProvider')]
     public function testHasSystemError(array $elements, bool $expected): void
     {
         $collection = new RequirementsCheckCollection($elements);

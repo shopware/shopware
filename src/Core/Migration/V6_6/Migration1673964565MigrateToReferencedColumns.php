@@ -48,8 +48,4 @@ class Migration1673964565MigrateToReferencedColumns extends MigrationStep
             ');
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

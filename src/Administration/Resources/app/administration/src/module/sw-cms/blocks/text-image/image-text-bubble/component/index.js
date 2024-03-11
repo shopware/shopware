@@ -3,7 +3,7 @@ import './sw-cms-block-image-text-bubble.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

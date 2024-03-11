@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -35,7 +36,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'withoutPermissions']);
 
-        static::assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[OK] App withoutPermissions has been successfully installed.', $commandTester->getDisplay());
     }
@@ -46,7 +47,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'withPermissions', '-f' => true]);
 
-        static::assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[OK] App withPermissions has been successfully installed.', $commandTester->getDisplay());
     }
@@ -58,7 +59,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'withPermissions']);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header permissions
@@ -85,7 +86,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'withAllowedHosts']);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header domain
@@ -104,7 +105,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'withPermissions']);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header permissions
@@ -125,7 +126,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'withoutPermissions', '-a' => true]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[OK] App withoutPermissions has been successfully installed.', $commandTester->getDisplay());
     }
@@ -136,7 +137,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => 'Test']);
 
-        static::assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[INFO] Could not find any app with this name', $commandTester->getDisplay());
     }
@@ -147,10 +148,10 @@ class InstallAppCommandTest extends TestCase
         $commandTester->setInputs(['yes']);
 
         $commandTester->execute(['name' => 'withoutPermissions']);
-        static::assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
 
         $commandTester->execute(['name' => 'withoutPermissions']);
-        static::assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
         static::assertStringContainsString('[INFO] App withoutPermissions is already installed', $commandTester->getDisplay());
     }
 
@@ -160,7 +161,7 @@ class InstallAppCommandTest extends TestCase
         $commandTester->setInputs(['yes', 'yes']);
         $commandTester->execute(['name' => 'invalidWebhooks']);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         static::assertStringContainsString('App installation of invalidWebhooks failed due: ', $commandTester->getDisplay());
     }
 
@@ -170,7 +171,7 @@ class InstallAppCommandTest extends TestCase
         $commandTester->setInputs(['yes', 'yes']);
         $commandTester->execute(['name' => 'invalidWebhooks', '--no-validate' => true]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringContainsString('App invalidWebhooks has been successfully installed.', $commandTester->getDisplay());
     }
 
@@ -181,7 +182,7 @@ class InstallAppCommandTest extends TestCase
 
         $commandTester->execute(['name' => ['withoutPermissions', 'withPermissions'], '-a' => true, '-f' => true]);
 
-        static::assertEquals(Command::SUCCESS, $commandTester->getStatusCode());
+        static::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
 
         static::assertStringContainsString('[OK] App withoutPermissions has been successfully installed.', $commandTester->getDisplay());
         static::assertStringContainsString('[OK] App withPermissions has been successfully installed.', $commandTester->getDisplay());
@@ -190,7 +191,7 @@ class InstallAppCommandTest extends TestCase
     private function createCommand(string $appFolder): InstallAppCommand
     {
         return new InstallAppCommand(
-            new AppLoader($appFolder, __DIR__, $this->createMock(ConfigReader::class)),
+            new AppLoader($appFolder, __DIR__, $this->createMock(ConfigReader::class), new NullLogger()),
             $this->getContainer()->get(AppLifecycle::class),
             new AppPrinter($this->appRepository),
             $this->getContainer()->get(ManifestValidator::class)

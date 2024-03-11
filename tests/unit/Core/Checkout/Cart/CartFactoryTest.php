@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
@@ -9,9 +10,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\CartFactory
  */
+#[CoversClass(CartFactory::class)]
 class CartFactoryTest extends TestCase
 {
     public function testCreatesNewCart(): void

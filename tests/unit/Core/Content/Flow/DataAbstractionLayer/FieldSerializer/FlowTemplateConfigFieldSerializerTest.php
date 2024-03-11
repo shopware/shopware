@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
@@ -16,16 +17,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Validation;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer
  */
+#[Package('services-settings')]
+#[CoversClass(FlowTemplateConfigFieldSerializer::class)]
 class FlowTemplateConfigFieldSerializerTest extends TestCase
 {
     private FlowTemplateConfigFieldSerializer $serializer;
@@ -34,7 +34,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
     {
         parent::setUp();
 
-        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
 
         $this->serializer = new FlowTemplateConfigFieldSerializer($validator, $definitionRegistry);

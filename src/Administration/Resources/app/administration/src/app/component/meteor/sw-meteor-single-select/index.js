@@ -9,7 +9,7 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-meteor-single-select', {
     template,
@@ -19,11 +19,6 @@ Component.register('sw-meteor-single-select', {
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         options: {
@@ -92,12 +87,7 @@ Component.register('sw-meteor-single-select', {
                 return this.value;
             },
             set(newValue) {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-                    return;
-                }
-
-                this.$emit('change', newValue);
+                this.$emit('update:value', newValue);
             },
         },
 

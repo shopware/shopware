@@ -70,6 +70,11 @@ shopware.installer:
     database-configuration-create_new_database: 'Založit novou databázi'
     database-configuration_non_empty_database: 'Vybraná databáze již obsahuje data. Vyberte prázdnou databázi nebo vytvořte novou.'
     database-configuration_error_required_fields: 'Vyplňte všechna pole.'
+    database-configuration_fetch_error: 'Při načítání informací o databázi došlo k chybě'
+    database-configuration_access_denied: 'Přístup odepřen, přihlašovací údaje jsou nesprávné'
+    database-configuration_host_not_found: 'Nelze se připojit k databázovému serveru'
+    database-configuration_invalid_requirements: 'Shopware 6 vyžaduje minimálně MySQL 8.0.17 nebo MariaDB 10.11'
+    database-configuration_refresh_databases: 'Obnovit databáze'
     database-import_header: Instalace
     database-import_skip_import: Přeskočit
     database-import_progress: 'Pokrok: '

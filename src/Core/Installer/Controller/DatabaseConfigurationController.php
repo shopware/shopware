@@ -13,7 +13,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -87,7 +87,7 @@ class DatabaseConfigurationController extends InstallerController
         } catch (DatabaseSetupException $e) {
             return $this->renderInstaller('@Installer/installer/database-configuration.html.twig', [
                 'connectionInfo' => $connectionInfo,
-                'error' => $this->translator->trans('shopware.installer.database-configuration_error_required_fields'),
+                'error' => $this->translator->trans('shopware.installer.database-configuration_invalid_requirements'),
             ]);
         } catch (\Exception $e) {
             return $this->renderInstaller('@Installer/installer/database-configuration.html.twig', [
@@ -106,8 +106,15 @@ class DatabaseConfigurationController extends InstallerController
 
         try {
             $connection = $this->connectionFactory->getConnection($connectionInfo, true);
-        } catch (\Exception) {
-            return new JsonResponse();
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'error' => match (true) {
+                    $e instanceof DatabaseSetupException => $this->translator->trans('shopware.installer.database-configuration_invalid_requirements'),
+                    preg_match('/SQLSTATE\[HY000] \[1045]/', $e->getMessage()) === 1 => $this->translator->trans('shopware.installer.database-configuration_access_denied'),
+                    preg_match('/SQLSTATE\[HY000] \[2002]/', $e->getMessage()) === 1 => $this->translator->trans('shopware.installer.database-configuration_host_not_found'),
+                    default => $e->getMessage(),
+                },
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         // No need for listing the following schemas

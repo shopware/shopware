@@ -1,25 +1,31 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
-
 import { shallowMount } from '@vue/test-utils';
-import swSalesChannelDefaultsSelect from 'src/module/sw-sales-channel/component/sw-sales-channel-defaults-select';
-
-Shopware.Component.register('sw-sales-channel-defaults-select', swSalesChannelDefaultsSelect);
 
 async function createWrapper(customProps = {}) {
     const salesChannel = {};
     salesChannel.getEntityName = () => '';
 
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-defaults-select'), {
-        stubs: {
-            'sw-container': true,
-            'sw-entity-multi-select': true,
-            'sw-entity-single-select': true,
+    return shallowMount(await wrapTestComponent('sw-sales-channel-defaults-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-entity-multi-select': {
+                    template: '<div class="sw-entity-multi-select"></div>',
+                    props: ['disabled'],
+                },
+                'sw-entity-single-select': {
+                    template: '<div class="sw-entity-single-select"></div>',
+                    props: ['disabled'],
+                },
+            },
         },
-        propsData: {
-            salesChannel: salesChannel,
-            propertyName: '',
+        props: {
+            salesChannel,
+            propertyName: 'countries',
             propertyLabel: '',
             defaultPropertyName: '',
             defaultPropertyLabel: '',
@@ -29,20 +35,14 @@ async function createWrapper(customProps = {}) {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have selects enabled', async () => {
         const wrapper = await createWrapper();
 
-        const multiSelect = wrapper.find('sw-entity-multi-select-stub');
-        const singleSelect = wrapper.find('sw-entity-single-select-stub');
+        const multiSelect = wrapper.getComponent('.sw-sales-channel-detail__select-countries');
+        const singleSelect = wrapper.getComponent('.sw-sales-channel-detail__assign-countries');
 
-        expect(multiSelect.attributes().disabled).toBeUndefined();
-        expect(singleSelect.attributes().disabled).toBeUndefined();
+        expect(multiSelect.props('disabled')).toBe(false);
+        expect(singleSelect.props('disabled')).toBe(false);
     });
 
     it('should have selects disabled', async () => {
@@ -50,10 +50,10 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select
             disabled: true,
         });
 
-        const multiSelect = wrapper.find('sw-entity-multi-select-stub');
-        const singleSelect = wrapper.find('sw-entity-single-select-stub');
+        const multiSelect = wrapper.getComponent('.sw-sales-channel-detail__select-countries');
+        const singleSelect = wrapper.getComponent('.sw-sales-channel-detail__assign-countries');
 
-        expect(multiSelect.attributes().disabled).toBe('true');
-        expect(singleSelect.attributes().disabled).toBe('true');
+        expect(multiSelect.props('disabled')).toBe(true);
+        expect(singleSelect.props('disabled')).toBe(true);
     });
 });

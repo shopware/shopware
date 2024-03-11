@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Changelog;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -63,10 +64,9 @@ class ChangelogParserTest extends TestCase
     }
 
     /**
-     * @dataProvider provide
-     *
      * @param array<string, string|null> $expectedData
      */
+    #[DataProvider('provide')]
     public function testData(string $inFile, array $expectedData, string $outFile, int $expectedExceptions): void
     {
         $parser = self::getContainer()->get(ChangelogParser::class);

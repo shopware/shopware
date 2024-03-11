@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
+use Shopware\Storefront\Theme\ThemeScripts;
 
 #[Package('storefront')]
 class TemplateConfigAccessor
@@ -15,12 +16,13 @@ class TemplateConfigAccessor
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly ThemeConfigValueAccessor $themeConfigAccessor
+        private readonly ThemeConfigValueAccessor $themeConfigAccessor,
+        private readonly ThemeScripts $themeScripts
     ) {
     }
 
     /**
-     * @return string|bool|array|float|int|null
+     * @return string|bool|array<mixed>|float|int|null
      */
     public function config(string $key, ?string $salesChannelId)
     {
@@ -34,13 +36,24 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return string|bool|array|float|int|null
+     * @return string|bool|array<string, mixed>|float|int|null
      */
     public function theme(string $key, SalesChannelContext $context, ?string $themeId)
     {
         return $this->themeConfigAccessor->get($key, $context, $themeId);
     }
 
+    /**
+     * @return array<int, string> $items
+     */
+    public function scripts(): array
+    {
+        return $this->themeScripts->getThemeScripts();
+    }
+
+    /**
+     * @return array<string, int|string|bool> $items
+     */
     private function getStatic(): array
     {
         return [

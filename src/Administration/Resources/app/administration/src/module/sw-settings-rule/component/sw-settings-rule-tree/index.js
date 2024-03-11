@@ -1,9 +1,8 @@
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
-
     data() {
         return {
             selection: {},

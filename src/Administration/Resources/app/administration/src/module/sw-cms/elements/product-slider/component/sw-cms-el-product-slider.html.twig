@@ -53,13 +53,15 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_slider_products %}
-                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                <sw-cms-el-product-box
+                <template
                     v-for="(product, index) in element.data.products"
-                    v-if="index < sliderBoxLimit"
-                    :key="product.id"
-                    :element="getProductEl(product)"
-                />
+                    :key="index"
+                >
+                    <sw-cms-el-product-box
+                        v-if="index < sliderBoxLimit"
+                        :element="getProductEl(product)"
+                    />
+                </template>
                 {% endblock %}
             </template>
         </div>

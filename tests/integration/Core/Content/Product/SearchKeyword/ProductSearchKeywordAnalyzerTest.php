@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
@@ -136,9 +137,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider casesSearchBaseOnConfigField
-     */
+    #[DataProvider('casesSearchBaseOnConfigField')]
     public function testInsertIntoSearchKeywordForEn(bool $searchable, bool $tokenize, int $ranking): void
     {
         $this->updateProductSearchConfigField($this->enSearchConfigId, $searchable, $tokenize, $ranking);
@@ -216,9 +215,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         static::assertEquals($expected, $analyzerResult);
     }
 
-    /**
-     * @dataProvider casesSearchBaseOnConfigField
-     */
+    #[DataProvider('casesSearchBaseOnConfigField')]
     public function testInsertIntoSearchKeywordForDe(bool $searchable, bool $tokenize, int $ranking): void
     {
         $this->updateProductSearchConfigField($this->deSearchConfigId, $searchable, $tokenize, $ranking);

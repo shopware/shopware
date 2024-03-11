@@ -93,7 +93,7 @@ describe('Order: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
+    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');

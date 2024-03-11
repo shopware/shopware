@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionCollector implements CartDataCollectorInterface
 {
     use PromotionCartInformationTrait;

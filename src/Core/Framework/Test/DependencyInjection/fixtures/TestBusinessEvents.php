@@ -7,9 +7,6 @@ namespace Shopware\Core\Framework\Test\DependencyInjection\fixtures;
  */
 final class TestBusinessEvents
 {
-    /**
-     * @Event("Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestEvent")
-     */
     public const TEST_EVENT = TestEvent::EVENT_NAME;
 
     private function __construct()

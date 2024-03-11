@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package inventory
  */
 import './acl';
 

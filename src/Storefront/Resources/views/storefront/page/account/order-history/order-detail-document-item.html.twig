@@ -1,6 +1,6 @@
 {% block page_account_order_document_item_detail %}
     <div class="row order-detail-content-row">
-        {% set documentLink = path('frontend.account.order.single.document', {'documentId': document.id, 'deepLinkCode': document.deepLinkCode}) %}
+        {% set documentLink = path('frontend.account.order.single.document', {documentId: document.id, deepLinkCode: document.deepLinkCode}) %}
 
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
@@ -13,7 +13,7 @@
                     {% block page_account_order_document_item_detail_file_name_value %}
                         {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
                         {{ document.config.documentNumber }}_
-                        {{ document.createdAt|format_date(pattern="Y-MM-dd") }}.{{ document.fileType }}
+                        {{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ document.fileType }}
                     {% endblock %}
                 </a>
             </div>
@@ -21,7 +21,7 @@
 
         {% block page_account_order_document_item_detail_date %}
             <div class="col-9 col-md-4 document-item document-item-date">
-                {{ document.createdAt|format_date(pattern="dd/MM/Y HH:mm", locale=app.request.locale) }}
+                {{ document.createdAt|format_date(pattern='dd/MM/Y HH:mm', locale=app.request.locale) }}
             </div>
         {% endblock %}
 
@@ -31,7 +31,7 @@
                      <a href="{{ documentLink }}"
                         target="_blank"
                         class="btn btn-light btn-sm document-item-view-file-text-btn">
-                         {{ "account.documentItemViewFileButton"|trans|sw_sanitize }}
+                         {{ 'account.documentItemViewFileButton'|trans|sw_sanitize }}
                      </a>
                  {% endblock %}
 

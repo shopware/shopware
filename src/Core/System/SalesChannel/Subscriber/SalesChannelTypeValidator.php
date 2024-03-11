@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelTypeValidator implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -1,25 +1,26 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElSidebarFilter from 'src/module/sw-cms/elements/sidebar-filter/component';
-
-Shopware.Component.register('sw-cms-el-sidebar-filter', swCmsElSidebarFilter);
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-sidebar-filter'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-sidebar-filter', {
+        sync: true,
+    }), {
+        props: {
             element: {},
         },
-        stubs: {
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsElementRegistry: () => ({
-                    'sidebar-filter': {},
-                }),
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
+            provide: {
+                cmsService: {
+                    getCmsElementRegistry: () => ({
+                        'sidebar-filter': {},
+                    }),
+                },
             },
         },
     });

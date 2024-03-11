@@ -5,15 +5,15 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Exception as DbalDriverException;
 use Doctrine\DBAL\Exception as DbalException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1670090989AddIndexOrderOrderNumber;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1670090989AddIndexOrderOrderNumber
  */
+#[CoversClass(Migration1670090989AddIndexOrderOrderNumber::class)]
 class Migration1670090989AddIndexOrderOrderNumberTest extends TestCase
 {
     private Connection $connection;

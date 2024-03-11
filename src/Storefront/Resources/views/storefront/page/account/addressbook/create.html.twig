@@ -6,7 +6,7 @@
             <div class="account-welcome">
                 {% block page_account_address_form_welcome_headline %}
                     <h1>
-                        {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
+                        {{ 'account.addressCreateWelcome'|trans|sw_sanitize }}
                     </h1>
                 {% endblock %}
             </div>
@@ -21,23 +21,23 @@
                               data-form-validation="true">
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                    'data': data.get('address'),
-                                    'prefix': 'address',
-                                    'accountType': data.get('accountType')
+                                    data: data.get('address'),
+                                    prefix: 'address',
+                                    accountType: data.get('accountType')
                                 } %}
                             {% endblock %}
 
                             {% block page_account_address_form_create_general %}
                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                    'data': data.get('address'),
-                                    'prefix': 'address',
-                                    'showFormCompany': true
+                                    data: data.get('address'),
+                                    prefix: 'address',
+                                    showFormCompany: true
                                 } %}
                             {% endblock %}
 
                             {% block page_account_address_required %}
                                 <p class="address-required-info required-fields">
-                                    {{ "general.requiredFields"|trans|sw_sanitize }}
+                                    {{ 'general.requiredFields'|trans|sw_sanitize }}
                                 </p>
                             {% endblock %}
 
@@ -46,8 +46,8 @@
                                     {% block page_account_address_action_button_send %}
                                         <button type="submit"
                                                 class="address-form-submit btn btn-primary"
-                                                title="{{ "account.addressSaveChange"|trans|striptags }}">
-                                            {{ "account.addressSaveChange"|trans|sw_sanitize }}
+                                                title="{{ 'account.addressSaveChange'|trans|striptags }}">
+                                            {{ 'account.addressSaveChange'|trans|sw_sanitize }}
                                         </button>
                                     {% endblock %}
                                 </div>

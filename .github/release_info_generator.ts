@@ -33,12 +33,16 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
     const matches = body.match(ghsaRegex);
 
     if (matches === null || matches.length === 0) {
-        return [];
+        return list;
     }
 
     const unique = matches.filter((value, index, array) => array.indexOf(value) === index);
     for (let match of unique) {
         const json = await (await fetchGithub(`https://api.github.com/advisories/${match}`)).json();
+
+        if (json.severity === undefined) {
+            continue;
+        }
 
         list.push({
             severity: json.severity,

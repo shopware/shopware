@@ -13,13 +13,13 @@ use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class CachedSitemapRoute extends AbstractSitemapRoute
 {
     final public const ALL_TAG = 'sitemap-route';

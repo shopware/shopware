@@ -11,13 +11,19 @@
     {% block sw_bulk_edit_save_modal_body %}
     <div class="sw-bulk-edit-save-modal-body">
         <router-view
-            :item-total="itemTotal"
-            :bulk-edit-data="bulkEditData"
-            @changes-apply="applyChanges"
-            @buttons-update="updateButtons"
-            @redirect="redirect"
-            @title-set="setTitle"
-        />
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="itemTotal"
+                :bulk-edit-data="bulkEditData"
+                class="sw-bulk-edit-save-modal__component"
+                @changes-apply="applyChanges"
+                @buttons-update="updateButtons"
+                @redirect="redirect"
+                @title-set="setTitle"
+            />
+        </router-view>
     </div>
     {% endblock %}
 

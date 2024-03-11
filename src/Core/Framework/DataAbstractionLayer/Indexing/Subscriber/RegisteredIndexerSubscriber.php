@@ -64,7 +64,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
 
             $skipList = array_values(array_diff($indexer->getOptions(), $options));
 
-            $this->indexerRegistry->sendIndexingMessage([$indexerName], $skipList);
+            $this->indexerRegistry->sendIndexingMessage([$indexerName], $skipList, true);
         }
     }
 }

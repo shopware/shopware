@@ -1,4 +1,5 @@
 import template from './sw-extension-sdk-module.html.twig';
+import './sw-extension-sdk-module.scss';
 
 /**
  * @private Only to be used by the Admin extension API
@@ -10,6 +11,11 @@ Shopware.Component.register('sw-extension-sdk-module', {
         id: {
             type: String,
             required: true,
+        },
+        back: {
+            type: String,
+            required: false,
+            default: null,
         },
     },
 

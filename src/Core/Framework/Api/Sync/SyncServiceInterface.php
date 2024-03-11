@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 interface SyncServiceInterface
 {
     /**
-     * @param SyncOperation[] $operations
+     * @param list<SyncOperation> $operations
      *
      * @throws ConnectionException
      * @throws InvalidSyncOperationException

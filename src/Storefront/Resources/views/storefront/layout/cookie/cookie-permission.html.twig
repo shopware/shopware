@@ -7,10 +7,9 @@
             data-cookie-permission="true">
             <div class="container">
                 <div class="row align-items-center">
-
                     {% block layout_cookie_permission_inner_content %}
                         <div class="col cookie-permission-content">
-                            {{ "cookie.messageText"|trans({
+                            {{ 'cookie.messageText'|trans({
                                 '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
                             })|raw }}
                         </div>
@@ -23,7 +22,7 @@
                                     <button
                                         type="submit"
                                         class="btn btn-primary">
-                                        {{ "cookie.deny"|trans|sw_sanitize }}
+                                        {{ 'cookie.deny'|trans|sw_sanitize }}
                                     </button>
                                 </span>
                             {% endblock %}
@@ -33,7 +32,7 @@
                                     <button
                                         type="submit"
                                         class="btn btn-primary">
-                                        {{ "cookie.configure"|trans|sw_sanitize }}
+                                        {{ 'cookie.configure'|trans|sw_sanitize }}
                                     </button>
                                 </span>
                             {% endblock %}
@@ -44,7 +43,7 @@
                                         <button
                                             type="submit"
                                             class="btn btn-primary">
-                                            {{ "cookie.acceptAll"|trans|sw_sanitize }}
+                                            {{ 'cookie.acceptAll'|trans|sw_sanitize }}
                                         </button>
                                     </span>
                                 {% endblock %}

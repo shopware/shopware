@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor;
 use Shopware\Core\Framework\Log\Package;
@@ -16,13 +17,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 /**
- * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor
- *
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('cause')]
+#[CoversClass(AnnotatePackageProcessor::class)]
 class AnnotatePackageProcessorTest extends TestCase
 {
     public function testOnlyController(): void
@@ -248,11 +251,55 @@ class AnnotatePackageProcessorTest extends TestCase
 
         static::assertEquals($expected, $handler($record));
     }
+
+    public function testAnnotateCommandWithNestedException(): void
+    {
+        $exception = null;
+
+        try {
+            $command = new TestNestedCommand();
+            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+        } catch (\Throwable $e) {
+            $exception = $e;
+        }
+
+        $inner = $this->createMock(AbstractHandler::class);
+        $container = $this->createMock(ContainerInterface::class);
+        $handler = new AnnotatePackageProcessor($this->createMock(RequestStack::class), $container);
+
+        $context = [
+            'exception' => $exception,
+            'dataIsPassedThru' => true,
+        ];
+        $record = new LogRecord(
+            new \DateTimeImmutable(),
+            'business events',
+            Level::Error,
+            'Some message',
+            $context
+        );
+
+        $expected = new LogRecord(
+            $record->datetime,
+            $record->channel,
+            $record->level,
+            $record->message,
+            $context
+        );
+        $expected->extra[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = [
+            'entrypoint' => 'command',
+            'exception' => 'exception',
+            'causingClass' => 'command',
+        ];
+
+        static::assertEquals($expected, $handler($record));
+    }
 }
 
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('controller')]
 class TestController
 {
@@ -276,6 +323,7 @@ class TestControllerNoPackage
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('exception')]
 class TestException extends ShopwareHttpException
 {
@@ -299,6 +347,7 @@ class TestExceptionNoPackage extends ShopwareHttpException
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('command')]
 class TestCommand extends Command
 {
@@ -314,6 +363,23 @@ class TestCommand extends Command
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
+#[Package('command')]
+class TestNestedCommand extends Command
+{
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $testCause = new TestCause();
+        $testCause->throw(new HandlerFailedException(new Envelope(new \stdClass()), [new TestException('test')]));
+
+        return Command::SUCCESS;
+    }
+}
+
+/**
+ * @internal
+ */
+// @phpstan-ignore-next-line
 #[Package('cause')]
 class TestCause extends Command
 {

@@ -3,7 +3,7 @@ import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;

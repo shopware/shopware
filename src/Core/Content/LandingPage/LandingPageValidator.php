@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageValidator implements EventSubscriberInterface
 {
     /**

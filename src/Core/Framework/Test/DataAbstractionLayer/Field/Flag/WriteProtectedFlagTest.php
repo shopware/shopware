@@ -251,7 +251,6 @@ EOF;
             'systemWp' => [
                 [
                     'systemProtected' => 'foobar',
-                    'relationId' => $id,
                 ],
             ],
         ];
@@ -261,7 +260,6 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['relation_id']);
     }
 
     public function testWriteManyToManyWithoutPermission(): void

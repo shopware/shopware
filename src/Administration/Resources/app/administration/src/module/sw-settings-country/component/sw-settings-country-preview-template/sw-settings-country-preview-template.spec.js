@@ -1,11 +1,12 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings-country/component/sw-settings-country-preview-template';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order
  */
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-settings-country-preview-template'), {
+    return mount(await wrapTestComponent('sw-settings-country-preview-template', {
+        sync: true,
+    }), {
         propsData: {
             formattingAddress: 'Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)',
         },

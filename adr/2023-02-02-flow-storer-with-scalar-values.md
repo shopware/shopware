@@ -3,7 +3,7 @@ title: Flow storer with scalar values
 date: 2023-02-02
 area: core
 tags: [flow, storer, scalar, deprecation]
---- 
+---
 
 ## Context
 At the moment we have a bunch of different `FlowStorer` implementations. Most of them are used to store scalar values without any restore logic. Each of the Storer class has an own interface which is used to identify if the data of the event should be stored. This leads to much boilerplate code when adding new storer implementations or when plugins want to bypass some for events. 

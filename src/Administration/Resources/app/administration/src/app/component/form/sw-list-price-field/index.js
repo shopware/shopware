@@ -8,7 +8,7 @@ import './sw-list-price-field.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-list-price-field', {
     template,

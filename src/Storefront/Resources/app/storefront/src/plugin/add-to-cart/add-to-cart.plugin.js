@@ -3,7 +3,6 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
-import PluginManager from 'src/plugin-system/plugin.manager';
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
@@ -93,7 +92,7 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _openOffCanvasCarts(requestUrl, formData) {
-        const offCanvasCartInstances = PluginManager.getPluginInstances('OffCanvasCart');
+        const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
         Iterator.iterate(offCanvasCartInstances, instance => this._openOffCanvasCart(instance, requestUrl, formData));
     }
 

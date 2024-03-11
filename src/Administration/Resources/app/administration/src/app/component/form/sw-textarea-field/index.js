@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description textarea input field.
  * @status ready
  * @example-type static
@@ -16,6 +16,11 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-textarea-field', {
     template,
     inheritAttrs: false,
+
+    emits: [
+        'update:value',
+        'change',
+    ],
 
     inject: ['feature'],
 
@@ -50,12 +55,7 @@ Component.register('sw-textarea-field', {
 
     methods: {
         onInput(event) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', event.target.value);
-                return;
-            }
-
-            this.$emit('input', event.target.value);
+            this.$emit('update:value', event.target.value);
         },
 
         onChange(event) {

@@ -4,18 +4,18 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Metrics/Api/**/*Controller.php" type="annotation" />
-    <import resource="../../User/Api/**/*Controller.php" type="annotation" />
-    <import resource="../../CustomEntity/Api/*Controller.php" type="annotation" />
-    <import resource="../../Snippet/**/*Controller.php" type="annotation" />
-    <import resource="../../CustomField/**/*Controller.php" type="annotation" />
-    <import resource="../../SystemConfig/**/*Controller.php" type="annotation" />
-    <import resource="../../NumberRange/**/*Controller.php" type="annotation" />
-    <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="annotation" />
-    <import resource="../../SalesChannel/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../StateMachine/Api/*Controller.php" type="annotation" />
-    <import resource="../../Currency/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Language/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Salutation/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Country/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../UsageData/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../User/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../CustomEntity/Api/*Controller.php" type="attribute" />
+    <import resource="../../Snippet/**/*Controller.php" type="attribute" />
+    <import resource="../../CustomField/**/*Controller.php" type="attribute" />
+    <import resource="../../SystemConfig/**/*Controller.php" type="attribute" />
+    <import resource="../../NumberRange/**/*Controller.php" type="attribute" />
+    <import resource="../../SalesChannel/SalesChannel/**/*Controller.php" type="attribute" />
+    <import resource="../../SalesChannel/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../StateMachine/Api/*Controller.php" type="attribute" />
+    <import resource="../../Currency/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Language/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Salutation/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Country/SalesChannel/**/*Route.php" type="attribute" />
 </routes>

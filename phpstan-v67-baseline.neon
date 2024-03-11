@@ -1,0 +1,26 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Storefront/Page/Account/Order/AccountOrderPage.php
+
+		-
+			message: "#^Parameter \\#1 \\$orders of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountOrderPage\\:\\:setOrders\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
+			count: 1
+			path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
+
+		-
+			message: "#^Parameter \\#1 \\$searchResult of class Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ProductReviewLoader.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ProductReviewsLoadedEvent.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php

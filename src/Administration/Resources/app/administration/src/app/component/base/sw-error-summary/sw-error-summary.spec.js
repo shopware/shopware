@@ -2,9 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-error-summary/index';
-import 'src/app/component/base/sw-alert/index';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(errors = {}, options = {}) {
     if (typeof Shopware.State.get('error') !== 'undefined') {
@@ -20,13 +18,15 @@ async function createWrapper(errors = {}, options = {}) {
     });
     Shopware.State.getters['error/getAllApiErrors'] = () => [errors];
 
-    return shallowMount(await Shopware.Component.build('sw-error-summary'), {
-        stubs: {
-            'sw-alert': await Shopware.Component.build('sw-alert'),
-            'sw-icon': true,
-        },
+    return mount(await wrapTestComponent('sw-error-summary', { sync: true }), {
         attachTo: document.body,
-        ...options,
+        global: {
+            stubs: {
+                'sw-alert': await wrapTestComponent('sw-alert'),
+                'sw-icon': true,
+            },
+            ...options,
+        },
     });
 }
 
@@ -36,10 +36,6 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', () => {

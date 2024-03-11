@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
@@ -21,17 +23,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater
  */
+#[CoversClass(ProductStreamUpdater::class)]
 class ProductStreamUpdaterTest extends TestCase
 {
     /**
-     * @dataProvider filterProvider
-     *
      * @param string[] $ids
      * @param array<int, array<string, bool|string>> $filters
      */
+    #[DataProvider('filterProvider')]
     public function testCriteriaWithUpdateProducts(array $ids, array $filters, Criteria $criteria): void
     {
         $context = Context::createDefaultContext();
@@ -63,11 +63,10 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
-     * @dataProvider filterProvider
-     *
      * @param string[] $ids
      * @param array<int, array<string, bool|string>> $filters
      */
+    #[DataProvider('filterProvider')]
     public function testCriteriaWithHandle(array $ids, array $filters, Criteria $criteria): void
     {
         $context = Context::createDefaultContext();

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -25,9 +24,10 @@ use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('checkout')]
-class StateMachineRegistry
+class StateMachineRegistry implements ResetInterface
 {
     /**
      * @var StateMachineEntity[]
@@ -152,14 +152,9 @@ class StateMachineRegistry
                 'toStateId' => $toPlace->getId(),
                 'transitionActionName' => $transition->getTransitionName(),
                 'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+                'referencedId' => $transition->getEntityId(),
+                'referencedVersionId' => $context->getVersionId(),
             ];
-
-            if (Feature::isActive('v6.6.0.0')) {
-                $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
-                $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
-            } else {
-                $stateMachineHistoryEntity['entityId'] = ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()];
-            }
 
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
 
@@ -212,6 +207,11 @@ class StateMachineRegistry
 
             return $stateMachineStateCollection;
         });
+    }
+
+    public function reset(): void
+    {
+        $this->stateMachines = [];
     }
 
     /**

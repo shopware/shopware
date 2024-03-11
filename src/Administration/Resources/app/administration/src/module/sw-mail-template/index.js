@@ -12,6 +12,9 @@ Shopware.Component.register('sw-mail-header-footer-detail', () => import('./page
 Shopware.Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail', () => import('./page/sw-mail-header-footer-create'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {
     type: 'core',

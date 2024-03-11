@@ -1,7 +1,5 @@
 import template from './sw-settings-payment-create.html.twig';
 
-const utils = Shopware.Utils;
-
 /**
  * @package checkout
  */
@@ -9,21 +7,13 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    beforeRouteEnter(to, from, next) {
-        if (to.name.includes('sw.settings.payment.create') && !to.params.id) {
-            to.params.id = utils.createId();
-        }
-
-        next();
-    },
-
     methods: {
         createdComponent() {
             if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
                 Shopware.State.commit('context/resetLanguageToDefault');
             }
 
-            this.paymentMethod = this.paymentMethodRepository.create(Shopware.Context.api, this.$route.params.id);
+            this.paymentMethod = this.paymentMethodRepository.create();
         },
 
         onSave() {

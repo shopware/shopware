@@ -41,7 +41,7 @@
             type="small"
             :value="filterSettings?.emptySnippets"
             :label="$tc('sw-settings-snippet.filter.showOnlyEmpty')"
-            @change="onChange"
+            @update:value="onChange"
         />
         {% endblock %}
 
@@ -53,7 +53,7 @@
             type="small"
             :value="filterSettings?.editedSnippets"
             :label="$tc('sw-settings-snippet.filter.showOnlyCustom')"
-            @change="onChange"
+            @update:value="onChange"
         />
         {% endblock %}
 
@@ -65,7 +65,7 @@
             type="small"
             :value="filterSettings?.addedSnippets"
             :label="$tc('sw-settings-snippet.filter.showOnlyAdded')"
-            @change="onChange"
+            @update:value="onChange"
         />
         {% endblock %}
 
@@ -85,7 +85,7 @@
                         :name="item"
                         :value="filterSettings?.[item]"
                         :label="item"
-                        @change="onChange"
+                        @update:value="onChange"
                     />
                 </div>
             </template>
@@ -108,7 +108,7 @@
                         :name="item"
                         :value="filterSettings?.[item]"
                         :label="item"
-                        @change="onChange"
+                        @update:value="onChange"
                     />
                 </div>
             </template>

@@ -4,8 +4,7 @@
 
 import { CookieStorage } from 'cookie-storage';
 import html2canvas from 'html2canvas';
-import type VueRouter from 'vue-router';
-import type { Router } from 'vue-router_v3';
+import type { Router } from 'vue-router';
 
 /** @private */
 export interface AuthObject {
@@ -41,6 +40,8 @@ export interface LoginService {
     verifyUserToken: (password: string) => Promise<string>,
     getStorage: () => CookieStorage,
 }
+
+let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLoginService(
@@ -253,7 +254,6 @@ export default function createLoginService(
     /**
      * Refresh token in half of expiry time
      */
-    let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
     function autoRefreshToken(expiryTimestamp: number):void {
         if (autoRefreshTokenTimeoutId) {
             clearTimeout(autoRefreshTokenTimeoutId);
@@ -288,9 +288,10 @@ export default function createLoginService(
     }
 
     function shouldConsiderUserActivity(): boolean {
+        const rememberMe = Number(localStorage.getItem('rememberMe') || 0);
         const devEnv = Shopware.Context.app.environment === 'development';
 
-        return !devEnv;
+        return !devEnv && rememberMe < +new Date();
     }
 
     /**
@@ -345,64 +346,40 @@ export default function createLoginService(
     function forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void {
         notifyOnLogoutListener();
 
-        // For Vue 3 the router is available in the Shopware.Application.view.router and the currentRoute is a ref object
-        if (window._features_.vue3) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const router = Shopware.Application.view.router as null | Router;
-            if (router) {
-                const id = Shopware.Utils.createId();
-
-                sessionStorage.setItem(`sw-admin-previous-route_${id}`, JSON.stringify({
-                    fullPath: router.currentRoute.value.fullPath,
-                    name: router.currentRoute.value.name,
-                }));
-
-                if (isInactivityLogout && shouldRedirect) {
-                    // Prevent multiple logout calls
-                    if (window.processingInactivityLogout) {
-                        return;
-                    }
-                    // @ts-expect-error - The app element exists
-                    void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
-                        window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
-
-                        window.sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
-
-                        window.processingInactivityLogout = true;
-
-                        void router.push({ name: 'sw.inactivity.login.index', params: { id } });
-                    });
-                } else {
-                    void router.push({ name: 'sw.login.index' });
-                }
-            }
-
-            return;
-        }
-
         // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const $router = Shopware.Application.getApplicationRoot().$router as null | VueRouter;
-        if ($router) {
+        const router = Shopware.Application.view.router as null | Router;
+        if (router) {
             const id = Shopware.Utils.createId();
 
             sessionStorage.setItem(`sw-admin-previous-route_${id}`, JSON.stringify({
-                fullPath: $router.currentRoute.fullPath,
-                name: $router.currentRoute.name,
+                fullPath: router.currentRoute.value.fullPath,
+                name: router.currentRoute.value.name,
             }));
 
             if (isInactivityLogout && shouldRedirect) {
+                // Prevent multiple logout calls
+                if (window.processingInactivityLogout) {
+                    return;
+                }
                 // @ts-expect-error - The app element exists
                 void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
-                    window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+                    try {
+                        window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+                    } catch (e) {
+                        // empty catch intended
+                        // Calling toDataURL on a canvas with images from a different origin or css rules
+                        // that contain urls to images from a different origin will throw a security error in Safari.
+                    }
 
                     window.sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
 
-                    void $router.push({ name: 'sw.inactivity.login.index', params: { id } });
+                    window.processingInactivityLogout = true;
+
+                    void router.push({ name: 'sw.inactivity.login.index', params: { id } });
                 });
             } else {
-                void $router.push({ name: 'sw.login.index' });
+                void router.push({ name: 'sw.login.index' });
             }
         }
     }

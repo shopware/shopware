@@ -5,8 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @component-example
@@ -19,4 +18,10 @@ const { Component } = Shopware;
  */
 Component.extend('sw-price-preview', 'sw-price-field', {
     template,
+
+    computed: {
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+    },
 });

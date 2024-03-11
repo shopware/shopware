@@ -22,6 +22,9 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
         return self::DELTA_NAME;
     }
 
+    /**
+     * @return array<string, PermissionCollection>
+     */
     public function getReport(Manifest $manifest, AppEntity $app): array
     {
         $permissions = $manifest->getPermissions();
@@ -55,13 +58,18 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
         return \count($privilegesDelta) > 0;
     }
 
+    /**
+     * @param array<string> $appPrivileges
+     *
+     * @return list<array<'entity'|'operation', string>>
+     */
     private function makePermissions(array $appPrivileges): array
     {
         $permissions = [];
 
         foreach ($appPrivileges as $privilege) {
             if ($this->isCrudPrivilege($privilege)) {
-                $entityAndOperation = explode(':', (string) $privilege);
+                $entityAndOperation = explode(':', $privilege);
                 if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
                     $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
 
@@ -80,6 +88,11 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
         return substr_count($privilege, ':') === 1;
     }
 
+    /**
+     * @param array<string> $privilegesDelta
+     *
+     * @return array<string, PermissionCollection>
+     */
     private function makeCategorizedPermissions(array $privilegesDelta): array
     {
         $permissions = $this->makePermissions($privilegesDelta);

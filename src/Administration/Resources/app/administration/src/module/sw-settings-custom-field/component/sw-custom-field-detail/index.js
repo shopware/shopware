@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
@@ -49,7 +49,7 @@ export default {
             return this.currentCustomField.config.customFieldType;
         },
         renderComponentName() {
-            return this.fieldTypes[this.currentCustomField.config.customFieldType].configRenderComponent;
+            return this.fieldTypes[this.currentCustomField.config.customFieldType]?.configRenderComponent;
         },
         modalTitle() {
             if (this.currentCustomField._isNew) {
@@ -199,8 +199,8 @@ export default {
             }
 
             this.currentCustomField.config = {
-                ...this.currentCustomField.config,
                 ...this.fieldTypes[customFieldType].config,
+                ...this.currentCustomField.config,
             };
         },
 

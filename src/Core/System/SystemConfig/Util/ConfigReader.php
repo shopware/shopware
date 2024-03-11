@@ -19,6 +19,8 @@ class ConfigReader extends XmlReader
 
     /**
      * @throws BundleConfigNotFoundException
+     *
+     * @return array<array<string, mixed>>
      */
     public function getConfigFromBundle(Bundle $bundle, ?string $bundleConfigName = null): array
     {
@@ -44,6 +46,9 @@ class ConfigReader extends XmlReader
         return $this->getCardDefinitions($xml);
     }
 
+    /**
+     * @return array<array{title: array<string, string|null>, name: string|null, elements: array<int, array<string, mixed>>, flag?: string|null}>
+     */
     private function getCardDefinitions(\DOMDocument $xml): array
     {
         $cardDefinitions = [];
@@ -63,6 +68,9 @@ class ConfigReader extends XmlReader
         return $cardDefinitions;
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     private function getCardTitles(\DOMElement $element): array
     {
         $titles = [];
@@ -73,14 +81,16 @@ class ConfigReader extends XmlReader
         return $titles;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getElements(\DOMElement $xml): array
     {
         $elements = [];
         $count = 0;
-        /** @var \DOMElement $element */
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
-            if ($nodeName === 'title' || $nodeName === 'name' || $nodeName === 'flag') {
+            if (\in_array($nodeName, ['title', 'name', 'flag'], true)) {
                 continue;
             }
 
@@ -119,6 +129,9 @@ class ConfigReader extends XmlReader
         return null;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function elementToArray(\DOMElement $element): array
     {
         $options = static::getAllChildren($element);
@@ -131,7 +144,9 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @param array<\DOMElement> $options
+     * @param list<\DOMElement> $options
+     *
+     * @return array<string, mixed>
      */
     private function getElementDataForComponent(\DOMElement $element, array $options): array
     {
@@ -142,6 +157,11 @@ class ConfigReader extends XmlReader
         return $this->addOptionsToElementData($options, $elementData);
     }
 
+    /**
+     * @param list<\DOMElement> $options
+     *
+     * @return array<string, mixed>
+     */
     private function getElementDataForInputField(\DOMElement $element, array $options): array
     {
         $swFieldType = $element->getAttribute('type') ?: 'text';
@@ -154,7 +174,7 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @param array<\DOMElement> $options
+     * @param list<\DOMElement> $options
      * @param array<string, mixed> $elementData
      *
      * @return array<string, mixed>
@@ -186,6 +206,9 @@ class ConfigReader extends XmlReader
         return $elementData;
     }
 
+    /**
+     * @return array<array{id: string|null, name: array<string, string|null>}>
+     */
     private function optionsToArray(\DOMElement $element): array
     {
         $options = [];
@@ -205,6 +228,9 @@ class ConfigReader extends XmlReader
         return $options;
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     private function getOptionLabels(\DOMElement $option): array
     {
         $optionLabels = [];

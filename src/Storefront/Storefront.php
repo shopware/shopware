@@ -3,10 +3,10 @@
 namespace Shopware\Storefront;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
-use Shopware\Storefront\DependencyInjection\ReverseProxyCompilerPass;
 use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompilerPass;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Config\FileLocator;
@@ -39,6 +39,9 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('seo.xml');
         $loader->load('controller.xml');
         $loader->load('theme.xml');
+        if (!Feature::isActive('v6.7.0.0')) {
+            $loader->load('theme_6_6_0.xml');
+        }
 
         /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
@@ -48,7 +51,6 @@ class Storefront extends Bundle implements ThemeInterface
         $container->setParameter('storefrontRoot', $this->getPath());
 
         $container->addCompilerPass(new DisableTemplateCachePass());
-        $container->addCompilerPass(new ReverseProxyCompilerPass());
         $container->addCompilerPass(new StorefrontMigrationReplacementCompilerPass());
     }
 

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -64,6 +65,7 @@ class CustomEntityDefinition extends EntityDefinition
             (new BoolField('store_api_aware', 'storeApiAware'))->addFlags(new Runtime()),
             new BoolField('custom_fields_aware', 'customFieldsAware'),
             new StringField('label_property', 'labelProperty'),
+            new DateTimeField('deleted_at', 'deletedAt'),
         ]);
     }
 }

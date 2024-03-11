@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -15,9 +16,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator
  */
+#[CoversClass(ElasticsearchEntityAggregator::class)]
 class ElasticsearchEntityAggregatorTest extends TestCase
 {
     public function testAggregateWithTimeout(): void

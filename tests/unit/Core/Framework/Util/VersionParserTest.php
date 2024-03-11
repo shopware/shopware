@@ -2,20 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\VersionParser;
 use Shopware\Core\Kernel;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\VersionParser
  */
+#[CoversClass(VersionParser::class)]
 class VersionParserTest extends TestCase
 {
-    /**
-     * @dataProvider provideVersions
-     */
+    #[DataProvider('provideVersions')]
     public function testParseShopwareVersion(string $unparsedVersion, string $parsedVersion, string $parsedRevision): void
     {
         $version = VersionParser::parseShopwareVersion($unparsedVersion);

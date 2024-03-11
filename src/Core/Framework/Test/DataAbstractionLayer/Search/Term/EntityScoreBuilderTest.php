@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -54,9 +55,7 @@ class EntityScoreBuilderTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    /**
-     * @dataProvider validDateTerms
-     */
+    #[DataProvider('validDateTerms')]
     public function testValidDateTerms(string $dateTerm): void
     {
         $builder = new EntityScoreQueryBuilder();
@@ -77,9 +76,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider inValidDateTerms
-     */
+    #[DataProvider('inValidDateTerms')]
     public function testInValidDateTerms(string $dateTerm): void
     {
         $builder = new EntityScoreQueryBuilder();
@@ -100,9 +97,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider searchCustomerEmail
-     */
+    #[DataProvider('searchCustomerEmail')]
     public function testSearchTokenizeTerm(bool $tokenize, string $term): void
     {
         $builder = new EntityScoreQueryBuilder();

@@ -12,20 +12,12 @@
             v-bind="{ onInput, selectedSalesChannelId, salesChannel }"
         >
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="selectedSalesChannelId"
-                {% else %}
-                v-model="selectedSalesChannelId"
-                {% endif %}
                 :options="salesChannel"
                 label-property="translated.name"
                 value-property="id"
                 show-clearable-button
-                {% if VUE3 %}
                 @update:value="onInput"
-                {% else %}
-                @change="onInput"
-                {% endif %}
             />
         </slot>
         {% endblock %}

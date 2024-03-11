@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -14,9 +15,8 @@ use Shopware\Core\Migration\V6_5\Migration1673420896RemoveUndefinedSalutation;
  * @package core
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1673420896RemoveUndefinedSalutation
  */
+#[CoversClass(Migration1673420896RemoveUndefinedSalutation::class)]
 class Migration1673420896RemoveUndefinedSalutationTest extends TestCase
 {
     private const ASSOCIATION_TABLES = [

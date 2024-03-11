@@ -19,11 +19,11 @@
                     <select id="personalBirthday"
                             name="birthdayDay"
                             class="form-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
-                            required="required">
+                            {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                         {% if not birthday %}
                             <option selected="selected"
                                     value="">
-                                {{ "account.personalBirthdaySelectDay"|trans|sw_sanitize }}
+                                {{ 'account.personalBirthdaySelectDay'|trans|sw_sanitize }}
                             </option>
                         {% endif %}
                         {% for day in range(1, 31) %}
@@ -48,11 +48,11 @@
                 <div class="form-group col-4 col-md-2">
                     <select name="birthdayMonth"
                             class="form-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
-                            required="required">
+                            {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                         {% if not birthmonth %}
                             <option selected="selected"
                                     value="">
-                                {{ "account.personalBirthdaySelectMonth"|trans|sw_sanitize }}
+                                {{ 'account.personalBirthdaySelectMonth'|trans|sw_sanitize }}
                             </option>
                         {% endif %}
                         {% for month in range(1, 12) %}
@@ -75,16 +75,16 @@
 
             {% block page_account_profile_personal_fields_birthday_select_year %}
                 <div class="form-group col-4 col-md-2">
-                    {% set currentYear = "now"|date('Y') %}
+                    {% set currentYear = 'now'|date('Y') %}
                     {% set startYear = currentYear - 120 %}
 
                     <select name="birthdayYear"
                             class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
-                            required="required">
+                            {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                         {% if not birthyear %}
                             <option selected="selected"
                                     value="">
-                                {{ "account.personalBirthdaySelectYear"|trans|sw_sanitize }}
+                                {{ 'account.personalBirthdaySelectYear'|trans|sw_sanitize }}
                             </option>
                         {% endif %}
                         {% for year in range(currentYear, startYear) %}

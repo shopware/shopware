@@ -38,7 +38,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header
@@ -53,7 +53,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute(['-f' => true]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header
@@ -69,7 +69,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         static::assertStringContainsString('Aborting due to user input.', $commandTester->getDisplay());
     }
 
@@ -80,7 +80,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[CAUTION] App "withPermissions" should be installed', $display);
@@ -111,7 +111,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[CAUTION] App "withPermissions" should be installed', $display);
@@ -133,7 +133,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[CAUTION] App "withAllowedHosts" should be installed', $display);
@@ -156,7 +156,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[CAUTION] App "withAllowedHosts" should be installed', $display);
@@ -179,7 +179,6 @@ class RefreshAppCommandTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -193,7 +192,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[CAUTION] App "withPermissions" should be updated', $display);
@@ -227,7 +226,6 @@ class RefreshAppCommandTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -241,7 +239,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[CAUTION] App "withPermissions" should be updated', $display);
@@ -261,7 +259,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
 
         static::assertStringContainsString('Nothing to install, update or delete.', $commandTester->getDisplay());
     }
@@ -273,7 +271,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(0, $commandTester->getStatusCode());
+        static::assertSame(0, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header
@@ -282,7 +280,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*registrationFailure.*The app server provided an invalid proof/', $display);
 
         $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertEquals(0, $registeredApps->getTotal());
+        static::assertSame(0, $registeredApps->getTotal());
     }
 
     public function testRefreshValidationFailure(): void
@@ -292,14 +290,14 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         static::assertStringContainsString('[ERROR] The app "validationFailures" is invalid:', $display);
         static::assertStringContainsString('[ERROR] The app "validationFailure" is invalid:', $display);
 
         $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertEquals(0, $registeredApps->getTotal());
+        static::assertSame(0, $registeredApps->getTotal());
     }
 
     public function testRefreshInvalidAppWithNoValidate(): void

@@ -147,7 +147,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return new SystemSource();
         }
 
-        $clientId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
+        $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
         $keyOrigin = AccessKeyHelper::getOrigin($clientId);
 
         if ($keyOrigin === 'user') {

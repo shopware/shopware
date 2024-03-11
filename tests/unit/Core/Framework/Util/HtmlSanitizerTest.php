@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\HtmlSanitizer
  */
+#[CoversClass(HtmlSanitizer::class)]
 class HtmlSanitizerTest extends TestCase
 {
     public function testAllowDisablingHtmlSanitizer(): void

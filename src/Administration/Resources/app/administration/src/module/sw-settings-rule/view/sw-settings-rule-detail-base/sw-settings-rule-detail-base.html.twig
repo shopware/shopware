@@ -10,18 +10,12 @@
         :title="$tc('sw-settings-rule.detail.titleCard')"
     >
         <template v-if="rule">
-            <sw-container
-                columns="2fr 1fr"
-                gap="0px 32px"
-            >
+            <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="rule.name"
-                    {% else %}
-                    v-model="rule.name"
-                    {% endif %}
+                    name="sw-field--rule-name"
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                     :error="ruleNameError"
@@ -33,11 +27,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_priority %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="rule.priority"
-                    {% else %}
-                    v-model="rule.priority"
-                    {% endif %}
+                    name="sw-field--rule-priority"
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"
@@ -45,35 +36,26 @@
                     required
                 />
                 {% endblock %}
-            </sw-container>
+            </div>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_base_content_card_field_description %}
             <sw-textarea-field
-                {% if VUE3 %}
                 v-model:value="rule.description"
-                {% else %}
-                v-model="rule.description"
-                {% endif %}
+                name="sw-field--rule-description"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
                 :disabled="!acl.can('rule.editor')"
             />
             {% endblock %}
 
-            <sw-container
-                columns="1fr 1fr"
-                gap="0px 32px"
-            >
+            <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 32px">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_type %}
                 <sw-multi-select
                     v-if="rule"
-                    {% if VUE3 %}
                     v-model:value="moduleTypes"
-                    {% else %}
-                    v-model="moduleTypes"
-                    {% endif %}
+                    name="sw-field--moduleTypes"
                     class="sw-settings-rule-detail__type-field"
                     value-property="id"
                     label-property="name"
@@ -95,14 +77,15 @@
                 {% block sw_settings_rule_detail_base_content_card_field_tags %}
                 <sw-entity-tag-select
                     v-if="rule"
-                    v-model="rule.tags"
+                    v-model:entityCollection="rule.tags"
+                    name="sw-field--rule-tags"
                     class="sw-settings-rule-detail__tags-field"
                     :label="$tc('global.sw-tag-field.title')"
                     :disabled="!acl.can('rule.editor')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderTags')"
                 />
                 {% endblock %}
-            </sw-container>
+            </div>
         </template>
         <sw-loader v-else />
     </sw-card>
@@ -126,7 +109,7 @@
             :association-entity="rule"
             :root-condition="null"
             :disabled="!acl.can('rule.editor')"
-            @conditions-changed="onConditionsChanged"
+            @conditions-changed="$emit('conditions-changed', $event)"
             @initial-loading-done="$emit('tree-finished-loading')"
         />
     </sw-card>

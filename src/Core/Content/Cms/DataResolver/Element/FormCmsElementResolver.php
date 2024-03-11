@@ -11,7 +11,7 @@ use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class FormCmsElementResolver extends AbstractCmsElementResolver
 {
     /**

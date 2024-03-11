@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,10 +16,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
-#[Package('customer-order')]
+#[Package('checkout')]
+#[Group('store-api')]
 class UpsertAddressTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -37,7 +36,7 @@ class UpsertAddressTest extends TestCase
             'id' => $ids->create('sales-channel'),
         ]);
 
-        $this->connection = KernelLifecycleManager::getConnection();
+        $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->assignSalesChannelContext($this->browser);
 

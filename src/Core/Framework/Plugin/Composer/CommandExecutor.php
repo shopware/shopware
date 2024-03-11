@@ -40,6 +40,9 @@ class CommandExecutor
         $exitCode = $this->application->run($input, $output);
 
         if ($exitCode === 0) {
+            // Composer reverts the files, when the require command fails. We don't need a reset on an error case
+            $this->resetOpcache();
+
             return;
         }
 
@@ -62,9 +65,22 @@ class CommandExecutor
         $exitCode = $this->application->run($input, $output);
 
         if ($exitCode === 0) {
+            // Composer reverts the files, when the remove command fails. We don't need a reset on an error case
+            $this->resetOpcache();
+
             return;
         }
 
         throw new PluginComposerRemoveException($pluginName, $pluginComposerName, $output->fetch());
+    }
+
+    /**
+     * We need to reset the opcache, when plugins are installed or updated, because the autoloader changes.
+     */
+    private function resetOpcache(): void
+    {
+        if (\function_exists('opcache_reset')) {
+            opcache_reset();
+        }
     }
 }

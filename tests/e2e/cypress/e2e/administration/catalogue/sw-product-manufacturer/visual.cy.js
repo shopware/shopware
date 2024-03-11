@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ManufacturerPageObject from '../../../../support/pages/module/sw-manufacturer.page-object';
 
 describe('Manufacturer: Visual tests', () => {

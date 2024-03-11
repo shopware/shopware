@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterRecipientEntity extends Entity
 {
     use EntityCustomFieldsTrait;

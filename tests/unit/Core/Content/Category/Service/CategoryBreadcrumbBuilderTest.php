@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -28,9 +29,8 @@ use Shopware\Core\System\Tax\TaxCollection;
  * @internal
  *
  * @package content
- *
- * @covers \Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder
  */
+#[CoversClass(CategoryBreadcrumbBuilder::class)]
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
     protected SalesChannelContext $context;

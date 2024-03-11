@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\User\Recovery;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -86,9 +87,7 @@ class UserRecoveryServiceTest extends TestCase
         static::assertNull($userRecovery);
     }
 
-    /**
-     * @dataProvider dataProviderTestCheckHash
-     */
+    #[DataProvider('dataProviderTestCheckHash')]
     public function testCheckHash(\DateInterval $timeInterval, string $hash, bool $expectedResult): void
     {
         $user = $this->userRepo->search(new Criteria(), $this->context)->first();
@@ -156,13 +155,15 @@ class UserRecoveryServiceTest extends TestCase
 
         $hash = $recovery->getHash();
 
-        static::assertInstanceOf(UserEntity::class, $user = $this->userRepo->search(new Criteria(), $this->context)->first());
+        $user = $this->userRepo->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $user);
 
         $passwordBefore = $user->getPassword();
 
         $this->userRecoveryService->updatePassword($hash, 'newPassword', $this->context);
 
-        static::assertInstanceOf(UserEntity::class, $userAfter = $this->userRepo->search(new Criteria(), $this->context)->first());
+        $userAfter = $this->userRepo->search(new Criteria(), $this->context)->getEntities()->first();
+        static::assertInstanceOf(UserEntity::class, $userAfter);
 
         $passwordAfter = $userAfter->getPassword();
 
@@ -185,7 +186,7 @@ class UserRecoveryServiceTest extends TestCase
 
         $valid = $this->userRecoveryService->getUserByHash($hash, $this->context);
         static::assertInstanceOf(UserEntity::class, $valid);
-        static::assertEquals(self::VALID_EMAIL, $valid->getEmail());
+        static::assertSame(self::VALID_EMAIL, $valid->getEmail());
     }
 
     public function testReEvaluateRules(): void
@@ -201,7 +202,7 @@ class UserRecoveryServiceTest extends TestCase
         );
 
         static::assertInstanceOf(UserRecoveryRequestEvent::class, $validator->event);
-        static::assertTrue(!empty($validator->event->getContext()->getRuleIds()));
+        static::assertNotEmpty($validator->event->getContext()->getRuleIds());
     }
 
     private function createRecovery(string $email): void

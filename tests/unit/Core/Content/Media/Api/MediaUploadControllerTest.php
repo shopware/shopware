@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Api\MediaUploadController;
@@ -19,10 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
  */
-#[Package('content')]
+#[Package('buyers-experience')]
+#[CoversClass(MediaUploadController::class)]
 class MediaUploadControllerTest extends TestCase
 {
     private FileSaver&MockObject $fileSaver;

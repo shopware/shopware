@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Indexing\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -11,9 +12,8 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\EntityIndexingSubscriber
  */
+#[CoversClass(EntityIndexingSubscriber::class)]
 class EntityIndexingSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

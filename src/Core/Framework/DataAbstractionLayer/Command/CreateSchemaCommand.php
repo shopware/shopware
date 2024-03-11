@@ -5,12 +5,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - Will be removed, use CreateMigrationCommand instead.
+ */
 #[AsCommand(
     name: 'dal:create:schema',
     description: 'Creates the database schema',
@@ -34,6 +38,11 @@ class CreateSchemaCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'execute'),
+        );
+
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate schema');
 

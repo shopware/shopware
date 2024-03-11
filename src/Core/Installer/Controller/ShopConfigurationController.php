@@ -12,7 +12,7 @@ use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -64,7 +64,7 @@ class ShopConfigurationController extends InstallerController
                 'locale' => $this->supportedLanguages[$request->attributes->get('_locale')],
             ];
 
-            /** @var list<string>|null $availableCurrencies */
+            /** @var list<string> $availableCurrencies */
             $availableCurrencies = $request->request->all('available_currencies');
 
             $schema = 'http';
@@ -92,8 +92,10 @@ class ShopConfigurationController extends InstallerController
             try {
                 $this->envConfigWriter->writeConfig($connectionInfo, $shop);
 
-                $this->shopConfigurationService->updateShop($shop, $connection);
+                // create admin user first, if there is a validation error we don't need to update shop
+                // and create sales channel
                 $this->adminConfigurationService->createAdmin($adminUser, $connection);
+                $this->shopConfigurationService->updateShop($shop, $connection);
 
                 $session->remove(DatabaseConnectionInformation::class);
                 $session->set('ADMIN_USER', $adminUser);

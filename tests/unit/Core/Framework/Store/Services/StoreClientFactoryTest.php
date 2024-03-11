@@ -4,19 +4,18 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
-use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\StoreClientFactory
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
+#[CoversClass(StoreClientFactory::class)]
 class StoreClientFactoryTest extends TestCase
 {
     public function testCreatesClientWithoutMiddlewares(): void
@@ -34,7 +33,7 @@ class StoreClientFactoryTest extends TestCase
     {
         $factory = new StoreClientFactory($this->createSystemConfigService());
 
-        $client = $factory->create([$this->createMock(VerifyResponseSignatureMiddleware::class)]);
+        $client = $factory->create();
         $config = $this->getConfigFromClient($client);
         $handler = $this->getHandlerFromConfig($config);
 

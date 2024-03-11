@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory;
@@ -10,9 +11,8 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory
  */
+#[CoversClass(SnippetFileCollectionFactory::class)]
 class SnippetFileCollectionFactoryTest extends TestCase
 {
     public function testCreateSnippetFileCollection(): void

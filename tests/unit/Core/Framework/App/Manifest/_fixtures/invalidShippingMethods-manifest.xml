@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>test</name>
+        <label>Test Swag Shipping App</label>
+        <description>Test for App System Shipping</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>0.0.1</version>
+        <license>MIT</license>
+    </meta>
+
+    <shipping-methods>
+        <shipping-method>
+            <identifier>shippingMethodWithoutName</identifier>
+            <description>This is a shipping method without name</description>
+        </shipping-method>
+        <shipping-method>
+            <name>Shipping Method without identifier</name>
+            <description>This is a shipping method without identifier</description>
+        </shipping-method>
+    </shipping-methods>
+</manifest>

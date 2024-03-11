@@ -1,15 +1,13 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
-
-import swCmsListItem from 'src/module/sw-cms/component/sw-cms-list-item';
-
-Shopware.Component.register('sw-cms-list-item', swCmsListItem);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-list-item'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-list-item', {
+        sync: true,
+    }), {
+        props: {
             page: {
                 name: 'My custom layout',
                 type: 'product_list',

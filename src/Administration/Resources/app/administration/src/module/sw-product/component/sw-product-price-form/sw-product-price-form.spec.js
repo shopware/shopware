@@ -2,14 +2,10 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swProductPriceForm from 'src/module/sw-product/component/sw-product-price-form';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/form/sw-list-price-field';
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
-Shopware.Component.register('sw-product-price-form', swProductPriceForm);
 
 const { Utils } = Shopware;
 
@@ -59,110 +55,107 @@ describe('module/sw-product/component/sw-product-price-form', () => {
             ...parentProductOverride,
         };
 
-        return shallowMount(await Shopware.Component.build('sw-product-price-form'), {
-            mocks: {
-                $route: {
-                    name: 'sw.product.detail.base',
-                    params: {
-                        id: 1,
+        return mount(await wrapTestComponent('sw-product-price-form', { sync: true }), {
+            global: {
+                mocks: {
+                    $route: {
+                        name: 'sw.product.detail.base',
+                        params: {
+                            id: 1,
+                        },
                     },
-                },
-                $store: new Vuex.Store({
-                    modules: {
-                        swProductDetail: {
-                            ...productStore,
-                            state: {
-                                ...productStore.state,
-                                product: productEntity,
-                                parentProduct,
-                                advancedModeSetting: {
-                                    value: {
-                                        settings: [
-                                            {
-                                                key: 'prices',
-                                                label: 'sw-product.detailBase.cardTitlePrices',
+                    $store: createStore({
+                        modules: {
+                            swProductDetail: {
+                                ...productStore,
+                                state: {
+                                    ...productStore.state,
+                                    product: productEntity,
+                                    parentProduct,
+                                    advancedModeSetting: {
+                                        value: {
+                                            settings: [
+                                                {
+                                                    key: 'prices',
+                                                    label: 'sw-product.detailBase.cardTitlePrices',
+                                                    enabled: true,
+                                                    name: 'general',
+                                                },
+                                            ],
+                                            advancedMode: {
                                                 enabled: true,
-                                                name: 'general',
+                                                label: 'sw-product.general.textAdvancedMode',
                                             },
-                                        ],
-                                        advancedMode: {
-                                            enabled: true,
-                                            label: 'sw-product.general.textAdvancedMode',
                                         },
                                     },
+                                    creationStates: 'is-physical',
                                 },
-                                creationStates: 'is-physical',
+                                getters: {
+                                    ...productStore.getters,
+                                    isLoading: () => false,
+                                    defaultCurrency: () => {
+                                        return {
+                                            id: '1',
+                                            name: 'Euro',
+                                            isoCode: 'EUR',
+                                        };
+                                    },
+                                    productTaxRate: () => {
+                                    },
+                                },
                             },
-                            getters: {
-                                ...productStore.getters,
-                                isLoading: () => false,
-                                defaultCurrency: () => {
-                                    return {
-                                        id: '1',
-                                        name: 'Euro',
-                                        isoCode: 'EUR',
-                                    };
-                                },
-                                productTaxRate: () => {
-                                },
+                        },
+                    }),
+                },
+                // eslint-disable max-len
+                stubs: {
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-list-price-field': await wrapTestComponent('sw-list-price-field'),
+                    'sw-inheritance-switch': {
+                        props: ['isInherited', 'disabled'],
+                        template: `
+                          <div class="sw-inheritance-switch">
+                          <div v-if="isInherited"
+                               class="sw-inheritance-switch--is-inherited"
+                               @click="onClickRemoveInheritance">
+                          </div>
+                          <div v-else
+                               class="sw-inheritance-switch--is-not-inherited"
+                               @click="onClickRestoreInheritance">
+                          </div>
+                          </div>`,
+                        methods: {
+                            onClickRestoreInheritance() {
+                                this.$emit('inheritance-restore');
+                            },
+                            onClickRemoveInheritance() {
+                                this.$emit('inheritance-remove');
                             },
                         },
                     },
-                }),
-            },
-            // eslint-disable max-len
-            stubs: {
-                'sw-container': {
-                    template: '<div><slot></slot></div>',
+                    'sw-price-field': true,
+                    'sw-help-text': true,
+                    'sw-select-field': true,
+                    'sw-internal-link': true,
+                    'router-link': true,
+                    'sw-icon': true,
+                    'sw-maintain-currencies-modal': true,
                 },
-                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-list-price-field': await Shopware.Component.build('sw-list-price-field'),
-                'sw-inheritance-switch': {
-                    props: ['isInherited', 'disabled'],
-                    template: `
-                      <div class="sw-inheritance-switch">
-                      <div v-if="isInherited"
-                           class="sw-inheritance-switch--is-inherited"
-                           @click="onClickRemoveInheritance">
-                      </div>
-                      <div v-else
-                           class="sw-inheritance-switch--is-not-inherited"
-                           @click="onClickRestoreInheritance">
-                      </div>
-                      </div>`,
-                    methods: {
-                        onClickRestoreInheritance() {
-                            this.$emit('inheritance-restore');
-                        },
-                        onClickRemoveInheritance() {
-                            this.$emit('inheritance-remove');
-                        },
-                    },
-                },
-                'sw-price-field': true,
-                'sw-help-text': true,
-                'sw-select-field': true,
-                'sw-internal-link': true,
-                'router-link': true,
-                'sw-icon': true,
-                'sw-maintain-currencies-modal': true,
+                // eslint-enable max-len
             },
-            // eslint-enable max-len
         });
     }
 
     /** @type Wrapper */
     let wrapper;
 
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-        }
-    });
-
     // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
@@ -170,7 +163,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-inherited').exists()).toBeTruthy();
 
-        priceFields.wrappers.forEach(priceField => {
+        priceFields.forEach(priceField => {
             expect(priceField.attributes().disabled).toBeTruthy();
         });
 
@@ -186,6 +179,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 net: 67.27,
             }],
         });
+        await flushPromises();
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
@@ -193,7 +187,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.wrappers.forEach(priceField => {
+        priceFields.forEach(priceField => {
             expect(priceField.attributes().disabled).toBeFalsy();
         });
 
@@ -211,6 +205,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
+
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
 
@@ -220,7 +216,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.wrappers.forEach(priceField => {
+        priceFields.forEach(priceField => {
             expect(priceField.attributes().disabled).toBeFalsy();
         });
 
@@ -235,6 +231,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button (using empty purchasePrices)', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         // remove purchasePrices of parent
         wrapper.vm.parentProduct.purchasePrices = undefined;
@@ -249,7 +246,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-not-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.wrappers.forEach(priceField => {
+        priceFields.forEach(priceField => {
             expect(priceField.attributes().disabled).toBeFalsy();
         });
 
@@ -269,6 +266,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                 net: 67.27,
             }],
         });
+        await flushPromises();
 
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
@@ -279,7 +277,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(priceSwitchInheritance.find('.sw-inheritance-switch--is-inherited').exists()).toBeTruthy();
 
         const priceFields = priceInheritance.findAll('sw-price-field-stub');
-        priceFields.wrappers.forEach(priceField => {
+        priceFields.forEach(priceField => {
             expect(priceField.attributes().disabled).toBeTruthy();
         });
 
@@ -288,6 +286,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     it('should show price item fields when advanced mode is on', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
@@ -301,6 +300,8 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
     it('should hide price item fields when advanced mode is off', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
+
         const advancedModeSetting = Utils.get(wrapper, 'vm.$store.state.swProductDetail.advancedModeSetting');
 
         await wrapper.vm.$store.commit('swProductDetail/setAdvancedModeSetting', {

@@ -33,7 +33,7 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class RegisterController extends StorefrontController
 {
     /**
@@ -220,7 +220,11 @@ class RegisterController extends StorefrontController
         $this->addFlash(self::SUCCESS, $this->trans('account.doubleOptInRegistrationSuccessfully'));
 
         if ($redirectTo = $queryDataBag->get('redirectTo')) {
-            return $this->redirectToRoute($redirectTo);
+            /** @var array<string, mixed> $parameters */
+            $parameters = $queryDataBag->all();
+            unset($parameters['em'], $parameters['hash'], $parameters['redirectTo']);
+
+            return $this->redirectToRoute($redirectTo, $parameters);
         }
 
         return $this->redirectToRoute('frontend.account.home.page');
@@ -279,11 +283,13 @@ class RegisterController extends StorefrontController
     {
         $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
         $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
-        if ($affiliateCode !== null && $campaignCode !== null) {
-            $data->add([
-                AffiliateTrackingListener::AFFILIATE_CODE_KEY => $affiliateCode,
-                AffiliateTrackingListener::CAMPAIGN_CODE_KEY => $campaignCode,
-            ]);
+
+        if ($affiliateCode !== null) {
+            $data->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
+        }
+
+        if ($campaignCode !== null) {
+            $data->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
         }
 
         return $data;

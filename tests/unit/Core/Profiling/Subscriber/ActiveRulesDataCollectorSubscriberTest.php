@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Profiling\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -19,9 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Subscriber\ActiveRulesDataCollectorSubscriber
  */
+#[CoversClass(ActiveRulesDataCollectorSubscriber::class)]
 class ActiveRulesDataCollectorSubscriberTest extends TestCase
 {
     public function testEvents(): void

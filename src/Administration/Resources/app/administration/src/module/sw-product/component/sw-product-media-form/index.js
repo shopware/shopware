@@ -30,6 +30,12 @@ export default {
             required: false,
             default: false,
         },
+
+        fileAccept: {
+            type: String,
+            required: false,
+            default: '*/*',
+        },
     },
 
     data() {
@@ -227,6 +233,21 @@ export default {
             }
 
             return productMedia.id === coverId;
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isSpatial(productMedia) {
+            // we need to check the media url since media.fileExtension is set directly after upload
+            return productMedia.media?.fileExtension === 'glb' || !!productMedia.media?.url?.endsWith('.glb');
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isArReady(productMedia) {
+            return !!productMedia.media?.config?.spatial?.arReady;
         },
 
         removeFile(productMedia) {

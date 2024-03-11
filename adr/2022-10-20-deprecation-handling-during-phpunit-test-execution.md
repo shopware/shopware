@@ -3,7 +3,7 @@ title: Deprecation handling during PHPUnit test execution
 date: 2022-10-20
 area: core
 tags: [phpunit, deprecation, test]
---- 
+---
 
 ## Context 
 
@@ -33,7 +33,7 @@ We leverage this feature by using it in a way to ignore all deprecations that we
 
 ### Using our Feature Flag system for internal deprecations
 
-Internally we use the feature flag system to trigger deprecation messages, or throw exceptions if the major feature flag is activated as explained in the [deprecation handling ADR](../workflow/2022-02-28-consistent-deprecation-notices-in-core.md).
+Internally we use the feature flag system to trigger deprecation messages, or throw exceptions if the major feature flag is activated as explained in the [deprecation handling ADR](../adr/2022-02-28-consistent-deprecation-notices-in-core.md).
 We already use that system in our new unit test suite with a custom `@ActiveFeatures()` annotations, that allows us to run single test cases with a specific set of feature flags.
 But the current implementation has the big drawback that feature flags have to be actively enabled, this leads to following problems:
 1. There are already tests that are not passing after all deprecations are removed, because they rely on deprecated behaviour.

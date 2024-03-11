@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule;
 use Shopware\Core\Framework\Log\Package;
@@ -15,17 +17,16 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(OrderDocumentTypeRule::class)]
+#[Group('rules')]
 class OrderDocumentTypeRuleTest extends TestCase
 {
     private OrderDocumentTypeRule $rule;
@@ -58,10 +59,9 @@ class OrderDocumentTypeRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchingValues
-     *
      * @param list<string> $selectedDocumentIds
      */
+    #[DataProvider('getMatchingValues')]
     public function testOrderDocumentTypeRuleMatching(bool $expected, string|null $documentId, array $selectedDocumentIds, string $operator): void
     {
         $order = new OrderEntity();

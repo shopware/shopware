@@ -2,7 +2,7 @@ import template from './sw-cms-block-cross-selling.html.twig';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

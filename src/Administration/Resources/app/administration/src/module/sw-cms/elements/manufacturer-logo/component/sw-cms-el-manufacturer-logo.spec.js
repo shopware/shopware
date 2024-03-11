@@ -1,13 +1,8 @@
 /**
- * @package content
+ * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElImage from 'src/module/sw-cms/elements/image/component';
-import swCmsElManufacturerLogo from 'src/module/sw-cms/elements/manufacturer-logo/component';
-
-Shopware.Component.register('sw-cms-el-image', swCmsElImage);
-Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', swCmsElManufacturerLogo);
 
 const defaultProps = {
     element: {
@@ -52,8 +47,10 @@ const defaultProps = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-manufacturer-logo'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-manufacturer-logo', {
+        sync: true,
+    }), {
+        props: {
             defaultConfig: {},
             ...defaultProps,
         },
@@ -66,13 +63,15 @@ async function createWrapper() {
                 },
             };
         },
-        provide: {
-            cmsService: {
-                getCmsElementRegistry: () => {
-                    return {};
-                },
-                getPropertyByMappingPath: () => {
-                    return {};
+        global: {
+            provide: {
+                cmsService: {
+                    getCmsElementRegistry: () => {
+                        return {};
+                    },
+                    getPropertyByMappingPath: () => {
+                        return {};
+                    },
                 },
             },
         },

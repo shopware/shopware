@@ -5,14 +5,25 @@
 import FilterService from 'src/app/service/filter.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import VueRouter from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 describe('app/service/filter.service.js', () => {
     let filterService;
     let filterData;
 
     beforeEach(async () => {
-        const router = new VueRouter();
+        const router = createRouter({
+            history: createWebHashHistory(),
+            routes: [
+                {
+                    name: 'sw.jest.index',
+                    path: '/',
+                    component: {
+                        template: '<div></div>',
+                    },
+                },
+            ],
+        });
         const orgPush = router.push;
         router.push = (location) => {
             return orgPush.call(router, location).catch(() => {});
@@ -70,6 +81,8 @@ describe('app/service/filter.service.js', () => {
 
     it('getStoredFilters when there is no data from url, has data from database', async () => {
         const data = await filterService.getStoredFilters('test');
+        await flushPromises();
+
         const filterResult = {
             filter3: {
                 value: [
@@ -87,7 +100,7 @@ describe('app/service/filter.service.js', () => {
 
         expect(data).toEqual(filterResult);
 
-        const query = JSON.parse(decodeURIComponent(Shopware.Application.view.router.currentRoute.query.test));
+        const query = JSON.parse(decodeURIComponent(Shopware.Application.view.router.currentRoute.value.query.test));
         expect(query).toEqual(filterResult);
     });
 
@@ -99,7 +112,7 @@ describe('app/service/filter.service.js', () => {
                 criteria: null,
             },
         }));
-        Shopware.Application.view.router.push({
+        await Shopware.Application.view.router.push({
             query: {
                 test: urlEncodedValue,
             },
@@ -121,7 +134,7 @@ describe('app/service/filter.service.js', () => {
                 criteria: null,
             },
         }));
-        Shopware.Application.view.router.push({
+        await Shopware.Application.view.router.push({
             query: {
                 test: urlEncodedValue,
             },

@@ -33,12 +33,7 @@ class Migration1670090989AddIndexOrderOrderNumber extends MigrationStep
         }
 
         $connection->executeStatement(
-            'ALTER TABLE `order` ADD KEY `idx.order_number` (`order_number`)'
+            'ALTER TABLE `order` ADD INDEX `idx.order_number` (`order_number`)'
         );
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CustomerGroupTranslationEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCustomerGroupIds(): array
     {
@@ -25,7 +25,7 @@ class CustomerGroupTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

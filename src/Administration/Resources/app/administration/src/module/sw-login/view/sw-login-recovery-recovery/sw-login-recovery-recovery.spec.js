@@ -1,29 +1,30 @@
 /**
  * @package admin
  */
-import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-login/view/sw-login-recovery-recovery';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-login-recovery-recovery'), {
-        stubs: {
-            'router-link': true,
-            'sw-loader': true,
-            'sw-button': true,
-            'sw-icon': true,
-            'sw-password-field': true,
-        },
-        provide: {
-            userRecoveryService: {
-                checkHash: () => {
-                    return Promise.resolve();
-                },
-                updateUserPassword: () => {
-                    return Promise.resolve();
+    return mount(await wrapTestComponent('sw-login-recovery-recovery', { sync: true }), {
+        global: {
+            stubs: {
+                'router-link': true,
+                'sw-loader': true,
+                'sw-button': true,
+                'sw-icon': true,
+                'sw-password-field': true,
+            },
+            provide: {
+                userRecoveryService: {
+                    checkHash: () => {
+                        return Promise.resolve();
+                    },
+                    updateUserPassword: () => {
+                        return Promise.resolve();
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             hash: '',
         },
     });
@@ -34,10 +35,6 @@ describe('src/module/sw-login/view/sw-login-recovery-recovery', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', () => {

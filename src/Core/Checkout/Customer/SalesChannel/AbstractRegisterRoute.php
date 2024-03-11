@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The required parameters are: "salutationId", "firstName", "lastName", "email", "password", "billingAddress" and "storefrontUrl"
  * The "billingAddress" should has required parameters: "salutationId", "firstName", "lastName", "street", "zipcode", "city", "countyId".
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractRegisterRoute
 {
     abstract public function getDecorated(): AbstractRegisterRoute;

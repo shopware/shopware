@@ -5,8 +5,7 @@ const { Component, Context } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description This component highlights text based on the searchTerm using regex
  * @status ready
  * @example-type dynamic

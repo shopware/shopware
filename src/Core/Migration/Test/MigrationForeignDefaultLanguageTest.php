@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -15,10 +16,9 @@ use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
  * @internal
- *
- * @group slow
  */
 #[Package('core')]
+#[Group('slow')]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

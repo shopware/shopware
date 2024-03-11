@@ -8,11 +8,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 abstract class ManifestChangedEvent extends AppChangedEvent
 {
+    public const LIFECYCLE_EVENTS = [
+        AppActivatedEvent::NAME,
+        AppDeactivatedEvent::NAME,
+        AppDeletedEvent::NAME,
+        AppInstalledEvent::NAME,
+        AppUpdatedEvent::NAME,
+    ];
+
     public function __construct(
         AppEntity $app,
         private readonly Manifest $manifest,
@@ -28,7 +36,7 @@ abstract class ManifestChangedEvent extends AppChangedEvent
         return $this->manifest;
     }
 
-    public function getWebhookPayload(?AppEntity $app = null): array
+    public function getWebhookPayload(AppEntity|null $app = null): array
     {
         return [
             'appVersion' => $this->manifest->getMetadata()->getVersion(),

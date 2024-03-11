@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/sw-password-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -10,39 +10,37 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
 async function createWrapper(additionalOptions = {}) {
-    return shallowMount(await Shopware.Component.build('sw-password-field'), {
-        stubs: {
-            'sw-field': true,
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-icon': true,
-        },
-        provide: {
-            validationService: {},
+    return mount(await wrapTestComponent('sw-password-field', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-field': true,
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-icon': true,
+            },
+            provide: {
+                validationService: {},
+            },
         },
         ...additionalOptions,
     });
 }
 
 describe('components/form/sw-password-field', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('Should display placeholder as text', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             placeholder: 'Enter your password',
         });
@@ -52,6 +50,9 @@ describe('components/form/sw-password-field', () => {
     });
 
     it('Should display placeholder as password', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             placeholder: 'ThirteenChars',
             placeholderIsPassword: true,
@@ -62,6 +63,9 @@ describe('components/form/sw-password-field', () => {
     });
 
     it('Should display placeholder as password without given placeholder prop', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         await wrapper.setProps({
             placeholderIsPassword: true,
         });
@@ -70,6 +74,9 @@ describe('components/form/sw-password-field', () => {
     });
 
     it('Should display entered password by switching type to text', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const input = wrapper.find('input');
 
         expect(input.attributes().type).toBe('password');
@@ -85,26 +92,30 @@ describe('components/form/sw-password-field', () => {
     });
 
     it('should show the label from the property', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
                 value: null,
             },
         });
+
+        await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
-        wrapper = await createWrapper({
-            propsData: {
+        const wrapper = await createWrapper({
+            props: {
                 label: 'Label from prop',
                 value: null,
             },
-            scopedSlots: {
+            slots: {
                 label: '<template>Label from slot</template>',
             },
         });
+
+        await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });

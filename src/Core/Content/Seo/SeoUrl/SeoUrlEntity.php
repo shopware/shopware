@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -61,13 +61,6 @@ class SeoUrlEntity extends Entity
     protected $isDeleted;
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @var bool
-     */
-    protected $isValid;
-
-    /**
      * @var SalesChannelEntity|null
      */
     protected $salesChannel;
@@ -83,8 +76,6 @@ class SeoUrlEntity extends Entity
     protected $url;
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
      * @var string|null
      */
     protected $error;
@@ -209,23 +200,21 @@ class SeoUrlEntity extends Entity
         $this->language = $language;
     }
 
+    /**
+     * The error property will be set in the runtime and is not a field in the seo_url table.
+     * It is used for the url generation in a json serialized entity.
+     */
     public function getError(): ?string
     {
         return $this->error;
     }
 
+    /**
+     * The error property will be set in the runtime and is not a field in the seo_url table.
+     * It is used for the url generation in a json serialized entity.
+     */
     public function setError(?string $error): void
     {
         $this->error = $error;
-    }
-
-    public function getIsValid(): bool
-    {
-        return $this->isValid;
-    }
-
-    public function setIsValid(bool $isValid): void
-    {
-        $this->isValid = $isValid;
     }
 }

@@ -1,12 +1,15 @@
 import './acl';
 
+const { Module, Component } = Shopware;
+
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));
-Shopware.Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
+Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));
+Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
-const { Module } = Shopware;
-
+/**
+ * @package services-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {
     type: 'core',

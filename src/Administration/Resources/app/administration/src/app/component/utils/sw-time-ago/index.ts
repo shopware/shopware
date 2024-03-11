@@ -4,8 +4,7 @@ import template from './sw-time-ago.html.twig';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Render datetimes with relative values like "13 minutes ago" - works with dates in the past and future
  * @status ready
  * @example-type dynamic
@@ -13,7 +12,7 @@ const { Component } = Shopware;
  * <sw-time-ago date=""2021-08-25T11:08:48.940+00:00""></sw-time-ago>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-time-ago', () => Component.wrapComponentConfig({
+Component.register('sw-time-ago', {
     template,
 
     props: {
@@ -146,4 +145,4 @@ Component.register('sw-time-ago', () => Component.wrapComponentConfig({
             return this.dateFilter(this.dateObject.toString());
         },
     },
-}));
+});

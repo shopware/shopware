@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class GenericCartError extends Error
 {
     /**
-     * @deprecated tag:v6.6.0 $blockResubmit param will be required
+     * @param array<string, mixed> $parameters
      */
     public function __construct(
         protected string $id,
@@ -17,7 +17,7 @@ class GenericCartError extends Error
         protected int $level,
         protected bool $blockOrder,
         protected bool $persistent,
-        protected bool $blockResubmit = true
+        protected bool $blockResubmit
     ) {
         parent::__construct();
     }
@@ -47,6 +47,9 @@ class GenericCartError extends Error
         return $this->blockResubmit;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->parameters;

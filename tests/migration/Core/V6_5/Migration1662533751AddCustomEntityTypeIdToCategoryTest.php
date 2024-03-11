@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -13,9 +14,8 @@ use Shopware\Core\Migration\V6_5\Migration1662533751AddCustomEntityTypeIdToCateg
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1662533751AddCustomEntityTypeIdToCategory
  */
+#[CoversClass(Migration1662533751AddCustomEntityTypeIdToCategory::class)]
 class Migration1662533751AddCustomEntityTypeIdToCategoryTest extends TestCase
 {
     public function testGetCreationTimestamp(): void

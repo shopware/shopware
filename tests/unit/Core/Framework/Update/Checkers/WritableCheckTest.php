@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Checkers;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Services\Filesystem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Checkers\WriteableCheck
  */
+#[CoversClass(WriteableCheck::class)]
 class WritableCheckTest extends TestCase
 {
     public function testCheck(): void

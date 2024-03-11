@@ -13,7 +13,7 @@ describe('Order: Create order', () => {
             });
     });
 
-    it('@base @order create new order', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order create new order', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         // network requests
@@ -101,7 +101,7 @@ describe('Order: Create order', () => {
     });
 
     // TODO: needs to be fixed for sw-promotion-v2-discounts
-    it.skip('@base @order: add promotion code', { tags: ['pa-customers-orders'] }, () => {
+    it.skip('@base @order: add promotion code', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
@@ -267,7 +267,7 @@ describe('Order: Create order', () => {
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@order: add invalid promotion code', { tags: ['pa-customers-orders'] }, () => {
+    it('@order: add invalid promotion code', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         // network requests

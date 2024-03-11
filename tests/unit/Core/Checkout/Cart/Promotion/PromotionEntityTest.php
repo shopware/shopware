@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -20,17 +22,15 @@ use Shopware\Core\Framework\Rule\Rule;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\PromotionEntity
  */
+#[CoversClass(PromotionEntity::class)]
 class PromotionEntityTest extends TestCase
 {
     /**
      * This test verifies, that we only get an
      * empty AND rule, if no precondition has been added.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRuleEmpty(): void
     {
         $promotion = new PromotionEntity();
@@ -45,9 +45,8 @@ class PromotionEntityTest extends TestCase
      * rule inside our precondition rule structure.
      * We simulate a new rule and rule entity, and add
      * that to the promotion.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRulePersonaRules(): void
     {
         $fakePersonaRule = new AndRule();
@@ -80,9 +79,8 @@ class PromotionEntityTest extends TestCase
      * Why do we need separate customer rules? Because we don't want to match
      * a list of customer numbers, but only 1 single customer number...and thus only 1 single
      * rule should match within a list of rules, based on an OR condition.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRulePersonaCustomers(): void
     {
         $customer1 = new CustomerEntity();
@@ -124,9 +122,8 @@ class PromotionEntityTest extends TestCase
      * rule inside our precondition rule structure.
      * We simulate a new rule and rule entity, and add
      * that to the promotion.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRuleCartRules(): void
     {
         $fakeCartRule = new AndRule();
@@ -154,9 +151,8 @@ class PromotionEntityTest extends TestCase
      * rule inside our precondition rule structure.
      * We simulate a new rule and rule entity, and add
      * that to the promotion.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRuleOrderRules(): void
     {
         $fakeOrderRule = new AndRule();
@@ -188,9 +184,8 @@ class PromotionEntityTest extends TestCase
      * 1 rule has to match within of the separate topics.
      * We also use a customer restriction, which means that only customer-assignment
      * rules are visible in the persona part.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRuleWithAllConditions(): void
     {
         $fakePersonaRule = new AndRule();
@@ -245,9 +240,8 @@ class PromotionEntityTest extends TestCase
      * This test verifies that all set groups in the promotion are added
      * with an AND condition. So all groups need to exist
      * to have a valid precondition rule.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPreconditionRuleSetGroupsWithAndCondition(): void
     {
         $group1 = new PromotionSetGroupEntity();
@@ -310,9 +304,8 @@ class PromotionEntityTest extends TestCase
     /**
      * This test verifies that we get the correct
      * FALSE result for hasDiscount, if no discount has been set.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionHasDiscountNo(): void
     {
         $promotion = new PromotionEntity();
@@ -323,9 +316,8 @@ class PromotionEntityTest extends TestCase
     /**
      * This test verifies that we get the correct
      * FALSE result for hasDiscount, if discounts have been set.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionHasDiscountYes(): void
     {
         $discount = new PromotionDiscountEntity();

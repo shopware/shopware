@@ -3,15 +3,16 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Services\FlexMigrator;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Services\FlexMigrator
  */
+#[CoversClass(FlexMigrator::class)]
 class FlexMigratorTest extends TestCase
 {
     public function testCleanup(): void
@@ -148,9 +149,8 @@ class FlexMigratorTest extends TestCase
 
     /**
      * @param array<mixed> $composer
-     *
-     * @dataProvider composerCases
      */
+    #[DataProvider('composerCases')]
     public function testPatchComposerJson(array $composer): void
     {
         $tmpDir = sys_get_temp_dir() . '/flex-migrator-test';
@@ -168,7 +168,6 @@ class FlexMigratorTest extends TestCase
             [
                 'require' => [
                     'symfony/flex' => '^2',
-                    'symfony/runtime' => '^5.0|^6.0',
                 ],
                 'config' => [
                     'allow-plugins' => [

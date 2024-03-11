@@ -5,12 +5,20 @@ import DomAccess from 'src/helper/dom-access.helper';
  * @package checkout
  */
 export default class AddToWishlistPlugin extends Plugin {
+    static options = {
+        texts: {
+            add: 'Add to wishlist',
+            remove: 'Remove from wishlist',
+        },
+    }
+
     init() {
         this.classList = {
             isLoading: 'product-wishlist-loading',
             addedState: 'product-wishlist-added',
             notAddedState: 'product-wishlist-not-added',
         };
+        this.textsElement = DomAccess.querySelector(this.el, '.product-wishlist-btn-content', false);
 
         this._getWishlistStorage();
 
@@ -46,9 +54,9 @@ export default class AddToWishlistPlugin extends Plugin {
 
     initStateClasses() {
         if (this._wishlistStorage.has(this.options.productId)) {
-            this._addActiveStateClasses();
+            this._addActiveState();
         } else {
-            this._removeActiveStateClasses();
+            this._removeActiveState();
         }
 
         this.el.classList.remove(this.classList.isLoading);
@@ -69,27 +77,39 @@ export default class AddToWishlistPlugin extends Plugin {
         if (this._wishlistStorage.has(this.options.productId)) {
             this._wishlistStorage.remove(this.options.productId, this.options.router.remove);
 
-            this._removeActiveStateClasses();
+            this._removeActiveState();
         } else {
             this._wishlistStorage.add(this.options.productId, this.options.router.add);
 
-            this._addActiveStateClasses();
+            this._addActiveState();
         }
     }
 
     /**
      * @private
      */
-    _addActiveStateClasses() {
+    _addActiveState() {
         this.el.classList.remove(this.classList.notAddedState);
         this.el.classList.add(this.classList.addedState);
+
+        this.el.setAttribute('title', this.options.texts.remove);
+
+        if (this.textsElement) {
+            this.textsElement.innerHTML = this.options.texts.remove;
+        }
     }
 
     /**
      * @private
      */
-    _removeActiveStateClasses() {
+    _removeActiveState() {
         this.el.classList.remove(this.classList.addedState);
         this.el.classList.add(this.classList.notAddedState);
+
+        this.el.setAttribute('title', this.options.texts.add);
+
+        if (this.textsElement) {
+            this.textsElement.innerHTML = this.options.texts.add;
+        }
     }
 }

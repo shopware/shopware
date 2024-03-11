@@ -1,0 +1,162 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-help-sidebar {
+    position: fixed;
+    z-index: $z-index-help-sidebar;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 40%);
+
+    &__container {
+        display: flex;
+        flex-direction: column;
+        width: 400px;
+        max-width: 100%;
+        height: 100%;
+        margin-left: auto;
+        background: $color-white;
+        border-left: 1px solid $color-gray-300;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    &__header {
+        @include flex-centering-vertical;
+
+        justify-content: space-between;
+        height: 64px;
+        padding: 0 24px;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
+    &__body {
+        padding: 24px;
+    }
+
+    &__footer {
+        @include flex-centering-vertical;
+
+        height: 64px;
+        margin-top: auto;
+        padding: 0 24px;
+        background: $color-gray-100;
+    }
+
+    &__headline {
+        margin: 0;
+        color: $color-darkgray-200;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__button-close {
+        @include reset-button;
+    }
+
+    &__navigation .sw-card {
+        margin-bottom: 30px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    &__navigation .sw-card__content {
+        padding: 0;
+    }
+
+    &__support-title {
+        margin: 0 0 10px;
+        color: $color-darkgray-700;
+        font-size: $font-size-s;
+        font-weight: $font-weight-bold;
+    }
+
+    &__support-content {
+        list-style: none;
+    }
+
+    &__support-item {
+        @include flex-centering-vertical;
+        @include transition;
+
+        flex-wrap: wrap;
+        padding: 10px;
+        border-radius: $border-radius-default;
+
+        &:hover {
+            background: $color-gray-100;
+        }
+
+        .sw-icon {
+            color: $color-darkgray-200;
+        }
+    }
+
+    &__support-item-link.sw-external-link {
+        display: grid;
+        grid-auto-flow: column;
+        align-items: center;
+        grid-gap: 0 8px;
+        color: $color-darkgray-700;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        text-decoration: none;
+
+        .sw-external-link__icon {
+            margin-left: -4px;
+        }
+    }
+
+    &__support-item-button.sw-button {
+        @include reset-button;
+
+        color: $color-darkgray-700;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        text-decoration: none;
+    }
+
+    &__shortcut {
+        @include transition;
+
+        width: 100%;
+        padding: 10px;
+        border-radius: $border-radius-default;
+
+        &:hover {
+            background: $color-gray-200;
+        }
+
+        .sw-icon {
+            color: $color-darkgray-200;
+        }
+    }
+
+    &__shortcut-button {
+        @include reset-button;
+
+        color: $color-darkgray-700;
+    }
+
+    /**
+    * @description Vue transition classes
+    * @see https://vuejs.org/guide/built-ins/transition.html#Transition-Classes
+    */
+    &__fade-enter-active {
+        @include transition(all, 0.3s, ease-out);
+    }
+
+    &__fade-leave-active {
+        @include transition(all 0.8s cubic-bezier(1, 0.5, 0.8, 1));
+    }
+
+    &__fade-enter-from,
+    &__fade-leave-to {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+}

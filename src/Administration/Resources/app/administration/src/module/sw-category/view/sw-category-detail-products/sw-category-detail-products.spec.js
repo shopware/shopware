@@ -1,43 +1,27 @@
 /**
- * @package content
+ * @package inventory
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryDetailProducts from 'src/module/sw-category/view/sw-category-detail-products';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-category-detail-products', swCategoryDetailProducts);
+const categoryMock = {
+    media: [],
+    name: 'Computer parts',
+    footerSalesChannels: [],
+    navigationSalesChannels: [],
+    serviceSalesChannels: [],
+    productAssignmentType: 'product',
+    isNew: () => false,
+};
 
-describe('module/sw-category/view/sw-category-detail-products.spec', () => {
-    let wrapper;
+const productStreamMock = {
+    name: 'Very cheap pc parts',
+    apiFilter: ['foo', 'bar'],
+    invalid: false,
+};
 
-    const categoryMock = {
-        media: [],
-        name: 'Computer parts',
-        footerSalesChannels: [],
-        navigationSalesChannels: [],
-        serviceSalesChannels: [],
-        productAssignmentType: 'product',
-        isNew: () => false,
-    };
-
-    const productStreamMock = {
-        name: 'Very cheap pc parts',
-        apiFilter: ['foo', 'bar'],
-        invalid: false,
-    };
-
-    beforeEach(async () => {
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', {
-            namespaced: true,
-            state: {
-                category: categoryMock,
-            },
-        });
-
-        wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-products'), {
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-category-detail-products', { sync: true }), {
+        global: {
             stubs: {
                 'sw-icon': true,
                 'sw-card': true,
@@ -47,23 +31,25 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                 'sw-switch-field': true,
                 'sw-single-select': true,
                 'sw-many-to-many-assignment-card': {
-                    template: `<div>
-                                   <slot name="prepend-select"></slot>
-                                   <slot name="select"><div class="sw-entity-many-to-many-select"></div></slot>
-                                   <slot name="data-grid"><div class="sw-many-to-many-assignment-card__grid"></div></slot>
-                               </div>`,
+                    template: `
+                        <div>
+                            <slot name="prepend-select"></slot>
+                            <slot name="select"></slot>
+                            <slot name="data-grid"></slot>
+                        </div>`,
                 },
                 'sw-product-stream-grid-preview': {
                     template: '<div class="sw-product-stream-grid-preview"></div>',
                 },
-                'sw-entity-single-select': true,
+                'sw-entity-single-select': {
+                    template: '<div class="sw-entity-single-select"></div>',
+                },
                 'sw-alert': {
                     template: '<div class="sw-alert"><slot></slot></div>',
                 },
             },
             mocks: {
-                placeholder: () => {
-                },
+                placeholder: () => {},
             },
             propsData: {
                 isLoading: false,
@@ -78,56 +64,63 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                     },
                 },
             },
-        });
+        },
     });
+}
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+describe('module/sw-category/view/sw-category-detail-products.spec', () => {
+    beforeEach(async () => {
+        if (Shopware.State.get('swCategoryDetail')) {
+            Shopware.State.unregisterModule('swCategoryDetail');
+        }
+
+        Shopware.State.registerModule('swCategoryDetail', {
+            namespaced: true,
+            state: {
+                category: categoryMock,
+            },
+        });
     });
 
     it('should render stream select when changing the assignment type to stream', async () => {
-        await wrapper.setData({
-            category: {
-                productAssignmentType: 'product_stream',
-            },
-        });
+        const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-category-detail-products__product-assignment-type-select').vm.$emit('update:value', 'product_stream');
 
         // Ensure default select is replaced with stream select inside `select` slot
         expect(wrapper.find('.sw-entity-many-to-many-select').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-category-detail-products__product-stream-select').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-category-detail-products__product-stream-select').exists()).toBe(true);
     });
 
     it('should render stream preview when changing the assignment type to product stream', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setData({
             category: {
                 productAssignmentType: 'product_stream',
             },
         });
-
-        await wrapper.vm.$nextTick();
 
         // Ensure that the default grid is replaced with product stream preview grid inside `data-grid` slot
         expect(wrapper.find('.sw-many-to-many-assignment-card__grid').exists()).toBeFalsy();
         expect(wrapper.find('.sw-product-stream-grid-preview').exists()).toBeTruthy();
     });
 
-    it('should show message when assigment type is product stream and products are manually assigned', async () => {
+    it('should show message when assignment type is product stream and products are manually assigned', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.getComponent('.sw-category-detail-products__product-assignment-type-select').vm.$emit('update:value', 'product_stream');
         await wrapper.setData({
             manualAssignedProductsCount: 5,
-            category: {
-                productAssignmentType: 'product_stream',
-            },
         });
-
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-alert').text())
             .toBe('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream');
     });
 
     it('should have correct default assignment types', async () => {
+        const wrapper = await createWrapper();
+
         const assignmentTypes = wrapper.vm.productAssignmentTypes;
 
         expect(assignmentTypes[0].value).toBe('product');
@@ -135,13 +128,13 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
     });
 
     it('should try to load product stream preview when stream id is present', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setData({
             manualAssignedProductsCount: 5,
-            category: {
-                productStreamId: '12345',
-            },
         });
 
+        await wrapper.getComponent('.sw-category-detail-products__product-stream-select').vm.$emit('update:value', 'some_product_stream_id');
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.productStreamFilter).toEqual(['foo', 'bar']);

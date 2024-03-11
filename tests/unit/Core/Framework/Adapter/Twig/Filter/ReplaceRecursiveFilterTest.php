@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Twig\Environment;
@@ -9,9 +10,8 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter
  */
+#[CoversClass(ReplaceRecursiveFilter::class)]
 class ReplaceRecursiveFilterTest extends TestCase
 {
     public function testReplace(): void

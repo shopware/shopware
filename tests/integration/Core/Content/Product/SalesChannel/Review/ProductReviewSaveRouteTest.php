@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Review;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -22,9 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
     use EventDispatcherBehaviour;
@@ -61,7 +62,8 @@ class ProductReviewSaveRouteTest extends TestCase
         static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
     }
 
-    public function testCreate(): void
+    #[DataProvider('provideContentData')]
+    public function testCreate(string $content, string $expectedContent): void
     {
         $this->login($this->browser);
 
@@ -69,7 +71,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $this->browser->request('POST', $this->getUrl(), [
             'title' => 'Lorem ipsum dolor sit amet',
-            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'content' => $content,
         ]);
 
         $response = $this->browser->getResponse();
@@ -77,6 +79,8 @@ class ProductReviewSaveRouteTest extends TestCase
         static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
+
+        $this->assertReviewContent($expectedContent);
     }
 
     public function testUpdate(): void
@@ -194,6 +198,34 @@ class ProductReviewSaveRouteTest extends TestCase
         static::assertStringContainsString($this->ids->get('unique-name'), $bodyText);
     }
 
+    public static function provideContentData(): \Generator
+    {
+        yield 'simple' => [
+            'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ];
+        yield 'html' => [
+            '<a href="https://localhost">Lorem ipsum dolor sit amet, consetetur sadipscing elitr</a>',
+            'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
+        ];
+        yield 'script' => [
+            '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
+            'alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")',
+        ];
+        yield 'javascript' => [
+            '<script>alert("foo")</script><p>foo</p><script>alert("foo")</script>',
+            'alert("foo")fooalert("foo")',
+        ];
+        yield 'javascript with attributes' => [
+            '<script type="text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
+            'alert("foo")fooalert("foo")',
+        ];
+        yield 'javascript with attributes and spaces' => [
+            '<script type = "text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
+            'alert("foo")fooalert("foo")',
+        ];
+    }
+
     private function assertReviewCount(int $expected): void
     {
         $count = $this->getContainer()
@@ -239,5 +271,14 @@ class ProductReviewSaveRouteTest extends TestCase
     private function getUrl(): string
     {
         return '/store-api/product/' . $this->ids->get('product') . '/review';
+    }
+
+    private function assertReviewContent(string $expectedContent): void
+    {
+        $content = $this->getContainer()
+            ->get(Connection::class)
+            ->fetchOne('SELECT content FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
+
+        static::assertEquals($expectedContent, $content);
     }
 }

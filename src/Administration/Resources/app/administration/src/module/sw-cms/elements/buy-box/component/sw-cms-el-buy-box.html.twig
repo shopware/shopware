@@ -14,7 +14,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_el_buy_box_product_price %}
         <div class="sw-cms-el-buy-box__price">
-            {{ product.price[0].gross | currency('EUR') }}
+            {{ currencyFilter(product.price[0].gross, 'EUR') }}
         </div>
         {% endblock %}
 

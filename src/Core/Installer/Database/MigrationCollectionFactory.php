@@ -52,6 +52,10 @@ class MigrationCollectionFactory
             $coreBasePath = $this->projectDir . '/src/Core';
             $storefrontBasePath = $this->projectDir . '/src/Storefront';
             $adminBasePath = $this->projectDir . '/src/Administration';
+        } elseif (file_exists($this->projectDir . '/vendor/shopware/platform/src/Core/schema.sql')) {
+            $coreBasePath = $this->projectDir . '/vendor/shopware/platform/src/Core';
+            $storefrontBasePath = $this->projectDir . '/vendor/shopware/platform/src/Storefront';
+            $adminBasePath = $this->projectDir . '/vendor/shopware/platform/src/Administration';
         } else {
             $coreBasePath = $this->projectDir . '/vendor/shopware/core';
             $storefrontBasePath = $this->projectDir . '/vendor/shopware/storefront';

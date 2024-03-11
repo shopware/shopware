@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event\EventData;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ArrayType implements EventDataType
 {
     final public const TYPE = 'array';

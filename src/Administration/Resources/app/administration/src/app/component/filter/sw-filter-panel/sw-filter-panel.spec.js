@@ -5,7 +5,7 @@ import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/filter/sw-base-filter';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const filters = [
     {
@@ -65,40 +65,42 @@ const filters = [
 let savedFilterData = {};
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-filter-panel'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-filter-panel', { sync: true }), {
+        props: {
             title: 'Filter',
             entity: 'product',
             filters,
             storeKey: 'config',
             defaults: ['filter1', 'filter2', 'filter3', 'filter4', 'filter5', 'filter6', 'filter7'],
         },
-        stubs: {
-            'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
-            'sw-field-error': {
-                template: '<div></div>',
+        global: {
+            stubs: {
+                'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
+                'sw-select-field': await Shopware.Component.build('sw-select-field'),
+                'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
+                'sw-field-error': {
+                    template: '<div></div>',
+                },
+                'sw-icon': true,
+                'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
+                'sw-multi-select-filter': true,
+                'sw-string-filter': true,
+                'sw-number-filter': true,
+                'sw-date-filter': true,
             },
-            'sw-icon': true,
-            'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
-            'sw-multi-select-filter': true,
-            'sw-string-filter': true,
-            'sw-number-filter': true,
-            'sw-date-filter': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => Promise.resolve({
-                        key: 'config',
-                        userId: '1',
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => Promise.resolve({
+                            key: 'config',
+                            userId: '1',
+                        }),
+                        search: () => Promise.resolve(savedFilterData),
+                        save: () => Promise.resolve([]),
                     }),
-                    search: () => Promise.resolve(savedFilterData),
-                    save: () => Promise.resolve([]),
-                }),
+                },
             },
         },
     });

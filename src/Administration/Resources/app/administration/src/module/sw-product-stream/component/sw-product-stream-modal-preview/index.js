@@ -1,5 +1,5 @@
 /*
- * @package business-ops
+ * @package services-settings
  */
 
 import template from './sw-product-stream-modal-preview.html.twig';
@@ -7,6 +7,7 @@ import './sw-product-stream-modal-preview.scss';
 
 const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
+const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**
  * @private
@@ -40,17 +41,24 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 1);
-            criteria.addSorting(Criteria.sort('type.iconName', 'ASC'));
-
-            return criteria;
+            return new Criteria(1, 1)
+                .addFilter(Criteria.not('OR', [
+                    Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
+                ])).addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
         previewCriteria() {
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.setTerm(this.searchTerm);
+            return new Criteria(this.page, this.limit)
+                .addFilter(Criteria.not('OR', [
+                    Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
+                ])).setTerm(this.searchTerm);
+        },
 
-            return criteria;
+        previewSelectionCriteria() {
+            return new Criteria()
+                .addFilter(Criteria.not('OR', [
+                    Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
+                ])).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         productColumns() {
@@ -78,6 +86,14 @@ export default {
                 },
             ];
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
+        },
     },
 
     created() {
@@ -85,33 +101,31 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.isLoading = true;
+
+            return this.loadSalesChannels().then(() => {
+                return this.loadEntityData();
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
         onSearchTermChange(searchTerm) {
             this.searchTerm = searchTerm;
             this.page = 1;
             this.isLoading = true;
-            this.loadEntityData()
-                .then(() => {
-                    this.isLoading = false;
-                });
+            this.loadEntityData().finally(() => {
+                this.isLoading = false;
+            });
         },
+
         onSalesChannelChange() {
             this.page = 1;
             this.isLoading = true;
-            this.loadEntityData()
-                .then(() => {
-                    this.isLoading = false;
-                });
-        },
-        createdComponent() {
-            this.isLoading = true;
-
-            return this.loadSalesChannels()
-                .then(() => {
-                    return this.loadEntityData();
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+            this.loadEntityData().finally(() => {
+                this.isLoading = false;
+            });
         },
 
         loadEntityData() {
@@ -185,10 +199,9 @@ export default {
             this.page = page;
             this.limit = limit;
 
-            this.loadEntityData()
-                .then(() => {
-                    this.isLoading = false;
-                });
+            this.loadEntityData().finally(() => {
+                this.isLoading = false;
+            });
         },
     },
 };

@@ -3,20 +3,20 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader
  */
+#[CoversClass(KernelPluginLoader::class)]
 class KernelPluginLoaderTest extends TestCase
 {
-    /**
-     * @dataProvider classLoaderDataProvider
-     */
+    #[DataProvider('classLoaderDataProvider')]
     public function testClassMapAuthoritativeWillBeDeactivated(bool $enabled): void
     {
         $classLoader = new ClassLoader();
@@ -46,9 +46,7 @@ class KernelPluginLoaderTest extends TestCase
         static::assertFalse($classLoader->isClassMapAuthoritative());
     }
 
-    /**
-     * @dataProvider classLoaderDataProvider
-     */
+    #[DataProvider('classLoaderDataProvider')]
     public function testWithComposerManaged(bool $enabled): void
     {
         $classLoader = new ClassLoader();

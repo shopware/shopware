@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountProfilePageLoader
 {
     /**
@@ -66,7 +66,7 @@ class AccountProfilePageLoader
 
     private function getSalutations(SalesChannelContext $context, Request $request): SalutationCollection
     {
-        $event = new SalutationRouteRequestEvent($request, new Request(), $context, new Criteria());
+        $event = new SalutationRouteRequestEvent($request, $request->duplicate(), $context, new Criteria());
         $this->eventDispatcher->dispatch($event);
 
         $salutations = $this->salutationRoute

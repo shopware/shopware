@@ -7,7 +7,7 @@
             "Sitemap": {
                 "allOf": [
                     {
-                        "$ref": "#\/components\/schemas\/ArrayStruct"
+                        "$ref": "#/components/schemas/ArrayStruct"
                     },
                     {
                         "type": "object",
@@ -19,7 +19,8 @@
                                 "type": "string",
                                 "format": "date-time"
                             }
-                        }
+                        },
+                        "required": ["filename", "created"]
                     }
                 ]
             }

@@ -3,7 +3,7 @@ title: Admin extension API standards
 date: 2021-12-07
 area: administration
 tags: [plugin, admin, extension-api]
---- 
+---
 
 ## Context
 We need to provide ways for extension developers to add custom components and views to different places in the administration. Multiple solutions where discussed and tested, this ADR contains a summary of the final solution.
@@ -68,7 +68,7 @@ sw.ui.componentSection('sw-manufacturer-card-custom-fields__before').add({
 #### Vue Devtools Plugin for finding the PositionIDs
 It is impossible to create a list of all potential position IDs. And they would be hard to manage. To solve this problem we are writing a custom plugin for the Vue Devtools. This plugin will be available for Vue Devtools 6+. It makes identifying the position IDs very easy.
 
-Just open the plugin in the Devtools (It is available directly when you open the Administration). Then you can see all positions at the current administration view which are available for extending. If you click at one position ID you get more information about it. Like the property in the Admin-Extension-SDK so that you directly know what functionality this position has.
+Just open the plugin in the Devtools (It is available directly when you open the Administration). Then you can see all positions at the current administration view which are available for extending. If you click at one position ID you get more information about it. Like the property in the Meteor-Extension-SDK so that you directly know what functionality this position has.
 
 In summary: the Devtool plugin provides a visual way to see which parts can be extended and what are the positionIDs for the extension position.
 

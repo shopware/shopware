@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Composition;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class DiscountCompositionItem
 {
     public function __construct(

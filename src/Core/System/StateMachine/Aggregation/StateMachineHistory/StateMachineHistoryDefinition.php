@@ -5,15 +5,12 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
@@ -46,8 +43,10 @@ class StateMachineHistoryDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('referenced_id', 'referencedId'))->addFlags(new Required()),
+            (new IdField('referenced_version_id', 'referencedVersionId'))->addFlags(new Required()),
 
             (new FkField('state_machine_id', 'stateMachineId', StateMachineDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('stateMachine', 'state_machine_id', StateMachineDefinition::class, 'id', false),
@@ -64,22 +63,5 @@ class StateMachineHistoryDefinition extends EntityDefinition
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $collection->add(
-                (new IdField('referenced_id', 'referencedId'))->addFlags(new Required())
-            );
-            $collection->add(
-                (new IdField('referenced_version_id', 'referencedVersionId'))->addFlags(new Required())
-            );
-        } else {
-            $collection->add(
-                (new JsonField('entity_id', 'entityId'))->addFlags(new Required(), new Deprecated('v6.5.0', 'v6.6.0', 'Use the dedicated properties \'referencedId\' and \'referencedVersionId\''))
-            );
-            $collection->add(new IdField('referenced_id', 'referencedId'));
-            $collection->add(new IdField('referenced_version_id', 'referencedVersionId'));
-        }
-
-        return $collection;
     }
 }

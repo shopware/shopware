@@ -7,7 +7,7 @@ Mit dieser E-Mail erhalten Sie die Dateien zu der Bestellung: {{ order.orderNumb
 
 -------------------------------------
 {% for download in lineItem.downloads %}{% if download.accessGranted %}
-{{ download.media.fileName }}.{{ download.media.fileExtension }} - {% set downloadLink = url('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}) %}{{ downloadLink }}
+{{ download.media.fileName }}.{{ download.media.fileExtension }} - {% set downloadLink = rawUrl('frontend.account.order.single.download', {'orderId': order.id, 'downloadId': download.id, 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) %}{{ downloadLink }}
 {% endif %}{% endfor %}
 
 {% endif %}{% endfor %}

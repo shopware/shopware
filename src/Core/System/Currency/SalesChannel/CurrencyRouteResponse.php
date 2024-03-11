@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyRouteResponse extends StoreApiResponse
 {
     /**

@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionCodeTuple
 {
     public function __construct(

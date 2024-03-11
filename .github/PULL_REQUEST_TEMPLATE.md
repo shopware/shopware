@@ -27,7 +27,3 @@ Please create a second pull request at https://github.com/shopware/docs
 - [ ] I have written or adjusted the documentation according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
 - [ ] I have read the contribution requirements and fulfil them.
-
-copilot:summary
-
-copilot:walkthrough

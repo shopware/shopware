@@ -4,12 +4,18 @@ namespace Shopware\Core\Checkout\Cart\Tax;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
-class TaxDetector
+class TaxDetector extends AbstractTaxDetector
 {
+    public function getDecorated(): AbstractTaxDetector
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public function useGross(SalesChannelContext $context): bool
     {
         return $context->getCurrentCustomerGroup()->getDisplayGross();

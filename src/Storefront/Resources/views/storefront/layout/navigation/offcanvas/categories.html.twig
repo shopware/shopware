@@ -18,7 +18,7 @@
             {% endif %}
 
             <ul class="list-unstyled navigation-offcanvas-list">
-                {% if not isRoot and page.navigation.active.type != "folder" %}
+                {% if not isRoot and page.navigation.active.type != 'folder' %}
                     {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/show-active-link.html.twig' with { item: active } %}
                 {% endif %}
 

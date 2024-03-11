@@ -28,6 +28,22 @@ class DatabaseConnectionInformation extends Struct
 
     protected ?bool $sslDontVerifyServerCert = null;
 
+    public function assign(array $options)
+    {
+        // We pass request values directly to the assign method,
+        // so we need to cast them to the correct type first
+        if (isset($options['port'])) {
+            $options['port'] = (int) $options['port'];
+        }
+        if (isset($options['sslDontVerifyServerCert'])) {
+            $options['sslDontVerifyServerCert'] = (bool) $options['sslDontVerifyServerCert'];
+        }
+
+        parent::assign($options);
+
+        return $this;
+    }
+
     public static function fromEnv(): self
     {
         $dsn = trim((string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL')));

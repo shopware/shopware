@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Promotion\Service;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionDateTimeService implements PromotionDateTimeServiceInterface
 {
     /**

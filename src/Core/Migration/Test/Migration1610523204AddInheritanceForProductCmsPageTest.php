@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -23,10 +24,9 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
- *
- * @group not-deterministic
  */
 #[Package('core')]
+#[Group('not-deterministic')]
 class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\ApiDefinition\Generator;
 
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -14,10 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class OpenApi3Test extends TestCase
 {
     use KernelTestBehaviour;

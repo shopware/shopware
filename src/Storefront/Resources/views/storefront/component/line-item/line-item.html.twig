@@ -3,7 +3,7 @@
     {% set DISCOUNT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::DISCOUNT_LINE_ITEM') %}
     {% set CONTAINER_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::CONTAINER_LINE_ITEM') %}
 
-    {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) || lineItem.type == DISCOUNT_LINE_ITEM_TYPE %}
+    {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) or lineItem.type == DISCOUNT_LINE_ITEM_TYPE %}
     {% set isProduct = lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
     {% set isContainer = lineItem.type == CONTAINER_LINE_ITEM_TYPE %}
 

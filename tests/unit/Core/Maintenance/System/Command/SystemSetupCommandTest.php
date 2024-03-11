@@ -2,18 +2,20 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Command\SystemSetupCommand
  */
+#[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {
     protected function tearDown(): void
@@ -30,6 +32,7 @@ class SystemSetupCommandTest extends TestCase
     public function testEnvFileGeneration(): void
     {
         $args = [
+            'command' => 'system:setup',
             '--app-env' => 'test',
             '--app-url' => 'https://example.com',
             '--database-url' => 'mysql://localhost:3306/shopware',
@@ -49,9 +52,9 @@ class SystemSetupCommandTest extends TestCase
             '--composer-home' => __DIR__,
         ];
 
-        $tester = $this->getCommandTester();
+        $tester = $this->getApplicationTester();
 
-        $tester->execute($args, ['interactive' => false]);
+        $tester->run($args, ['interactive' => false]);
 
         $tester->assertCommandIsSuccessful();
 
@@ -65,6 +68,7 @@ class SystemSetupCommandTest extends TestCase
         static::assertArrayHasKey('APP_SECRET', $env);
         static::assertArrayHasKey('INSTANCE_ID', $env);
         unset($env['APP_SECRET'], $env['INSTANCE_ID']);
+        unset($env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT']);
         static::assertEquals([
             'APP_ENV' => 'test',
             'APP_URL' => 'https://example.com',
@@ -89,6 +93,7 @@ class SystemSetupCommandTest extends TestCase
     public function testEnvFileGenerationWithDumpEnv(): void
     {
         $args = [
+            'command' => 'system:setup',
             '--app-env' => 'test',
             '--app-url' => 'https://example.com',
             '--database-url' => 'mysql://localhost:3306/shopware',
@@ -109,9 +114,9 @@ class SystemSetupCommandTest extends TestCase
             '--dump-env' => true,
         ];
 
-        $tester = $this->getCommandTester();
+        $tester = $this->getApplicationTester();
 
-        $tester->execute($args, ['interactive' => false]);
+        $tester->run($args, ['interactive' => false]);
 
         $tester->assertCommandIsSuccessful();
 
@@ -129,6 +134,8 @@ class SystemSetupCommandTest extends TestCase
     public function testSymfonyFlexGeneratesWarning(): void
     {
         $args = [
+            'command' => 'system:setup',
+            '-v' => true,
             '--app-env' => 'test',
             '--app-url' => 'https://example.com',
             '--database-url' => 'mysql://localhost:3306/shopware',
@@ -146,23 +153,33 @@ class SystemSetupCommandTest extends TestCase
 
         touch(__DIR__ . '/symfony.lock');
 
-        $tester = $this->getCommandTester();
+        $tester = $this->getApplicationTester();
 
-        $tester->execute($args, ['interactive' => false]);
+        $tester->run($args, ['interactive' => false, 'verbosity' => OutputInterface::VERBOSITY_DEBUG]);
 
         $tester->assertCommandIsSuccessful();
 
         static::assertStringContainsString('It looks like you have installed Shopware with Symfony Flex', $tester->getDisplay());
     }
 
-    private function getCommandTester(): CommandTester
+    private function getApplicationTester(): ApplicationTester
     {
-        return new CommandTester(
+        $dumpCommand = new DotenvDumpCommand(__DIR__);
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->add(
             new SystemSetupCommand(
                 __DIR__,
                 new JwtCertificateGenerator(),
-                new DotenvDumpCommand(__DIR__)
+                $dumpCommand
             )
+        );
+
+        $application->add($dumpCommand);
+
+        return new ApplicationTester(
+            $application,
         );
     }
 }

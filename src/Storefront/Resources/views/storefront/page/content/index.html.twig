@@ -5,9 +5,10 @@
     <div class="container-main">
         {% block page_content %}
             {% block cms_breadcrumb %}
-                <div class="breadcrumb cms-breadcrumb container">
+                <div class="cms-breadcrumb container">
                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                         context: context,
+                        themeIconConfig: themeIconConfig,
                         category: page.header.navigation.active
                     } only %}
                 </div>
@@ -19,7 +20,7 @@
                 {% set landingPage = page.landingPage ? page.landingPage : {} %}
                 <div class="{{ cmsPageClasses }}">
                     {% block page_content_blocks %}
-                        {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': cmsPage, 'landingPage': landingPage} %}
+                        {% sw_include '@Storefront/storefront/page/content/detail.html.twig' with {cmsPage: cmsPage, landingPage: landingPage} %}
                     {% endblock %}
                 </div>
             {% endblock %}

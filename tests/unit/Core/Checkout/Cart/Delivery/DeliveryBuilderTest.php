@@ -2,12 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Delivery;
 
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
@@ -26,24 +26,22 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder
  */
+#[CoversClass(DeliveryBuilder::class)]
 class DeliveryBuilderTest extends TestCase
 {
     public function testBuildThrowsIfNoShippingMethodCanBeFound(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::any())
-            ->method('getShippingMethod')
+        $salesChannelContext->method('getShippingMethod')
             ->willReturn(
                 (new ShippingMethodEntity())->assign([
                     'id' => 'shipping-method-id',
                 ])
             );
 
-        static::expectException(ShippingException::class);
-        static::expectExceptionMessage('Shipping method with id "shipping-method-id" not found.');
+        $this->expectException(ShippingException::class);
+        $this->expectExceptionMessage('Could not find shipping method with id "shipping-method-id"');
         (new DeliveryBuilder())->build(
             new Cart('cart-token'),
             new CartDataCollection([]),
@@ -59,8 +57,7 @@ class DeliveryBuilderTest extends TestCase
         ]);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::any())
-            ->method('getShippingMethod')
+        $salesChannelContext->method('getShippingMethod')
             ->willReturn($shippingMethod);
 
         $cart = new Cart('cart-token');
@@ -68,7 +65,6 @@ class DeliveryBuilderTest extends TestCase
             'shipping-method-shipping-method-id' => $shippingMethod,
         ]);
 
-        /** @var DeliveryBuilder&MockObject $deliveryBuilder */
         $deliveryBuilder = $this->getMockBuilder(DeliveryBuilder::class)
             // don't mock build because it is the function under test
             ->onlyMethods(['buildByUsingShippingMethod'])
@@ -86,9 +82,7 @@ class DeliveryBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getLineItemsThatResultInAnEmptyDelivery
-     */
+    #[DataProvider('getLineItemsThatResultInAnEmptyDelivery')]
     public function testLineItemResultInAnEmptyDelivery(LineItemCollection $lineItems): void
     {
         $cart = new Cart('cart-token');
@@ -100,7 +94,7 @@ class DeliveryBuilderTest extends TestCase
             $this->createMock(SalesChannelContext::class),
         );
 
-        static::assertEquals(0, $deliveries->count());
+        static::assertCount(0, $deliveries);
     }
 
     /**
@@ -131,9 +125,7 @@ class DeliveryBuilderTest extends TestCase
         ])];
     }
 
-    /**
-     * @dataProvider provideLineItemDataForSingleDelivery
-     */
+    #[DataProvider('provideLineItemDataForSingleDelivery')]
     public function testDeliveryTimesForSingleDelivery(LineItemCollection $lineItems, DeliveryDate $expectedDeliveryDate): void
     {
         $cart = new Cart('cart-token');
@@ -151,10 +143,10 @@ class DeliveryBuilderTest extends TestCase
 
         $deliveryCollection = (new DeliveryBuilder())->buildByUsingShippingMethod($cart, $shippingMethod, $salesChannelContext);
 
-        static::assertEquals(1, $deliveryCollection->count());
+        static::assertCount(1, $deliveryCollection);
 
-        /** @var Delivery $delivery */
         $delivery = $deliveryCollection->first();
+        static::assertNotNull($delivery);
 
         static::assertSame($shippingMethod, $delivery->getShippingMethod());
         static::assertSame($deliveryLocation, $delivery->getLocation());

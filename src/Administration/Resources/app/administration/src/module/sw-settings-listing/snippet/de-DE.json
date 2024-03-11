@@ -71,11 +71,16 @@
       "general": {
         "title": "Allgemein",
         "labelName": "Name",
+        "placeholderName": "Namen eingeben ...",
+        "labelTechnicalName": "Technischer Name",
+        "placeholderTechnicalName": "Technischen Namen eingeben ...",
+        "helpTextTechnicalName": "Der technische Name wird für die Identifizierung der Produkt-Sortierung verwendet. Er ist einzigartig und für alle Produkt-Sortierungen erforderlich.",
         "labelActive": "Aktiv"
       },
       "notification": {
         "saveSuccess": "Sortier-Option \"{sortingOptionName}\" gespeichert.",
-        "saveError": "Die Sortier-Option \"{sortingOptionName}\" kann nicht gespeichert werden."
+        "saveError": "Die Sortier-Option \"{sortingOptionName}\" kann nicht gespeichert werden.",
+        "saveErrorAlreadyExists": "Die Sortier-Option \"{sortingOptionName}\" existiert bereits."
       },
       "criteria": {
         "title": "Sortier-Kriterien",

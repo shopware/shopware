@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -49,9 +50,8 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestGenericExce
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor
  */
+#[CoversClass(TaxProviderProcessor::class)]
 class TaxProviderProcessorTest extends TestCase
 {
     private IdsCollection $ids;
@@ -130,7 +130,7 @@ class TaxProviderProcessorTest extends TestCase
         static::assertArrayHasKey('7', $deliveryTaxes);
 
         static::assertInstanceOf(CalculatedTax::class, $lineItemTaxes['7']);
-        static::assertInstanceOf(CalculatedTax::class, $lineItemTaxes['7']);
+        static::assertInstanceOf(CalculatedTax::class, $deliveryTaxes['7']);
 
         $lineItemTax = $lineItemTaxes['7'];
         $deliveryTax = $deliveryTaxes['7'];

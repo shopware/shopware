@@ -8,6 +8,9 @@ use Symfony\Component\Validator\Constraint;
 #[Package('core')]
 class DataValidationDefinition
 {
+    /**
+     * @var array<string, Constraint[]>
+     */
     private array $properties = [];
 
     /**
@@ -60,16 +63,25 @@ class DataValidationDefinition
         return $this;
     }
 
+    /**
+     * @return array<string, Constraint[]>
+     */
     public function getProperties(): array
     {
         return $this->properties;
     }
 
+    /**
+     * @return DataValidationDefinition[]
+     */
     public function getSubDefinitions(): array
     {
         return $this->subDefinitions;
     }
 
+    /**
+     * @return DataValidationDefinition[]
+     */
     public function getListDefinitions(): array
     {
         return $this->listDefinitions;

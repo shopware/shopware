@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RawFlowEvent implements FlowEventAware
 {
     public function __construct(protected ?Context $context = null)

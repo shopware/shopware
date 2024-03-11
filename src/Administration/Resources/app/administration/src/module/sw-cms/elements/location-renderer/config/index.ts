@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Component.register('sw-cms-el-config-location-renderer', {
     template,
@@ -24,7 +24,12 @@ Component.register('sw-cms-el-config-location-renderer', {
 
     computed: {
         src(): string {
-            return this.elementData.appData.baseUrl;
+            // Add this.element.id to the url as a query param
+            const url = new URL(this.elementData.appData.baseUrl);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            url.searchParams.set('elementId', this.element.id);
+
+            return url.toString();
         },
 
         configLocation(): string {

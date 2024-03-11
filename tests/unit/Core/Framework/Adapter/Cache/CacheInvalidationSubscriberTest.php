@@ -3,7 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -18,13 +23,27 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 /**
  * @internal
- *
- * @group cache
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber
  */
+#[CoversClass(CacheInvalidationSubscriber::class)]
+#[Group('cache')]
 class CacheInvalidationSubscriberTest extends TestCase
 {
+    /**
+     * @var CacheInvalidator&MockObject
+     */
+    private CacheInvalidator $cacheInvalidator;
+
+    /**
+     * @var Connection&MockObject
+     */
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $this->connection = $this->createMock(Connection::class);
+    }
+
     public function testConsidersKeyOfCachedBaseContextFactoryForInvalidatingContext(): void
     {
         $salesChannelId = Uuid::randomHex();
@@ -69,9 +88,8 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     /**
      * @param array<string> $tags
-     *
-     * @dataProvider provideTracingTranslationExamples
      */
+    #[DataProvider('provideTracingTranslationExamples')]
     public function testInvalidateTranslation(bool $enabled, array $tags): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
@@ -113,9 +131,8 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     /**
      * @param array<string> $tags
-     *
-     * @dataProvider provideTracingConfigExamples
      */
+    #[DataProvider('provideTracingConfigExamples')]
     public function testInvalidateConfig(bool $enabled, array $tags): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
@@ -134,6 +151,64 @@ class CacheInvalidationSubscriberTest extends TestCase
         );
 
         $subscriber->invalidateConfigKey(new SystemConfigChangedHook(['test' => '1'], []));
+    }
+
+    public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
+    {
+        $productId = '123';
+        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+
+        $subscriber = new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            false,
+            false
+        );
+        $this->connection->method('fetchAllAssociative')
+            ->willReturn([['product_id' => $productId, 'version_id' => null]]);
+
+        $this->cacheInvalidator->expects(static::once())
+            ->method('invalidate')
+            ->with(
+                [
+                    'product-detail-route-' . $productId,
+                ],
+                false
+            );
+
+        $subscriber->invalidateMedia($event);
+    }
+
+    public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
+    {
+        $productId = '123';
+        $variants = ['456', '789'];
+        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+
+        $subscriber = new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            false,
+            false
+        );
+        $this->connection->method('fetchAllAssociative')
+            ->willReturn([
+                ['product_id' => $productId, 'variant_id' => $variants[0]],
+                ['product_id' => $productId, 'variant_id' => $variants[1]],
+            ]);
+
+        $this->cacheInvalidator->expects(static::once())
+            ->method('invalidate')
+            ->with(
+                [
+                    'product-detail-route-' . $productId,
+                    'product-detail-route-' . $variants[0],
+                    'product-detail-route-' . $variants[1],
+                ],
+                false
+            );
+
+        $subscriber->invalidateMedia($event);
     }
 
     public static function provideTracingConfigExamples(): \Generator

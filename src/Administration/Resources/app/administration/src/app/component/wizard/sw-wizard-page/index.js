@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.register('sw-wizard-page', {
     template,
 
+    inject: ['feature'],
+
     props: {
         isActive: {
             type: Boolean,
@@ -51,11 +53,11 @@ Component.register('sw-wizard-page', {
 
     methods: {
         createdComponent() {
-            this.$parent.$emit('page-add', this);
+            this.$parent.$parent.$parent.$emit('page-add', this);
         },
 
         destroyedComponent() {
-            this.$parent.$emit('page-remove', this);
+            this.$parent.$parent.$parent.$emit('page-remove', this);
         },
     },
 });

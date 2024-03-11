@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
@@ -22,9 +24,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class SyncControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -305,7 +306,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
         static::assertCount(2, $exists);
 
@@ -325,7 +326,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
     }
@@ -366,7 +367,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertNotEmpty($exists);
@@ -417,7 +418,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => ArrayParameterType::STRING]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertNotEmpty($exists);
@@ -505,10 +506,9 @@ class SyncControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidOperationProvider
-     *
      * @param array<mixed> $payload
      */
+    #[DataProvider('invalidOperationProvider')]
     public function testItThrows400WithInvalidSyncOperation(string $key, string $entity, string $action, array $payload, string $actor): void
     {
         $data = [

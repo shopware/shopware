@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -39,9 +40,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    /**
-     * @dataProvider productKeywordProvider
-     */
+    #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsAndDictionary(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
         $this->productRepository->create([$productData], Context::createDefaultContext());
@@ -62,9 +61,8 @@ class SearchKeywordUpdaterTest extends TestCase
      * @param string[] $englishKeywords
      * @param string[] $germanKeywords
      * @param string[] $additionalDictionaries
-     *
-     * @dataProvider productKeywordProvider
      */
+    #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
     {
         $context = Context::createDefaultContext();

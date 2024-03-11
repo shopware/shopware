@@ -8,7 +8,7 @@ import template from './sw-login-login.html.twig';
 const { Component, Mixin } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-login-login', {
     template,
@@ -23,6 +23,7 @@ Component.register('sw-login-login', {
         return {
             username: '',
             password: '',
+            rememberMe: false,
             loginAlertMessage: '',
         };
     },
@@ -57,6 +58,8 @@ Component.register('sw-login-login', {
         },
 
         handleLoginSuccess() {
+            this.handleRememberMe();
+
             this.password = '';
 
             this.$emit('login-success');
@@ -83,13 +86,28 @@ Component.register('sw-login-login', {
             });
         },
 
+        handleRememberMe() {
+            if (!this.rememberMe) {
+                return;
+            }
+
+            const duration = new Date();
+            duration.setDate(duration.getDate() + 14);
+
+            localStorage.setItem('rememberMe', `${+duration}`);
+        },
+
         forwardLogin() {
             const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route'));
             sessionStorage.removeItem('sw-admin-previous-route');
 
             const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
-            if (firstRunWizard && !this.$router.history.current.name.startsWith('sw.first.run.wizard.')) {
+            if (
+                firstRunWizard &&
+                !this.$router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard') &&
+                this.$router.hasRoute('sw.first.run.wizard.index')
+            ) {
                 this.$router.push({ name: 'sw.first.run.wizard.index' });
                 return;
             }

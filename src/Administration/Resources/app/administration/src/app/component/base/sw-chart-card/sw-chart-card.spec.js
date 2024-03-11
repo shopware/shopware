@@ -2,8 +2,7 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-chart-card';
+import { mount } from '@vue/test-utils';
 
 const extendedRanges = [{
     label: '90Days',
@@ -30,23 +29,22 @@ const defaultRangeIndex = 1;
 const defaultRange = extendedRanges[defaultRangeIndex];
 
 async function createWrapper(additionalProps = {}) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-chart-card'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-chart-card', { sync: true }), {
+        props: {
             positionIdentifier: 'sw-chart-card__statistics-count',
             defaultRangeIndex,
             ...additionalProps,
         },
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot /><slot name="title"></slot></div>',
-                props: ['helpText'],
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot /><slot name="title"></slot></div>',
+                    props: ['helpText'],
+                },
+                'sw-select-field': true,
+                'sw-chart': true,
+                'sw-icon': true,
             },
-            'sw-select-field': true,
-            'sw-chart': true,
-            'sw-icon': true,
         },
     });
 }
@@ -73,12 +71,15 @@ describe('src/app/component/base/sw-chart-card', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ selectedRange: expectedValue });
 
-        wrapper.vm.$emit = jest.fn();
         wrapper.vm.dispatchRangeUpdate();
 
-        expect(wrapper.vm.$emit).toHaveBeenCalledWith(expectedEvent, expectedValue);
+        expect(wrapper.emitted()).toHaveProperty(expectedEvent);
+        expect(wrapper.emitted()[expectedEvent]).toHaveLength(1);
+        expect(wrapper.emitted()[expectedEvent][0]).toHaveLength(1);
+        expect(wrapper.emitted()[expectedEvent][0][0]).toBe(expectedValue);
     });
 
+    // eslint-disable-next-line max-len
     it('should emit "sw-chart-card-range-update" with current value of selectedRange property with non-default availableRanges', async () => {
         const expectedEvent = 'sw-chart-card-range-update';
         const expectedRange = extendedRanges[2];
@@ -87,10 +88,12 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(wrapper.vm.selectedRange).toStrictEqual(defaultRange);
 
         await wrapper.setData({ selectedRange: expectedRange });
-        wrapper.vm.$emit = jest.fn();
         wrapper.vm.dispatchRangeUpdate();
 
-        expect(wrapper.vm.$emit).toHaveBeenCalledWith(expectedEvent, expectedRange);
+        expect(wrapper.emitted()).toHaveProperty(expectedEvent);
+        expect(wrapper.emitted()[expectedEvent]).toHaveLength(1);
+        expect(wrapper.emitted()[expectedEvent][0]).toHaveLength(1);
+        expect(wrapper.emitted()[expectedEvent][0][0]).toStrictEqual(expectedRange);
         expect(wrapper.vm.selectedRange).toEqual(expectedRange);
     });
 

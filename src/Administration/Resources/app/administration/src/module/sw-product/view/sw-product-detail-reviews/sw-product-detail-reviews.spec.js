@@ -2,8 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
 import swProductDetailReviews from 'src/module/sw-product/view/sw-product-detail-reviews';
 
 Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews);
@@ -11,57 +10,63 @@ Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews)
 const { State } = Shopware;
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-product-detail-reviews'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([]);
-                    },
-                    delete: () => {
-                        return Promise.resolve();
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+    return mount(await wrapTestComponent('sw-product-detail-reviews', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([]);
+                        },
+                        delete: () => {
+                            return Promise.resolve();
+                        },
+                    }),
                 },
-            },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-        },
-        stubs: {
-            'sw-card': {
-                template: `
+                        return privileges.includes(identifier);
+                    },
+                },
+
+            },
+            stubs: {
+                'sw-card': {
+                    template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+                },
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
                     <div class="sw-data-grid">
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
                 `,
+                },
+                'sw-empty-state': true,
+                'sw-context-menu-item': true,
+                'sw-modal': {
+                    template: `
+                    <div class="sw-modal sw-modal-stub">
+                        <slot />
+                        <slot name="content" />
+                        <slot name="modal-footer" />
+                    </div>
+`,
+                },
+                'sw-skeleton': true,
+                'sw-button': true,
             },
-            'sw-empty-state': true,
-            'sw-context-menu-item': true,
-            'sw-modal': true,
-            'sw-skeleton': true,
-            'sw-button': true,
         },
     });
 }
@@ -80,6 +85,11 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
             },
             getters: {
                 isLoading: () => false,
+            },
+            mutations: {
+                setProduct(state, newProduct) {
+                    state.product = newProduct;
+                },
             },
         });
     });
@@ -135,7 +145,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
 
         await wrapper.vm.onStartReviewDelete({ id: '101' });
 
-        const modal = wrapper.find('sw-modal-stub');
+        const modal = wrapper.find('.sw-modal-stub');
 
         expect(wrapper.vm.deleteReviewId).toBe('101');
         expect(wrapper.vm.showReviewDeleteModal).toBe(true);
@@ -169,7 +179,8 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         const wrapper = await createWrapper();
         wrapper.vm.getReviews = jest.fn();
 
-        await wrapper.setData({ product: { id: '101' } });
+        await Shopware.State.commit('swProductDetail/setProduct', { id: '101' });
+        await flushPromises();
 
         expect(wrapper.vm.getReviews).toHaveBeenCalled();
         wrapper.vm.getReviews.mockRestore();
@@ -196,5 +207,12 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         expect(wrapper.vm.limit).toBe(10);
         expect(wrapper.vm.getReviews).toHaveBeenCalled();
         wrapper.vm.getReviews.mockRestore();
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

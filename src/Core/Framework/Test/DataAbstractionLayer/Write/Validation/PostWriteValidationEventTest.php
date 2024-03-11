@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Validation;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,9 +20,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
  */
 class PostWriteValidationEventTest extends TestCase
 {
-    /**
-     * @dataProvider getPrimaryKeysProvider
-     */
+    #[DataProvider('getPrimaryKeysProvider')]
     public function testGetPrimaryKeys(PostWriteValidationEvent $event, array $assertions): void
     {
         foreach ($assertions as $entity => $ids) {
@@ -29,9 +28,7 @@ class PostWriteValidationEventTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getPrimaryKeysProvider
-     */
+    #[DataProvider('getPrimaryKeysProvider')]
     public function testGetDeletedPrimaryKeysProvider(PostWriteValidationEvent $event, array $assertions): void
     {
         foreach ($assertions as $entity => $ids) {
@@ -39,9 +36,7 @@ class PostWriteValidationEventTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getDeletedPrimaryKeysProvider
-     */
+    #[DataProvider('getDeletedPrimaryKeysProvider')]
     public function testGetDeletedPrimaryKeys(PostWriteValidationEvent $event, array $assertions): void
     {
         foreach ($assertions as $entity => $ids) {

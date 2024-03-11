@@ -23,7 +23,7 @@ class AppCmsControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertNotFalse($response->getContent());
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $json = \file_get_contents(__DIR__ . '/_fixtures/expectedCmsBlocks.json');
         static::assertNotFalse($json);

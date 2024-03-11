@@ -27,10 +27,10 @@ trait BasicTestDataBehaviour
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.translationCode.code', 'de-DE'));
 
-        /** @var LanguageEntity $language */
-        $language = $repository->search($criteria, Context::createDefaultContext())->first();
+        /** @var string $languageId */
+        $languageId = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
-        return $language->getId();
+        return $languageId;
     }
 
     abstract protected static function getContainer(): ContainerInterface;
@@ -198,8 +198,6 @@ trait BasicTestDataBehaviour
         if ($salesChannelId !== null) {
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
-
-        $result = $repository->search($criteria, Context::createDefaultContext());
 
         /** @var string $id */
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();

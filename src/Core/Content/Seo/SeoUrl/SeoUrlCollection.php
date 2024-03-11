@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<SeoUrlEntity>
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SeoUrlCollection extends EntityCollection
 {
     public function filterBySalesChannelId(string $id): SeoUrlCollection

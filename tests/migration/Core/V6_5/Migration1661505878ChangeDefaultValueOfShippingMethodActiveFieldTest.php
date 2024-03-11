@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1661505878ChangeDefaultValueOfShippingMethodActiveField;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1661505878ChangeDefaultValueOfShippingMethodActiveField
  */
+#[CoversClass(Migration1661505878ChangeDefaultValueOfShippingMethodActiveField::class)]
 class Migration1661505878ChangeDefaultValueOfShippingMethodActiveFieldTest extends TestCase
 {
     public function testUpdateActiveColumnDefaultValue(): void

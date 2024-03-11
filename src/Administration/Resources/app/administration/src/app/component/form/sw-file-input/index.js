@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description The <u>sw-file-input</u> component can be used wherever a file input is needed.
  * @example-type code-only
  * @component-example
@@ -28,11 +28,6 @@ Component.register('sw-file-input', {
     mixins: [
         Mixin.getByName('notification'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         maxFileSize: {
@@ -126,13 +121,7 @@ Component.register('sw-file-input', {
         setSelectedFile(newFile) {
             this.selectedFile = newFile;
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.selectedFile);
-
-                return;
-            }
-
-            this.$emit('change', this.selectedFile);
+            this.$emit('update:value', this.selectedFile);
         },
 
         checkFileSize(file) {

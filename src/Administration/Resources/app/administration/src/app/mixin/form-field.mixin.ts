@@ -6,9 +6,17 @@ import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('sw-form-field', defineComponent({
+    inject: ['feature'],
+
+    data() {
+        return {
+            inheritanceAttrs: {},
+        };
+    },
+
     props: {
         mapInheritance: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,23 +27,9 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        boundExpression() {
-            // @ts-expect-error - we check if model exists on vnode
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (this.$vnode?.data?.model && this.$vnode?.data?.model?.expression) {
-                // @ts-expect-error - we check if model exists on vnode
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-                return this.$vnode.data.model.expression;
-            }
-            return null;
-        },
-
         formFieldName(): string|null {
             if (this.$attrs.name) {
-                return this.$attrs.name;
+                return this.$attrs.name as string;
             }
 
             // @ts-expect-error - name exists on main component
@@ -43,16 +37,6 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
                 // @ts-expect-error - name exists on main component
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.name;
-            }
-
-            /**
-             * @deprecated tag:v6.6.0 - If statement will be removed
-             */
-            if (this.boundExpression) {
-                // @ts-expect-error - we check if the value exists in boundExpression
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-                return `sw-field--${this.$vnode?.data?.model?.expression.replace(/\./g, '-')}`;
             }
 
             return null;
@@ -124,12 +108,18 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         setAttributesForProps(prop: string, propValue: boolean) {
             switch (prop) {
                 case 'isInherited': {
-                    this.$set(this.$attrs, prop, propValue);
+                    this.inheritanceAttrs = {
+                        ...this.inheritanceAttrs,
+                        [prop]: propValue,
+                    };
                     break;
                 }
 
                 case 'isInheritField': {
-                    this.$set(this.$attrs, 'isInheritanceField', propValue);
+                    this.inheritanceAttrs = {
+                        ...this.inheritanceAttrs,
+                        isInheritanceField: propValue,
+                    };
                     break;
                 }
 

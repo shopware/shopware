@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -90,9 +91,8 @@ class ResponseHeaderListenerTest extends TestCase
 
     /**
      * @param array<string, string> $routeParameters
-     *
-     * @dataProvider dataProviderRevalidateRoutes
      */
+    #[DataProvider('dataProviderRevalidateRoutes')]
     public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
     {
         $router = $this->getContainer()->get('router');

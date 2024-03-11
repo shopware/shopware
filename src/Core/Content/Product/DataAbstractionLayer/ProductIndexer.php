@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -57,10 +56,9 @@ class ProductIndexer extends EntityIndexer
         private readonly ChildCountUpdater $childCountUpdater,
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         private readonly AbstractStockStorage $stockStorage,
-        private readonly StockUpdater $stockUpdater,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
-        private readonly ProductStreamUpdater $streamUpdater,
+        private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly StatesUpdater $statesUpdater,
         private readonly MessageBusInterface $messageBus
     ) {
@@ -101,11 +99,7 @@ class ProductIndexer extends EntityIndexer
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
-            if (Feature::isActive('STOCK_HANDLING')) {
-                $this->stockStorage->index(array_values($stocks), $event->getContext());
-            } else {
-                $this->stockUpdater->update(array_values($stocks), $event->getContext());
-            }
+            $this->stockStorage->index(array_values($stocks), $event->getContext());
         });
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
@@ -157,11 +151,7 @@ class ProductIndexer extends EntityIndexer
 
         if ($message->allow(self::STOCK_UPDATER)) {
             Profiler::trace('product:indexer:stock', function () use ($ids, $context): void {
-                if (!Feature::isActive('STOCK_HANDLING')) {
-                    $this->stockUpdater->update($ids, $context);
-                } else {
-                    $this->stockStorage->index($ids, $context);
-                }
+                $this->stockStorage->index($ids, $context);
             });
         }
 
@@ -223,7 +213,7 @@ class ProductIndexer extends EntityIndexer
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -261,7 +251,7 @@ class ProductIndexer extends EntityIndexer
         $childrenIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return array_unique(array_filter($childrenIds));
@@ -277,7 +267,7 @@ class ProductIndexer extends EntityIndexer
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(product.parent_id)) as id FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return array_unique(array_filter($parentIds));
@@ -296,7 +286,7 @@ class ProductIndexer extends EntityIndexer
              WHERE `id` IN (:ids)
              AND `parent_id` IS NULL',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 

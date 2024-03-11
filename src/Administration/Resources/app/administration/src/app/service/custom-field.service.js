@@ -5,7 +5,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @module app/service/custom-field
  * @memberOf module:core/service/custom-field
  * @constructor

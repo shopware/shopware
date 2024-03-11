@@ -33,7 +33,6 @@ class MigrationRuntime
                 continue;
             }
 
-            /** @var MigrationStep $migration */
             $migration = new $migration();
 
             try {
@@ -64,7 +63,6 @@ class MigrationRuntime
                 continue;
             }
 
-            /** @var MigrationStep $migration */
             $migration = new $migration();
 
             try {
@@ -81,7 +79,7 @@ class MigrationRuntime
     }
 
     /**
-     * @return list<class-string<MigrationStep>>
+     * @return array<class-string<MigrationStep>>
      */
     public function getExecutableMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
@@ -92,7 +90,7 @@ class MigrationRuntime
     }
 
     /**
-     * @return list<class-string<MigrationStep>>
+     * @return array<class-string<MigrationStep>>
      */
     public function getExecutableDestructiveMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {

@@ -1,6 +1,7 @@
 /* eslint-disable */
 
-import Vue, {VNode} from "vue";
+import {VNode} from "vue";
+import { ComponentPublicInstance } from "vue";
 
 const { Directive } = Shopware;
 
@@ -41,7 +42,7 @@ const defaultConfig: PopoverConfig = {
 const customStylingBlacklist = ['width', 'position', 'top', 'left', 'right', 'bottom'];
 
 Directive.register('popover', {
-    inserted(element, binding, vnode) {
+    mounted(element, binding) {
         // We need a configuration
         if (!binding.value) {
             return false;
@@ -60,20 +61,20 @@ Directive.register('popover', {
         }
 
         targetElement.appendChild(element);
-        setElementPosition(element, vnode.context?.$el, config);
+        setElementPosition(element, binding.instance?.$el, config);
 
         // Resize the width of the element
         if (config.resizeWidth) {
-            element.style.width = `${vnode.context?.$el.clientWidth}px`;
+            element.style.width = `${binding.instance?.$el.clientWidth}px`;
         }
 
         // append to target element
-        calculateOutsideEdges(element, vnode);
+        calculateOutsideEdges(element, binding.instance!);
 
-        registerVirtualScrollingElement(element, vnode.context, config);
+        registerVirtualScrollingElement(element, binding.instance!, config);
     },
 
-    unbind(element, binding, vnode) {
+    unmounted(element, binding, vnode) {
         // remove element from body
         if (element.parentNode) {
             element.parentNode.removeChild(element);
@@ -91,9 +92,10 @@ Directive.register('popover', {
  * v-placement
  */
 
-function calculateOutsideEdges(el: HTMLElement, vnode: VNode) {
+function calculateOutsideEdges(el: HTMLElement, vnode: VNode|ComponentPublicInstance) {
+    // @ts-expect-error - parent exists on the vnode but is private
     // orientation element is needed for calculating the available space
-    const orientationElement = vnode?.context?.$parent?.$el ?? el;
+    const orientationElement = vnode.$parent?.$el;
 
     // get position
     const boundingClientRect = orientationElement.getBoundingClientRect();
@@ -175,7 +177,7 @@ function virtualScrollingHandler() {
     });
 }
 
-function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: Vue|undefined, config: PopoverConfig) {
+function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: ComponentPublicInstance|undefined, config: PopoverConfig) {
     // @ts-expect-error - _uid exists on the context but is private
     const uid = vnodeContext?._uid;
 
@@ -207,7 +209,7 @@ function unregisterVirtualScrollingElement(uid?: string) {
 }
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     virtualScrollingElements,

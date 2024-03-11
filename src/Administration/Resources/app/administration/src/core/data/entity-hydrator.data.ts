@@ -4,7 +4,7 @@
 
 import types from 'src/core/service/utils/types.utils';
 import type { AxiosResponse } from 'axios';
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import EntityClass from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
@@ -64,7 +64,7 @@ type toOneData = {
 type entityNames = keyof EntitySchema.Entities;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default class EntityHydrator {
     cache: { [key: string]: Entity<entityNames> } = {};

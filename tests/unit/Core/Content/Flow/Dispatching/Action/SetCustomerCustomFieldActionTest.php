@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -13,15 +15,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction
  */
+#[Package('services-settings')]
+#[CoversClass(SetCustomerCustomFieldAction::class)]
 class SetCustomerCustomFieldActionTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -61,9 +62,8 @@ class SetCustomerCustomFieldActionTest extends TestCase
      * @param array<string, mixed> $config
      * @param array<string, mixed> $existsData
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testExecutedAction(array $config, array $existsData, array $expected): void
     {
         $customer = new CustomerEntity();

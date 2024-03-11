@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailHeaderFooterTranslationEntity>
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailHeaderFooterTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -9,11 +10,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation
  */
+#[CoversClass(FilterAggregation::class)]
 class FilterAggregationTest extends TestCase
 {
+    public function testPassRealField(): void
+    {
+        // this test ensures, that the filter aggregation return the "FIELD" of the internal aggregation
+        // this is required for the DAL to identify, which "REAL" field will be selected in the query to build the JOIN conditions correctly
+        $aggregation = new FilterAggregation('foo', new TermsAggregation('foo', 'product.name'), []);
+
+        static::assertSame('product.name', $aggregation->getField());
+    }
+
     public function testEncode(): void
     {
         $aggregation = new FilterAggregation('foo', new TermsAggregation('foo', 'name'), [new EqualsFilter('name', 'test')]);

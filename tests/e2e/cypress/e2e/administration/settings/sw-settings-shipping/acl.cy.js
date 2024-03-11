@@ -10,7 +10,7 @@ describe('Shipping: Test acl privileges', () => {
             });
     });
 
-    it('@settings: read shipping method', { tags: ['pa-checkout'] }, () => {
+    it('@settings: read shipping method', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'shipping',
@@ -30,7 +30,7 @@ describe('Shipping: Test acl privileges', () => {
         cy.contains('.sw-settings-shipping-detail__top-rule', 'Cart >= 0 (Payment)');
     });
 
-    it('@settings: edit shipping method', { tags: ['pa-checkout'] }, () => {
+    it('@settings: edit shipping method', { tags: ['pa-checkout', 'VUE3'] }, () => {
         const page = new ShippingPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -71,7 +71,7 @@ describe('Shipping: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create shipping method', { tags: ['pa-checkout'] }, () => {
+    it('@settings: create shipping method', { tags: ['pa-checkout', 'VUE3'] }, () => {
         const page = new ShippingPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -112,7 +112,7 @@ describe('Shipping: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: delete shipping method', { tags: ['pa-checkout'] }, () => {
+    it('@settings: delete shipping method', { tags: ['pa-checkout', 'VUE3'] }, () => {
         const page = new ShippingPageObject();
 
         cy.loginAsUserWithPermissions([

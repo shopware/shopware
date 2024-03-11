@@ -1,4 +1,4 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
 import swOrderState from '../../state/order.store';
@@ -6,7 +6,7 @@ import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context, State, Mixin } = Shopware;

@@ -1,0 +1,68 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <span class="icon" style="color:#AAAAAA">{{ include('@Profiling/Collector/flag.svg') }}</span>
+        <span class="sf-toolbar-value"> {{ collector.features|length }} feature {% if collector.features|length == 0 %}flag{% else %}flags{% endif %}</span>
+    {% endset %}
+
+    {% set text %}
+        {% if collector.features|length == 0 %}
+            No feature flags.
+        {% else %}
+            {% for key, feature in collector.features %}
+                <div class="sf-toolbar-info-piece">
+                    <b>{{ feature.name }}</b>
+                    {% if feature.active %}{{ include('@Profiling/Collector/checkmark.svg') }}{% else %}{{ include('@Profiling/Collector/x.svg') }}{% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true }) }}
+{% endblock %}
+
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">{{ include('@Profiling/Collector/flag.svg') }}</span>
+        <strong>Feature flags</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {# Optional, for showing the most details. #}
+    <h2>Feature flags</h2>
+
+    {% if collector.features|length == 0 %}
+        <div class="empty">
+            <p>No feature flags.</p>
+        </div>
+    {% else %}
+        <table class="feature-flags" data-filters>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Major</th>
+                <th>Default</th>
+                <th>Active</th>
+                <th class="full-width">Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for key, feature in collector.features %}
+                <tr>
+                    <td class="text-normal text-small text-bold nowrap">{{ feature.name }}</td>
+                    <td class="font-normal nowrap">{% if feature.major %}<span class="sf-toolbar-icon icon icons" style="color: green">{{ include('@Profiling/Collector/checkmark.svg') }}</span>{% else %}{{ include('@Profiling/Collector/x.svg') }}{% endif %}</td>
+                    <td class="font-normal nowrap">{% if feature.default %}{{ include('@Profiling/Collector/checkmark.svg') }}{% else %}{{ include('@Profiling/Collector/x.svg') }}{% endif %}</td>
+                    <td class="font-normal nowrap">{% if feature.active %}{{ include('@Profiling/Collector/checkmark.svg') }}{% else %}{{ include('@Profiling/Collector/x.svg') }}{% endif %}</td>
+                    <td class="font-normal text-small">{{ feature.description }}</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+    {% endif %}
+
+{% endblock %}

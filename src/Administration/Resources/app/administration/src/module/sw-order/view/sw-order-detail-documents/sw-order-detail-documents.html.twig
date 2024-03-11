@@ -6,7 +6,6 @@
     {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
     <sw-order-document-card
         v-show="!isLoading"
-        class="sw-order-detail-base__document-grid"
         :order="order"
         @document-save="saveAndReload"
         @update-loading="onUpdateLoading"

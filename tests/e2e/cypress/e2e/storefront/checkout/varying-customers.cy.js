@@ -91,7 +91,7 @@ describe('Checkout: Proceed checkout using various customers', () => {
 
                     // Set new address as shipping address
                     cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
-                        cy.contains('Set as default shipping').click();
+                        cy.contains('Use as default shipping').click();
                     });
                     cy.get('.shipping-address').contains('Sherman');
                 }

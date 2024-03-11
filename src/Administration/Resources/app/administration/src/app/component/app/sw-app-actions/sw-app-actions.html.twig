@@ -107,11 +107,7 @@
                 {% block sw_app_action_modal_confirm_checkbox %}
                 <sw-checkbox-field
                     :value="!isShowModalConfirm"
-                    {% if VUE3 %}
                     @update:value="onChangeCheckboxShow()"
-                    {% else %}
-                    @change="onChangeCheckboxShow()"
-                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_app_action_modal_confirm_checkbox_label %}

@@ -3,23 +3,22 @@
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater
  */
+#[Package('buyers-experience')]
+#[CoversClass(CustomerNewsletterSalesChannelsUpdater::class)]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
-    /**
-     * @dataProvider dataProvider
-     */
+    #[DataProvider('dataProvider')]
     public function testUpdateCustomersRecipient(?string $newsletterIds, \Closure $expectsClosure): void
     {
         $connection = $this->createMock(Connection::class);

@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
+ * @internal
+ *
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
@@ -52,7 +54,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    public function generate(array $definitions, string $api, string $apiType): array
+    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
         $openApi = new OpenApi([]);
         $this->openApiBuilder->enrich($openApi, $api);
@@ -84,12 +86,18 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
-        $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
+
+        if (!empty($bundleName)) {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
 
         $loader = new OpenApiFileLoader($schemaPaths);
 
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $loader->loadOpenapiSpecification());
         /** @var OpenApiSpec $finalSpecs */
-        $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
+        $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
         return $finalSpecs;
     }
@@ -176,8 +184,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {
-                /** @var Operation $operation */
-                $operation = $path->$key; /* @phpstan-ignore-line */
+                $operation = $path->$key;
 
                 if (!$operation instanceof Operation) {
                     continue;
@@ -194,5 +201,26 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 ]);
             }
         }
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $specsFromDefinition
+     * @param array<string, array<string, mixed>> $specsFromStaticJsonDefinition
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function mergeComponentsSchemaRequiredFieldsRecursive(array $specsFromDefinition, array $specsFromStaticJsonDefinition): array
+    {
+        foreach ($specsFromDefinition['components']['schemas'] as $key => $value) {
+            if (isset($specsFromStaticJsonDefinition['components']['schemas'][$key]['required'])) {
+                $specsFromStaticJsonDefinition['components']['schemas'][$key]['required']
+                    = array_merge_recursive(
+                        $specsFromStaticJsonDefinition['components']['schemas'][$key]['required'],
+                        $specsFromDefinition['components']['schemas'][$key]['required']
+                    );
+            }
+        }
+
+        return $specsFromStaticJsonDefinition;
     }
 }

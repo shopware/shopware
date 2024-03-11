@@ -5,15 +5,18 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -23,16 +26,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\File\DownloadResponseGenerator
  */
+#[Package('buyers-experience')]
+#[CoversClass(DownloadResponseGenerator::class)]
 class DownloadResponseGeneratorTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
 
     private Filesystem&MockObject $privateFilesystem;
-
-    private MockObject&UrlGeneratorInterface $urlGenerator;
 
     private DownloadResponseGenerator $downloadResponseGenerator;
 
@@ -43,16 +44,13 @@ class DownloadResponseGeneratorTest extends TestCase
         $this->mediaService = $this->createMock(MediaService::class);
         $this->privateFilesystem = $this->createMock(Filesystem::class);
         $publicFilesystem = $this->createMock(Filesystem::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $this->urlGenerator->method('getAbsoluteMediaUrl')->willReturn('foobar.txt');
-        $this->urlGenerator->method('getRelativeMediaUrl')->willReturn('foobar.txt');
 
         $this->downloadResponseGenerator = new DownloadResponseGenerator(
             $publicFilesystem,
             $this->privateFilesystem,
-            $this->urlGenerator,
             $this->mediaService,
-            'php'
+            'php',
+            $this->createMock(AbstractMediaUrlGenerator::class)
         );
 
         $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -63,13 +61,14 @@ class DownloadResponseGeneratorTest extends TestCase
     {
         $media = new MediaEntity();
         $media->setFileName('foobar');
+        $media->setPath('foobar.txt');
 
         $downloadResponseGenerator = new DownloadResponseGenerator(
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->urlGenerator,
             $this->mediaService,
-            'php'
+            'php',
+            $this->createMock(AbstractMediaUrlGenerator::class)
         );
 
         $this->expectException(\RuntimeException::class);
@@ -84,33 +83,36 @@ class DownloadResponseGeneratorTest extends TestCase
         $media->setId(Uuid::randomHex());
         $media->setFileName('foobar');
         $media->setPrivate(true);
+        $media->setPath('foobar.txt');
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('The file "foobar." does not exist');
         $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
     }
 
-    /**
-     * @dataProvider filesystemProvider
-     */
+    #[DataProvider('filesystemProvider')]
     public function testGetResponse(bool $private, string $privateType, string $publicType, Response $expectedResponse, ?string $strategy = null): void
     {
         $privateFilesystem = $privateType === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
         $publicFilesystem = $publicType === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
-
-        $this->downloadResponseGenerator = new DownloadResponseGenerator(
-            $privateFilesystem,
-            $publicFilesystem,
-            $this->urlGenerator,
-            $this->mediaService,
-            $strategy ?? 'php'
-        );
 
         $media = new MediaEntity();
         $media->setId(Uuid::randomHex());
         $media->setFileName('foobar');
         $media->setFileExtension('txt');
         $media->setPrivate($private);
+        $media->setPath('foobar.txt');
+
+        $generator = $this->createMock(AbstractMediaUrlGenerator::class);
+        $generator->method('generate')->willReturn([$media->getId() => 'foobar.txt']);
+
+        $this->downloadResponseGenerator = new DownloadResponseGenerator(
+            $privateFilesystem,
+            $publicFilesystem,
+            $this->mediaService,
+            $strategy ?? 'php',
+            $generator
+        );
 
         $streamInterface = $this->createMock(StreamInterface::class);
         $streamInterface->method('detach')->willReturn(fopen('php://temp', 'rb'));

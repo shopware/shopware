@@ -3,7 +3,7 @@ title: Get control of association clone behavior as developer
 date: 2020-07-02
 area: core
 tags: [repository, entity, clone, flag, association]
---- 
+---
 
 ## Context
 The developer should be able to define, if an association has to be considered or skipped during the cloning of an entity.

@@ -53,11 +53,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_details_guest %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="customer.guest"
-                    {% else %}
-                    v-model="customer.guest"
-                    {% endif %}
                     no-margin-top
                     :label="$tc('sw-order.newCustomerModal.labelGuest')"
                 />
@@ -79,11 +75,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_shipping_same_billing %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="isSameBilling"
-                    {% else %}
-                    v-model="isSameBilling"
-                    {% endif %}
                     no-margin-top
                     :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
                 />

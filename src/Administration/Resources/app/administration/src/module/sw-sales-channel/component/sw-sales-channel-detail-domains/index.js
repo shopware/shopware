@@ -1,11 +1,11 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
@@ -15,6 +15,10 @@ export default {
 
     inject: [
         'repositoryFactory',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -60,17 +64,17 @@ export default {
         },
 
         currentDomainModalTitle() {
-            if (this.currentDomain.isNew()) {
+            if (this.currentDomain?.isNew()) {
                 return this.$t('sw-sales-channel.detail.titleCreateDomain');
             }
 
             return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
-                name: this.$options.filters.unicodeUri(this.currentDomainBackup.url),
+                name: this.unicodeUriFilter(this.currentDomainBackup.url),
             });
         },
 
         currentDomainModalButtonText() {
-            if (this.currentDomain.isNew()) {
+            if (this.currentDomain?.isNew()) {
                 return this.$t('sw-sales-channel.detail.buttonAddDomain');
             }
             return this.$t('sw-sales-channel.detail.buttonEditDomain');
@@ -138,6 +142,11 @@ export default {
                 this.sortBy = column.dataIndex;
                 this.sortDirection = 'ASC';
             }
+        },
+
+        unicodeUriFilter(uri) {
+            const unicodeUriFilter = Shopware.Filter.getByName('unicodeUri');
+            return unicodeUriFilter(uri);
         },
 
         localSortDomains(domains) {
@@ -295,6 +304,18 @@ export default {
         },
 
         onConfirmDeleteDomain(domain) {
+            if (domain.productExports.length > 0) {
+                this.createNotificationError({
+                    message: this.$tc('sw-sales-channel.detail.messageDeleteDomainError', 0, {
+                        url: this.unicodeUriFilter(domain.url),
+                    }),
+                });
+
+                this.deleteDomain = null;
+
+                return;
+            }
+
             this.deleteDomain = null;
 
             this.$nextTick(() => {

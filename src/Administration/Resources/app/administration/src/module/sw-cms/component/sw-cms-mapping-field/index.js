@@ -3,17 +3,12 @@ import './sw-cms-mapping-field.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
 
     inject: ['cmsService'],
-
-    model: {
-        prop: 'config',
-        event: 'config-update',
-    },
 
     props: {
         config: {

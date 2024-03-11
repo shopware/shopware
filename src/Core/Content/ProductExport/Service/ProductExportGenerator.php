@@ -10,9 +10,8 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
-use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
-use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -35,7 +34,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
-#[Package('sales-channel')]
+#[Package('inventory')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
     private readonly TwigVariableParser $twigVariableParser;
@@ -119,7 +118,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $total = $iterator->getTotal();
         if ($total === 0) {
-            $exception = new EmptyExportException($productExport->getId());
+            $exception = ProductExportException::productExportNotFound($productExport->getId());
 
             $loggingEvent = new ProductExportLoggingEvent(
                 $context->getContext(),
@@ -203,7 +202,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         try {
             $variables = $this->twigVariableParser->parse((string) $productExport->getBodyTemplate());
         } catch (\Exception $e) {
-            $e = new RenderProductException($e->getMessage());
+            $e = ProductExportException::renderProductException($e->getMessage());
 
             $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Warning, $e);
 

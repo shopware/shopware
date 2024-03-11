@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -58,7 +59,9 @@ class ProductReviewLoader
             ->load($productId, $request, $context, $criteria)
             ->getResult();
 
-        $reviews = StorefrontSearchResult::createFrom($reviews);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $reviews = StorefrontSearchResult::createFrom($reviews);
+        }
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));
 
@@ -130,7 +133,7 @@ class ProductReviewLoader
 
         $customerReviews = $this->route
             ->load($productId, new Request(), $context, $criteria)
-            ->getResult();
+            ->getResult()->getEntities();
 
         return $customerReviews->first();
     }
@@ -144,8 +147,8 @@ class ProductReviewLoader
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new RangeFilter('points', [
-                    'gte' => $point - 0.5,
-                    'lt' => $point + 0.5,
+                    'gte' => (int) $point - 0.5,
+                    'lt' => (int) $point + 0.5,
                 ]);
             }
 

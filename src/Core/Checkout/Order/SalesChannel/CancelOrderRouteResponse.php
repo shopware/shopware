@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CancelOrderRouteResponse extends StoreApiResponse
 {
     /**

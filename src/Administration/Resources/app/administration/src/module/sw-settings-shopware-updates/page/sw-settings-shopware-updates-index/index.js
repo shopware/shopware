@@ -4,10 +4,9 @@ import './sw-settings-shopware-updates-index.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package system-settings
- * @deprecated tag:v6.6.0 - Will be removed
+ * @package services-settings
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-index', {
     template,
 

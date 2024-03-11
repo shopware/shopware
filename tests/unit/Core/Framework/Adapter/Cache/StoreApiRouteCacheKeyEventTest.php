@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -23,9 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent
  */
+#[CoversClass(StoreApiRouteCacheKeyEvent::class)]
 class StoreApiRouteCacheKeyEventTest extends TestCase
 {
     private SalesChannelContext $context;

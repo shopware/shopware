@@ -1,7 +1,7 @@
-/**
- * @package checkout
- */
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import CheckoutPageObject from '../../support/pages/checkout.page-object';
 
@@ -26,7 +26,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         });
     });
 
-    it('@package: should create promotion and apply it for custom products, based on amount', () => {
+    it('@package: should create promotion and apply it for custom products, based on amount', {tags: ['quarantined']}, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST',

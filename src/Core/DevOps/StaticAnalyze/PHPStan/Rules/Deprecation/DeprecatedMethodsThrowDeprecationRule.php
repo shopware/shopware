@@ -48,12 +48,16 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:visibility-change',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
+        // If a thrown exception in the method changes, we don't want to trigger deprecation warnings or throw an exception
+        'reason:exception-change',
         // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
         'reason:remove-getter-setter',
         // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
         'reason:blue-green-deployment',
         // The constraint can still be used, just not via an annotation
         'reason:remove-constraint-annotation',
+        // Container factory for deprecated service
+        'reason:factory-for-deprecation',
     ];
 
     public function getNodeType(): string

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Services;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Services\RecoveryManager;
 use Symfony\Component\Filesystem\Filesystem;
@@ -12,9 +14,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Services\RecoveryManager
  */
+#[CoversClass(RecoveryManager::class)]
 class RecoveryManagerTest extends TestCase
 {
     public function testGetBinary(): void
@@ -42,9 +43,7 @@ class RecoveryManagerTest extends TestCase
         $recoveryManager->getShopwareLocation();
     }
 
-    /**
-     * @backupGlobals enabled
-     */
+    #[BackupGlobals(true)]
     public function testGetShopwareLocationFailsDueNonPublicDirectory(): void
     {
         $recoveryManager = new RecoveryManager();
@@ -63,9 +62,7 @@ class RecoveryManagerTest extends TestCase
         $fs->remove($tmpDir);
     }
 
-    /**
-     * @backupGlobals enabled
-     */
+    #[BackupGlobals(true)]
     public function testGetShopwareLocationReturnsShopwareLocation(): void
     {
         $recoveryManager = new RecoveryManager();
@@ -80,9 +77,7 @@ class RecoveryManagerTest extends TestCase
         $fs->remove($tmpDir);
     }
 
-    /**
-     * @backupGlobals enabled
-     */
+    #[BackupGlobals(true)]
     public function testGetShopwareVersion(): void
     {
         $recoveryManager = new RecoveryManager();
@@ -97,9 +92,7 @@ class RecoveryManagerTest extends TestCase
         $fs->remove($tmpDir);
     }
 
-    /**
-     * @backupGlobals enabled
-     */
+    #[BackupGlobals(true)]
     public function testGetShopwareVersionPrefixed(): void
     {
         $recoveryManager = new RecoveryManager();

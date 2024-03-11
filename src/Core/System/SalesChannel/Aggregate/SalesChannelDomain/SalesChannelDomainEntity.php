@@ -12,7 +12,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelDomainEntity extends Entity
 {
     use EntityCustomFieldsTrait;

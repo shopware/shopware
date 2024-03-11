@@ -43,7 +43,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -119,7 +120,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -175,7 +177,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -221,7 +224,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -277,7 +281,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -315,7 +320,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -403,7 +409,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             },
@@ -421,7 +428,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -455,7 +463,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             },
@@ -500,7 +509,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -545,7 +555,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -622,7 +633,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -927,7 +939,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -958,7 +971,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -994,7 +1008,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

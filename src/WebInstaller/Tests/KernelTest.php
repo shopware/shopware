@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Kernel;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
@@ -11,9 +12,8 @@ use Symfony\Component\Routing\Router;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Kernel
  */
+#[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
     public function testKernel(): void

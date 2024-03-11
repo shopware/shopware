@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\DevOps\Docs\Command\Script;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand
  */
+#[CoversClass(ScriptReferenceGeneratorCommand::class)]
 class ScriptReferenceGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

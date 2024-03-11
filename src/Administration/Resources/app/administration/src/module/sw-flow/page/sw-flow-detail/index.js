@@ -8,7 +8,7 @@ const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -260,6 +260,13 @@ export default {
             if (!tabName) return {};
 
             if (this.isNewFlow) {
+                if (this.$route.params.flowTemplateId) {
+                    return {
+                        name: `sw.flow.create.${tabName}`,
+                        params: { flowTemplateId: this.$route.params.flowTemplateId },
+                    };
+                }
+
                 return { name: `sw.flow.create.${tabName}` };
             }
 

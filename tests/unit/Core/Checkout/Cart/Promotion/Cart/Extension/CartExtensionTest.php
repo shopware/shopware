@@ -2,22 +2,22 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension
  */
+#[CoversClass(CartExtension::class)]
 class CartExtensionTest extends TestCase
 {
     /**
      * This test verifies that we can add a promotion
      * id and it will be found as "blocked" in the extension
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionIsBlocked(): void
     {
         $extension = new CartExtension();
@@ -29,9 +29,8 @@ class CartExtensionTest extends TestCase
     /**
      * This test verifies that a non-existing id
      * is being returned as "not blocked"
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDifferentPromotionIsNotBlocked(): void
     {
         $extension = new CartExtension();
@@ -42,9 +41,8 @@ class CartExtensionTest extends TestCase
     /**
      * This test verifies that we can add
      * a new code to the extension
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAddCode(): void
     {
         $extension = new CartExtension();
@@ -56,9 +54,8 @@ class CartExtensionTest extends TestCase
     /**
      * This test verifies that our function
      * returns the correct value if existing
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testHasCode(): void
     {
         $extension = new CartExtension();
@@ -70,9 +67,8 @@ class CartExtensionTest extends TestCase
     /**
      * This test verifies that we can remove
      * an existing code from the cart extension
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testRemoveCode(): void
     {
         $extension = new CartExtension();

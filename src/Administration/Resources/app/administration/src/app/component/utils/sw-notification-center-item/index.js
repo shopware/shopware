@@ -4,7 +4,7 @@ import template from './sw-notification-center-item.html.twig';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-notification-center-item', {
     template,

@@ -5,8 +5,10 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops
-XorRule returns true, if exactly one child rule is true')]
+/**
+ * XorRule returns true, if exactly one child rule is true
+ */
+#[Package('services-settings')]
 class XorRule extends Container
 {
     final public const RULE_NAME = 'xorContainer';

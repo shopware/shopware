@@ -311,6 +311,10 @@ class TestBootstrapper
             $pathToComposerJson = $this->getProjectDir() . '/custom/plugins/' . $pluginName . '/composer.json';
 
             if (!\is_file($pathToComposerJson)) {
+                $pathToComposerJson = $this->getProjectDir() . '/custom/static-plugins/' . $pluginName . '/composer.json';
+            }
+
+            if (!\is_file($pathToComposerJson)) {
                 throw new \RuntimeException(sprintf('Could not find plugin: %s at path: %s', $pluginName, $pathToComposerJson));
             }
 

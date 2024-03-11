@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -25,8 +26,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
+use Twig\Error\Error;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
+use Twig\Loader\ChainLoader;
 
 #[Package('buyers-experience')]
 class SeoUrlGenerator
@@ -43,7 +46,8 @@ class SeoUrlGenerator
         private readonly RouterInterface $router,
         private readonly RequestStack $requestStack,
         private readonly Environment $twig,
-        TwigVariableParserFactory $parserFactory
+        TwigVariableParserFactory $parserFactory,
+        private readonly LoggerInterface $logger,
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -62,18 +66,18 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-        $associations = $this->getAssociations($template, $repository->getDefinition());
-        $criteria->addAssociations($associations);
+        if ($this->loadTwigTemplate($config, $template)) {
+            $associations = $this->getAssociations($template, $repository->getDefinition());
+            $criteria->addAssociations($associations);
 
-        $criteria->setLimit(50);
+            $criteria->setLimit(50);
 
-        /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
-        $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
+            /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
+            $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
-        $this->setTwigTemplate($config, $template);
-
-        while ($entities = $iterator->fetch()) {
-            yield from $this->generateUrls($route, $config, $salesChannel, $entities);
+            while ($entities = $iterator->fetch()) {
+                yield from $this->generateUrls($route, $config, $salesChannel, $entities, $this->getTemplateName($template));
+            }
         }
     }
 
@@ -82,8 +86,13 @@ class SeoUrlGenerator
      *
      * @return iterable<SeoUrlEntity>
      */
-    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
-    {
+    private function generateUrls(
+        SeoUrlRouteInterface $seoUrlRoute,
+        SeoUrlRouteConfig $config,
+        SalesChannelEntity $salesChannel,
+        EntityCollection $entities,
+        string $templateName
+    ): iterable {
         $request = $this->requestStack->getMainRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
@@ -107,7 +116,7 @@ class SeoUrlGenerator
 
             $copy->setPathInfo($pathInfo);
 
-            $seoPathInfo = $this->getSeoPathInfo($mapping, $config);
+            $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
             if ($seoPathInfo === null || $seoPathInfo === '') {
                 continue;
@@ -120,11 +129,19 @@ class SeoUrlGenerator
         }
     }
 
-    private function getSeoPathInfo(SeoUrlMapping $mapping, SeoUrlRouteConfig $config): ?string
+    private function getSeoPathInfo(SeoUrlMapping $mapping, SeoUrlRouteConfig $config, string $templateName): ?string
     {
         try {
-            return trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
-        } catch (\Throwable $error) {
+            return trim($this->twig->render($templateName, $mapping->getSeoPathInfoContext()));
+        } catch (Error $error) {
+            $this->logger->warning('Error received on rendering SEO URL template', [
+                'exception' => $error,
+                'mapping_entity_type' => \get_class($mapping->getEntity()),
+                'mapping_error' => $mapping->getError(),
+                'mapping_info_path' => $mapping->getInfoPathContext(),
+                'mapping' => $mapping,
+            ]);
+
             if (!$config->getSkipInvalid()) {
                 throw SeoException::invalidTemplate('Error: ' . $error->getMessage());
             }
@@ -133,18 +150,37 @@ class SeoUrlGenerator
         }
     }
 
-    private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): void
+    private function loadTwigTemplate(SeoUrlRouteConfig $config, string $template): bool
     {
+        $templateName = $this->getTemplateName($template);
         $template = '{% autoescape \'' . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
-        $this->twig->setLoader(new ArrayLoader(['template' => $template]));
+        $this->twig->setLoader(new ChainLoader([
+            new ArrayLoader([$templateName => $template]),
+            $this->twig->getLoader(),
+        ]));
 
         try {
-            $this->twig->loadTemplate($this->twig->getTemplateClass('template'), 'template');
+            $this->twig->loadTemplate($this->twig->getTemplateClass($templateName), $templateName);
         } catch (SyntaxError $syntaxError) {
+            $this->logger->warning('Error initializing SEO URL template', [
+                'exception' => $syntaxError,
+                'template' => $template,
+                'template_name' => $templateName,
+            ]);
+
             if (!$config->getSkipInvalid()) {
                 throw SeoException::invalidTemplate('Syntax error: ' . $syntaxError->getMessage());
             }
+
+            return false;
         }
+
+        return true;
+    }
+
+    private function getTemplateName(string $template): string
+    {
+        return 'seo_url_template_' . \md5($template);
     }
 
     private function removePrefix(string $subject, string $prefix): string

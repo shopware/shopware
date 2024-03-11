@@ -7,6 +7,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use Psr\Log\NullLogger;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
@@ -21,6 +24,8 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -72,7 +77,8 @@ class SeoUrlGeneratorTest extends TestCase
             $this->getContainer()->get('router.default'),
             $this->getContainer()->get('request_stack'),
             $this->getContainer()->get('shopware.seo_url.twig'),
-            $this->getContainer()->get(TwigVariableParserFactory::class)
+            $this->getContainer()->get(TwigVariableParserFactory::class),
+            new NullLogger(),
         );
 
         $this->seoUrlRouteRegistry = $this->getContainer()->get(SeoUrlRouteRegistry::class);
@@ -307,6 +313,114 @@ class SeoUrlGeneratorTest extends TestCase
         }
     }
 
+    public function testNotBeingStateful(): void
+    {
+        $categoryIds = $this->getCategoryIds(2);
+
+        static::assertCount(2, $categoryIds, 'this is important for the test as you need more items to iterate for a context switch test');
+
+        /** @var SeoUrlRouteInterface $seoRoute */
+        $seoRoute = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+
+        /** @var \Generator<SeoUrlEntity> $firstRun */
+        $firstRun = $this->seoUrlGenerator->generate(
+            $categoryIds,
+            'template first run',
+            $seoRoute,
+            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext->getSalesChannel()
+        );
+        /** @var \Generator<SeoUrlEntity> $secondRun */
+        $secondRun = $this->seoUrlGenerator->generate(
+            $categoryIds,
+            'template second run',
+            $seoRoute,
+            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext->getSalesChannel()
+        );
+
+        /** @var SeoUrlEntity $url */
+        foreach ($firstRun as $url) {
+            static::assertSame('template first run', $url->getSeoPathInfo());
+
+            break;
+        }
+
+        // this changes the template of the twig state to second template
+        foreach ($secondRun as $_) {
+            break;
+        }
+
+        /** @var SeoUrlEntity $url */
+        foreach ($firstRun as $url) {
+            static::assertSame('template first run', $url->getSeoPathInfo());
+        }
+    }
+
+    public function testErrorLogging(): void
+    {
+        $logger = new class() extends AbstractLogger {
+            /**
+             * @var mixed[]
+             */
+            public array $logs = [];
+
+            /**
+             * @param int|string $level
+             * @param mixed[] $context
+             */
+            public function log(mixed $level, string|\Stringable $message, array $context = []): void
+            {
+                $this->logs[$level][$message][] = $context;
+            }
+        };
+        $seoUrlGenerator = new SeoUrlGenerator(
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get('router.default'),
+            $this->getContainer()->get('request_stack'),
+            $this->getContainer()->get('shopware.seo_url.twig'),
+            $this->getContainer()->get(TwigVariableParserFactory::class),
+            $logger,
+        );
+
+        /** @var SeoUrlRouteInterface $seoRoute */
+        $seoRoute = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+
+        $urls = $seoUrlGenerator->generate(
+            [$this->getValidCategoryId()],
+            // broken twig template
+            '{% for part in category.seoBreadcrumb %}{{ part }}/',
+            $seoRoute,
+            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext->getSalesChannel()
+        );
+
+        // generator needs to be triggered to fail
+        foreach ($urls as $_) {
+            break;
+        }
+
+        static::assertNotSame([], $logger->logs);
+        $logger->logs = [];
+
+        /** @var \Generator<SeoUrlEntity> $urls */
+        $urls = $seoUrlGenerator->generate(
+            [$this->getValidCategoryId()],
+            // invalid twig context
+            '{{ product.id }}',
+            $seoRoute,
+            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext->getSalesChannel()
+        );
+
+        // generator needs to be triggered to fail
+        foreach ($urls as $_) {
+            break;
+        }
+
+        static::assertNotSame([], $logger->logs);
+    }
+
     private function createBreadcrumbData(): void
     {
         $this->getContainer()->get('category.repository')->create([
@@ -336,5 +450,18 @@ class SeoUrlGeneratorTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
+    }
+
+    /**
+     * @return list<string>|list<array<string, string>>
+     */
+    private function getCategoryIds(int $count): array
+    {
+        /** @var EntityRepository<CategoryCollection> $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $criteria = (new Criteria())->setLimit($count);
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
     }
 }

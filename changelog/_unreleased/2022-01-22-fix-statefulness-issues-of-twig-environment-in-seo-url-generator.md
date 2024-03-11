@@ -1,6 +1,6 @@
 ---
 title: Fix issues by statefulness twig environment in SeoUrlGenerator
-issue: NEXT-19865
+issue: NEXT-30706
 author: JoshuaBehrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

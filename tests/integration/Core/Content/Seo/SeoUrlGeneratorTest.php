@@ -319,11 +319,14 @@ class SeoUrlGeneratorTest extends TestCase
 
         static::assertCount(2, $categoryIds, 'this is important for the test as you need more items to iterate for a context switch test');
 
+        /** @var SeoUrlRouteInterface $seoRoute */
+        $seoRoute = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+
         /** @var \Generator<SeoUrlEntity> $firstRun */
         $firstRun = $this->seoUrlGenerator->generate(
             $categoryIds,
             'template first run',
-            $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME),
+            $seoRoute,
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -331,7 +334,7 @@ class SeoUrlGeneratorTest extends TestCase
         $secondRun = $this->seoUrlGenerator->generate(
             $categoryIds,
             'template second run',
-            $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME),
+            $seoRoute,
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -357,9 +360,16 @@ class SeoUrlGeneratorTest extends TestCase
     public function testErrorLogging(): void
     {
         $logger = new class() extends AbstractLogger {
-            public $logs = [];
+            /**
+             * @var mixed[]
+             */
+            public array $logs = [];
 
-            public function log($level, $message, array $context = []): void
+            /**
+             * @param int|string $level
+             * @param mixed[] $context
+             */
+            public function log(mixed $level, string|\Stringable $message, array $context = []): void
             {
                 $this->logs[$level][$message][] = $context;
             }
@@ -373,11 +383,14 @@ class SeoUrlGeneratorTest extends TestCase
             $logger,
         );
 
+        /** @var SeoUrlRouteInterface $seoRoute */
+        $seoRoute = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
+
         $urls = $seoUrlGenerator->generate(
             [$this->getValidCategoryId()],
             // broken twig template
             '{% for part in category.seoBreadcrumb %}{{ part }}/',
-            $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME),
+            $seoRoute,
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -395,7 +408,7 @@ class SeoUrlGeneratorTest extends TestCase
             [$this->getValidCategoryId()],
             // invalid twig context
             '{{ product.id }}',
-            $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME),
+            $seoRoute,
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -439,6 +452,9 @@ class SeoUrlGeneratorTest extends TestCase
         ], Context::createDefaultContext());
     }
 
+    /**
+     * @return list<string>|list<array<string, string>>
+     */
     private function getCategoryIds(int $count): array
     {
         /** @var EntityRepository<CategoryCollection> $repository */

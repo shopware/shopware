@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -67,7 +66,7 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
-        if ($this->setTwigTemplate($config, $template)) {
+        if ($this->loadTwigTemplate($config, $template)) {
             $associations = $this->getAssociations($template, $repository->getDefinition());
             $criteria->addAssociations($associations);
 
@@ -135,7 +134,7 @@ class SeoUrlGenerator
         try {
             return trim($this->twig->render($templateName, $mapping->getSeoPathInfoContext()));
         } catch (Error $error) {
-            $this->logger->critical('Error received on rendering SEO URL template', [
+            $this->logger->warning('Error received on rendering SEO URL template', [
                 'exception' => $error,
                 'mapping_entity_type' => \get_class($mapping->getEntity()),
                 'mapping_error' => $mapping->getError(),
@@ -151,7 +150,7 @@ class SeoUrlGenerator
         }
     }
 
-    private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): bool
+    private function loadTwigTemplate(SeoUrlRouteConfig $config, string $template): bool
     {
         $templateName = $this->getTemplateName($template);
         $template = '{% autoescape \'' . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
@@ -163,7 +162,7 @@ class SeoUrlGenerator
         try {
             $this->twig->loadTemplate($this->twig->getTemplateClass($templateName), $templateName);
         } catch (SyntaxError $syntaxError) {
-            $this->logger->critical('Error initializing SEO URL template', [
+            $this->logger->warning('Error initializing SEO URL template', [
                 'exception' => $syntaxError,
                 'template' => $template,
                 'template_name' => $templateName,

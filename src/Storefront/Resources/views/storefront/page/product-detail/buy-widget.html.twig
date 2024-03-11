@@ -126,7 +126,8 @@
 
                     {% set remoteClickOptions = {
                         selector: '#review-tab',
-                        scrollToElement: true
+                        scrollToElement: true,
+                        excludedViewports: ['XS']
                     } %}
 
                     {% block page_product_detail_reviews %}
@@ -136,6 +137,7 @@
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
                                     points: page.product.ratingAverage,
                                     style: 'text-primary'
+
                                 } %}
                                 <a
                                     data-bs-toggle="tab"

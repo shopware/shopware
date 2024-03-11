@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import ViewportDetection from 'src/helper/viewport-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 
 /**
@@ -29,6 +30,12 @@ export default class RemoteClickPlugin extends Plugin {
          * selector for the fixed header element
          */
         fixedHeaderSelector: 'header.fixed-top',
+
+        /**
+         * disable on these viewports
+         * @type {Array<('XS'|'SM'|'MD'|'LG'|'XL'|'XXL')>}
+         */
+        excludedViewports: [],
     };
 
     init() {
@@ -53,6 +60,10 @@ export default class RemoteClickPlugin extends Plugin {
      * @private
      */
     _onClick() {
+        if (!this._isInAllowedViewports()) {
+            return;
+        }
+
         let target = this.options.selector;
         if (!DomAccess.isNode(this.options.selector)) {
             target = DomAccess.querySelector(document, this.options.selector);
@@ -108,6 +119,15 @@ export default class RemoteClickPlugin extends Plugin {
         }
 
         return offset;
+    }
+
+    /**
+     * Returns if the browser is in the allowed viewports
+     * @returns {boolean}
+     * @private
+     */
+    _isInAllowedViewports() {
+        return !(this.options.excludedViewports.includes(ViewportDetection.getCurrentViewport()));
     }
 
 }

@@ -122,7 +122,8 @@
 
                     {% set remoteClickOptions = {
                         selector: "#review-tab",
-                        scrollToElement: true
+                        scrollToElement: true,
+                        excludedViewports: ['XS']
                     } %}
 
                     {% block page_product_detail_reviews %}

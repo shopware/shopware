@@ -2,15 +2,17 @@
 
 namespace {{ namespace }}\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'swag-commands:example',
+    description: 'Add a short description for your command',
+)]
 class ExampleCommand extends Command
 {
-    // Command name
-    protected static $defaultName = 'swag-commands:example';
-
     // Provides a description, printed out in bin/console
     protected function configure(): void
     {

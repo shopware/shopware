@@ -125,8 +125,9 @@
 
                             {% if remoteClickOptions is not defined %}
                                 {% set remoteClickOptions = {
-                                    selector: "#review-tab-" ~ product.id,
-                                    scrollToElement: true
+                                    selector: '#review-tab-' ~ product.id,
+                                    scrollToElement: true,
+                                    excludedViewports: ['XS']
                                 } %}
                             {% endif %}
 

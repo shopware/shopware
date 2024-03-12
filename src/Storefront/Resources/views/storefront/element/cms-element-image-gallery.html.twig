@@ -215,6 +215,10 @@
                                                                                     {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                                 {% endif %}
 
+                                                                                {% if loop.first %}
+                                                                                    {% set attributes = attributes|merge({ 'fetchpriority': 'high' }) %}
+                                                                                {% endif %}
+
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                     media: image,
                                                                                     attributes: attributes

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Core\Application\MediaReverseProxy;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
+use Shopware\Core\Content\Media\Event\ThumbnailsGeneratedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,6 +22,34 @@ class BanMediaUrl
         private readonly Connection $connection,
         private readonly MediaUrlGenerator $generator
     ) {
+    }
+
+    public function onThumbnailsGenerated(ThumbnailsGeneratedEvent $event): void
+    {
+        // null since shopware.cdn.fastly.enabled is enabled
+        if ($this->gateway === null) {
+            return;
+        }
+
+        $params = array_map(function ($generated) {
+            return new UrlParams(
+                id: $generated['thumbnailId'],
+                source: UrlParamsSource::THUMBNAIL,
+                path: $generated['path']
+            );
+        }, $event->generated);
+
+        if (empty($params)) {
+            return;
+        }
+
+        $urls = $this->generator->generate($params);
+
+        if (empty($urls)) {
+            return;
+        }
+
+        $this->gateway->ban($urls);
     }
 
     public function onUpload(MediaUploadedEvent $event): void

@@ -78,7 +78,8 @@
             <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator" type="service"/>
 
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaUploadedEvent" method="onUpload" priority="2002" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaUploadedEvent" method="onUpload" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\ThumbnailsGeneratedEvent" method="onThumbnailsGenerated" />
         </service>
 
         <service id="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy">

@@ -80,7 +80,7 @@ class SyncFkResolver
     }
 
     /**
-     * @param array<int, array<string|int, mixed>> $payload
+     * @param array<int, array<string, mixed>> $payload
      *
      * @return array<string, array<FkReference>>
      */
@@ -116,14 +116,14 @@ class SyncFkResolver
 
                     $resolver = (string) $value['resolver'];
 
-                    $row[$fieldName] = $reference = new FkReference(
+                    $reference = new FkReference(
                         implode('/', [$current, $fieldName]),
                         $definition->getEntityName(),
                         $field->getPropertyName(),
                         $value['value'],
                         $value['nullOnMissing'] ?? false
                     );
-
+                    $row[$fieldName] = $reference;
                     $map[$resolver][] = $reference;
                 }
 

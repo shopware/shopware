@@ -151,9 +151,6 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return $this->elements;
     }
 
-    /**
-     * @return list<TElement>
-     */
     public function jsonSerialize(): array
     {
         return array_values($this->elements);

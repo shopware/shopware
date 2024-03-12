@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\StateMachine;
+namespace Shopware\Tests\Integration\Core\System\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -230,8 +230,8 @@ EOF;
                     'id' => $orderDeliveryId,
                     'shippingMethodId' => $this->getValidShippingMethodId(),
                     'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    'shippingDateEarliest' => date(\DATE_ISO8601),
-                    'shippingDateLatest' => date(\DATE_ISO8601),
+                    'shippingDateEarliest' => date(\DATE_ATOM),
+                    'shippingDateLatest' => date(\DATE_ATOM),
                     'stateId' => $returnedPartially,
                     'shippingOrderAddress' => [
                         'salutationId' => $this->getValidSalutationId(),

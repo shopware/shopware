@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import FilterService from 'src/app/service/filter.service';
 
+/**
+ * @package services-settings
+ */
+
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
         global: {

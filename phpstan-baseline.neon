@@ -2301,36 +2301,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
 
 		-
-			message: "#^Cannot call method getConfigurationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderConfigIndexerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$message of method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:handle\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderConfigIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:assertCorrectPathWithOneSubFolderForEachParent\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:assertCorrectPathWithOneSubFolderForEachParent\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:getMediaFolderEntityFromId\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php

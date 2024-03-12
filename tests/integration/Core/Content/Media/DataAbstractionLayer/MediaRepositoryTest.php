@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
+namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -9,11 +9,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
@@ -44,19 +47,28 @@ class MediaRepositoryTest extends TestCase
 
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
     private EntityRepository $documentRepository;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->documentRepository = $this->getContainer()->get('document.repository');
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
+        $this->documentRepository = static::getContainer()->get('document.repository');
+        $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -84,7 +96,7 @@ class MediaRepositoryTest extends TestCase
         });
 
         static::assertNotNull($media);
-        static::assertEquals(0, $media->count());
+        static::assertCount(0, $media);
     }
 
     public function testDeletePrivateMedia(): void
@@ -113,13 +125,13 @@ class MediaRepositoryTest extends TestCase
             $context
         );
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->search(new Criteria([$ids->get('media')]), $context)
             ->first();
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+        $fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
         $path = $media->getPath();
 
@@ -130,7 +142,7 @@ class MediaRepositoryTest extends TestCase
         static::assertTrue($fileSystem->has($path));
 
         $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
-        $this->getContainer()->get('media.repository')
+        static::getContainer()->get('media.repository')
             ->delete([['id' => $ids->get('media')]], $context);
 
         // after deleting the entity, the file should be deleted too
@@ -193,7 +205,7 @@ class MediaRepositoryTest extends TestCase
         $media = $this->context->scope(Context::USER_SCOPE, fn (Context $context) => $mediaRepository->search(new Criteria([$mediaId]), $context));
 
         static::assertInstanceOf(EntitySearchResult::class, $media);
-        static::assertEquals(0, $media->count());
+        static::assertCount(0, $media);
 
         $documentRepository = $this->documentRepository;
         $document = null;
@@ -203,16 +215,18 @@ class MediaRepositoryTest extends TestCase
             $document = $documentRepository->search($criteria, $context);
         });
         static::assertNotNull($document);
-        static::assertEquals(1, $document->count());
+        static::assertCount(1, $document);
         $document = $document->get($documentId);
         static::assertInstanceOf(DocumentEntity::class, $document);
         $media = $document->getDocumentMediaFile();
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals($mediaId, $media->getId());
-        static::assertEquals('', $media->getUrl());
+        static::assertSame($mediaId, $media->getId());
+        static::assertSame('', $media->getUrl());
         // currently there shouldn't be loaded any thumbnails for private media, but if, the urls should be blank
-        foreach ($media->getThumbnails() ?? [] as $thumbnail) {
-            static::assertEquals('', $thumbnail->getUrl());
+        $thumbnails = $media->getThumbnails();
+        static::assertNotNull($thumbnails);
+        foreach ($thumbnails as $thumbnail) {
+            static::assertSame('', $thumbnail->getUrl());
         }
     }
 
@@ -236,7 +250,7 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals($mediaId, $media->getId());
+        static::assertSame($mediaId, $media->getId());
     }
 
     public function testDeleteMediaEntityWithoutThumbnails(): void
@@ -317,8 +331,8 @@ class MediaRepositoryTest extends TestCase
 
         $this->runWorker();
 
-        static::assertFalse($this->getPublicFilesystem()->has((string) $mediaPath));
-        static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
+        static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
+        static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
     public function testDeleteMediaDeletesOnlyFilesForGivenMediaId(): void
@@ -452,7 +466,7 @@ class MediaRepositoryTest extends TestCase
         $media = $event->getEventByEntityName(MediaDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $media);
         static::assertCount(1, $media->getIds());
-        static::assertEquals($firstId, $media->getIds()[0]);
+        static::assertSame($firstId, $media->getIds()[0]);
     }
 
     public function testDeleteWithAlreadyDeletedFile(): void
@@ -479,14 +493,14 @@ class MediaRepositoryTest extends TestCase
         $media = $event->getEventByEntityName(MediaDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityWrittenEvent::class, $media);
         static::assertCount(1, $media->getIds());
-        static::assertEquals($firstId, $media->getIds()[0]);
+        static::assertSame($firstId, $media->getIds()[0]);
     }
 
     public function testItDoesNotDeleteFilesIfMediaHasDeleteRestrictions(): void
     {
         $mediaId = Uuid::randomHex();
 
-        $cmsPageRepository = $this->getContainer()->get('cms_page.repository');
+        $cmsPageRepository = static::getContainer()->get('cms_page.repository');
 
         $cmsPageRepository->create([[
             'name' => 'cms-page',
@@ -500,9 +514,7 @@ class MediaRepositoryTest extends TestCase
             ],
         ]], $this->context);
 
-        $read = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context);
-
-        $media = $read->get($mediaId);
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $mediaUrl = $media->getPath();
@@ -551,7 +563,7 @@ class MediaRepositoryTest extends TestCase
 
         $payload = $event->getPayloads()[0];
 
-        static::assertEquals(OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT, $event->getName());
+        static::assertSame(OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT, $event->getName());
         static::assertNull($payload['coverId']);
     }
 
@@ -572,14 +584,14 @@ class MediaRepositoryTest extends TestCase
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
+            'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'deliveries' => [
                 [
-                    'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
+                    'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                     'shippingMethodId' => $this->getValidShippingMethodId(),
                     'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                     'shippingDateEarliest' => date(\DATE_ATOM),

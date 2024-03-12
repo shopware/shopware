@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer\Indexing;
+namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer\Indexing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,13 +18,16 @@ class MediaFolderIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<MediaFolderCollection>
+     */
     private EntityRepository $mediaFolderRepository;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $this->mediaFolderRepository = static::getContainer()->get('media_folder.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -76,8 +80,8 @@ class MediaFolderIndexerTest extends TestCase
         // expect child of moved parent to also have the new path as the parent
         $expectedPathChildZero = $expectedPathChildOne . $ids[1] . '|';
 
-        static::assertEquals($expectedPathChildOne, $pathChildOneAfterUpdate);
-        static::assertEquals($expectedPathChildZero, $pathChildZeroAfterUpdate);
+        static::assertSame($expectedPathChildOne, $pathChildOneAfterUpdate);
+        static::assertSame($expectedPathChildZero, $pathChildZeroAfterUpdate);
     }
 
     public function testChildCountIsUpdatedCorrectly(): void
@@ -104,27 +108,38 @@ class MediaFolderIndexerTest extends TestCase
         /** @var MediaFolderEntity $folder */
         $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->first();
 
-        static::assertEquals(1, $folder->getChildCount());
+        static::assertSame(1, $folder->getChildCount());
     }
 
+    /**
+     * @param array<int, array<string, array<int, array<string, string>>|string>> $data
+     * @param list<string> $ids
+     */
     private function assertCorrectPathWithOneSubFolderForEachParent(array $data, array $ids, int $depth): void
     {
         // expect parent path to be null
-        static::assertNull($this->getMediaFolderEntityFromId($data[$depth]['id'])->getPath());
+        $id = $data[$depth]['id'];
+        static::assertIsString($id);
+        static::assertNull($this->getMediaFolderEntityFromId($id)->getPath());
 
         $expectedPath = '|' . $ids[$depth] . '|';
 
         // exclude the parent
         for ($i = $depth - 1; $i >= 0; --$i) {
-            $mediaFolderEntity = $this->getMediaFolderEntityFromId($data[$i]['id']);
+            $id = $data[$i]['id'];
+            static::assertIsString($id);
+            $mediaFolderEntity = $this->getMediaFolderEntityFromId($id);
 
-            static::assertEquals($ids[$i], $mediaFolderEntity->getId());
-            static::assertEquals($expectedPath, $mediaFolderEntity->getPath());
+            static::assertSame($ids[$i], $mediaFolderEntity->getId());
+            static::assertSame($expectedPath, $mediaFolderEntity->getPath());
 
             $expectedPath .= $mediaFolderEntity->getId() . '|';
         }
     }
 
+    /**
+     * @return array{0: array<int, array<string, array<int, array<string, string>>|string>>, 1: list<string>}
+     */
     private function getData(int $depth): array
     {
         $configurationId = Uuid::randomHex();
@@ -150,6 +165,9 @@ class MediaFolderIndexerTest extends TestCase
 
     private function getMediaFolderEntityFromId(string $id): MediaFolderEntity
     {
-        return $this->mediaFolderRepository->search(new Criteria([$id]), $this->context)->get($id);
+        $mediaFolder = $this->mediaFolderRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertNotNull($mediaFolder);
+
+        return $mediaFolder;
     }
 }

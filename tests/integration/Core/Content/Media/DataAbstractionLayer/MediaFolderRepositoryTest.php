@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
+namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -40,8 +40,8 @@ class MediaFolderRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->folderRepository = $this->getContainer()->get('media_folder.repository');
-        $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->folderRepository = static::getContainer()->get('media_folder.repository');
+        $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -68,7 +68,7 @@ class MediaFolderRepositoryTest extends TestCase
         });
 
         static::assertNotNull($media);
-        static::assertEquals(0, $media->count());
+        static::assertCount(0, $media);
     }
 
     public function testFolderWithoutConfigIsReadable(): void
@@ -86,7 +86,7 @@ class MediaFolderRepositoryTest extends TestCase
 
         $media = $this->folderRepository->search(new Criteria([$folderId]), $this->context);
 
-        static::assertEquals(1, $media->count());
+        static::assertCount(1, $media);
     }
 
     public function testDeleteFolderAlsoDeletesMedia(): void
@@ -126,8 +126,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $this->folderRepository->delete([['id' => $folderId]], $this->context);
 
-        static::assertEquals(0, $this->folderRepository->search(new Criteria([$folderId]), $this->context)->getTotal());
-        static::assertEquals(0, $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getTotal());
+        static::assertSame(0, $this->folderRepository->search(new Criteria([$folderId]), $this->context)->getTotal());
+        static::assertSame(0, $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->getTotal());
 
         $this->runWorker();
 
@@ -194,8 +194,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $this->folderRepository->delete([['id' => $parentFolderId]], $this->context);
 
-        static::assertEquals(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
-        static::assertEquals(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
+        static::assertSame(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
+        static::assertSame(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
 
         $this->runWorker();
 
@@ -334,8 +334,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $this->folderRepository->delete([['id' => $parentFolderId], ['id' => $childFolderId]], $this->context);
 
-        static::assertEquals(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
-        static::assertEquals(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
+        static::assertSame(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
+        static::assertSame(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
 
         $this->runWorker();
 
@@ -403,8 +403,8 @@ class MediaFolderRepositoryTest extends TestCase
 
         $this->folderRepository->delete([['id' => $childFolderId], ['id' => $parentFolderId]], $this->context);
 
-        static::assertEquals(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
-        static::assertEquals(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
+        static::assertSame(0, $this->folderRepository->search(new Criteria([$parentFolderId, $childFolderId]), $this->context)->getTotal());
+        static::assertSame(0, $this->mediaRepository->search(new Criteria([$childMediaId, $parentMediaId]), $this->context)->getTotal());
 
         $this->runWorker();
 

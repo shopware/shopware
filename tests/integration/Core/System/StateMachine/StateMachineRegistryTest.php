@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\StateMachine;
+namespace Shopware\Tests\Integration\Core\System\StateMachine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;

@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer\Indexing;
+namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,6 +21,9 @@ class MediaFolderConfigIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<MediaFolderCollection>
+     */
     private EntityRepository $folderRepository;
 
     private Context $context;
@@ -30,9 +34,9 @@ class MediaFolderConfigIndexerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->folderRepository = $this->getContainer()->get('media_folder.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->configIndexer = $this->getContainer()->get(MediaFolderIndexer::class);
+        $this->folderRepository = static::getContainer()->get('media_folder.repository');
+        $this->connection = static::getContainer()->get(Connection::class);
+        $this->configIndexer = static::getContainer()->get(MediaFolderIndexer::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -79,10 +83,14 @@ class MediaFolderConfigIndexerTest extends TestCase
             ],
         ], $this->context);
 
-        $children = $this->folderRepository->search(new Criteria($ids->getList(['child-1', 'child-1-1'])), $this->context);
+        $children = $this->folderRepository->search(new Criteria($ids->getList(['child-1', 'child-1-1'])), $this->context)->getEntities();
+        $child1 = $children->get($ids->get('child-1'));
+        static::assertNotNull($child1);
+        $child1_1 = $children->get($ids->get('child-1-1'));
+        static::assertNotNull($child1_1);
 
-        static::assertEquals($updatedId, $children->get($ids->get('child-1'))->getConfigurationId());
-        static::assertEquals($updatedId, $children->get($ids->get('child-1-1'))->getConfigurationId());
+        static::assertSame($updatedId, $child1->getConfigurationId());
+        static::assertSame($updatedId, $child1_1->getConfigurationId());
     }
 
     public function testOnRefreshItUpdatesOwnConfig(): void
@@ -139,10 +147,14 @@ class MediaFolderConfigIndexerTest extends TestCase
             ],
         ], $this->context);
 
-        $children = $this->folderRepository->search(new Criteria([$child1_1Id, $child1_1_1Id]), $this->context);
+        $children = $this->folderRepository->search(new Criteria([$child1_1Id, $child1_1_1Id]), $this->context)->getEntities();
+        $child1_1 = $children->get($child1_1Id);
+        static::assertNotNull($child1_1);
+        $child1_1_1 = $children->get($child1_1_1Id);
+        static::assertNotNull($child1_1_1);
 
-        static::assertEquals($configId, $children->get($child1_1Id)->getConfigurationId());
-        static::assertEquals($configId, $children->get($child1_1_1Id)->getConfigurationId());
+        static::assertSame($configId, $child1_1->getConfigurationId());
+        static::assertSame($configId, $child1_1_1->getConfigurationId());
     }
 
     public function testIndex(): void
@@ -193,11 +205,16 @@ class MediaFolderConfigIndexerTest extends TestCase
             ->executeStatement();
 
         $message = $this->configIndexer->iterate(['offset' => 0]);
+        static::assertNotNull($message);
         $this->configIndexer->handle($message);
 
-        $children = $this->folderRepository->search(new Criteria([$child1Id, $child1_1Id]), $this->context);
+        $children = $this->folderRepository->search(new Criteria([$child1Id, $child1_1Id]), $this->context)->getEntities();
+        $child1 = $children->get($child1Id);
+        static::assertNotNull($child1);
+        $child1_1 = $children->get($child1_1Id);
+        static::assertNotNull($child1_1);
 
-        static::assertEquals($configId, $children->get($child1Id)->getConfigurationId());
-        static::assertEquals($configId, $children->get($child1_1Id)->getConfigurationId());
+        static::assertSame($configId, $child1->getConfigurationId());
+        static::assertSame($configId, $child1_1->getConfigurationId());
     }
 }

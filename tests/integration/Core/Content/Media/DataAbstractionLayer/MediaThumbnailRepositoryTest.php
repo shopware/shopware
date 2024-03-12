@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
+namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -30,12 +30,12 @@ class MediaThumbnailRepositoryTest extends TestCase
 
         $thumbnailPath = $this->createThumbnailFile($media, $service);
 
-        $thumbnailIds = $this->getContainer()->get('media_thumbnail.repository')
+        $thumbnailIds = static::getContainer()->get('media_thumbnail.repository')
             ->searchIds(new Criteria(), Context::createDefaultContext());
 
         $delete = \array_values(\array_map(static fn ($id) => ['id' => $id], $thumbnailIds->getIds()));
 
-        $this->getContainer()->get('media_thumbnail.repository')->delete($delete, Context::createDefaultContext());
+        static::getContainer()->get('media_thumbnail.repository')->delete($delete, Context::createDefaultContext());
         $this->runWorker();
 
         static::assertFalse($this->getFilesystem($service)->has($thumbnailPath));
@@ -49,7 +49,7 @@ class MediaThumbnailRepositoryTest extends TestCase
 
     private function createThumbnailWithMedia(string $mediaId, bool $private): MediaEntity
     {
-        $this->getContainer()->get('media.repository')->create([
+        static::getContainer()->get('media.repository')->create([
             [
                 'id' => $mediaId,
                 'name' => 'test media',
@@ -67,7 +67,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $media = $this->getContainer()->get('media.repository')
+        $media = static::getContainer()->get('media.repository')
             ->search(new Criteria([$mediaId]), Context::createDefaultContext())
             ->get($mediaId);
 
@@ -85,7 +85,7 @@ class MediaThumbnailRepositoryTest extends TestCase
             'path' => 'foo/bar.png',
         ];
 
-        $this->getContainer()->get('media_thumbnail.repository')
+        static::getContainer()->get('media_thumbnail.repository')
             ->create([$data], Context::createDefaultContext());
 
         $fs = $this->getFilesystem($service);

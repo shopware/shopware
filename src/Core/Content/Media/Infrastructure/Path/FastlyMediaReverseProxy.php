@@ -21,12 +21,18 @@ class FastlyMediaReverseProxy implements MediaReverseProxy
      * @internal
      */
     public function __construct(
-        protected Client $client,
-        protected string $apiKey,
-        protected string $softPurge,
-        protected int $concurrency,
+        private readonly bool $enabled,
+        private readonly Client $client,
+        private readonly string $apiKey,
+        private readonly string $softPurge,
+        private readonly int $concurrency,
         private readonly LoggerInterface $logger
     ) {
+    }
+
+    public function enabled(): bool
+    {
+        return $this->enabled;
     }
 
     /**

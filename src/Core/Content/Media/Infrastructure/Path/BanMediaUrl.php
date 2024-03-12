@@ -18,7 +18,7 @@ class BanMediaUrl
      * @internal
      */
     public function __construct(
-        private readonly ?MediaReverseProxy $gateway,
+        private readonly MediaReverseProxy $gateway,
         private readonly Connection $connection,
         private readonly MediaUrlGenerator $generator
     ) {
@@ -26,8 +26,8 @@ class BanMediaUrl
 
     public function onThumbnailsGenerated(ThumbnailsGeneratedEvent $event): void
     {
-        // null since shopware.cdn.fastly.enabled is enabled
-        if ($this->gateway === null) {
+        // false since shopware.cdn.fastly.enabled is enabled
+        if (!$this->gateway->enabled()) {
             return;
         }
 
@@ -54,8 +54,8 @@ class BanMediaUrl
 
     public function onUpload(MediaUploadedEvent $event): void
     {
-        // null since shopware.cdn.fastly.enabled is enabled
-        if ($this->gateway === null) {
+        // false since shopware.cdn.fastly.enabled is enabled
+        if (!$this->gateway->enabled()) {
             return;
         }
 

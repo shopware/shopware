@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content;
 
-use Shopware\Core\Content\DependencyInjection\MediaReverserProxyCompilerPass;
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
@@ -44,6 +43,5 @@ class Content extends Bundle
         $loader->load('flow.xml');
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new MediaReverserProxyCompilerPass());
     }
 }

@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 interface MediaReverseProxy
 {
+    public function enabled(): bool;
+
     /**
      * @param array<string> $urls
      */

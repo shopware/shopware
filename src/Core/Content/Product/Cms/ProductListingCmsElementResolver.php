@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRou
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -106,12 +107,16 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             return;
         }
 
-        // if we have no specific order given at this point, set the order to be the highest's priority available sorting
+        // if we have no specific order given at this point, set the order to the highest priority available sorting
         if ($request->get('availableSortings')) {
             $availableSortings = $request->get('availableSortings');
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+            $sortingId = array_key_first($availableSortings);
+            if (!\is_string($sortingId) || !Uuid::isValid($sortingId)) {
+                return;
+            }
 
-            $criteria = new Criteria([array_key_first($availableSortings)]);
+            $criteria = new Criteria([$sortingId]);
 
             $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
         }

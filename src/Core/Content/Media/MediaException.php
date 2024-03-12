@@ -47,6 +47,18 @@ class MediaException extends HttpException
     public const MEDIA_DUPLICATED_FILE_NAME = 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
 
     public const MEDIA_FILE_NAME_IS_TOO_LONG = 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG';
+    public const MEDIA_REVERSE_PROXY_CANNOT_BAN_URL = 'MEDIA_REVERSE_PROXY__CANNOT_BAN_URL';
+
+    public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_REVERSE_PROXY_CANNOT_BAN_URL,
+            'BAN request failed to {{ url }} failed with error: {{ error }}',
+            ['url' => $url, 'error' => $error],
+            $e
+        );
+    }
 
     public static function invalidContentLength(): self
     {

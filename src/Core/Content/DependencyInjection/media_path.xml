@@ -72,5 +72,21 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
         </service>
+
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\BanMediaUrl">
+            <argument id="shopware.media.reverse_proxy" type="service" on-invalid="null"/>
+            <argument id="Doctrine\DBAL\Connection" type="service"/>
+            <argument id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator" type="service"/>
+
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaUploadedEvent" method="onUpload" priority="2002" />
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy">
+            <argument type="service" id="shopware.reverse_proxy.http_client"/>
+            <argument>%shopware.cdn.fastly.api_key%</argument>
+            <argument>%shopware.cdn.fastly.soft_purge%</argument>
+            <argument>%shopware.cdn.fastly.max_parallel_invalidations%</argument>
+            <argument type="service" id="logger"/>
+        </service>
     </services>
 </container>

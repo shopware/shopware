@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,7 +48,7 @@ class IconCacheTwigFilterTest extends TestCase
     {
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) (new \ReflectionClass(Storefront::class))->getFileName())),
+            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFilename(Storefront::class))),
         ]);
 
         $controller = new TestController();
@@ -83,7 +84,7 @@ class IconCacheTwigFilterTest extends TestCase
     {
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) (new \ReflectionClass(Storefront::class))->getFileName())),
+            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFilename(Storefront::class))),
         ]);
 
         $controller = new TestController();

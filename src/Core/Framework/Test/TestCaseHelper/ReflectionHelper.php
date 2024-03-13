@@ -33,4 +33,12 @@ class ReflectionHelper
     {
         return static::getProperty($object::class, $propertyName)->getValue($object);
     }
+
+    /**
+     * @param class-string<object> $className
+     */
+    public static function getFileName(string $className): string|false
+    {
+        return (new \ReflectionClass($className))->getFileName();
+    }
 }

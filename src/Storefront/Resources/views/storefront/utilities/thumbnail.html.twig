@@ -33,10 +33,6 @@
         {% set attributes = attributes|merge({ loading: 'eager' }) %}
     {% endif %}
 
-    {% if attributes.fetchpriority == 'high' %}
-        {% set attributes = attributes|merge({ 'fetchpriority': 'high' }) %}
-    {% endif %}
-
     {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
     {% if media.thumbnails|length > 0 %}
         {% if autoColumnSizes and columns and sizes is not defined %}

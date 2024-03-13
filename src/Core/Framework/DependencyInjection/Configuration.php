@@ -127,6 +127,13 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->arrayNode('fastly')
+                    ->children()
+                        ->scalarNode('api_key')->end()
+                        ->scalarNode('soft_purge')->end()
+                        ->integerNode('max_parallel_invalidations')->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

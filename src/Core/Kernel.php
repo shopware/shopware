@@ -130,9 +130,9 @@ class Kernel extends HttpKernel
         }
 
         if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=3');
-            $_ENV['SHELL_VERBOSITY'] = 3;
-            $_SERVER['SHELL_VERBOSITY'] = 3;
+            putenv('SHELL_VERBOSITY=1');
+            $_ENV['SHELL_VERBOSITY'] = 1;
+            $_SERVER['SHELL_VERBOSITY'] = 1;
         }
 
         try {

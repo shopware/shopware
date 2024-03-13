@@ -13,6 +13,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeC
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
+use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -238,6 +239,8 @@ class ThumbnailService
         );
 
         try {
+            $event = new MediaPathChangedEvent($context);
+
             foreach ($sizes as $size) {
                 $id = $mapped[$size->getId()];
 
@@ -256,7 +259,16 @@ class ThumbnailService
                 }
 
                 imagedestroy($thumbnail);
+
+                $event->thumbnail(
+                    mediaId: $media->getId(),
+                    thumbnailId: $id,
+                    path: $path,
+                );
             }
+
+            $this->dispatcher->dispatch($event);
+
             imagedestroy($image);
         } finally {
             return $records;

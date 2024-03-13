@@ -39,6 +39,10 @@ class FastlyMediaReverseProxy implements MediaReverseProxy
      */
     public function ban(array $urls): void
     {
+        if (empty($urls)) {
+            return;
+        }
+
         $list = [];
 
         foreach ($urls as $url) {

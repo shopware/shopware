@@ -75,17 +75,14 @@
 
         <service id="Shopware\Core\Content\Media\Infrastructure\Path\BanMediaUrl">
             <argument id="shopware.media.reverse_proxy" type="service"/>
-            <argument id="Doctrine\DBAL\Connection" type="service"/>
             <argument id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator" type="service"/>
 
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaUploadedEvent" method="onUpload" />
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\ThumbnailsGeneratedEvent" method="onThumbnailsGenerated" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaPathChangedEvent" method="changed" />
         </service>
 
         <service id="shopware.media.reverse_proxy" alias="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy"/>
 
         <service id="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy">
-            <argument>%shopware.cdn.fastly.enabled%</argument>
             <argument type="service" id="shopware.reverse_proxy.http_client"/>
             <argument>%shopware.cdn.fastly.api_key%</argument>
             <argument>%shopware.cdn.fastly.soft_purge%</argument>

@@ -21,7 +21,6 @@ class FastlyMediaReverseProxy implements MediaReverseProxy
      * @internal
      */
     public function __construct(
-        private readonly bool $enabled,
         private readonly Client $client,
         private readonly string $apiKey,
         private readonly string $softPurge,
@@ -32,7 +31,7 @@ class FastlyMediaReverseProxy implements MediaReverseProxy
 
     public function enabled(): bool
     {
-        return $this->enabled;
+        return !empty($this->apiKey);
     }
 
     /**

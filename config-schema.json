@@ -544,6 +544,27 @@
                 },
                 "strategy": {
                     "type": "string"
+                },
+                "fastly": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "api_key": {
+                            "type": "string",
+                            "title": "Fastly API key. Configuring this api key, will lead to purge media urls via fast purge requests"
+                        },
+                        "soft_purge": {
+                            "type": "string",
+                            "enum": ["1", "0"],
+                            "default": "0",
+                            "Title": "Soft purge parameter will be passed to fastly API"
+                        },
+                        "max_parallel_invalidations": {
+                            "type": "integer",
+                            "default": 2,
+                            "title": "Max parallel requests to the external server"
+                        }
+                    }
                 }
             },
             "title": "CDN"

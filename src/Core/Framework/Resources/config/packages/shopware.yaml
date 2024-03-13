@@ -116,9 +116,8 @@ shopware:
         url: ''
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
         fastly:
-            enabled: false
             api_key: ''
-            soft_purge: true
+            soft_purge: false
             max_parallel_invalidations: 2
 
     increment:

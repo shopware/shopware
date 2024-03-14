@@ -6,6 +6,7 @@ import { PromotionWithCodeData } from './Checkout/PromotionWithCode.data';
 import { components } from '@shopware/api-client/admin-api-types';
 import { MediaData } from './Media/Media.data';
 import { OrderData } from './Order/Order.data';
+import { TagData } from './Tag/Tag.data';
 
 export interface DataFixtures {
     productData: components['schemas']['Product'],
@@ -17,7 +18,7 @@ export interface DataFixtures {
     },
     mediaData: components['schemas']['Media'],
     orderData: components['schemas']['Order'],
-    cartWithProductData: CartWithProductData,
+    tagData: components['schemas']['Tag']
 }
 
 export const test = mergeTests(
@@ -27,4 +28,5 @@ export const test = mergeTests(
     PropertiesData,
     MediaData,
     OrderData,
+    TagData,
 );

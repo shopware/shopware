@@ -88,3 +88,23 @@ export const getStateMachineStateId = async (stateMachineId: string, adminApiCon
     await expect(result.total).toBe(1);
     return result.data[0].id;
 };
+
+export const getFlowId = async (eventName: string, adminApiContext: AdminApiContext): Promise<{ id: string }> => {
+    const resp = await adminApiContext.post('./search-ids/flow', {
+        data: {
+            query: [
+                {
+                    query: {
+                        type: 'contains',
+                        field: 'flow.eventName',
+                        value: eventName,
+                    },
+                },
+            ],
+        },
+    });
+
+    const result = (await resp.json()) as { data: { id: string }[]; total: number };
+    await expect(result.total).toBe(1);
+    return result.data[0];
+};

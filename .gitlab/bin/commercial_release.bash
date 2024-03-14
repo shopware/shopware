@@ -9,10 +9,10 @@ COMMERCIAL_VERSION="$(echo ${PLATFORM_TAG} | cut -d '.' -f2,3,4)"
 COMMERCIAL_TAG="v${COMMERCIAL_VERSION}"
 
 # get the first branch, that contains the $PLATFORM_TAG
-BRANCH=$(git branch --contains v6.5.8.1 | tr -d '[:blank:]' | grep -E '(^saas/|^next-.*release)' | sort | head -n 1)
+BRANCH=$(git branch --contains "${PLATFORM_TAG}" | tr -d '[:blank:]' | grep -E '(^saas/|^next-.*release)' | sort | head -n 1)
 
-if [ -z "$BRANCH" ]; then
-    echo "Didn't find a branch containing the $PLATFORM_TAG tag."
+if [ -z "${BRANCH}" ]; then
+    echo "Didn't find a branch containing the ${PLATFORM_TAG} tag."
     exit 1
 fi
 

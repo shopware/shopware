@@ -41,6 +41,8 @@ class ProductControllerTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
+    private const TEST_CONTENT = 'Test review content foo bar test';
+
     private TestDataCollection $ids;
 
     protected function setUp(): void
@@ -73,7 +75,7 @@ class ProductControllerTest extends TestCase
                 'forwardTo' => 'frontend.product.reviews',
                 'points' => 5,
                 'title' => 'Test',
-                'content' => 'Test content',
+                'content' => self::TEST_CONTENT,
             ])
         );
 
@@ -348,6 +350,10 @@ class ProductControllerTest extends TestCase
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-reviews-loaded', $traces);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description">', $content);
+        static::assertStringContainsString(self::TEST_CONTENT, $content);
     }
 
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
@@ -380,6 +386,19 @@ class ProductControllerTest extends TestCase
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
             'visibilities' => array_map(static fn ($id) => ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids),
+            'productReviews' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'productId' => $id,
+                    'customerId' => $this->createCustomer()->getId(),
+                    'salesChannelId' => $this->getSalesChannelId(),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'status' => true,
+                    'title' => 'Test',
+                    'content' => self::TEST_CONTENT,
+                    'points' => 5,
+                ],
+            ],
         ];
 
         $repository = static::getContainer()->get('product.repository');

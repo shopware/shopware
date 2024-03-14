@@ -49,6 +49,22 @@ class ProductDetailRouteTest extends TestCase
         static::assertArrayHasKey('product', $response);
     }
 
+    public function testLoadProductVariant(): void
+    {
+        $this->createVariantProducts();
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('product_detail', $response['apiAlias']);
+        static::assertArrayHasKey('product', $response);
+
+        $product = $response['product'];
+        static::assertArrayHasKey('productNumber', $product);
+        static::assertSame('variant-2', $product['productNumber']);
+    }
+
     public function testIncludes(): void
     {
         $this->browser->request(
@@ -170,6 +186,38 @@ class ProductDetailRouteTest extends TestCase
                 ->crossSelling('selling', 'stream-1')
                 ->visibility($this->ids->get('sales-channel'))
                 ->layout('l1')
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+    }
+
+    private function createVariantProducts(): void
+    {
+        $products = [
+            (new ProductBuilder($this->ids, 'variants'))
+                ->price(10)
+                ->media('m1', 1)
+                ->visibility($this->ids->get('sales-channel'))
+                ->closeout(true)
+                ->stock(10)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-1'))
+                        ->price(5)
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->closeout(true)
+                        ->stock(0)
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'variant-2'))
+                        ->price(15)
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->closeout(true)
+                        ->stock(10)
+                        ->build()
+                )
                 ->build(),
         ];
 

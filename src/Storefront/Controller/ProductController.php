@@ -155,7 +155,7 @@ class ProductController extends StorefrontController
 
         $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
-        return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
+        return $this->renderStorefront('storefront/component/review/review.html.twig', [
             'reviews' => $reviews,
             'ratingSuccess' => $request->get('success'),
         ]);

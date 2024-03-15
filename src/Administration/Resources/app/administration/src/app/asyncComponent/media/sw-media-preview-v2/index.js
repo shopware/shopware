@@ -51,6 +51,7 @@ export default {
             'vnd.ms-powerpoint': 'icons-multicolor-file-thumbnail-ppt',
             'vnd.openxmlformats-officedocument.presentationml.presentation': 'icons-multicolor-file-thumbnail-ppt',
             glb: 'icons-multicolor-file-thumbnail-glb',
+            gltf: 'icons-multicolor-file-thumbnail-gltf',
             'octet-stream': 'icons-multicolor-file-thumbnail-glb',
         },
         video: {
@@ -69,6 +70,7 @@ export default {
         },
         model: {
             'gltf-binary': 'icons-multicolor-file-thumbnail-glb',
+            'gltf+json': 'icons-multicolor-file-thumbnail-gltf',
         },
     },
 

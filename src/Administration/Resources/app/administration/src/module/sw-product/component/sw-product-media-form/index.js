@@ -262,7 +262,10 @@ export default {
          */
         isSpatial(productMedia) {
             // we need to check the media url since media.fileExtension is set directly after upload
-            return productMedia.media?.fileExtension === 'glb' || !!productMedia.media?.url?.endsWith('.glb');
+            return productMedia.media?.fileExtension === 'glb' ||
+                productMedia.media?.fileExtension === 'gltf' ||
+                !!productMedia.media?.url?.endsWith('.glb') ||
+                !!productMedia.media?.url?.endsWith('.gltf');
         },
 
         /**

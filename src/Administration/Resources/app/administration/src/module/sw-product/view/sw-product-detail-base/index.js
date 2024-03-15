@@ -189,11 +189,11 @@ export default {
          * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
          */
         isSpatial(productMedia) {
-            if (productMedia.media?.fileExtension === 'glb') {
+            if (productMedia.media?.fileExtension === 'glb' || productMedia.media?.fileExtension === 'gltf') {
                 return true;
             }
             // we need to check the media url since media.fileExtension is set directly after upload
-            return !!productMedia.media?.url?.endsWith('.glb');
+            return !!productMedia.media?.url?.endsWith('.glb') || !!productMedia.media?.url?.endsWith('.gltf');
         },
 
         isExistingMedia(media) {

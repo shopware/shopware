@@ -130,6 +130,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             'image/jpeg': 'icons-multicolor-file-thumbnail-jpg',
             'image/svg+xml': 'icons-multicolor-file-thumbnail-svg',
             'model/gltf-binary': 'icons-multicolor-file-thumbnail-glb',
+            'model/gltf+json': 'icons-multicolor-file-thumbnail-gltf',
             unknown: 'icons-multicolor-file-thumbnail-normal',
         };
 

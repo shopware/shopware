@@ -213,6 +213,9 @@ class MediaApiService extends ApiService {
         if (extension === 'glb' && mimeType === '') {
             mimeType = 'model/gltf-binary';
         }
+        if (extension === 'gltf' && mimeType === '') {
+            mimeType = 'model/gltf+json';
+        }
         if (mimeType === 'application/json') {
             mimeType = 'text/plain';
         }

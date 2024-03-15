@@ -125,6 +125,22 @@ function provide3DMockOptions() {
             true,
             true,
         ],
+        [
+            {
+                fileName: 'smth.gltf',
+                fileExtension: 'gltf',
+            },
+            true,
+            false,
+        ],
+        [
+            {
+                fileName: 'smth.gltf',
+                url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.gltf',
+            },
+            true,
+            true,
+        ],
     ];
 }
 

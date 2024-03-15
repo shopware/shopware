@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\SynchronousPostUpdateIndexer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
@@ -55,14 +56,16 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            // If we don't have any required indexer, schedule all
-            if ($options === []) {
-                $this->indexerRegistry->sendIndexingMessage([$indexerName]);
+            $skipList = [];
+            if ($options !== []) {
+                $skipList = array_values(array_diff($indexer->getOptions(), $options));
+            }
+
+            if ($indexer instanceof SynchronousPostUpdateIndexer) {
+                $this->indexerRegistry->index(false, $skipList, [$indexerName], true);
 
                 continue;
             }
-
-            $skipList = array_values(array_diff($indexer->getOptions(), $options));
 
             $this->indexerRegistry->sendIndexingMessage([$indexerName], $skipList, true);
         }

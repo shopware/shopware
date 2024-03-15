@@ -130,6 +130,18 @@ describe('src/app/service/file-helper.service.ts', () => {
             ).toBe(true);
         });
 
+        it('should return true when checking for the `model/gltf+json` with an empty mime type but matching extension', () => {
+            expect(
+                checkByType({ ...fileMock, type: '', name: 'test.gltf' }, 'model/gltf+json'),
+            ).toBe(true);
+        });
+
+        it('should return true when checking for `model/gltf+json` among multiple allowed mime-types', () => {
+            expect(
+                checkByType({ ...fileMock, type: 'model/gltf+json', name: 'test.gltf' }, 'image/png, model/gltf+json'),
+            ).toBe(true);
+        });
+
         it('should return true when checking for `model/gltf-binary` or `image/*` with a png', () => {
             expect(
                 checkByType({ ...fileMock, type: 'image/png', name: 'test.png' }, 'model/gltf-binary, image/*'),

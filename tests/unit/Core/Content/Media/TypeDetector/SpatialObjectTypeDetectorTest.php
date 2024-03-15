@@ -42,6 +42,20 @@ class SpatialObjectTypeDetectorTest extends TestCase
         static::assertInstanceOf(ImageType::class, $detectedType);
     }
 
+    public function testDetectWithExtensionGltfWillReturnSpatialObjectType(): void
+    {
+        $this->mediaFile->method('getFileExtension')->willReturn('gltf');
+        $detectedType = (new SpatialObjectTypeDetector())->detect($this->mediaFile, null);
+        static::assertInstanceOf(SpatialObjectType::class, $detectedType);
+    }
+
+    public function testDetectWithPreviouslyDetectedTypeButExtensionGltfWillReturnOriginalType(): void
+    {
+        $this->mediaFile->method('getFileExtension')->willReturn('gltf');
+        $detectedType = (new SpatialObjectTypeDetector())->detect($this->mediaFile, new ImageType());
+        static::assertInstanceOf(ImageType::class, $detectedType);
+    }
+
     public function testDetectWithPreviouslyDetectedTypeAndNot3dFileExtensionWillReturnOriginalType(): void
     {
         $this->mediaFile->method('getFileExtension')->willReturn('png');

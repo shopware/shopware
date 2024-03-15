@@ -62,6 +62,15 @@ describe('storeService', () => {
         expect(httpClientPostSpy.mock.calls[0][2].headers['Content-Type']).toBe('model/gltf-binary');
     });
 
+    it('uploadMediaById with gltf-file extension and detected Content-Type is empty will set Content-Type to `model/gltf+json`', () => {
+        const mediaApiService = getMediaApiService();
+        const httpClientPostSpy = jest.spyOn(mediaApiService.httpClient, 'post');
+
+        mediaApiService.uploadMediaById('test', '', {}, 'gltf', 'test');
+
+        expect(httpClientPostSpy.mock.calls[0][2].headers['Content-Type']).toBe('model/gltf+json');
+    });
+
     it('test getDefaultFolderId without result', async () => {
         const mediaApiService = getMediaApiService();
 

@@ -76,11 +76,11 @@ class EntityIndexerRegistry
      * @param list<string> $skip
      * @param list<string> $only
      */
-    public function index(bool $useQueue, array $skip = [], array $only = []): void
+    public function index(bool $useQueue, array $skip = [], array $only = [], bool $postUpdate = false): void
     {
         foreach ($this->indexer as $indexer) {
-            // one time indexer are only for update case, they get scheduled after the update were done and the message are send over the: RegisteredIndexerSubscriber::runRegisteredIndexers
-            if ($indexer instanceof PostUpdateIndexer) {
+            // when we are not in post update mode, skip all post update indexer
+            if (!$postUpdate && $indexer instanceof PostUpdateIndexer) {
                 continue;
             }
             if (\in_array($indexer->getName(), $skip, true)) {

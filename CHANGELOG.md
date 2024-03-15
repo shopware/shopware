@@ -2,6 +2,9 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.6.0.0
+*  [NEXT-34165 - Exclude remote click plugin from mobile view](./changelog/release-6-6-0-0/2024-03-06-exclude-remote-click-from-mobile.md)
+*  [NEXT-34344 - Fix command creation on plugin create for SF7](./changelog/release-6-6-0-0/2024-03-12-fix-command-creation-on-plugin-create-for-sf7.md)
+*  [NEXT-34343 - Media fastly proxy](./changelog/release-6-6-0-0/2024-03-13-media-fastly-proxy.md)
 *  [NEXT-33833 - Append slash to sitemap home url](./changelog/release-6-6-0-0/2023-11-22-append-slash-to-sitemap-home-url.md) ([Benny Poensgen](https://github.com/vanwittlaer))
 *  [NEXT-11827 - Clean-up temp files after use of MediaService](./changelog/release-6-6-0-0/2024-01-25-clean-up-temp-files-after-use-of-mediaservice.md)
 *  [NEXT-33018 - Fix local mailer step in FRW](./changelog/release-6-6-0-0/2024-01-29-next-33018-fix-local-mailer-step-in-frw.md)

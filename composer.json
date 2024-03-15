@@ -561,7 +561,8 @@
             "Shopware\\Tests\\Unit\\": "tests/unit/",
             "Shopware\\Tests\\Integration\\": "tests/integration/",
             "Shopware\\Tests\\Bench\\": "tests/performance/bench/",
-            "Shopware\\Tests\\Migration\\": "tests/migration/"
+            "Shopware\\Tests\\Migration\\": "tests/migration/",
+            "Shopware\\Tests\\DevOps\\": "tests/devops/"
         }
     }
 }

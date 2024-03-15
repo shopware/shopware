@@ -94,17 +94,12 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
             return false;
         }
 
-        $namespace = $node->getClassReflection()->getName();
-
-        if (!\str_contains($namespace, 'Shopware\\Tests\\Unit\\') && !\str_contains($namespace, 'Shopware\\Tests\\Migration\\')) {
+        $parentClassNames = $node->getClassReflection()->getParentClassesNames();
+        if (empty($parentClassNames)) {
             return false;
         }
 
-        if ($node->getClassReflection()->getParentClass() === null) {
-            return false;
-        }
-
-        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
+        return \in_array(TestCase::class, $parentClassNames, true);
     }
 
     private function resolveClassName(Node $node): ?string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Application\MediaReverseProxy;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
@@ -16,7 +17,7 @@ class BanMediaUrl
      */
     public function __construct(
         private readonly MediaReverseProxy $gateway,
-        private readonly MediaUrlGenerator $generator
+        private readonly AbstractMediaUrlGenerator $generator
     ) {
     }
 

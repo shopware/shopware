@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -23,6 +24,7 @@ use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,6 +36,8 @@ class CheckoutRegisterPageLoader
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
@@ -41,7 +45,8 @@ class CheckoutRegisterPageLoader
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartService $cartService,
         private readonly AbstractSalutationRoute $salutationRoute,
-        private readonly AbstractCountryRoute $countryRoute
+        private readonly AbstractCountryRoute $countryRoute,
+        private readonly ?AbstractTranslator $translator = null
     ) {
     }
 
@@ -57,10 +62,7 @@ class CheckoutRegisterPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutRegisterPage::createFrom($page);
-
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
+        $this->setMetaInformation($page);
 
         $page->setCountries($this->getCountries($salesChannelContext));
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
@@ -77,6 +79,29 @@ class CheckoutRegisterPageLoader
         );
 
         return $page;
+    }
+
+    protected function setMetaInformation(CheckoutRegisterPage $page): void
+    {
+        /**
+         * @deprecated tag:v6.7.0 - Remove condition in 6.7.
+         */
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
+        /**
+         * @deprecated tag:v6.7.0 - Remove condition with body in 6.7.
+         */
+        if ($this->translator !== null && $page->getMetaInformation() === null) {
+            $page->setMetaInformation(new MetaInformation());
+        }
+
+        if ($this->translator !== null) {
+            $page->getMetaInformation()?->setMetaTitle(
+                $this->translator->trans('checkout.registerMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+            );
+        }
     }
 
     private function getById(string $addressId, SalesChannelContext $context): CustomerAddressEntity

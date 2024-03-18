@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -30,12 +32,15 @@ class AccountOrderPageLoader
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly AccountService $accountService
+        private readonly AccountService $accountService,
+        private readonly ?AbstractTranslator $translator = null
     ) {
     }
 
@@ -48,8 +53,7 @@ class AccountOrderPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountOrderPage::createFrom($page);
-
-        $page->getMetaInformation()?->setRobots('noindex,follow');
+        $this->setMetaInformation($page);
 
         $orders = $this->getOrders($request, $salesChannelContext);
         if (!Feature::isActive('v6.7.0.0')) {
@@ -71,6 +75,23 @@ class AccountOrderPageLoader
         );
 
         return $page;
+    }
+
+    protected function setMetaInformation(AccountOrderPage $page): void
+    {
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
+        if ($this->translator !== null && $page->getMetaInformation() === null) {
+            $page->setMetaInformation(new MetaInformation());
+        }
+
+        if ($this->translator !== null) {
+            $page->getMetaInformation()?->setMetaTitle(
+                $this->translator->trans('account.ordersMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+            );
+        }
     }
 
     /**

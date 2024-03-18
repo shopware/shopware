@@ -257,6 +257,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">
@@ -280,6 +281,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
@@ -290,6 +292,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
@@ -299,6 +302,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader">
@@ -313,11 +317,13 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader">
@@ -326,6 +332,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader">
@@ -333,6 +340,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader">
@@ -349,6 +357,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
@@ -357,6 +366,7 @@
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader">
@@ -378,6 +388,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader">
@@ -401,6 +412,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
             <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader">
@@ -410,6 +422,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">

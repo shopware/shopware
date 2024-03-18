@@ -72,14 +72,14 @@ class SearchPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame('Demostore', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame('Searchresult | Demostore', $page->getMetaInformation()?->getMetaTitle());
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.shopName', 'Teststore', $context->getSalesChannel()->getId());
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame('Teststore', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame('Searchresult | Teststore', $page->getMetaInformation()?->getMetaTitle());
     }
 
     protected function getPageLoader(): SearchPageLoader

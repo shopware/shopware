@@ -7674,8 +7674,3 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"
 			count: 5
 			path: tests/unit/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Offcanvas\\\\\\\\OffcanvasCartPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Offcanvas\\\\OffcanvasCartPage will always evaluate to true\\.$#"
-			count: 4
-			path: tests/unit/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php

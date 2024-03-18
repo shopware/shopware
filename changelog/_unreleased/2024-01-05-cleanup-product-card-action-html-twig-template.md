@@ -1,6 +1,6 @@
 ---
 title: Cleanup product/card/action.html.twig template
-issue: NEXT-0000
+issue: NEXT-34415
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

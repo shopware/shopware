@@ -1,0 +1,81 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      -
+        name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/pweyck/shopware:latest
+          file: .gitlab/docker/dev/Dockerfile
+# jobs:
+#   build:
+#     name: 'Build acceptance image'
+#     runs-on: ubuntu-latest
+#     steps:
+    # - name: Prepare docker config
+    #   env:
+    #     CI_REGISTRY_USER: ${{ github.actor }}
+    #     CI_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #     apt update && apt install -y jq
+    #     mkdir .docker
+    #     jq -nc '{ auths: { "ghcr.io": { auth: ( [ env.CI_REGISTRY_USER, env.CI_REGISTRY_PASSWORD ] | join(":") | @base64 ) } } }' > .docker/config.json
+
+    # - name: Checkout
+    #   uses: actions/checkout@v4
+    # - name: Prepare args
+    #   id: kaniko_args
+    #   run: |
+    #     echo '${{ steps.metadata.outputs.json }}'
+    #     echo -n '--context="dir:///__w/builder/builder" ' > .var.args
+    #     echo -n '--dockerfile=".gitlab/docker/dev/Dockerfile" ' >> .var.args
+    #     echo -n '--destination=ghcr.io/shopware/shopware/e2e-ci-test:latest' >> .var.args
+    #     echo args=$(cat .var.args) > $GITHUB_OUTPUT
+
+    # - name: Build Project
+    #   uses: "docker://gcr.io/kaniko-project/executor:debug"
+    #   run: |
+    #     cd GITHUB_WORKSPACE
+    #     /kaniko/executor
+    #       --dockerfile .gitlab/docker/dev/Dockerfile
+    #       --destination ghcr.io/shopware/shopware/e2e-ci-test:latest
+    #       --skip-unused-stages
+    #   env:
+    #     # DOCKER_CONFIG: /__w/builder/builder/.docker
+    #     KANIKO_NO_PUSH: 'true'
+
+  acceptance_tests:
+    name: 'Playwright Tests'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.1-jammy
+    # services:
+    #     - name: shopware
+    #       image: shopware
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        working-directory: tests/acceptance
+        run: npm ci
+      - name: Run your tests
+        working-directory: tests/acceptance
+        run: npx playwright test
+        env:
+          HOME: /root

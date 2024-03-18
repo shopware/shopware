@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/).
+The test suite is build with **Playwright**. For detailed information have a look into the [official documentation](https://playwright.dev/docs/intro).
 
 ## Setup
 

@@ -405,7 +405,12 @@ class TreeUpdater
             $update['level'] = $entity['level'];
         }
 
-        $statement->executeStatement($update);
+        RetryableQuery::retryable(
+            connection: $this->connection,
+            closure: function () use ($statement, $update): void {
+                $statement->executeStatement($update);
+            }
+        );
 
         $bag->addUpdated($entity['id']);
     }

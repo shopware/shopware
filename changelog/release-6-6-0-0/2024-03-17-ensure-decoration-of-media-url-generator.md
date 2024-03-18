@@ -1,6 +1,6 @@
 ---
-title: NEXT-00000 - Ensure decoration of media url generator
-issue: NEXT-00000
+title: Ensure decoration of media url generator
+issue: NEXT-34439
 author: Stefan Poensgen
 author_email: mail@stefanpoensgen.de
 author_github: @stefanpoensgen

@@ -38,6 +38,7 @@ export default {
                 gridView: 10,
                 cardView: 9,
             },
+            associationLimit: 5,
             term: '',
             currentPageType: null,
             showMediaModal: false,
@@ -94,6 +95,8 @@ export default {
 
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
+            criteria.getAssociation('categories').setLimit(this.associationLimit);
+            criteria.getAssociation('products').setLimit(this.associationLimit);
             criteria.addAssociation('previewMedia')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
@@ -492,6 +495,11 @@ export default {
                 label: this.$tc('sw-cms.list.gridHeaderAssignments'),
                 sortable: false,
             }, {
+                property: 'assignedPages',
+                label: this.$tc('sw-cms.list.gridHeaderAssignedPages'),
+                sortable: false,
+                visible: false,
+            }, {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated'),
                 sortable: false,
@@ -542,6 +550,18 @@ export default {
         getPageCount(page) {
             const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
             return pageCount > 0 ? pageCount : '-';
+        },
+
+        getPages(page) {
+            let items = page.categories.map((item) => item.name);
+            items = items.concat(page.products.map((item) => item.name));
+
+            let pages = items.join(', ');
+            if (items.length < this.getPageCount(page)) {
+                pages = pages + ', ...';
+            }
+
+            return pages;
         },
 
         optionContextDeleteDisabled(page) {

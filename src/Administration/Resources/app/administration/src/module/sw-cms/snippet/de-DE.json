@@ -26,6 +26,7 @@
       "gridHeaderType": "Typ",
       "gridHeaderAssignment": "Zugewiesene Kategorien",
       "gridHeaderAssignments": "Zuordnungen",
+      "gridHeaderAssignedPages": "Zugewiesene Seiten",
       "gridHeaderCreated": "Erstellt",
       "gridHeaderUpdated": "Bearbeitungsdatum"
     },

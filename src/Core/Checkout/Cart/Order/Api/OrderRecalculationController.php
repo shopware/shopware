@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
+use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -26,8 +27,10 @@ class OrderRecalculationController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(protected RecalculationService $recalculationService)
-    {
+    public function __construct(
+        protected RecalculationService $recalculationService,
+        protected OrderAddressService $orderAddressService
+    ) {
     }
 
     #[Route(path: '/api/_action/order/{orderId}/recalculate', name: 'api.action.order.recalculate', methods: ['POST'])]
@@ -129,6 +132,16 @@ class OrderRecalculationController extends AbstractController
     public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context): JsonResponse
     {
         $this->recalculationService->replaceOrderAddressWithCustomerAddress($orderAddressId, $customerAddressId, $context);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(path: '/api/_action/order/{orderId}/order-address', name: 'api.action.order.update', methods: ['POST'])]
+    public function updateOrderAddresses(string $orderId, Request $request, Context $context): JsonResponse
+    {
+        $mapping = $request->request->all('mapping');
+
+        $this->orderAddressService->updateOrderAddresses($orderId, $mapping, $context);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }

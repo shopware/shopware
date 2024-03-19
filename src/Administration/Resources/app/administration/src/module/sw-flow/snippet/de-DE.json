@@ -342,7 +342,7 @@
       "shippedPartially": "Teilweise versendet",
       "authorized": "Autorisiert",
       "chargeback": "Rückbuchung",
-      "failed": "Gescheitert",
+      "failed": "Fehlgeschlagen",
       "paid": "Bezahlt",
       "paidPartially": "Teilweise bezahlt",
       "refunded": "Erstattet",

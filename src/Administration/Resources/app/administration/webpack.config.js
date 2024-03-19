@@ -884,7 +884,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                                             (data, cb) => {
                                                 // replace "/administration/static/" with "/administration/"
                                                 data.html = data.html.replace(
-                                                    /\/administration\/static\//,
+                                                    /\/administration\/static\//g,
                                                     '/administration/',
                                                 )
 

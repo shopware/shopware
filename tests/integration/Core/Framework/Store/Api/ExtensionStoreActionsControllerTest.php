@@ -1,16 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Store\Api;
+namespace Shopware\Tests\Integration\Core\Framework\Store\Api;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
@@ -21,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('services-settings')]
 class ExtensionStoreActionsControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -166,6 +169,25 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $response = $controller->uploadExtensions($request, Context::createDefaultContext());
 
         static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testUploadExtensionsShallThrowExceptionIfPathToFileIsEmpty(): void
+    {
+        $controller = new ExtensionStoreActionsController(
+            $this->createMock(ExtensionLifecycleService::class),
+            $this->createMock(ExtensionDownloader::class),
+            $this->createMock(PluginService::class),
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
+        );
+
+        $request = new Request();
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('getPathname')->willReturn('');
+        $request->files->set('file', $file);
+
+        $this->expectException(StoreException::class);
+        $controller->uploadExtensions($request, Context::createDefaultContext());
     }
 
     public function testDownloadExtension(): void

@@ -57,7 +57,7 @@ class DomainExceptionRule implements Rule
         private readonly Configuration $configuration,
     ) {
         // see src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon for the default config
-        $this->validExceptionClasses = $this->configuration->getValidExceptionClasses();
+        $this->validExceptionClasses = $this->configuration->getAllowedNonDomainExceptions();
     }
 
     public function getNodeType(): string

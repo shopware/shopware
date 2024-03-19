@@ -8,7 +8,7 @@ services:
 
 parameters:
     shopware:
-        validExceptionClasses:
+        allowedNonDomainExceptions:
             - Shopware\Core\Framework\Plugin\Exception\DecorationPatternException
             - Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
             - Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException
@@ -21,5 +21,5 @@ parameters:
 
 parametersSchema:
     shopware: structure([
-        validExceptionClasses: list(string),
+        allowedNonDomainExceptions: list(string),
     ])

@@ -26,8 +26,8 @@ final class Configuration
     /**
      * @return array<string>
      */
-    public function getValidExceptionClasses(): array
+    public function getAllowedNonDomainExceptions(): array
     {
-        return $this->parameters['validExceptionClasses'] ?? [];
+        return $this->parameters['allowedNonDomainExceptions'] ?? [];
     }
 }

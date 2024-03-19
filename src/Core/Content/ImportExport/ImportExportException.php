@@ -12,10 +12,16 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('services-settings')]
 class ImportExportException extends HttpException
 {
+    final public const CONTENT_IMPORT_EXPORT_COULD_NOT_OPEN_FILE = 'CONTENT__IMPORT_EXPORT__COULD_NOT_OPEN_FILE';
+    final public const CONTENT_IMPORT_EXPORT_COULD_NOT_CREATE_FILE = 'CONTENT__IMPORT_EXPORT__COULD_NOT_CREATE_FILE';
+    final public const CONTENT_IMPORT_EXPORT_COULD_NOT_COPY_FILE = 'CONTENT__IMPORT_EXPORT__COULD_NOT_COPY_FILE';
+    final public const CONTENT_IMPORT_EXPORT_COULD_NOT_WRITE_TO_BUFFER = 'CONTENT__IMPORT_EXPORT__COULD_NOT_WRITE_TO_BUFFER';
+
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
         return new InvalidFileAccessTokenException();
@@ -49,5 +55,44 @@ class ImportExportException extends HttpException
     public static function profileNotFound(string $profileId): ShopwareHttpException
     {
         return new ProfileNotFoundException($profileId);
+    }
+
+    public static function couldNotOpenFile(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTENT_IMPORT_EXPORT_COULD_NOT_OPEN_FILE,
+            'Could not open file at: {{ path }}',
+            ['path' => $path]
+        );
+    }
+
+    public static function couldNotCreateFile(string $directoryPath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTENT_IMPORT_EXPORT_COULD_NOT_CREATE_FILE,
+            'Could not create file in directory: {{ directoryPath }}',
+            ['directoryPath' => $directoryPath]
+        );
+    }
+
+    public static function couldNotCopyFile(string $toPath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTENT_IMPORT_EXPORT_COULD_NOT_COPY_FILE,
+            'Could not copy file from buffer to "{{ toPath }}"',
+            ['toPath' => $toPath]
+        );
+    }
+
+    public static function couldNotWriteToBuffer(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CONTENT_IMPORT_EXPORT_COULD_NOT_WRITE_TO_BUFFER,
+            'Could not write to buffer'
+        );
     }
 }

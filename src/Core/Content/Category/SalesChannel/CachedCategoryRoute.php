@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Profiling\Profiler;
@@ -55,6 +56,9 @@ class CachedCategoryRoute extends AbstractCategoryRoute
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
         return Profiler::trace('category-route', function () use ($navigationId, $request, $context) {
+            if (Feature::isActive('cache_rework')) {
+                return $this->getDecorated()->load($navigationId, $request, $context);
+            }
             if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($navigationId, $request, $context);
             }

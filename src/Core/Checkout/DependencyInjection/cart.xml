@@ -73,6 +73,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartCalculator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
         </service>
 
@@ -258,6 +260,7 @@
             <argument type="tagged" tag="shopware.cart.processor"/>
             <argument type="tagged" tag="shopware.cart.collector"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCartProcessor">

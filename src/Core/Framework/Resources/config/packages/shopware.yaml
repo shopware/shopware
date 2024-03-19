@@ -6,6 +6,7 @@ parameters:
 
 shopware:
     http_cache:
+        cookies: []
         reverse_proxy:
             enabled: false
             ban_method: "BAN" # This can defer from used reverse proxy
@@ -496,6 +497,7 @@ shopware:
             each_config: true
             each_theme_config: true
         invalidation:
+            #todo@skroblin deprecated, always active
             delay: 0
             delay_options:
                 storage: redis

@@ -1,12 +1,18 @@
+{% if not feature('cache_rework')  %}
+    {% if not header is defined and page is defined %}
+        {% set header = page.header %}
+    {% endif %}
+{% endif %}
+
 {% block layout_navigation_categories %}
     {% set navigationMaxDepth = 3 %}
 
     {% if not level %}
         {% set level = 0 %}
     {% endif %}
-    {% set activeId = page.header.navigation.active.id %}
+    {% set activeId = header.navigation.active.id %}
 
-    {% set activePath = page.header.navigation.active.path %}
+    {% set activePath = header.navigation.active.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}
@@ -40,7 +46,7 @@
                             {% sw_include '@Storefront/storefront/layout/navigation/categories.html.twig' with {
                                 navigationTree: treeItem.children,
                                 level: level + 1,
-                                page: page
+                                header: header
                             } only %}
                         {% endif %}
                     {% endblock %}

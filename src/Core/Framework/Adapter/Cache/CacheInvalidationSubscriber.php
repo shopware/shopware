@@ -7,16 +7,16 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
-use Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute;
-use Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute;
+use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
-use Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute;
-use Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
-use Shopware\Core\Content\LandingPage\SalesChannel\CachedLandingPageRoute;
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -24,31 +24,33 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductProperty\ProductPropertyDefinition;
 use Shopware\Core\Content\Product\Events\ProductChangedEventInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute;
-use Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute;
-use Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
-use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
+use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Event\ForceInvalidate;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
-use Shopware\Core\System\Country\SalesChannel\CachedCountryRoute;
-use Shopware\Core\System\Country\SalesChannel\CachedCountryStateRoute;
+use Shopware\Core\System\Country\SalesChannel\CountryRoute;
+use Shopware\Core\System\Country\SalesChannel\CountryStateRoute;
 use Shopware\Core\System\Currency\CurrencyDefinition;
-use Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute;
+use Shopware\Core\System\Currency\SalesChannel\CurrencyRoute;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute;
+use Shopware\Core\System\Language\SalesChannel\LanguageRoute;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
@@ -57,7 +59,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\Sales
 use Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute;
+use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -67,6 +69,7 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+// todo@skroblin #cache improvement#
 #[Package('core')]
 class CacheInvalidationSubscriber
 {
@@ -93,7 +96,7 @@ class CacheInvalidationSubscriber
     public function invalidateSitemap(SitemapGeneratedEvent $event): void
     {
         $this->cacheInvalidator->invalidate([
-            CachedSitemapRoute::buildName($event->getSalesChannelContext()->getSalesChannelId()),
+            SitemapRoute::buildName($event->getSalesChannelContext()->getSalesChannelId()),
         ]);
     }
 
@@ -107,6 +110,12 @@ class CacheInvalidationSubscriber
 
     public function invalidateConfigKey(SystemConfigChangedHook $event): void
     {
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate(['global.system.config', CachedSystemConfigLoader::CACHE_TAG]);
+
+            return;
+        }
+
         $keys = [];
 
         if ($this->fineGrainedCacheConfig) {
@@ -128,16 +137,22 @@ class CacheInvalidationSubscriber
 
     public function invalidateSnippets(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->fineGrainedCacheSnippet) {
-            $this->cacheInvalidator->invalidate(['shopware.translator']);
-
-            return;
-        }
-
         // invalidates all http cache items where the snippets used
         $snippets = $event->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
 
         if (!$snippets) {
+            return;
+        }
+
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate(['shopware.theme', 'shopware.translator']);
+
+            return;
+        }
+
+        if (!$this->fineGrainedCacheSnippet) {
+            $this->cacheInvalidator->invalidate(['shopware.translator']);
+
             return;
         }
 
@@ -175,7 +190,10 @@ class CacheInvalidationSubscriber
     public function invalidateProductIds(ProductChangedEventInterface $event): void
     {
         // invalidates all routes which loads products in nested unknown objects, like cms listing elements or cross selling elements
-        $this->cacheInvalidator->invalidate(array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds()));
+        $this->cacheInvalidator->invalidate(
+            array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds()),
+            force: $event instanceof ForceInvalidate
+        );
     }
 
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
@@ -189,20 +207,20 @@ class CacheInvalidationSubscriber
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the category route cache when a category changed
-        $this->cacheInvalidator->invalidate(array_map(CachedCategoryRoute::buildName(...), $event->getIds()));
+        $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $event->getIds()));
     }
 
     public function invalidateListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
         // invalidates the product listing route each time a category changed
-        $this->cacheInvalidator->invalidate(array_map([CachedProductListingRoute::class, 'buildName'], $event->getIds()));
+        $this->cacheInvalidator->invalidate(array_map([ProductListingRoute::class, 'buildName'], $event->getIds()));
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
         /** @var list<string> $ids */
-        $ids = array_map([CachedLandingPageRoute::class, 'buildName'], $event->getIds());
+        $ids = array_map([LandingPageRoute::class, 'buildName'], $event->getIds());
         $this->cacheInvalidator->invalidate($ids);
     }
 
@@ -231,14 +249,14 @@ class CacheInvalidationSubscriber
             $event->getDeletedPrimaryKeys(CountryStateDefinition::ENTITY_NAME)
             || $event->getPrimaryKeysWithPropertyChange(CountryStateDefinition::ENTITY_NAME, ['countryId'])
         ) {
-            $tags[] = CachedCountryStateRoute::ALL_TAG;
+            $tags[] = CountryStateRoute::ALL_TAG;
         }
 
         if (empty($tags)) {
             // invalidates the country-state route when a state changed or an assignment between the state and country changed
             /** @var list<string> $tags */
             $tags = array_map(
-                [CachedCountryStateRoute::class, 'buildName'],
+                [CountryStateRoute::class, 'buildName'],
                 $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME)
             );
         }
@@ -270,6 +288,10 @@ class CacheInvalidationSubscriber
 
     public function invalidateSearch(): void
     {
+        if (Feature::isActive('cache_rework')) {
+            return;
+        }
+
         // invalidates the search and suggest route each time a product changed
         $this->cacheInvalidator->invalidate([
             'product-suggest-route',
@@ -288,7 +310,7 @@ class CacheInvalidationSubscriber
 
         // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
-            array_map(CachedProductDetailRoute::buildName(...), [...$parentIds, ...$event->getIds()])
+            array_map(ProductDetailRoute::buildName(...), [...$parentIds, ...$event->getIds()])
         );
     }
 
@@ -315,7 +337,7 @@ class CacheInvalidationSubscriber
 
         // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
-            array_map(CachedProductDetailRoute::buildName(...), $productIds)
+            array_map(ProductDetailRoute::buildName(...), $productIds)
         );
     }
 
@@ -326,7 +348,7 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'categoryId');
 
-        $this->cacheInvalidator->invalidate(array_map([CachedProductListingRoute::class, 'buildName'], $ids));
+        $this->cacheInvalidator->invalidate(array_map([ProductListingRoute::class, 'buildName'], $ids));
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
@@ -394,7 +416,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $ids)
+            array_map([ProductListingRoute::class, 'buildName'], $ids)
         );
     }
 
@@ -406,7 +428,8 @@ class CacheInvalidationSubscriber
     public function invalidateReviewRoute(ProductChangedEventInterface $event): void
     {
         $this->cacheInvalidator->invalidate(
-            array_map([CachedProductReviewRoute::class, 'buildName'], $event->getIds())
+            array_map([ProductReviewRoute::class, 'buildName'], $event->getIds()),
+            force: $event instanceof ForceInvalidate
         );
     }
 
@@ -414,7 +437,8 @@ class CacheInvalidationSubscriber
     {
         // invalidates product listings which are based on the product category assignment
         $this->cacheInvalidator->invalidate(
-            array_map([CachedProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($event->getIds()))
+            array_map([ProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($event->getIds())),
+            force: $event instanceof ForceInvalidate
         );
     }
 
@@ -455,7 +479,8 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids)
+            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids),
+            force: $event instanceof ForceInvalidate
         );
     }
 
@@ -475,7 +500,7 @@ class CacheInvalidationSubscriber
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map([CachedProductCrossSellingRoute::class, 'buildName'], $ids)
+            array_map([ProductCrossSellingRoute::class, 'buildName'], $ids)
         );
     }
 
@@ -494,8 +519,8 @@ class CacheInvalidationSubscriber
         $productIds = array_column($ids, 'productId');
 
         return array_merge(
-            array_map([CachedProductDetailRoute::class, 'buildName'], array_unique($productIds)),
-            array_map([CachedProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($productIds))
+            array_map([ProductDetailRoute::class, 'buildName'], array_unique($productIds)),
+            array_map([ProductListingRoute::class, 'buildName'], $this->getProductCategoryIds($productIds))
         );
     }
 
@@ -559,7 +584,10 @@ class CacheInvalidationSubscriber
             ['productIds' => ArrayParameterType::BINARY]
         );
 
-        return [...array_map([CachedProductDetailRoute::class, 'buildName'], array_filter($parentIds)), ...array_map([CachedProductListingRoute::class, 'buildName'], array_filter($categoryIds))];
+        return [
+            ...array_map([ProductDetailRoute::class, 'buildName'], array_filter($parentIds)),
+            ...array_map([ProductListingRoute::class, 'buildName'], array_filter($categoryIds)),
+        ];
     }
 
     /**
@@ -598,10 +626,10 @@ class CacheInvalidationSubscriber
 
         $tags = [];
         if ($event->getDeletedPrimaryKeys(ShippingMethodDefinition::ENTITY_NAME)) {
-            $tags[] = CachedShippingMethodRoute::ALL_TAG;
+            $tags[] = ShippingMethodRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CachedShippingMethodRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map([ShippingMethodRoute::class, 'buildName'], $ids));
     }
 
     /**
@@ -614,7 +642,7 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CachedShippingMethodRoute::class, 'buildName'], $ids);
+        return array_map([ShippingMethodRoute::class, 'buildName'], $ids);
     }
 
     /**
@@ -635,10 +663,10 @@ class CacheInvalidationSubscriber
 
         $tags = [];
         if ($event->getDeletedPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME)) {
-            $tags[] = CachedPaymentMethodRoute::ALL_TAG;
+            $tags[] = PaymentMethodRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CachedPaymentMethodRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map([PaymentMethodRoute::class, 'buildName'], $ids));
     }
 
     /**
@@ -651,7 +679,7 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CachedPaymentMethodRoute::class, 'buildName'], $ids);
+        return array_map([PaymentMethodRoute::class, 'buildName'], $ids);
     }
 
     /**
@@ -666,8 +694,7 @@ class CacheInvalidationSubscriber
         }
 
         /** @var list<string> $ids */
-        $ids = array_map([CachedNavigationRoute::class, 'buildName'], $ids);
-        $ids[] = CachedNavigationRoute::BASE_NAVIGATION_TAG;
+        $ids = array_map([NavigationRoute::class, 'buildName'], $ids);
 
         return $ids;
     }
@@ -686,7 +713,7 @@ class CacheInvalidationSubscriber
             return [];
         }
 
-        return [CachedNavigationRoute::ALL_TAG];
+        return [NavigationRoute::ALL_TAG];
     }
 
     /**
@@ -708,10 +735,10 @@ class CacheInvalidationSubscriber
 
         $tags = [];
         if ($event->getDeletedPrimaryKeys(CountryDefinition::ENTITY_NAME)) {
-            $tags[] = CachedCountryRoute::ALL_TAG;
+            $tags[] = CountryRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CachedCountryRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map([CountryRoute::class, 'buildName'], $ids));
     }
 
     /**
@@ -724,7 +751,7 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CachedCountryRoute::class, 'buildName'], $ids);
+        return array_map([CountryRoute::class, 'buildName'], $ids);
     }
 
     /**
@@ -737,7 +764,7 @@ class CacheInvalidationSubscriber
             return [];
         }
 
-        return [CachedSalutationRoute::ALL_TAG];
+        return [SalutationRoute::buildName()];
     }
 
     /**
@@ -759,10 +786,10 @@ class CacheInvalidationSubscriber
 
         $tags = [];
         if ($event->getDeletedPrimaryKeys(LanguageDefinition::ENTITY_NAME)) {
-            $tags[] = CachedLanguageRoute::ALL_TAG;
+            $tags[] = LanguageRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CachedLanguageRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map([LanguageRoute::class, 'buildName'], $ids));
     }
 
     /**
@@ -775,7 +802,7 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CachedLanguageRoute::class, 'buildName'], $ids);
+        return array_map([LanguageRoute::class, 'buildName'], $ids);
     }
 
     /**
@@ -798,10 +825,10 @@ class CacheInvalidationSubscriber
 
         $tags = [];
         if ($event->getDeletedPrimaryKeys(CurrencyDefinition::ENTITY_NAME)) {
-            $tags[] = CachedCurrencyRoute::ALL_TAG;
+            $tags[] = CurrencyRoute::ALL_TAG;
         }
 
-        return array_merge($tags, array_map([CachedCurrencyRoute::class, 'buildName'], $ids));
+        return array_merge($tags, array_map([CurrencyRoute::class, 'buildName'], $ids));
     }
 
     /**
@@ -814,6 +841,6 @@ class CacheInvalidationSubscriber
 
         $ids = array_column($ids, 'salesChannelId');
 
-        return array_map([CachedCurrencyRoute::class, 'buildName'], $ids);
+        return array_map([CurrencyRoute::class, 'buildName'], $ids);
     }
 }

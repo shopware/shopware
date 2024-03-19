@@ -1,0 +1,27 @@
+{% block base_header %}
+    <header class="header-main">
+        {% block base_header_inner %}
+            <div class="container">
+                {% sw_include '@Storefront/storefront/layout/header/header.html.twig' %}
+            </div>
+        {% endblock %}
+    </header>
+{% endblock %}
+
+{% block base_navigation %}
+    <div class="nav-main">
+        {% block base_navigation_inner %}
+            {% sw_include '@Storefront/storefront/layout/navigation/navigation.html.twig' with { header: header } %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block base_offcanvas_navigation %}
+    {% if header.navigation %}
+        <div class="d-none js-navigation-offcanvas-initial-content{% if context.salesChannel.navigationCategoryId == header.navigation.active.id %} is-root{% endif %}">
+            {% block base_offcanvas_navigation_inner %}
+                {% sw_include '@Storefront/storefront/layout/navigation/offcanvas/navigation.html.twig' with { navigation: header.navigation } %}
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

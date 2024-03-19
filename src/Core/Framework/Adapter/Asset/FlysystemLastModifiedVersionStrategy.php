@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Asset;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -52,7 +53,11 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
         }
 
         $item->set($metaData);
-        $item->tag($this->cacheTag);
+        if (Feature::isActive('cache_rework')) {
+            $item->tag('shopware.theme');
+        } else {
+            $item->tag($this->cacheTag);
+        }
         $this->cacheAdapter->saveDeferred($item);
 
         return (string) $item->get();

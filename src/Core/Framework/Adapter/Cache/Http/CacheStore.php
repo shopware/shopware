@@ -4,22 +4,27 @@ namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('core')]
-class CacheStore implements StoreInterface
+#[AsEventListener]
+class CacheStore implements StoreInterface, ResetInterface
 {
     final public const TAG_HEADER = 'sw-cache-tags';
 
@@ -29,6 +34,8 @@ class CacheStore implements StoreInterface
     private array $locks = [];
 
     private readonly string $sessionName;
+
+    private array $tags = [];
 
     /**
      * @internal
@@ -40,12 +47,25 @@ class CacheStore implements StoreInterface
         private readonly TagAwareAdapterInterface $cache,
         private readonly CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
+        // @deprecated tag:v6.7.0 - remove
         private readonly AbstractCacheTracer $tracer,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
         array $sessionOptions
     ) {
         $this->sessionName = $sessionOptions['name'] ?? 'session-';
+    }
+
+    public function __invoke(AddCacheTagEvent $event): void
+    {
+        foreach ($event->tags as $tag) {
+            $this->tags[$tag] = true;
+        }
+    }
+
+    public function reset(): void
+    {
+        $this->tags = [];
     }
 
     public function lookup(Request $request): ?Response
@@ -86,26 +106,7 @@ class CacheStore implements StoreInterface
             return $key;
         }
 
-        $tags = $this->tracer->get('all');
-
-        $tags = array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'theme-config')) {
-                return false;
-            }
-
-            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'system-config')) {
-                return false;
-            }
-
-            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'translation.catalog.')) {
-                return false;
-            }
-
-            return true;
-        });
+        $tags = $this->getTags();
 
         if ($response->headers->has(self::TAG_HEADER)) {
             /** @var string $tagHeader */
@@ -225,5 +226,33 @@ class CacheStore implements StoreInterface
     private function getLockKey(Request $request): string
     {
         return 'http_lock_' . $this->cacheKeyGenerator->generate($request);
+    }
+
+    private function getTags(): array
+    {
+        if (Feature::isActive('cache_rework')) {
+            return array_keys($this->tags);
+        }
+
+        $tags = $this->tracer->get('all');
+
+        return array_filter($tags, static function (string $tag): bool {
+            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'theme-config')) {
+                return false;
+            }
+
+            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'system-config')) {
+                return false;
+            }
+
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
+                return false;
+            }
+
+            return true;
+        });
     }
 }

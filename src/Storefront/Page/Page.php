@@ -13,11 +13,15 @@ use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 class Page extends Struct
 {
     /**
+     * @deprecated tag:v6.7.0 - #esi_rework#
+     *
      * @var HeaderPagelet|null
      */
     protected $header;
 
     /**
+     * @deprecated tag:v6.7.0 - #esi_rework#
+     *
      * @var FooterPagelet|null
      */
     protected $footer;
@@ -37,21 +41,33 @@ class Page extends Struct
      */
     protected $metaInformation;
 
+    /**
+     * @deprecated tag:v6.7.0 - #esi_rework#
+     */
     public function getHeader(): ?HeaderPagelet
     {
         return $this->header;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - #esi_rework#
+     */
     public function setHeader(?HeaderPagelet $header): void
     {
         $this->header = $header;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - #esi_rework#
+     */
     public function getFooter(): ?FooterPagelet
     {
         return $this->footer;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - #esi_rework#
+     */
     public function setFooter(?FooterPagelet $footer): void
     {
         $this->footer = $footer;

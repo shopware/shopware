@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -191,7 +192,9 @@ class OrderConverter
             );
         }
 
-        $data['ruleIds'] = $context->getRuleIds();
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
+        $data['ruleIds'] = $ruleIds;
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);

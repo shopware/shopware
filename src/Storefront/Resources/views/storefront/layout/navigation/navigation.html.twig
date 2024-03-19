@@ -1,3 +1,9 @@
+{% if not feature('cache_rework')  %}
+    {% if not header is defined and page is defined %}
+        {% set header = page.header %}
+    {% endif %}
+{% endif %}
+
 {% block layout_main_navigation %}
     <div class="main-navigation"
          id="mainNavigation"
@@ -24,9 +30,9 @@
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}
-                            {% set activePath = page.header.navigation.active.path %}
+                            {% set activePath = header.navigation.active.path %}
 
-                            {% for treeItem in page.header.navigation.tree %}
+                            {% for treeItem in header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
 
@@ -42,7 +48,7 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        <a class="nav-link main-navigation-link{% if category.id == page.header.navigation.active.id or category.id in activePath %} active{% endif %}"
+                                        <a class="nav-link main-navigation-link{% if category.id == header.navigation.active.id or category.id in activePath %} active{% endif %}"
                                            href="{{ category_url(category) }}"
                                            itemprop="url"
                                            {% if treeItem.children|length > 0 %}data-flyout-menu-trigger="{{ category.id }}"{% endif %}
@@ -63,7 +69,7 @@
 
         {% block layout_main_navigation_menu_flyout_wrapper %}
             {% set navigationChildrenCount = 0 %}
-            {% for treeItem in page.header.navigation.tree %}
+            {% for treeItem in header.navigation.tree %}
                 {% if treeItem.category.childCount > 0 %}
                     {% set navigationChildrenCount = navigationChildrenCount + 1 %}
                 {% endif %}
@@ -73,7 +79,7 @@
                 {% block layout_main_navigation_menu_flyout_container %}
                     <div class="navigation-flyouts">
                         {% block layout_main_navigation_menu_flyouts %}
-                            {% for treeItem in page.header.navigation.tree %}
+                            {% for treeItem in header.navigation.tree %}
                                 {% if treeItem.children|length > 0 %}
                                     {% block layout_main_navigation_menu_flyout %}
                                         <div class="navigation-flyout"

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -131,7 +132,9 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->cartSerializationCleaner->cleanupCart($cart);
 
-        $content = ['cart' => $cart, 'rule_ids' => $context->getRuleIds()];
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
+        $content = ['cart' => $cart, 'rule_ids' => $ruleIds];
 
         $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
 

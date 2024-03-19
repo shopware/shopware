@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
+use Shopware\Core\Framework\Adapter\Cache\Event\ForceInvalidate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('inventory')]
-class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
+class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface, ForceInvalidate
 {
     /**
      * @param list<string> $ids

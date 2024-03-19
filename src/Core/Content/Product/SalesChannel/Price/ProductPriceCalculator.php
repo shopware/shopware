@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -44,6 +45,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
      */
     public function calculate(iterable $products, SalesChannelContext $context): void
     {
+        //todo@skroblin: Implement new price service, with scope: `pdp / store / cart`
         $units = $this->getUnits($context);
 
         /** @var Entity $product */
@@ -80,6 +82,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     private function calculateAdvancePrices(Entity $product, SalesChannelContext $context, UnitCollection $units): void
     {
+        if (Feature::isActive('cache_rework')) {
+            $product->assign(['calculatedPrices' => new CalculatedPriceCollection()]);
+            return;
+        }
         $prices = $product->get('prices');
 
         $product->assign(['calculatedPrices' => new CalculatedPriceCollection()]);
@@ -119,7 +125,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             return;
         }
 
-        if (!$cheapest instanceof CheapestPrice) {
+        // todo@skroblin that is just 50% correct, cheapest price should be removed with next major.
+        if (!$cheapest instanceof CheapestPrice || Feature::isActive('CACHE_REWORK')) {
             $price = $product->get('price');
             if ($price === null) {
                 return;
@@ -267,8 +274,15 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+     */
     private function filterRulePrices(ProductPriceCollection $rules, SalesChannelContext $context): ?ProductPriceCollection
     {
+        if (Feature::isActive('cache_rework')) {
+            return new ProductPriceCollection();
+        }
+
         foreach ($context->getRuleIds() as $ruleId) {
             $filtered = $rules->filterByRuleId($ruleId);
 

@@ -3,10 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
@@ -17,8 +20,11 @@ use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
  * @template TCachedContent
  */
 #[Package('core')]
+#[AsEventListener(event: AddCacheTagEvent::class, method: 'addTag')]
 class ReverseProxyCache implements StoreInterface
 {
+    private array $tags = [];
+
     /**
      * @internal
      *
@@ -37,6 +43,18 @@ class ReverseProxyCache implements StoreInterface
         $this->gateway->flush();
     }
 
+    public function addTag(AddCacheTagEvent $event): void
+    {
+        foreach ($event->tags as $tag) {
+            $this->tags[$tag] = true;
+        }
+    }
+
+    public function reset(): void
+    {
+        $this->tags = [];
+    }
+
     public function __invoke(InvalidateCacheEvent $event): void
     {
         $this->gateway->invalidate($event->getKeys());
@@ -49,26 +67,7 @@ class ReverseProxyCache implements StoreInterface
 
     public function write(Request $request, Response $response): string
     {
-        $tags = $this->tracer->get('all');
-
-        $tags = \array_values(array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
-            if (str_contains($tag, 'theme-config')) {
-                return false;
-            }
-
-            // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
-            if (str_contains($tag, 'system-config')) {
-                return false;
-            }
-
-            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
-            if (str_contains($tag, 'translation.catalog.')) {
-                return false;
-            }
-
-            return true;
-        }));
+        $tags = $this->getTags();
 
         if ($response->headers->has(CacheStore::TAG_HEADER)) {
             /** @var string $tagHeader */
@@ -130,5 +129,37 @@ class ReverseProxyCache implements StoreInterface
      */
     public function cleanup(): void
     {
+    }
+
+    /**
+     * @return array
+     */
+    private function getTags(): array
+    {
+        if (Feature::isActive('cache_rework')) {
+            return array_keys($this->tags);
+        }
+
+        $tags = $this->tracer->get('all');
+
+        $tags = \array_values(array_filter($tags, static function (string $tag): bool {
+            // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
+            if (str_contains($tag, 'theme-config')) {
+                return false;
+            }
+
+            // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
+            if (str_contains($tag, 'system-config')) {
+                return false;
+            }
+
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
+                return false;
+            }
+
+            return true;
+        }));
+        return $tags;
     }
 }

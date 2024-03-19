@@ -58,14 +58,7 @@ class HttpCacheKernel extends HttpCache
             return $event->getResponse();
         }
 
-        // only handle main request inside http cache, because ESI tags are also interpreted as main request.
-        // sub requests are requests, which are forwarded to the kernel inside the php stack
-        // https://github.com/symfony/symfony/issues/51648#issuecomment-1717846894
-        if ($type === HttpKernelInterface::MAIN_REQUEST) {
-            $response = parent::handle($request, $type, $catch);
-        } else {
-            $response = $this->getKernel()->handle($request, $type, $catch);
-        }
+        $response = parent::handle($request, $type, $catch);
 
         if ($ips = $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
             $ips = array_filter(explode(',', $ips));

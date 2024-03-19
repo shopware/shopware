@@ -29,7 +29,15 @@ class BuildBreadcrumbExtension extends AbstractExtension
     {
         return [
             new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_full_by_id', $this->getFullBreadcrumbById(...), ['needs_context' => true]),
         ];
+    }
+
+    public function getFullBreadcrumbById(array $twigContext, string $categoryId, Context $context): array
+    {
+        $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context)->getEntities()->first();
+
+        return $this->getFullBreadcrumb($twigContext, $category, $context);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -24,7 +25,8 @@ class CacheController extends AbstractController
     public function __construct(
         private readonly CacheClearer $cacheClearer,
         private readonly AdapterInterface $adapter,
-        private readonly EntityIndexerRegistry $indexerRegistry
+        private readonly EntityIndexerRegistry $indexerRegistry,
+        private readonly CacheInvalidator $invalidator
     ) {
     }
 
@@ -55,6 +57,14 @@ class CacheController extends AbstractController
     public function clearCache(): Response
     {
         $this->cacheClearer->clear();
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(path: '/api/_action/cache-delayed', name: 'api.action.cache-delayed.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
+    public function clearDelayed(): Response
+    {
+        $this->invalidator->invalidateExpired();
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

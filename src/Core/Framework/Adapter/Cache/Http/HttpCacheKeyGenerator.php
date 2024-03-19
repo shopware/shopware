@@ -55,7 +55,6 @@ class HttpCacheKeyGenerator
         $event = new HttpCacheKeyEvent($request);
 
         $event->add('uri', $this->getRequestUri($request));
-
         $event->add('hash', $this->cacheHash);
 
         $this->addCookies($request, $event);

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -54,6 +55,9 @@ class CachedSitemapRoute extends AbstractSitemapRoute
     #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($request, $context);
+        }
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($request, $context);
         }

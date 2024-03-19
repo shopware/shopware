@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +29,11 @@ class CheapestPriceUpdater
      */
     public function update(array $parentIds, Context $context): void
     {
+        //todo@skroblin, i would like to remove this updated and just calculate it on demand or better, never index it
+        if (Feature::isActive('cache_rework')) {
+            return;
+        }
+
         $parentIds = array_unique(array_filter($parentIds));
 
         if (empty($parentIds)) {

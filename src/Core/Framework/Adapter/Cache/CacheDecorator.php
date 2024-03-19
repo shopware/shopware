@@ -10,6 +10,9 @@ use Symfony\Contracts\Cache\CacheTrait;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+ */
 #[Package('core')]
 class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface, ResetInterface
 {

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -23,7 +24,9 @@ class PaymentMethodValidator implements CartValidatorInterface
 
         $ruleId = $paymentMethod->getAvailabilityRuleId();
 
-        if ($ruleId && !\in_array($ruleId, $context->getRuleIds(), true)) {
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
+        if ($ruleId && !\in_array($ruleId, $ruleIds, true)) {
             $errors->add(
                 new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'), 'rule not matching')
             );

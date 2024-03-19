@@ -140,6 +140,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
             return;
         }
 
+        //todo@skroblin #cache improvement# central storefront-ui cache tag
         $this->cacheInvalidator->invalidate([self::ALL_TAG]);
     }
 

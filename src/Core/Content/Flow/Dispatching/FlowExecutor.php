@@ -189,6 +189,8 @@ class FlowExecutor
 
     private function sequenceRuleMatches(StorableFlow $event, string $ruleId): bool
     {
+        // todo@skroblin - new flow system (execute rule live and allow database query). Remove entities from flow and just provide identifiers
+
         if (!$event->hasData(OrderAware::ORDER)) {
             return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
         }
@@ -196,6 +198,7 @@ class FlowExecutor
         $order = $event->getData(OrderAware::ORDER);
 
         if (!$order instanceof OrderEntity) {
+            // todo@skroblin - new flow system or execute rule live
             return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
         }
 

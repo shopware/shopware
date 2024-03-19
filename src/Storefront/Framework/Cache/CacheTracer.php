@@ -30,6 +30,7 @@ class CacheTracer extends AbstractCacheTracer
         return $this->decorated;
     }
 
+    // @deprecated tag:v6.7.0 - #cache_rework_rule_reason# - use theme config accessor
     public function trace(string $key, \Closure $param)
     {
         return $this->themeConfigAccessor->trace($key, fn () => $this->getDecorated()->trace($key, $param));

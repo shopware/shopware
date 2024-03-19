@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheKeyEvent;
@@ -53,6 +54,9 @@ class CachedLanguageRoute extends AbstractLanguageRoute
     #[Route(path: '/store-api/language', name: 'store-api.language', methods: ['GET', 'POST'], defaults: ['_entity' => 'language'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
     {
+        if (Feature::isActive('cache_rework')) {
+            return $this->getDecorated()->load($request, $context, $criteria);
+        }
         if ($context->hasState(...$this->states)) {
             return $this->getDecorated()->load($request, $context, $criteria);
         }

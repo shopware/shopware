@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -87,10 +88,12 @@ class CartPersister extends AbstractCartPersister
             ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
         SQL;
 
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
         $data = [
             'token' => $cart->getToken(),
             'payload' => $this->serializeCart($cart),
-            'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
+            'rule_ids' => json_encode($ruleIds, \JSON_THROW_ON_ERROR),
             'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'compressed' => (int) $this->compress,
         ];

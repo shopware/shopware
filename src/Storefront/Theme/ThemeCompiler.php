@@ -135,6 +135,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate(['shopware.theme']);
+            return;
+        }
+
         // Reset cache buster state for improving performance in getMetadata
         $this->cacheInvalidator->invalidate(['theme-metaData'], true);
     }

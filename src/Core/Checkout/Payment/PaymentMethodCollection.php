@@ -14,6 +14,7 @@ class PaymentMethodCollection extends EntityCollection
 {
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
+        //todo@skroblin not possible anymore, should also not be necessary because of new risk-management
         return $this->filter(
             function (PaymentMethodEntity $paymentMethod) use ($salesChannelContext) {
                 if ($paymentMethod->getAvailabilityRuleId() === null) {

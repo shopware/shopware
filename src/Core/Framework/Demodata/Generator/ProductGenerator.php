@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -93,8 +94,11 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $max = max(min($count / 3, 200), 5);
         $prices = [];
-        for ($i = 0; $i <= $max; ++$i) {
-            $prices[] = $this->createPrices($ruleIds);
+
+        if (!Feature::isActive('cache_rework')) {
+            for ($i = 0; $i <= $max; ++$i) {
+                $prices[] = $this->createPrices($ruleIds);
+            }
         }
 
         $payload = [];
@@ -425,7 +429,6 @@ class ProductGenerator implements DemodataGeneratorInterface
             FROM category
              LEFT JOIN product_category pc
                ON pc.category_id = category.id
-            WHERE category.child_count = 0
             GROUP BY category.id
             ORDER BY COUNT(pc.product_id) ASC
             LIMIT ' . $this->faker->numberBetween(1, 3));

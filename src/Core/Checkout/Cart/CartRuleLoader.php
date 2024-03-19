@@ -13,6 +13,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+ */
 #[Package('checkout')]
 class CartRuleLoader implements ResetInterface
 {
@@ -70,17 +74,28 @@ class CartRuleLoader implements ResetInterface
 
     public function reset(): void
     {
+        if (Feature::isActive('cache_rework')) {
+            return;
+        }
         $this->rules = null;
     }
 
     public function invalidate(): void
     {
+        if (Feature::isActive('cache_rework')) {
+            return;
+        }
+
         $this->reset();
         $this->cache->delete(CachedRuleLoader::CACHE_KEY);
     }
 
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
     {
+        if (Feature::isActive('cache_rework')) {
+            return new RuleLoaderResult(cart: $cart, matchingRules: new RuleCollection());
+        }
+
         return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
             $rules = $this->loadRules($context->getContext());
 
@@ -142,6 +157,7 @@ class CartRuleLoader implements ResetInterface
                 ++$iteration;
             } while ($recalculate);
 
+            // todo@skroblin - has to be moved to the Processor.php or CartCalculator.php class of the cart domain
             $cart = $this->validateTaxFree($context, $cart, $behaviorContext);
 
             $index = 0;
@@ -170,7 +186,9 @@ class CartRuleLoader implements ResetInterface
             return $this->rules;
         }
 
-        return $this->rules = $this->ruleLoader->load($context)->filterForContext();
+        return $this->rules = $this->ruleLoader
+            ->load($context)
+            ->filterForContext();
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

@@ -163,6 +163,7 @@
         <!-- Sales Channel API -->
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" public="true">
             <argument type="service" id="sales_channel.payment_method.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-1000" public="true">

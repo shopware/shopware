@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -141,6 +142,11 @@ class AssetService
         $manifest[$bundleOrAppName] = $localBundleManifest;
         $this->writeManifest($manifest);
 
+        if (Feature::isActive('cache_rework')) {
+            $this->cacheInvalidator->invalidate(['shopware.theme']);
+            return;
+        }
+        // todo@skroblin #cache improvement# central storefront-ui cache tag
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
     }
 

@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -17,7 +19,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     /**
      * @internal
      */
-    public function __construct(private readonly RequestStack $requestStack)
+    public function __construct(private readonly RequestStack $requestStack, private readonly Connection $connection)
     {
     }
 
@@ -47,6 +49,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'shopware' => [
                 'dateFormat' => \DATE_ATOM,
             ],
+            'language' => $this->getLanguage($context),
+            'navigationId' => $this->getNavigationId($request, $context),
+            'minSearchLength' => $this->minSearchLength($context),
             'themeId' => $themeId,
             'controllerName' => (string) $controllerInfo->getName(),
             'controllerAction' => (string) $controllerInfo->getAction(),
@@ -74,5 +79,37 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         return $controllerInfo;
+    }
+
+    private function minSearchLength(SalesChannelContext $context): int
+    {
+        $query = $this->connection->createQueryBuilder();
+
+        $query->select('min_search_length')
+            ->from('product_search_config')
+            ->where('language_id = :id')
+            ->setParameter('id', Uuid::fromHexToBytes($context->getLanguageId()));
+
+        $min = $query->executeQuery()->fetchOne();
+
+        return $min ? (int) $min : 3;
+    }
+
+    private function getLanguage(SalesChannelContext $context): array
+    {
+        $query = $this->connection->createQueryBuilder();
+
+        $query->select(['LOWER(HEX(language.id)) as id', 'language.name', 'LOWER(HEX(locale.id)) as localeId', 'locale.code as locale'])
+            ->from('language')
+            ->innerJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
+            ->where('language.id = :id')
+            ->setParameter('id', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
+
+        return $query->executeQuery()->fetchAssociative();
+    }
+
+    private function getNavigationId(Request $request, SalesChannelContext $context): string
+    {
+        return (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
     }
 }

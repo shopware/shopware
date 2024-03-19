@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
@@ -43,7 +44,7 @@ class TaxProviderProcessor
             return;
         }
 
-        $taxProviders = $this->getTaxProviders($context);
+        $taxProviders = $this->getTaxProviders($cart, $context);
 
         if ($taxProviders->count() === 0) {
             return;
@@ -67,8 +68,10 @@ class TaxProviderProcessor
         $this->adjustment->adjust($cart, $result, $context);
     }
 
-    private function getTaxProviders(SalesChannelContext $context): TaxProviderCollection
+    private function getTaxProviders(Cart $cart, SalesChannelContext $context): TaxProviderCollection
     {
+        $ruleIds = Feature::isActive('cache_rework') ? $cart->getRuleIds() : $context->getRuleIds();
+
         $criteria = (new Criteria())
             ->addAssociations(['availabilityRule', 'app'])
             ->addFilter(
@@ -76,7 +79,7 @@ class TaxProviderProcessor
                     new EqualsFilter('active', true),
                     new OrFilter([
                         new EqualsFilter('availabilityRuleId', null),
-                        new EqualsAnyFilter('availabilityRuleId', $context->getRuleIds()),
+                        new EqualsAnyFilter('availabilityRuleId', $ruleIds),
                     ]),
                 ])
             );

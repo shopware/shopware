@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Profiling\Subscriber;
 
+use Shopware\Core\Checkout\Cart\Event\CartCalculatedEvent;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
@@ -33,6 +35,11 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
 
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [CartCalculatedEvent::class => 'onCartCalculated'];
+        }
+
+        // @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
         return [
             SalesChannelContextResolvedEvent::class => 'onContextResolved',
         ];
@@ -63,6 +70,9 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
+        if ($request->attributes->get('_esi', false)) {
+            return;
+        }
         $this->data = $this->getMatchingRules();
     }
 
@@ -71,6 +81,12 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
         return '@Profiling/Collector/rules.html.twig';
     }
 
+    public function onCartCalculated(CartCalculatedEvent $event): void
+    {
+        $this->ruleIds = $event->cart->getRuleIds();
+    }
+
+    // @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
     public function onContextResolved(SalesChannelContextResolvedEvent $event): void
     {
         $this->ruleIds = $event->getContext()->getRuleIds();

@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -37,13 +38,18 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      */
     public function __construct(
         private readonly EntityRepository $crossSellingRepository,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $dispatcher,
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductListingLoader $listingLoader,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
+    }
+
+    public static function buildName(string $id): string
+    {
+        return 'cross-selling-route-' . $id;
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute
@@ -54,6 +60,8 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     #[Route(path: '/store-api/product/{productId}/cross-selling', name: 'store-api.product.cross-selling', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
+        $this->dispatcher->dispatch(new AddCacheTagEvent(self::buildName($productId)));
+
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
         $elements = new CrossSellingElementCollection();
@@ -69,7 +77,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             $elements->add($element);
         }
 
-        $this->eventDispatcher->dispatch(new ProductCrossSellingsLoadedEvent($elements, $context));
+        $this->dispatcher->dispatch(new ProductCrossSellingsLoadedEvent($elements, $context));
 
         return new ProductCrossSellingRouteResponse($elements);
     }
@@ -84,7 +92,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             ->addFilter(new EqualsFilter('active', 1))
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
-        $this->eventDispatcher->dispatch(
+        $this->dispatcher->dispatch(
             new ProductCrossSellingCriteriaLoadEvent($criteria, $context)
         );
 
@@ -113,7 +121,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $criteria = $this->handleAvailableStock($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
+        $this->dispatcher->dispatch(
             new ProductCrossSellingStreamCriteriaEvent($crossSelling, $criteria, $context)
         );
 
@@ -162,7 +170,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $criteria = $this->handleAvailableStock($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
+        $this->dispatcher->dispatch(
             new ProductCrossSellingIdsCriteriaEvent($crossSelling, $criteria, $context)
         );
 

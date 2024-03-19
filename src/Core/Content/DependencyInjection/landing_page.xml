@@ -45,6 +45,7 @@
             <argument type="service" id="sales_channel.landing_page.repository"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\LandingPage\SalesChannel\SalesChannelLandingPageDefinition"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\LandingPage\LandingPageValidator">

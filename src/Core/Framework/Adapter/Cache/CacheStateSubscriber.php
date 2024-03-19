@@ -69,6 +69,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
         /** @var SalesChannelContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
+        //todo@skroblin this cart call has to be removed. Remove state pattern?
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
         $context->removeState(self::STATE_LOGGED_IN);

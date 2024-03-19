@@ -13,3 +13,6 @@ shopware:
       - name: DISABLE_VUE_COMPAT
         default: false
         major: true
+      - name: CACHE_REWORK
+        default: false
+        major: true

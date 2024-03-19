@@ -43,6 +43,9 @@ class Context extends Struct
      */
     public function __construct(
         protected ContextSource $source,
+        /**
+         * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
+         */
         protected array $ruleIds = [],
         protected string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
@@ -109,10 +112,14 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
      * @return array<string>
      */
     public function getRuleIds(): array
     {
+        if (Feature::isActive('cache_rework')) {
+            return [];
+        }
         return $this->ruleIds;
     }
 
@@ -202,10 +209,16 @@ class Context extends Struct
     }
 
     /**
+     * @deprecated tag:v6.7.0 - #cache_rework_rule_reason#
      * @param array<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {
+        if (Feature::isActive('cache_rework')) {
+            $this->ruleIds = [];
+            return;
+        }
+
         if ($this->rulesLocked) {
             throw new ContextRulesLockedException();
         }

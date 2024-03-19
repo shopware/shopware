@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
@@ -87,6 +88,10 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
             $this->eventDispatcher->dispatch(new SalesChannelContextCreatedEvent($context, $token));
+
+            if (Feature::isActive('cache_rework')) {
+                return $context;
+            }
 
             $result = $this->ruleLoader->loadByToken($context, $token);
 

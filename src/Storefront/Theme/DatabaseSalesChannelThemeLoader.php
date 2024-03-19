@@ -15,8 +15,6 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 final class DatabaseSalesChannelThemeLoader
 {
-    final public const CACHE_KEY = 'sales-channel-themes';
-
     /**
      * @var array<string, array<int, string>>
      */
@@ -25,10 +23,8 @@ final class DatabaseSalesChannelThemeLoader
     /**
      * @internal
      */
-    public function __construct(
-        private readonly Connection $connection,
-        private readonly ?CacheInterface $cache = null
-    ) {
+    public function __construct(private readonly Connection $connection)
+    {
     }
 
     /**
@@ -40,27 +36,12 @@ final class DatabaseSalesChannelThemeLoader
             return $this->themes[$salesChannelId];
         }
 
-        if ($this->cache === null) {
-            return $this->readFromDB($salesChannelId);
-        }
-
-        $value = $this->cache->get(
-            self::CACHE_KEY,
-            fn (ItemInterface $item) => CacheValueCompressor::compress(
-                $this->readFromDB($salesChannelId)
-            )
-        );
-
-        /** @var array<int, string> $value */
-        $value = CacheValueCompressor::uncompress($value);
-
-        return $value ?? [];
+        return $this->readFromDB($salesChannelId);
     }
 
     public function reset(): void
     {
         $this->themes = [];
-        $this->cache?->delete(self::CACHE_KEY);
     }
 
     /**

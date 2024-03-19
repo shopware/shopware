@@ -108,6 +108,8 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
         );
 
         $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        // todo@skroblin why is this loaded here???
         $criteria->addAssociation('productSearchConfig');
         $apiRequest = new Request();
 

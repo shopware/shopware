@@ -609,6 +609,13 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "cookies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "All listed cookies will be included into the http cache hash, which is build when the customer is logged in"
+                },
                 "ignored_url_parameters": {
                     "type": "array",
                     "items": {

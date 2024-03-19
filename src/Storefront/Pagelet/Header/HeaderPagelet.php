@@ -46,7 +46,9 @@ class HeaderPagelet extends NavigationPagelet
         Tree $navigation,
         LanguageCollection $languages,
         CurrencyCollection $currencies,
+        // @deprecated tag:v6.7.0 - #esi_rework#
         LanguageEntity $activeLanguage,
+        // @deprecated tag:v6.7.0 - #esi_rework#
         CurrencyEntity $activeCurrency,
         CategoryCollection $serviceMenu
     ) {

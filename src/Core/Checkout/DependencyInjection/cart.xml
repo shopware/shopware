@@ -290,6 +290,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Order\Api\OrderRecalculationController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\RecalculationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\OrderAddressService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

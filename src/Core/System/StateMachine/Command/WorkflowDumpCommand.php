@@ -53,7 +53,7 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $workflowName = $input->getArgument('name');
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $stateMachine = $this->stateMachineRegistry->getStateMachine($workflowName, $context);
 
         $dumper = new StateMachineGraphvizDumper();

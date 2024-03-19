@@ -32,7 +32,7 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $criteria = new Criteria();
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
             new EqualsFilter('filters.type', 'until'),

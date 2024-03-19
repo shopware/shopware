@@ -90,7 +90,7 @@ class DemodataCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('Demodata Generator');
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $request = new DemodataRequest();
 

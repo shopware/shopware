@@ -102,7 +102,7 @@ class DocsAppEventCommand extends Command
      */
     private function collectBusinessEvent(array &$eventsDoc): void
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $businessEvents = $this->businessEventCollector->collect($context);
         $eventDoc = new ArrayWriter(self::EVENT_DESCRIPTIONS);
 

@@ -47,7 +47,7 @@ class ThemeCompileCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $this->io->writeln('Start theme compilation');
 
         $onlySalesChannel = ((array) $input->getOption('only')) ?: null;

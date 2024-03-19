@@ -76,7 +76,7 @@ class PluginZipImportCommand extends Command
             \assert($helperSet instanceof HelperSet);
 
             $this->pluginService->refreshPlugins(
-                Context::createDefaultContext(),
+                Context::createCLIContext(),
                 new ConsoleIO($composerInput, $output, $helperSet)
             );
             $io->success('Plugin list refreshed');

@@ -55,7 +55,7 @@ class GenerateMediaTypesCommand extends Command
     {
         $this->io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $this->batchSize = $this->validateBatchSize($input);
 
         $this->io->comment('Starting to generate MediaTypes. This may take some time...');

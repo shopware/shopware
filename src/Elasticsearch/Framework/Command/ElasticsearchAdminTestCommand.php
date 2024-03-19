@@ -75,7 +75,7 @@ final class ElasticsearchAdminTestCommand extends Command
             ShippingMethodDefinition::ENTITY_NAME,
         ];
 
-        $result = $this->searcher->search($term, $entities, Context::createDefaultContext());
+        $result = $this->searcher->search($term, $entities, Context::createCLIContext());
 
         $rows = [];
         foreach ($result as $data) {

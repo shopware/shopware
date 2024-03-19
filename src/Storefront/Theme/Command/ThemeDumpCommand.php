@@ -41,7 +41,7 @@ class ThemeDumpCommand extends Command
         private readonly StaticFileConfigDumper $staticFileConfigDumper
     ) {
         parent::__construct();
-        $this->context = Context::createDefaultContext();
+        $this->context = Context::createCLIContext();
     }
 
     protected function configure(): void

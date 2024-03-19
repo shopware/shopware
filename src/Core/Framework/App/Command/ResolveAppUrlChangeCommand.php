@@ -50,7 +50,7 @@ class ResolveAppUrlChangeCommand extends Command
             );
         }
 
-        $this->appUrlChangeResolver->resolve($strategy, Context::createDefaultContext());
+        $this->appUrlChangeResolver->resolve($strategy, Context::createCLIContext());
 
         $io->success('Strategy "' . $strategy . '" was applied successfully');
 

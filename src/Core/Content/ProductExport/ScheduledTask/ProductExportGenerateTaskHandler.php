@@ -77,7 +77,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
          * @var array<string>
          */
         return $this->salesChannelRepository
-            ->searchIds($criteria, Context::createDefaultContext())
+            ->searchIds($criteria, Context::createCLIContext())
             ->getIds();
     }
 

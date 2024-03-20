@@ -418,7 +418,7 @@ class ThemeService implements ResetInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<int, string>
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
@@ -428,6 +428,12 @@ class ThemeService implements ResetInterface
             && !empty($mainTheme->getBaseConfig()['configInheritance'])
         ) {
             return $mainTheme->getBaseConfig()['configInheritance'];
+        }
+
+        if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
+            return [
+                '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
+            ];
         }
 
         return [];
@@ -584,7 +590,7 @@ class ThemeService implements ResetInterface
 
         $translations = $theme->getLabels() ?: [];
 
-        if ($theme->getParentThemeId()) {
+        if ($theme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
             $criteria = new Criteria();
             $criteria->setTitle('theme-service::load-translations');
 

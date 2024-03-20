@@ -1,0 +1,20 @@
+{
+  "name": "ThemeApp",
+  "author": "Shopware AG",
+  "views": [
+    "@Storefront",
+    "@Plugins",
+    "@TestTheme"
+  ],
+  "style": [
+    "app/storefront/src/scss/overrides.scss",
+    "@Storefront",
+    "app/storefront/src/scss/base.scss"
+  ],
+  "script": [
+    "@Storefront"
+  ],
+  "asset": [
+    "app/storefront/src/assets"
+  ]
+}

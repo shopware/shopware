@@ -209,6 +209,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         $scriptsDistFolders = [];
         foreach ($configurationCollection as $configuration) {
             $scripts = $configuration->getScriptFiles();
+            foreach ($scripts as $key => $script) {
+                if ($script->getFilepath() === '@Storefront') {
+                    $scripts->remove($key);
+                }
+            }
             if ($scripts->count() === 0) {
                 continue;
             }

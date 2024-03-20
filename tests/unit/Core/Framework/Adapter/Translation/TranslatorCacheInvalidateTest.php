@@ -94,7 +94,7 @@ class TranslatorCacheInvalidateTest extends TestCase
         $this->cacheInvalidator->expects(static::once())->method('invalidate')->with([
             'translation.catalog.' . $ids->get('snippetSet1'),
             'translation.catalog.' . $ids->get('snippetSet2'),
-        ], true);
+        ], false);
 
         $this->translatorCacheInvalidate->invalidate($event);
     }
@@ -129,7 +129,7 @@ class TranslatorCacheInvalidateTest extends TestCase
         $this->cacheInvalidator->expects(static::once())->method('invalidate')->with([
             'translation.catalog.' . $ids->get('snippetSet1'),
             'translation.catalog.' . $ids->get('snippetSet2'),
-        ], true);
+        ], false);
 
         $this->translatorCacheInvalidate->invalidate($event);
     }

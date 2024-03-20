@@ -732,6 +732,7 @@ PHP_EOL;
 
         $appWrongPath = $projectDir . '/tmp/207973030/1_0_0/Resources'; // missing ThemeApp in path
         $app->setBasePath($appWrongPath);
+        $appWithoutJs = $configurationFactory->createFromApp('ThemeAppWithoutJs', 'ThemeAppWithoutJs');
 
         $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
         $scripts = new FileCollection();
@@ -745,6 +746,7 @@ PHP_EOL;
         $configCollection->add($asyncPlugin);
         $configCollection->add($notFoundPlugin);
         $configCollection->add($app);
+        $configCollection->add($appWithoutJs);
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,

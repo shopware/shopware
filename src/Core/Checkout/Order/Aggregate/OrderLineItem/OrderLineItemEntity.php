@@ -171,7 +171,7 @@ class OrderLineItemEntity extends Entity
     protected $orderVersionId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $productVersionId;
 
@@ -502,12 +502,12 @@ class OrderLineItemEntity extends Entity
         $this->orderVersionId = $orderVersionId;
     }
 
-    public function getProductVersionId(): string
+    public function getProductVersionId(): ?string
     {
         return $this->productVersionId;
     }
 
-    public function setProductVersionId(string $productVersionId): void
+    public function setProductVersionId(?string $productVersionId): void
     {
         $this->productVersionId = $productVersionId;
     }

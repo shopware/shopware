@@ -86,7 +86,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware()),
             (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new ApiAware(), new Required()),

@@ -25,10 +25,6 @@ if (process.env.IPV4FIRST) {
 }
 
 /* eslint-disable */
-const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
-const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
-const useSourceMap = process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
-
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
 if (fs.existsSync(flagsPath)) {
@@ -49,6 +45,9 @@ console.log(chalk.yellow('# Compiling with Webpack configuration'));
 
 const isDev = process.env.mode === 'development';
 const isProd = process.env.mode !== 'development';
+const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
+const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
+const useSourceMap = isDev && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
 
 if (isDev) {
     console.log(chalk.yellow('# Development mode is activated \u{1F6E0}'));
@@ -220,7 +219,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: useSourceMap ? (isDev ? 'eval-source-map' : 'source-map') : false,
+    devtool: useSourceMap ? 'eval-source-map' : false,
 
     optimization: {
         ...(() => {

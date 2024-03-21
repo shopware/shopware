@@ -82,7 +82,7 @@ class OrderTransactionStatusRuleTest extends TestCase
     public function testInvalidScopeIsFalse(): void
     {
         $invalidScope = $this->createMock(RuleScope::class);
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
@@ -101,7 +101,7 @@ class OrderTransactionStatusRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{boolean, string, list<string>, string}>
+     * @return array<string, array{bool, string, list<string>, string}>
      */
     public static function getMatchingValues(): array
     {

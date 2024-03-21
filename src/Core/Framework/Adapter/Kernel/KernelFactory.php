@@ -53,7 +53,7 @@ class KernelFactory
             $middlewares = [new ProfilingMiddleware()];
         }
 
-        $connection = $connection ?? MySQlFactory::create($middlewares);
+        $connection = $connection ?? MySQLFactory::create($middlewares);
 
         $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
 

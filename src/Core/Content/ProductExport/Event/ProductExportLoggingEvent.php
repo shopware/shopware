@@ -35,7 +35,7 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Sc
     public function __construct(
         private readonly Context $context,
         ?string $name,
-        Level|null $logLevel,
+        ?Level $logLevel,
         private readonly ?\Throwable $throwable = null
     ) {
         $this->name = $name ?? self::NAME;

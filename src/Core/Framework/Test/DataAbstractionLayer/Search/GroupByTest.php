@@ -50,7 +50,7 @@ class GroupByTest extends TestCase
 
     private GroupByTestDefinition $definition;
 
-    private \Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestData $testData;
+    private TestData $testData;
 
     public static function tearDownAfterClass(): void
     {

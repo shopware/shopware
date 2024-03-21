@@ -71,7 +71,7 @@ class CartShippingCostRuleTest extends TestCase
     }
 
     /**
-     * @return iterable <string, array{CartShippingCostRule, CalculatedPrice, boolean}>
+     * @return iterable <string, array{CartShippingCostRule, CalculatedPrice, bool}>
      */
     public static function getRuleTestData(): iterable
     {

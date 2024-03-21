@@ -77,7 +77,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<string|boolean>>
+     * @return iterable<array<string|bool>>
      */
     public static function breadcrumbDataProvider(): iterable
     {
@@ -95,7 +95,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<boolean>>
+     * @return iterable<array<bool>>
      */
     public static function seoCategoryProvider(): iterable
     {

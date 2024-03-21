@@ -33,7 +33,7 @@ class TimeBackoffLimiter implements LimiterInterface
         private readonly array $limits,
         \DateInterval $reset,
         StorageInterface $storage,
-        LockInterface|null $lock = new NoLock()
+        ?LockInterface $lock = new NoLock()
     ) {
         $this->id = $id;
         $this->reset = TimeUtil::dateIntervalToSeconds($reset);

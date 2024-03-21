@@ -26,7 +26,7 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $customFieldsMappingEventDispatched = 0;
 
         $dispatcher->addListener(ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event) use (&$customFieldsMappingEventDispatched): void {
-            $customFieldsMappingEventDispatched = $customFieldsMappingEventDispatched + 1;
+            ++$customFieldsMappingEventDispatched;
         });
 
         $parameterBag = new ParameterBag(['elasticsearch.product.custom_fields_mapping' => [

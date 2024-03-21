@@ -17,7 +17,7 @@ class Event
 
     private function __construct(
         private string $path,
-        private readonly CustomEvents|null $customEvents
+        private readonly ?CustomEvents $customEvents
     ) {
     }
 

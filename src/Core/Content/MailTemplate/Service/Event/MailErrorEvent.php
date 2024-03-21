@@ -25,7 +25,7 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
      */
     public function __construct(
         private readonly Context $context,
-        Level|null $logLevel = Level::Debug,
+        ?Level $logLevel = Level::Debug,
         private readonly ?\Throwable $throwable = null,
         private readonly ?string $message = null,
         private readonly ?string $template = null,

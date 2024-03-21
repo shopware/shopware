@@ -34,7 +34,7 @@ class HookableEntityWrittenEvent implements Hookable
     /**
      * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
      */
-    public function getWebhookPayload(AppEntity|null $app = null): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return $this->getPayloadFromEvent($this->event);
     }

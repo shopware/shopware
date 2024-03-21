@@ -85,7 +85,7 @@ class RemoteAddressFieldTest extends TestCase
 
         static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer);
         static::assertNotSame($remoteAddress, $orderCustomer->getRemoteAddress());
-        static::assertSame(IPUtils::anonymize($remoteAddress), $orderCustomer->getRemoteAddress());
+        static::assertSame(IpUtils::anonymize($remoteAddress), $orderCustomer->getRemoteAddress());
     }
 
     public function testRemoteAddressSerializerNoAnonymize(): void
@@ -123,7 +123,7 @@ class RemoteAddressFieldTest extends TestCase
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNotSame('127.0.0.1', $customer->getRemoteAddress());
-        static::assertSame(IPUtils::anonymize('127.0.0.1'), $customer->getRemoteAddress());
+        static::assertSame(IpUtils::anonymize('127.0.0.1'), $customer->getRemoteAddress());
     }
 
     private function setConfig(bool $value = false): void

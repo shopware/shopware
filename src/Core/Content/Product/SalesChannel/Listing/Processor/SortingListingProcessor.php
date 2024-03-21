@@ -117,7 +117,7 @@ class SortingListingProcessor extends AbstractListingProcessor
         return $sortings;
     }
 
-    private function getSystemDefaultSortingKey(SalesChannelContext $context): string|null
+    private function getSystemDefaultSortingKey(SalesChannelContext $context): ?string
     {
         $id = $this->systemConfigService->getString(
             'core.listing.defaultSorting',

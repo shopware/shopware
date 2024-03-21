@@ -21,7 +21,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
 
     private string $languageDE;
 
-    private ?string  $countryIdSlovakia = null;
+    private ?string $countryIdSlovakia = null;
 
     private Migration1599570560FixSlovakiaDisplayedAsSlovenia $migration;
 

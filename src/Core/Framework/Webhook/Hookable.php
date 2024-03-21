@@ -26,7 +26,7 @@ interface Hookable
     /**
      * @return array<mixed>
      */
-    public function getWebhookPayload(AppEntity|null $app = null): array;
+    public function getWebhookPayload(?AppEntity $app = null): array;
 
     /**
      * returns if it is allowed to dispatch the event to given app with given permissions

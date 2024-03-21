@@ -115,7 +115,7 @@ class CachedProductReviewRouteTest extends TestCase
             (new ProductBuilder($ids, 'product'))
                 ->price(100)
                 ->visibility()
-                ->review('Super', 'Amazing product!!!!', 3, TestDefaults::SALES_CHANNEL, DEFAULTS::LANGUAGE_SYSTEM, false)
+                ->review('Super', 'Amazing product!!!!', 3, TestDefaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, false)
                 ->build(),
 
             (new ProductBuilder($ids, 'other-product'))

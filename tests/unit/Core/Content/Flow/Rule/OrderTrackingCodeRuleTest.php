@@ -64,7 +64,7 @@ class OrderTrackingCodeRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{OrderTrackingCodeRule, list<string>, boolean}>
+     * @return iterable<string, array{OrderTrackingCodeRule, list<string>, bool}>
      */
     public static function getRuleTestData(): iterable
     {

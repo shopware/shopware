@@ -15,7 +15,7 @@ class IterateEntityMessage implements LowPriorityMessageInterface
         public readonly string $entityName,
         public readonly Operation $operation,
         public readonly \DateTimeImmutable $runDate,
-        public readonly \DateTimeImmutable|null $lastRun,
+        public readonly ?\DateTimeImmutable $lastRun,
         public readonly ?string $shopId = null
     ) {
     }

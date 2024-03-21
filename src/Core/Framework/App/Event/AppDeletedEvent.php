@@ -42,7 +42,7 @@ class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
         return self::NAME;
     }
 
-    public function getWebhookPayload(AppEntity|null $app = null): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [];
     }

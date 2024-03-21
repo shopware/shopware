@@ -62,7 +62,7 @@ class OrderDocumentTypeRuleTest extends TestCase
      * @param list<string> $selectedDocumentIds
      */
     #[DataProvider('getMatchingValues')]
-    public function testOrderDocumentTypeRuleMatching(bool $expected, string|null $documentId, array $selectedDocumentIds, string $operator): void
+    public function testOrderDocumentTypeRuleMatching(bool $expected, ?string $documentId, array $selectedDocumentIds, string $operator): void
     {
         $order = new OrderEntity();
         $collection = new DocumentCollection();
@@ -86,7 +86,7 @@ class OrderDocumentTypeRuleTest extends TestCase
     public function testInvalidScopeIsFalse(): void
     {
         $invalidScope = $this->createMock(RuleScope::class);
-        $this->rule->assign(['documentIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['documentIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
@@ -117,7 +117,7 @@ class OrderDocumentTypeRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{boolean, string|null, list<string>, string}>
+     * @return array<string, array{bool, string|null, list<string>, string}>
      */
     public static function getMatchingValues(): array
     {

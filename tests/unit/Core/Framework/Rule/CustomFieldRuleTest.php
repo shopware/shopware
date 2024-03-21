@@ -45,7 +45,7 @@ class CustomFieldRuleTest extends TestCase
     #[DataProvider('customFieldRuleData')]
     public function testMatch(
         array $customFields,
-        array|bool|string|null|int $renderedFieldValue,
+        array|bool|string|int|null $renderedFieldValue,
         string $type,
         string $operator,
         bool $isMatching,

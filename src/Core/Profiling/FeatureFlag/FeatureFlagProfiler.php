@@ -47,7 +47,7 @@ class FeatureFlagProfiler extends AbstractDataCollector
     }
 
     /**
-     * @return array<string, array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, name?: string}>
+     * @return array<string, array{name?: string, default?: bool, major?: bool, description?: string, active?: bool, name?: string}>
      */
     public function getFeatures(): array
     {

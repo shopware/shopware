@@ -160,8 +160,10 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExportTest extends
 
     private function createProfile(): void
     {
+        $importExportCustomerProfile = Uuid::randomBytes();
+
         $this->connection->insert('import_export_profile', [
-            'id' => Uuid::randomBytes(),
+            'id' => $importExportCustomerProfile,
             'name' => 'Default customer',
             'system_default' => 1,
             'source_entity' => 'customer',
@@ -171,6 +173,33 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExportTest extends
             'mapping' => $this->oldMapping,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+
+        $languageId = [
+            'english' => $this->connection->executeQuery(<<<'SQL'
+                    SELECT id FROM language WHERE name = 'English'
+                SQL)->fetchOne(),
+            'german' => $this->connection->executeQuery(<<<'SQL'
+                    SELECT id FROM language WHERE name = 'Deutsch'
+                SQL)->fetchOne(),
+        ];
+
+        if ($languageId['english']) {
+            $this->connection->insert('import_export_profile_translation', [
+                'import_export_profile_id' => $importExportCustomerProfile,
+                'language_id' => $languageId['english'],
+                'label' => 'Default customer',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
+
+        if ($languageId['german']) {
+            $this->connection->insert('import_export_profile_translation', [
+                'import_export_profile_id' => $importExportCustomerProfile,
+                'language_id' => $languageId['german'],
+                'label' => 'Standardprofil Kunde',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
     }
 
     private function prepare(): void

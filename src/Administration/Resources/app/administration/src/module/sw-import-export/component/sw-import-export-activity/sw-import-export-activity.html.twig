@@ -27,10 +27,10 @@
         </template>
         {% endblock %}
         <template #column-label-invalidRecords="{ column }">
-            {{ $te(column.label) ? $tc(column.label) : column.label }}
+            {{ $te(column.label) ? $t(column.label) : column.label }}
             <sw-help-text
                 class="sw-import-export-activity__invalid-records-help-text"
-                :text="$tc('sw-import-export.activity.invalidHelpText')"
+                :text="$t('sw-import-export.activity.invalidHelpText')"
             />
         </template>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -52,7 +52,7 @@
                 size="small"
                 appearance="pill"
             >
-                {{ $tc('sw-import-export.activity.dryrun') }}
+                {{ $t('sw-import-export.activity.dryrun') }}
             </sw-label>
             <a
                 href="#"
@@ -94,7 +94,7 @@
                 class="sw-import-export-activity__results-action"
                 @click="onShowResult(item)"
             >
-                {{ $tc('sw-import-export.activity.contextMenu.showResults') }}
+                {{ $t('sw-import-export.activity.contextMenu.showResults') }}
             </sw-context-menu-item>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -104,7 +104,7 @@
                 class="sw-import-export-activity__log-info-action"
                 @click="onShowLog(item)"
             >
-                {{ $tc('sw-import-export.activity.contextMenu.showLogInfo') }}
+                {{ $t('sw-import-export.activity.contextMenu.showLogInfo') }}
             </sw-context-menu-item>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -124,7 +124,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_import_export_activity_listing_actions_open_profile %}
             <sw-context-menu-item @click="onOpenProfile(item.profileId)">
-                {{ $tc('sw-import-export.activity.contextMenu.showProfile') }}
+                {{ $t('sw-import-export.activity.contextMenu.showProfile') }}
             </sw-context-menu-item>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -135,7 +135,7 @@
                 variant="danger"
                 @click="onAbortProcess(item)"
             >
-                {{ $tc('sw-import-export.activity.contextMenu.abortProcess') }}
+                {{ $t('sw-import-export.activity.contextMenu.abortProcess') }}
             </sw-context-menu-item>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -149,7 +149,7 @@
                     @keydown.enter="openProcessFileDownload(item.invalidRecordsLog)"
                 >
                     <sw-context-menu-item>
-                        {{ $tc('sw-import-export.activity.contextMenu.downloadInvalidFile') }}
+                        {{ $t('sw-import-export.activity.contextMenu.downloadInvalidFile') }}
                     </sw-context-menu-item>
                 </a>
             </template>

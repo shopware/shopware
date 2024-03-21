@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Service\FileService;
@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Package('services-settings')]
+#[CoversClass(ImportExportService::class)]
 class ImportExportServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -158,7 +159,7 @@ class ImportExportServiceTest extends TestCase
         );
 
         if ($expectedMimeType === false) {
-            $this->expectException(UnexpectedFileTypeException::class);
+            static::expectExceptionObject(ImportExportException::unexpectedFileType($clientMimeType, 'text/csv'));
         }
 
         $this->importExportService->prepareImport(Context::createDefaultContext(), $profileId, new \DateTimeImmutable(), $uploadedFile);
@@ -245,7 +246,7 @@ class ImportExportServiceTest extends TestCase
         $this->profileRepository->create([$profile], $context);
 
         if ($shouldThrowException) {
-            $this->expectException(ProfileWrongTypeException::class);
+            $this->expectException(ImportExportException::profileWrongType($profile['id'], $profile['type'])::class);
         }
 
         if ($task === ImportExportProfileEntity::TYPE_IMPORT) {

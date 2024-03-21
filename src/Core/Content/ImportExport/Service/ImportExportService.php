@@ -5,10 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Service;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
-use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
-use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
@@ -25,7 +22,7 @@ use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * @internal We might break this in v6.2
+ * @internal
  *
  * @phpstan-type Config array{mapping?: list<array{key: string, mappedKey: string}>|array<Mapping>|null, updateBy?: array<string, mixed>|null, parameters?: array<string, mixed>|null}
  */
@@ -63,7 +60,7 @@ class ImportExportService
         if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)
             && $activity !== ImportExportLogEntity::ACTIVITY_INVALID_RECORDS_EXPORT
         ) {
-            throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
+            throw ImportExportException::profileWrongType($profileEntity->getId(), $profileEntity->getType());
         }
 
         if ($originalFileName === null) {
@@ -94,12 +91,12 @@ class ImportExportService
         $profileEntity = $this->findProfile($context, $profileId);
 
         if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_IMPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
-            throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
+            throw ImportExportException::profileWrongType($profileEntity->getId(), $profileEntity->getType());
         }
 
         $type = $this->fileService->detectType($file);
         if ($type !== $profileEntity->getFileType()) {
-            throw new UnexpectedFileTypeException($file->getClientMimeType(), $profileEntity->getFileType());
+            throw ImportExportException::unexpectedFileType($file->getClientMimeType(), $profileEntity->getFileType());
         }
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
@@ -113,7 +110,7 @@ class ImportExportService
         $logEntity = $this->findLog($context, $logId);
 
         if ($logEntity === null) {
-            throw new ProcessingException('LogEntity not found');
+            throw ImportExportException::logEntityNotFound($logId);
         }
 
         $canceledProgress = new Progress($logId, Progress::STATE_ABORTED);
@@ -128,7 +125,7 @@ class ImportExportService
         $criteria->addAssociation('file');
         $current = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
         if (!$current instanceof ImportExportLogEntity) {
-            throw new \RuntimeException('ImportExportLog "' . $logId . '" not found');
+            throw ImportExportException::logEntityNotFound($logId);
         }
 
         $progress = new Progress(
@@ -191,7 +188,7 @@ class ImportExportService
             return $profile;
         }
 
-        throw new ProfileNotFoundException($profileId);
+        throw ImportExportException::profileNotFound($profileId);
     }
 
     /**

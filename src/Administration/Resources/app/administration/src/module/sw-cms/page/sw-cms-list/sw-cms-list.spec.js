@@ -19,10 +19,11 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
             stubs: {
                 'sw-page': {
                     template: `
-    <div>
-        <slot name="smart-bar-actions"></slot>
-        <slot name="content"></slot>
-    </div>`,
+                        <div>
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content"></slot>
+                        </div>
+                    `,
                 },
                 'sw-card-view': {
                     template: '<div><slot></slot></div>',
@@ -66,14 +67,14 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                 'sw-alert': true,
                 'sw-modal': {
                     template: `
-                    <div class="sw-modal-stub">
-                        <slot></slot>
-
-                        <div class="modal-footer">
-                            <slot name="modal-footer"></slot>
+                        <div class="sw-modal-stub">
+                            <slot></slot>
+    
+                            <div class="modal-footer">
+                                <slot name="modal-footer"></slot>
+                            </div>
                         </div>
-                    </div>
-                `,
+                    `,
                 },
                 'sw-confirm-modal': {
                     template: '<div></div>',
@@ -614,6 +615,60 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(multiFilter.type).toBe('multi');
         expect(multiFilter.operator).toBe('OR');
         expect(multiFilter.queries).toHaveLength(wrapper.vm.assignablePageTypes.length);
+    });
+
+    it('should generate the correct strings for associated elements', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const expectedCategories = ['Category 1', 'Category 3', 'Category 2'];
+        const categoryObjects = expectedCategories.map((category, key) => {
+            return {
+                key,
+                name: category,
+                categoryCount: {
+                    count: 5,
+                },
+            };
+        });
+
+        const expectedProducts = ['Product 1', 'Product 2', 'Product 3'];
+        const productObjects = expectedProducts.map((product) => {
+            return {
+                name: product,
+            };
+        });
+
+        const mockPage = {
+            id: '1',
+            sections: [],
+            categories: categoryObjects,
+            products: [],
+            translated: {
+                name: 'CMS Page 1',
+            },
+        };
+
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual(expectedCategories);
+        expect(wrapper.vm.getPagesString(mockPage)).toBe('Category 1, Category 3, Category 2');
+        expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
+            width: 300,
+            message: 'Category 1, Category 3, Category 2',
+            disabled: true,
+        });
+
+        mockPage.products = productObjects;
+
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
+            ...expectedCategories,
+            ...expectedProducts,
+        ]);
+        expect(wrapper.vm.getPagesString(mockPage)).toBe('Category 1, Category 3, Category 2, ...');
+        expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
+            width: 300,
+            message: 'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3',
+            disabled: false,
+        });
     });
 
     it('should indicate layouts already assigned to pages', async () => {

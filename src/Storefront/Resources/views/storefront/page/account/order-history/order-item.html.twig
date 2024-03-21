@@ -24,7 +24,7 @@
 
             <div class="row flex-wrap">
                 {% block page_account_order_item_heading %}
-                    <h3 class="col-auto order-table-header-heading">{{ 'account.orderHeadline'|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
+                    <div class="h3 col-auto order-table-header-heading">{{ 'account.orderHeadline'|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</div>
                 {% endblock %}
 
                 {% block page_account_order_item_status_col %}
@@ -64,7 +64,8 @@
                                         id="accountOrderDropdown"
                                         data-bs-toggle="dropdown"
                                         aria-haspopup="true"
-                                        aria-expanded="false">
+                                        aria-expanded="false"
+                                        aria-label="{{ 'account.orderActions' }}">
                                     {% sw_icon 'more-horizontal' %}
                                 </button>
                             {% endblock %}

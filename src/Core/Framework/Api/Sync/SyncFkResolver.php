@@ -33,7 +33,7 @@ class SyncFkResolver
     /**
      * @param array<int, array<string, mixed>> $payload
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<string|int, mixed>>
      */
     public function resolve(string $key, string $entity, array $payload): array
     {
@@ -80,7 +80,7 @@ class SyncFkResolver
     }
 
     /**
-     * @param array<int, array<string, mixed>> $payload
+     * @param array<int, array<string|int, mixed>> $payload
      *
      * @return array<string, array<FkReference>>
      */

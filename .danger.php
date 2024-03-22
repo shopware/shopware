@@ -69,7 +69,12 @@ return (new Config())
         },
         [
             function (Context $context): void {
+                if (str_contains($context->platform->pullRequest->body, '/shopware/6/product/platform/-/merge_requests/')) {
+                    return;
+                }
+
                 $found = false;
+
                 foreach ($context->platform->pullRequest->getComments() as $comment) {
                     if (str_contains($comment->body, '/shopware/6/product/platform/-/merge_requests/')) {
                         $found = true;
@@ -225,7 +230,7 @@ return (new Config())
             return;
         }
 
-        if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
+        if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?(\[[\w.]+]\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
             $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
         }
     })

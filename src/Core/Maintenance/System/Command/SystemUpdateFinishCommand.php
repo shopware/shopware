@@ -98,15 +98,22 @@ class SystemUpdateFinishCommand extends Command
         return self::SUCCESS;
     }
 
-    private function runMigrations(OutputInterface $output): int
+    private function runMigrations(OutputInterface $output): void
     {
         $application = $this->getApplication();
         \assert($application !== null);
         $command = $application->find('database:migrate');
 
-        return $this->runCommand($application, $command, [
+        $this->runCommand($application, $command, [
             'identifier' => 'core',
             '--all' => true,
+        ], $output);
+
+        $command = $application->find('database:migrate-destructive');
+        $this->runCommand($application, $command, [
+            'identifier' => 'core',
+            '--all' => true,
+            '--version-selection-mode' => 'blue-green',
         ], $output);
     }
 

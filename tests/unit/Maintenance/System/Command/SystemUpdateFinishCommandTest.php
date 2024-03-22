@@ -46,7 +46,7 @@ class SystemUpdateFinishCommandTest extends TestCase
 
         $application = $this->createMock(Application::class);
         $application
-            ->expects(static::exactly(2))
+            ->expects(static::exactly(3))
             ->method('find')
             ->willReturn($this->createMock(Command::class));
 
@@ -85,7 +85,7 @@ class SystemUpdateFinishCommandTest extends TestCase
         $migrationCommand->method('run')->willReturn(Command::SUCCESS);
 
         $application
-            ->expects(static::once())
+            ->expects(static::exactly(2))
             ->method('find')
             ->willReturn($migrationCommand);
 

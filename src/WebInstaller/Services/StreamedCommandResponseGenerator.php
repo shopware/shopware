@@ -39,9 +39,13 @@ class StreamedCommandResponseGenerator
     /**
      * @param array<string> $params
      */
-    public function runJSON(array $params): StreamedResponse
+    public function runJSON(array $params, ?callable $finish = null): StreamedResponse
     {
-        return $this->run($params, function (Process $process): void {
+        return $this->run($params, function (Process $process) use ($finish): void {
+            if ($finish !== null) {
+                $finish($process);
+            }
+
             echo json_encode([
                 'success' => $process->isSuccessful(),
             ]);

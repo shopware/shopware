@@ -259,6 +259,7 @@
     "orderContextMenuCancel": "Bestellung stornieren",
     "completePayment": "Zahlung abschließen",
     "editOrder": "Bestellung bearbeiten",
+    "orderActions": "Aktionen",
     "editOrderUpdateButton": "Zahlung abschließen",
     "editOrderBackToAccountButton": "Zurück zum Account",
     "editOrderBackToOrderButton": "Zurück zur Bestellung",

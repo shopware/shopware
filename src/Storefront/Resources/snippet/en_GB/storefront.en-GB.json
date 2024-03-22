@@ -259,6 +259,7 @@
     "orderContextMenuCancel": "Cancel order",
     "completePayment": "Complete payment",
     "editOrder": "Edit order",
+    "orderActions": "Actions",
     "editOrderUpdateButton": "Complete payment",
     "editOrderBackToAccountButton": "Back to overview",
     "editOrderBackToOrderButton": "Back to order",

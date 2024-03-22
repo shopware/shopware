@@ -24,7 +24,7 @@
 
             <div class="row flex-wrap">
                 {% block page_account_order_item_heading %}
-                    <h3 class="col-auto order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
+                    <div class="h3 col-auto order-table-header-heading">{{ 'account.orderHeadline'|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</div>
                 {% endblock %}
 
                 {% block page_account_order_item_status_col %}
@@ -33,10 +33,10 @@
                             <div class="order-table-header-order-status">
                                 {% if isPaymentNeeded %}
                                     {% block page_account_order_item_status_badge_payment_process_needed %}
-                                        <a href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}"
+                                        <a href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}"
                                            class="badge badge-lg order-item-status-badge bg-danger">
-                                            {{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}
-                                            {% sw_icon 'arrow-medium-right' style { 'size': 'sm', 'pack': 'solid' } %}
+                                            {{ 'account.orderStatusActionCompletePayment'|trans|sw_sanitize }}
+                                            {% sw_icon 'arrow-medium-right' style { size: 'sm', pack: 'solid' } %}
                                         </a>
                                     {% endblock %}
                                 {% else %}
@@ -64,7 +64,8 @@
                                         id="accountOrderDropdown"
                                         data-bs-toggle="dropdown"
                                         aria-haspopup="true"
-                                        aria-expanded="false">
+                                        aria-expanded="false"
+                                        aria-label="{{ 'account.orderActions' }}">
                                     {% sw_icon 'more-horizontal' %}
                                 </button>
                             {% endblock %}
@@ -76,13 +77,13 @@
                                         {% block page_account_order_item_context_menu_content_change_payment_button %}
                                             {% if isPaymentNeeded %}
                                                 <a class="order-table-header-context-menu-content-link"
-                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
-                                                    <strong>{{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}</strong>
+                                                   href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}">
+                                                    <strong>{{ 'account.orderStatusActionCompletePayment'|trans|sw_sanitize }}</strong>
                                                 </a>
                                             {% else %}
                                                 <a class="order-table-header-context-menu-content-link"
-                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
-                                                    {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
+                                                   href="{{ path('frontend.account.edit-order.page', { orderId: order.id }) }}">
+                                                    {{ 'account.orderContextMenuChangePayment'|trans|sw_sanitize }}
                                                 </a>
                                             {% endif %}
                                         {% endblock %}
@@ -133,7 +134,7 @@
                                                 {% endblock %}
 
                                                 {% block page_account_order_item_context_menu_reorder_form_button %}
-                                                    <button class="order-table-header-context-menu-content-link" type="submit">{{ "account.orderContextMenuReorder"|trans|sw_sanitize }}</button>
+                                                    <button class="order-table-header-context-menu-content-link" type="submit">{{ 'account.orderContextMenuReorder'|trans|sw_sanitize }}</button>
                                                 {% endblock %}
                                             </form>
                                         {% endblock %}
@@ -145,7 +146,7 @@
                                                     class="order-table-header-context-menu-content-link"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#order-{{ order.id }}">
-                                                {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
+                                                {{ 'account.editOrderCancelOrderButton'|trans|sw_sanitize }}
                                             </button>
                                         {% endif %}
                                     {% endblock %}
@@ -164,7 +165,7 @@
                 {% block page_account_order_item_order_number_col %}
                     <div class="col-12 order-table-header-order-number">
                         {% block page_account_order_item_order_number %}
-                            <strong class="order-table-header-label">{{ "account.orderNumber"|trans|sw_sanitize }}</strong>
+                            <strong class="order-table-header-label">{{ 'account.orderNumber'|trans|sw_sanitize }}</strong>
                             <span class="order-table-body-value">{{ order.orderNumber|sw_sanitize }}</span>
                         {% endblock %}
                     </div>
@@ -176,21 +177,21 @@
                     <div class="col-12 row order-table-header-order-table-header">
                         {% block page_account_order_item_order_table_header_cell_shipping_status %}
                             {% if order.deliveries|length > 0 %}
-                                <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
+                                <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingStatus'|trans|sw_sanitize }}</div>
                             {% endif %}
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_header_cell_payment_status %}
-                            <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderPaymentStatus"|trans|sw_sanitize }}</div>
+                            <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderPaymentStatus'|trans|sw_sanitize }}</div>
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_header_cell_payment_method %}
-                            <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderPaymentMethod"|trans|sw_sanitize }}</div>
+                            <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderPaymentMethod'|trans|sw_sanitize }}</div>
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_header_cell_shipping_method %}
                             {% if order.deliveries|length > 0 %}
-                                <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
+                                <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingMethod'|trans|sw_sanitize }}</div>
                             {% endif %}
                         {% endblock %}
 
@@ -208,7 +209,7 @@
                             {% if order.deliveries|length > 0 %}
                                 <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                     <strong class="order-table-header-label">
-                                        {{ "account.orderShippingStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        {{ 'account.orderShippingStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
                                     <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
                                 </div>
@@ -218,7 +219,7 @@
                         {% block page_account_order_item_order_table_body_cell_payment_status %}
                             <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                 <strong class="order-table-header-label">
-                                    {{ "account.orderPaymentStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                    {{ 'account.orderPaymentStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                 </strong>
                                 <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
                             </div>
@@ -227,7 +228,7 @@
                         {% block page_account_order_item_order_table_body_cell_payment_method %}
                             <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                 <strong class="order-table-header-label">
-                                    {{ "account.orderPaymentMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                    {{ 'account.orderPaymentMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                 </strong>
                                 <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
                             </div>
@@ -237,7 +238,7 @@
                             {% if order.deliveries|length > 0 %}
                                 <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                     <strong class="order-table-header-label">
-                                        {{ "account.orderShippingMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        {{ 'account.orderShippingMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
                                     <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
                                 </div>
@@ -246,7 +247,6 @@
 
                         {% block page_account_order_item_order_table_body_cell_toggle_order_details %}
                             <div class="col-12 col-sm-2 order-item order-item-actions order-table-header-order-table-body-cell">
-
                                 {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
                                     <button class="btn btn-light btn-sm order-hide-btn collapsed"
                                             type="submit"
@@ -255,8 +255,8 @@
                                             aria-expanded="false"
                                             aria-controls="collapseExample">
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button_text %}
-                                            <span class="order-hide-btn-text">{{ "account.orderActionHide"|trans|sw_sanitize }}</span>
-                                            <span class="order-view-btn-text">{{ "account.orderActionView"|trans|sw_sanitize }}</span>
+                                            <span class="order-hide-btn-text">{{ 'account.orderActionHide'|trans|sw_sanitize }}</span>
+                                            <span class="order-view-btn-text">{{ 'account.orderActionView'|trans|sw_sanitize }}</span>
                                         {% endblock %}
                                     </button>
                                 {% endblock %}

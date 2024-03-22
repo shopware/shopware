@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.0.1
+*  [NEXT-34524 - Run blue-green safe destructive migrations in system:update:finish command](./changelog/release-6-6-0-1/2024-03-22-run-blue-green-safe-migrations-in-system-update-finish-command.md)
+
 ## 6.6.0.0
 *  [NEXT-34439 - Ensure decoration of media url generator](./changelog/release-6-6-0-0/2024-03-17-ensure-decoration-of-media-url-generator.md) ([Stefan Poensgen](https://github.com/stefanpoensgen))
 *  [NEXT-32919 - Allow post update indexer to run synchronously on post update event](./changelog/release-6-6-0-0/2024-03-15-allow-post-update-indexer-to-run-on-post-update-event.md)

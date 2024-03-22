@@ -34,6 +34,17 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
     private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
     {
+        try {
+            /** @var array<string, string> $authors */
+            $authors = $this->connection->fetchAllKeyValue('
+                SELECT `base_class` AS `baseClass`, `author`
+                FROM `plugin`
+            ');
+        } catch (Exception) {
+            // to get it working in setup without a database connection
+            $authors = [];
+        }
+
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
                 continue;
@@ -45,7 +56,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                 continue;
             }
 
-            foreach ($this->loadSnippetFilesInDir($snippetDir, $bundle) as $snippetFile) {
+            foreach ($this->loadSnippetFilesInDir($snippetDir, $bundle, $authors) as $snippetFile) {
                 if ($snippetFileCollection->hasFileForPath($snippetFile->getPath())) {
                     continue;
                 }
@@ -67,25 +78,16 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     }
 
     /**
+     * @param array<string, string> $authors
+     *
      * @return AbstractSnippetFile[]
      */
-    private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle): array
+    private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle, array $authors): array
     {
         $finder = new Finder();
         $finder->in($snippetDir)
             ->files()
             ->name('*.json');
-
-        try {
-            /** @var array<string, string> $authors */
-            $authors = $this->connection->fetchAllKeyValue('
-                SELECT `base_class` AS `baseClass`, `author`
-                FROM `plugin`
-            ');
-        } catch (Exception) {
-            // to get it working in setup without a database connection
-            $authors = [];
-        }
 
         $snippetFiles = [];
 

@@ -2071,36 +2071,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:mimeTypeProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:profileProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testExportProfileShouldThrowExceptionInImport\\(\\) has parameter \\$profile with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testExportProfileShouldThrowExceptionInImport\\(\\) has parameter \\$shouldThrowException with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testExportProfileShouldThrowExceptionInImport\\(\\) has parameter \\$task with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testMimeTypeValidation\\(\\) has parameter \\$expectedMimeType with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:mappingInputProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php

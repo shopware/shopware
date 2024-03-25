@@ -205,10 +205,6 @@
             }
         }
     ],
-    "conflict": {
-        "monolog/monolog": "^1.0",
-        "enqueue/enqueue": "<0.10.16"
-    },
     "scripts-descriptions": {
         "admin:create:test": " ",
         "admin:generate-entity-schema-types": " ",

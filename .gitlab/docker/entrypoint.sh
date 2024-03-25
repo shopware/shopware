@@ -1,8 +1,13 @@
 #!/usr/bin/env sh
 
 set -eu
+set -o pipefail
 
 cd /var/www/html
+
+. /usr/local/shopware/functions.sh
+
+wait_for_mysql
 
 if [[ -n "${TEST_WEB_INSTALLER:-}" ]]; then
     echo "Testing web installer"

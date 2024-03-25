@@ -124,7 +124,6 @@ class OrderConverter
         $data['languageId'] = $context->getLanguageId();
 
         $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
-        $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {
             $shippingAddresses = AddressTransformer::transformCollection($cart->getDeliveries()->getAddresses(), true);
@@ -147,16 +146,11 @@ class OrderConverter
             if ($activeBillingAddress === null) {
                 throw CartException::addressNotFound('');
             }
-            $customerAddressId = $activeBillingAddress->getId();
 
-            if (\array_key_exists($customerAddressId, $shippingAddresses)) {
-                $billingAddressId = $shippingAddresses[$customerAddressId]['id'];
-            } else {
-                $billingAddress = AddressTransformer::transform($activeBillingAddress);
-                $data['addresses'] = [$billingAddress];
-                $billingAddressId = $billingAddress['id'];
-            }
-            $data['billingAddressId'] = $billingAddressId;
+            $billingAddress = AddressTransformer::transform($activeBillingAddress);
+            $billingAddress['id'] = Uuid::randomHex();
+            $data['billingAddressId'] = $billingAddress['id'];
+            $data['addresses'] = [$billingAddress];
         }
 
         if ($conversionContext->shouldIncludeTransactions()) {

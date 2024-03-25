@@ -17,10 +17,7 @@ class AppPaymentMethodEntity extends Entity
 {
     use EntityIdTrait;
 
-    /**
-     * @var string
-     */
-    protected $appId;
+    protected ?string $appId;
 
     /**
      * @var AppEntity|null
@@ -75,7 +72,7 @@ class AppPaymentMethodEntity extends Entity
      */
     protected $originalMedia;
 
-    public function getAppId(): string
+    public function getAppId(): ?string
     {
         return $this->appId;
     }

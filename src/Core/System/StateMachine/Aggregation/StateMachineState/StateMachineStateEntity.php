@@ -22,7 +22,9 @@ class StateMachineStateEntity extends Entity
     use EntityIdTrait;
 
     /**
-     * @var string
+     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
+     *
+     * @var string|null
      */
     protected $name;
 
@@ -105,9 +107,18 @@ class StateMachineStateEntity extends Entity
         $this->fromStateMachineHistoryEntries = $fromStateMachineHistoryEntries;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
+     * return type will be ?string in v6.7.0.0
+     */
     public function getName(): string
     {
-        return $this->name;
+        /**
+         * @deprecated tag:v6.7.0
+         * remove the null-check
+         * return $this->name;
+         */
+        return $this->name ?? '';
     }
 
     public function setName(string $name): void

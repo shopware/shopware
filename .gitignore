@@ -146,3 +146,5 @@ http-client.private.env.json
 # Devenv
 .devenv*
 devenv.local.nix
+
+# Shopware

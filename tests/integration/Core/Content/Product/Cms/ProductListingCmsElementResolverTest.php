@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -90,6 +91,141 @@ class ProductListingCmsElementResolverTest extends TestCase
         }
     }
 
+    public function testDefaultSorting(): void
+    {
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    $this->productSortings['price-desc'] => 1,
+                    $this->productSortings['name-asc'] => 0,
+                ],
+            ],
+            'defaultSorting' => ['value' => $this->productSortings['name-asc']],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $availableSortings = $slotConfig['availableSortings']['value'];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request()
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $data);
+
+        $listing = $data->getListing();
+        static::assertInstanceOf(ProductListingResult::class, $listing);
+
+        static::assertSame('name-asc', $listing->getSorting());
+
+        foreach ($listing->getAvailableSortings() as $availableSorting) {
+            static::assertArrayHasKey($availableSorting->getId(), $availableSortings);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - This test should be removed in v6.7.0.0
+     */
+    public function testSortingsByName(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'name-asc' => 0,
+                ],
+            ],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $availableSortings = $slotConfig['availableSortings']['value'];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request([], ['order' => 'name-asc'])
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $data);
+
+        $listing = $data->getListing();
+        static::assertInstanceOf(ProductListingResult::class, $listing);
+
+        static::assertSame('name-asc', $listing->getSorting());
+
+        foreach ($listing->getAvailableSortings() as $availableSorting) {
+            static::assertArrayHasKey($availableSorting->getKey(), $availableSortings);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - This test should be removed in v6.7.0.0
+     */
+    public function testDefaultSortingByName(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'name-asc' => 0,
+                ],
+            ],
+            'defaultSorting' => ['value' => 'name-asc'],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $availableSortings = $slotConfig['availableSortings']['value'];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request()
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $data);
+
+        $listing = $data->getListing();
+        static::assertInstanceOf(ProductListingResult::class, $listing);
+
+        static::assertSame('name-asc', $listing->getSorting());
+
+        foreach ($listing->getAvailableSortings() as $availableSorting) {
+            static::assertArrayHasKey($availableSorting->getKey(), $availableSortings);
+        }
+    }
+
     public function testUnavailableSortingThrowsNoException(): void
     {
         $slotConfig = [
@@ -163,6 +299,55 @@ class ProductListingCmsElementResolverTest extends TestCase
         static::assertSame($availableSortings, $actualSortings);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - This test should be removed in v6.7.0.0
+     */
+    public function testOnlyRestrictedSortingsAreAvailableByName(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'price-asc' => 0,
+                ],
+            ],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $availableSortings = $slotConfig['availableSortings']['value'];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request([], ['order' => 'price-desc'])
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $data);
+
+        $listing = $data->getListing();
+        static::assertInstanceOf(ProductListingResult::class, $listing);
+
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
+
+        $availableSortings = array_keys($availableSortings);
+
+        sort($actualSortings);
+        sort($availableSortings);
+
+        static::assertSame($availableSortings, $actualSortings);
+    }
+
     public function testAvailableSortingsPriority(): void
     {
         $slotConfig = [
@@ -208,6 +393,56 @@ class ProductListingCmsElementResolverTest extends TestCase
         static::assertSame($availableSortings, $actualSortings);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - This test should be removed in v6.7.0.0
+     */
+    public function testAvailableSortingsPriorityByName(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'price-asc' => 100,
+                    'name-asc' => 77,
+                ],
+            ],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $availableSortings = $slotConfig['availableSortings']['value'];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request([], ['order' => 'price-desc'])
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $data);
+
+        $listing = $data->getListing();
+        static::assertInstanceOf(ProductListingResult::class, $listing);
+
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
+
+        $actualSortings = array_values($actualSortings);
+
+        arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+        $availableSortings = array_keys($availableSortings);
+
+        static::assertSame($availableSortings, $actualSortings);
+    }
+
     public function testHighestPrioritySortingIsDefaultSorting(): void
     {
         $slotConfig = [
@@ -216,6 +451,49 @@ class ProductListingCmsElementResolverTest extends TestCase
                     $this->productSortings['price-desc'] => 1,
                     $this->productSortings['price-asc'] => 100,
                     $this->productSortings['name-asc'] => 77,
+                ],
+            ],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request()
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        $data = $slot->getData();
+        static::assertInstanceOf(ProductListingStruct::class, $data);
+
+        $listing = $data->getListing();
+        static::assertInstanceOf(ProductListingResult::class, $listing);
+
+        $sorting = $listing->getSorting();
+
+        static::assertSame('price-asc', $sorting);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - This test should be removed in v6.7.0.0
+     */
+    public function testHighestPrioritySortingIsDefaultSortingByName(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'price-asc' => 100,
+                    'name-asc' => 77,
                 ],
             ],
             'useCustomSorting' => ['value' => true],

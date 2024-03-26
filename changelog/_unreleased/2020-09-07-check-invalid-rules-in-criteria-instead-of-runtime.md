@@ -1,5 +1,6 @@
 ---
 title: Check for invalid rules in criteria instead at runtime
+issue: NEXT-34653
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

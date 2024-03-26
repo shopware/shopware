@@ -54,9 +54,6 @@ import Feature from 'src/core/feature';
 /** Import decorators */
 import 'src/app/decorator';
 
-/** Import Meteor Component Library styles */
-import '@shopware-ag/meteor-component-library/dist/style.css';
-
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';
 

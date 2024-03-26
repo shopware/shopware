@@ -120,7 +120,7 @@ class MediaFolderRepositoryTest extends TestCase
 
         $mediaPath = $media->getPath();
 
-        $file = fopen(self::FIXTURE_FILE, 'rb');
+        $file = fopen(self::FIXTURE_FILE, 'r');
         static::assertIsResource($file);
         $this->getPublicFilesystem()->writeStream($mediaPath, $file);
 
@@ -187,7 +187,7 @@ class MediaFolderRepositoryTest extends TestCase
         $childMediaPath = $childMedia->getPath();
         $parentMediaPath = $parentMedia->getPath();
 
-        $file = fopen(self::FIXTURE_FILE, 'rb');
+        $file = fopen(self::FIXTURE_FILE, 'r');
         static::assertIsResource($file);
         $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
         $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
@@ -258,7 +258,7 @@ class MediaFolderRepositoryTest extends TestCase
         $childMediaPath = $childMedia->getPath();
         $parentMediaPath = $parentMedia->getPath();
 
-        $file = fopen(self::FIXTURE_FILE, 'rb');
+        $file = fopen(self::FIXTURE_FILE, 'r');
         static::assertIsResource($file);
         $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
         $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
@@ -327,7 +327,7 @@ class MediaFolderRepositoryTest extends TestCase
         $childMediaPath = $childMedia->getPath();
         $parentMediaPath = $parentMedia->getPath();
 
-        $file = fopen(self::FIXTURE_FILE, 'rb');
+        $file = fopen(self::FIXTURE_FILE, 'r');
         static::assertIsResource($file);
         $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
         $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);
@@ -396,7 +396,7 @@ class MediaFolderRepositoryTest extends TestCase
         $childMediaPath = $childMedia->getPath();
         $parentMediaPath = $parentMedia->getPath();
 
-        $file = fopen(self::FIXTURE_FILE, 'rb');
+        $file = fopen(self::FIXTURE_FILE, 'r');
         static::assertIsResource($file);
         $this->getPublicFilesystem()->writeStream($childMediaPath, $file);
         $this->getPublicFilesystem()->writeStream($parentMediaPath, $file);

@@ -40,7 +40,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $this->getFilesystem('shopware.filesystem.public')->writeStream($media->getPath(), $resource);

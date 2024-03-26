@@ -47,7 +47,7 @@ class ZipUtils
 
     private static function validateFileIsZip(string $filename): bool
     {
-        $fp = fopen($filename, 'rb');
+        $fp = fopen($filename, 'r');
 
         if ($fp === false) {
             return false;

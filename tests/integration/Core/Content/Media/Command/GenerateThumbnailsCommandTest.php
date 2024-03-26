@@ -302,14 +302,14 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
         $filePath = $mediaJpg->getPath();
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r')
         );
     }
 
@@ -330,12 +330,12 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
+            fopen(__DIR__ . '/../fixtures/small.pdf', 'r')
         );
 
         $filePath = $mediaJpg->getPath();
 
-        $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+        $this->getPublicFilesystem()->writeStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r'));
     }
 
     private function getNewMediaEntities(): MediaCollection

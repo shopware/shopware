@@ -15,7 +15,7 @@ class CopyBatch
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
                 if (!\is_resource($batchInput->getSourceFile())) {
-                    $handle = fopen($batchInput->getSourceFile(), 'rb');
+                    $handle = fopen($batchInput->getSourceFile(), 'r');
                 }
 
                 $filesystem->writeStream($targetFile, $handle);

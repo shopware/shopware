@@ -70,7 +70,6 @@ return static function (ECSConfig $ecsConfig): void {
 
     $ecsConfig->rules([
         ModernizeTypesCastingFixer::class,
-        FopenFlagsFixer::class,
         NativeConstantInvocationFixer::class,
         NullableTypeDeclarationForDefaultNullValueFixer::class,
         VoidReturnFixer::class,
@@ -158,5 +157,6 @@ return static function (ECSConfig $ecsConfig): void {
         PhpdocNoPackageFixer::class => null,
         StandaloneLineConstructorParamFixer::class => null,
         LinebreakAfterOpeningTagFixer::class => null,
+        FopenFlagsFixer::class => null,
     ]);
 };

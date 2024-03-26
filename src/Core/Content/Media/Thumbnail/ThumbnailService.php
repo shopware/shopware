@@ -307,7 +307,7 @@ class ThumbnailService
 
         if (\function_exists('exif_read_data')) {
             /** @var resource $stream */
-            $stream = fopen('php://memory', 'r+b');
+            $stream = fopen('php://memory', 'r+');
 
             try {
                 // use in-memory stream to read the EXIF-metadata,

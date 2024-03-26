@@ -36,7 +36,7 @@ abstract class AbstractFileWriter extends AbstractWriter
         rewind($this->buffer);
 
         if (!\is_resource($this->tempFile)) {
-            $file = fopen($this->tempPath, 'a+b');
+            $file = fopen($this->tempPath, 'a+');
             if (!\is_resource($file)) {
                 throw ImportExportException::couldNotOpenFile($this->tempPath);
             }
@@ -73,7 +73,7 @@ abstract class AbstractFileWriter extends AbstractWriter
             throw ImportExportException::couldNotCreateFile($tempDir);
         }
         $this->tempPath = $tempFilePath;
-        $file = fopen($this->tempPath, 'a+b');
+        $file = fopen($this->tempPath, 'a+');
         if (!\is_resource($file)) {
             throw ImportExportException::couldNotOpenFile($this->tempPath);
         }
@@ -86,7 +86,7 @@ abstract class AbstractFileWriter extends AbstractWriter
             fclose($this->buffer);
         }
         $bufferPath = 'php://memory';
-        $buffer = fopen($bufferPath, 'r+b');
+        $buffer = fopen($bufferPath, 'r+');
         if (!\is_resource($buffer)) {
             throw ImportExportException::couldNotOpenFile($bufferPath);
         }

@@ -86,7 +86,7 @@ class InMemoryFilesystemAdapterTest extends TestCase
         $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
         file_put_contents($tmpFile, 'test');
 
-        $fs->writeStream('a.txt', fopen($tmpFile, 'rb'));
+        $fs->writeStream('a.txt', fopen($tmpFile, 'r'));
 
         static::assertTrue($fs->fileExists('a.txt'));
         static::assertSame('test', $fs->read('a.txt'));

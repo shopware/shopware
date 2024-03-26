@@ -71,7 +71,7 @@ class PrefixFilesystemTest extends TestCase
         $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
         file_put_contents($tmpFile, 'test');
 
-        $prefix->writeStream('a.txt', fopen($tmpFile, 'rb'));
+        $prefix->writeStream('a.txt', fopen($tmpFile, 'r'));
 
         static::assertTrue($prefix->fileExists('a.txt'));
         static::assertSame('test', $prefix->read('a.txt'));

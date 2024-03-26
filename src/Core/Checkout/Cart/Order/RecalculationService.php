@@ -54,20 +54,22 @@ class RecalculationService
     }
 
     /**
+     * @param array<string, array<string, bool>|string> $salesChannelContextOptions
+     *
      * @throws CustomerNotLoggedInException
      * @throws CartException
      * @throws DeliveryWithoutAddressException
      * @throws EmptyCartException
      * @throws InconsistentCriteriaIdsException
      */
-    public function recalculateOrder(string $orderId, Context $context): void
+    public function recalculateOrder(string $orderId, Context $context, array $salesChannelContextOptions = []): void
     {
         $order = $this->fetchOrder($orderId, $context);
 
         $this->validateOrder($order, $orderId);
         \assert($order instanceof OrderEntity);
 
-        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context, $salesChannelContextOptions);
         $cart = $this->orderConverter->convertToCart($order, $context);
         $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
 

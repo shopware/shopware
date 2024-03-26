@@ -42,7 +42,6 @@
   ],
   "dependencies": {
     "@shopware-ag/meteor-admin-sdk": "5.0.1",
-    "@shopware-ag/meteor-component-library": "3.1.0",
     "@shopware-ag/meteor-icon-kit": "5.2.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",

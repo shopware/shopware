@@ -53,7 +53,7 @@ class MediaUploadedEvent extends Event implements ScalarValuesAware, FlowEventAw
         return $this->context;
     }
 
-    public function getWebhookPayload(AppEntity|null $app = null): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [
             'mediaId' => $this->mediaId,

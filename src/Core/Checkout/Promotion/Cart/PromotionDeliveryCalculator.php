@@ -118,7 +118,7 @@ class PromotionDeliveryCalculator
      * that are excluded somehow.
      * The validation which one to take will be done later.
      *
-     * @return array<mixed, boolean>
+     * @return array<mixed, bool>
      */
     private function buildExclusions(LineItemCollection $discountLineItems): array
     {

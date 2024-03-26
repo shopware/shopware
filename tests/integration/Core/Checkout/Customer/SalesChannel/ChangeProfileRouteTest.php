@@ -350,7 +350,7 @@ class ChangeProfileRouteTest extends TestCase
     }
 
     /**
-     * @param array<string, boolean> $constraint
+     * @param array<string, bool> $constraint
      * @param array<string|null>|null $vatIds
      * @param array<string>|null $expectedVatIds
      */

@@ -201,8 +201,6 @@ class PromotionDiscountEntity extends Entity
     /**
      * if a promotionDiscountPrice has a value for a currency this value should be
      * taken for the discount value and not the value of this entity
-     *
-     * @return PromotionDiscountPriceCollection
      */
     public function getPromotionDiscountPrices(): ?PromotionDiscountPriceCollection
     {

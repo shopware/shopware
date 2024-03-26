@@ -108,7 +108,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-     #[DataProvider('equalsDataProvider')]
+    #[DataProvider('equalsDataProvider')]
     public function testEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::equals($a, $b));

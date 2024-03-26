@@ -574,7 +574,7 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $featureConfig
+     * @param array<string, array{name?: string, default?: bool, major?: bool, description?: string}> $featureConfig
      * @param array<string, string> $env
      */
     #[DataProvider('isActiveDataProvider')]

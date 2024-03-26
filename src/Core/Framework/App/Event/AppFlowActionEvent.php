@@ -38,7 +38,7 @@ class AppFlowActionEvent extends Event implements Hookable
     /**
      * @return array<mixed>
      */
-    public function getWebhookPayload(AppEntity|null $app = null): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return $this->payload;
     }

@@ -97,7 +97,7 @@ class CustomerSalutationRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($scope));
     }
 
@@ -109,7 +109,7 @@ class CustomerSalutationRuleTest extends TestCase
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
 
         static::assertFalse($this->rule->match($scope));
     }
@@ -117,12 +117,12 @@ class CustomerSalutationRuleTest extends TestCase
     public function testInvalidScopeIsFalse(): void
     {
         $invalidScope = $this->createMock(RuleScope::class);
-        $this->rule->assign(['salutationIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
     /**
-     * @return array<string, array{boolean, string|null, list<string>, string}>
+     * @return array<string, array{bool, string|null, list<string>, string}>
      */
     public static function getMatchCustomerSalutationValues(): array
     {

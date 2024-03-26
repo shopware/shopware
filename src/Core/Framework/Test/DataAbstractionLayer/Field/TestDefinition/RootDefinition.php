@@ -64,11 +64,6 @@ class SubDefinition extends EntityDefinition
         return '6.3.3.0';
     }
 
-//    protected function getParentDefinitionClass(): ?string
-//    {
-//        return RootDefinition::class;
-//    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -99,11 +94,6 @@ class SubCascadeDefinition extends EntityDefinition
     {
         return '6.3.3.0';
     }
-
-//    protected function getParentDefinitionClass(): ?string
-//    {
-//        return RootDefinition::class;
-//    }
 
     protected function defineFields(): FieldCollection
     {

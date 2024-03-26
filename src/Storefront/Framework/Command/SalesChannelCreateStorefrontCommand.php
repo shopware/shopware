@@ -86,7 +86,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         return $snippetSet;
     }
 
-    private function getSnippetSetId(?string $isoCode = 'en-GB'): string|null
+    private function getSnippetSetId(?string $isoCode = 'en-GB'): ?string
     {
         $isoCode = $isoCode ?: 'en-GB';
         $isoCode = str_replace('_', '-', $isoCode);

@@ -13,7 +13,7 @@ use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
  */
 class EntityDefinitionServiceTest extends TestCase
 {
-    use integrationTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testTaggedEntitiesOnlyHaveSinglePrimaryKey(): void
     {

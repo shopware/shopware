@@ -151,7 +151,7 @@ class ProductBuilder
      */
     protected array $tags = [];
 
-    protected null|string $createdAt;
+    protected ?string $createdAt;
 
     /**
      * @var array<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>

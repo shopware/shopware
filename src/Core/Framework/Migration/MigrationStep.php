@@ -148,7 +148,7 @@ abstract class MigrationStep
      * @param array<string, array<string>> $privileges
      *
      * @throws ConnectionException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      * @throws \JsonException
      */
     protected function addAdditionalPrivileges(Connection $connection, array $privileges): void

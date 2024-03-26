@@ -273,7 +273,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 'name' => 'Test product',
                 'productNumber' => 'a.0',
                 'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => UUid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
+                'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
                 'stock' => 10,
                 'active' => true,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],

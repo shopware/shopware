@@ -19,7 +19,7 @@ class ShopIdChangedEvent extends Event
      */
     public function __construct(
         public readonly array $newShopId,
-        public readonly null|array $oldShopId
+        public readonly ?array $oldShopId
     ) {
     }
 }

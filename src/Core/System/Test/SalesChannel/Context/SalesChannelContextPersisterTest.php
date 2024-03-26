@@ -351,7 +351,7 @@ class SalesChannelContextPersisterTest extends TestCase
     }
 
     #[DataProvider('testRevokeTokensDataProvider')]
-    public function testRevokeTokens(string $token, string|null $preserveToken): void
+    public function testRevokeTokens(string $token, ?string $preserveToken): void
     {
         $customerId = $this->createCustomer();
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);

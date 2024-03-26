@@ -85,7 +85,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function maintenanceModeInactiveProvider(): array
     {
@@ -110,7 +110,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function maintenanceModeActiveProvider(): array
     {
@@ -155,7 +155,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function xmlHttpRequestProvider(): array
     {
@@ -180,7 +180,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function maintenancePageRequestProvider(): array
     {
@@ -197,7 +197,7 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: boolean}>
+     * @return array<string, array{0: Request, 1: bool}>
      */
     public static function errorControllerRequestProvider(): array
     {

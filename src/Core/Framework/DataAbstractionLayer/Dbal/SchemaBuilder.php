@@ -237,7 +237,7 @@ class SchemaBuilder
             $options['notnull'] = true;
         }
 
-        if ($field instanceof Floatfield) {
+        if ($field instanceof FloatField) {
             $options['precision'] = 10;
             $options['scale'] = 2;
         }

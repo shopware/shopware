@@ -153,7 +153,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
-                'id' => UUID::randomHex(),
+                'id' => Uuid::randomHex(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'street' => 'Musterstraße 1',

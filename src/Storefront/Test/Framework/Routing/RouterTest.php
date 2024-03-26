@@ -190,7 +190,7 @@ class UrlCase
     public $expected;
 
     /**
-     * @see \Symfony\Component\Routing\Generator\UrlGeneratorInterface
+     * @see UrlGeneratorInterface
      *
      * @var int
      */

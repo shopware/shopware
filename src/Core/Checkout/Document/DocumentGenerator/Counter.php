@@ -16,6 +16,6 @@ class Counter
 
     public function increment(): void
     {
-        $this->counter = $this->counter + 1;
+        ++$this->counter;
     }
 }

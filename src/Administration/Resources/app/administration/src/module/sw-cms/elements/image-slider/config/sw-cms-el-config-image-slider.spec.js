@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
-async function createWrapper(activeTab = 'content') {
+async function createWrapper(activeTab = 'content', sliderItems = []) {
     return mount(await wrapTestComponent('sw-cms-el-config-image-slider', {
         sync: true,
     }), {
@@ -23,7 +23,15 @@ async function createWrapper(activeTab = 'content') {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(),
+                            search: () => Promise.resolve({
+                                get: (mediaId) => {
+                                    /* if media is not found, return null, otherwise return a valid mediaItem */
+                                    return (mediaId === 'deletedId') ? null : {
+                                        id: '0',
+                                        position: 0,
+                                    };
+                                },
+                            }),
                         };
                     },
                 },
@@ -66,7 +74,7 @@ async function createWrapper(activeTab = 'content') {
                 config: {
                     sliderItems: {
                         source: 'static',
-                        value: [],
+                        value: sliderItems,
                         required: true,
                         entity: {
                             name: 'media',
@@ -133,6 +141,10 @@ async function createWrapper(activeTab = 'content') {
                         id: '3',
                         position: 3,
                     },
+                    {
+                        id: 'deletedId',
+                        position: 4,
+                    },
                 ],
             };
         },
@@ -181,7 +193,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(autoSlideOption.exists()).toBeTruthy();
     });
 
-    it('should be disable delay element and speed element when auto slide switch is falsy', async () => {
+    it('should disable delay element and speed element when auto slide switch is falsy', async () => {
         const wrapper = await createWrapper('settings');
         const delaySlide = wrapper.find('.sw-cms-el-config-image-slider__setting-delay-slide');
         const speedSlide = wrapper.find('.sw-cms-el-config-image-slider__setting-speed-slide');
@@ -189,7 +201,7 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(speedSlide.attributes().disabled).toBe('true');
     });
 
-    it('should be not disable delay element and speed element when auto slide switch is truthy', async () => {
+    it('should not disable delay element and speed element when auto slide switch is truthy', async () => {
         const wrapper = await createWrapper('settings');
         await flushPromises();
 
@@ -214,10 +226,54 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
         const items = wrapper.findAll('.sw-media-item');
 
-        expect(items).toHaveLength(4);
+        expect(items).toHaveLength(5);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('2');
         expect(items.at(2).text()).toBe('1');
         expect(items.at(3).text()).toBe('3');
+        expect(items.at(4).text()).toBe('deletedId');
+    });
+
+    it('should remove deleted media from imageSlider', async () => {
+        const sliderItems = [
+            { filename: 'a.jpg', mediaId: 'a' },
+            { filename: 'b.jpg', mediaId: 'b' },
+            { filename: 'c.jpg', mediaId: 'c' },
+            { filename: 'd.jpg', mediaId: 'd' },
+            { filename: 'notfound.jpg', mediaId: 'deletedId' },
+        ];
+
+        const wrapper = await createWrapper('content', sliderItems);
+        await flushPromises();
+        const validItems = wrapper.findAll('.sw-media-item');
+
+        expect(sliderItems).toHaveLength(5);
+        expect(validItems).toHaveLength(4);
+    });
+
+    it('should remove previous mediaItem if it already exists after upload', async () => {
+        const wrapper = await createWrapper('content');
+        await flushPromises();
+
+        // Check length of sliderItems values
+        expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(0);
+
+        // Simulate the upload of the first media item
+        wrapper.vm.onImageUpload({
+            id: '1',
+            url: 'http://shopware.com/image1.jpg',
+        });
+        expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
+        expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1.jpg');
+
+        // Simulate the upload of the same media item with different URL and same ID (replacement)
+        wrapper.vm.onImageUpload({
+            id: '1',
+            url: 'http://shopware.com/image1-updated.jpg',
+        });
+
+        // Should still only have one item and the URL should be updated
+        expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
+        expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
     });
 });

@@ -88,6 +88,7 @@ class ProductPageLoaderTest extends TestCase
 
         // set cms page which later will be set by the subscriber
         $product->setCmsPage($this->getCmsPage($product));
+        $product->setProductNumber($productId);
 
         $criteria = (new Criteria())
             ->addAssociation('manufacturer.media')

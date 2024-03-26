@@ -121,6 +121,10 @@ export default {
                     value: 'form',
                     label: 'sw-cms.detail.label.blockCategoryForm',
                 },
+                {
+                    value: 'html',
+                    label: 'sw-cms.detail.label.blockCategoryHtml',
+                },
             ];
 
             // Check if blocks with the category 'app' are available
@@ -140,6 +144,10 @@ export default {
             // Add all missing categories to the default categories
             uniqueCategories.forEach(category => {
                 if (defaultCategories.some(defaultCategory => defaultCategory.value === category)) {
+                    return;
+                }
+
+                if (this.isDuplicateCategory(category)) {
                     return;
                 }
 
@@ -606,6 +614,23 @@ export default {
 
         onVisibilityChange(selectedBlock, viewport, isVisible) {
             selectedBlock.visibility[viewport] = isVisible;
+        },
+
+        /**
+         * @deprecated tag:v6.7.0 - Remove the duplicate category check and all usages.
+         * Use the auto-generated category label instead of the hardcoded option
+         * value inside the template.
+         */
+        isDuplicateCategory(categoryValue) {
+            /**
+             * This method is a unusual hack to prevent the category from being added twice.
+             * Recommended for plugin developer is to remove the hardcoded option value
+             * inside the template and use the auto-generated category label instead.
+             * */
+            const swCmsSidebarTemplate = Shopware.Template.getRenderedTemplate('sw-cms-sidebar');
+            const isCategoryValueDuplicate = swCmsSidebarTemplate.includes(`value="${categoryValue}"`);
+
+            return isCategoryValueDuplicate;
         },
     },
 };

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
@@ -35,7 +34,6 @@ class ScriptExecutor
      */
     public function __construct(
         private readonly ScriptLoader $loader,
-        private readonly LoggerInterface $logger,
         private readonly ScriptTraces $traces,
         private readonly ContainerInterface $container,
         private readonly TranslationExtension $translationExtension,
@@ -71,10 +69,7 @@ class ScriptExecutor
                 static::$isInScriptExecutionContext = true;
                 $this->render($hook, $script);
             } catch (\Throwable $e) {
-                $scriptException = ScriptException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
-                $this->logger->error($scriptException->getMessage(), ['exception' => $scriptException]);
-
-                throw $scriptException;
+                throw ScriptException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
             } finally {
                 static::$isInScriptExecutionContext = false;
             }

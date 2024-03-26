@@ -69,7 +69,12 @@ return (new Config())
         },
         [
             function (Context $context): void {
+                if (str_contains($context->platform->pullRequest->body, '/shopware/6/product/platform/-/merge_requests/')) {
+                    return;
+                }
+
                 $found = false;
+
                 foreach ($context->platform->pullRequest->getComments() as $comment) {
                     if (str_contains($comment->body, '/shopware/6/product/platform/-/merge_requests/')) {
                         $found = true;
@@ -219,16 +224,17 @@ return (new Config())
             },
         ]
     ))
-    ->useRule(function (Context $context): void {
-        // The title is not important here as we import the pull requests and prefix them
-        if ($context->platform->pullRequest->projectIdentifier === 'shopware/platform') {
-            return;
-        }
-
-        if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
-            $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
-        }
-    })
+    ->useRule(new Condition(
+        function (Context $context) {
+            return $context->platform instanceof Gitlab;
+        },
+        [
+            function (Context $context): void {
+                if (!preg_match('/(?m)^((WIP:\s)|^(Draft:\s)|^(DRAFT:\s))?(\[[\w.]+]\s)?NEXT-\d*\s-\s\w/', $context->platform->pullRequest->title)) {
+                    $context->failure(sprintf('The title `%s` does not match our requirements. Example: NEXT-00000 - My Title', $context->platform->pullRequest->title));
+                }
+            }
+        ]))
     ->useRule(new Condition(
         function (Context $context) {
             return $context->platform instanceof Gitlab;
@@ -257,17 +263,6 @@ return (new Config())
                     $context->platform->addLabels('Security-Audit Required');
                 }
             },
-        ]
-    ))
-    ->useRule(new Condition(
-        function (Context $context) {
-            return $context->platform instanceof Github && $context->platform->pullRequest->projectIdentifier === 'shopwareBoostDay/platform';
-        },
-        [
-            new CommitRegex(
-                '/(?m)(?mi)^NEXT-\d*\s-\s[A-Z].*,\s*fixes\s*shopwareBoostday\/platform#\d*$/m',
-                'The commit title `###MESSAGE###` does not match our requirements. Example: "NEXT-00000 - My Title, fixes shopwareBoostday/platform#1234"'
-            ),
         ]
     ))
     ->useRule(function (Context $context): void {

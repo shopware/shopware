@@ -587,11 +587,11 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
     };
 
-    return {
-        getConfiguration,
-    };
-
     function getConfiguration() {
         return configuration;
     }
+
+    return {
+        getConfiguration,
+    };
 }

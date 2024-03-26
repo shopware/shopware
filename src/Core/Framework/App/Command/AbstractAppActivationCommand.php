@@ -35,7 +35,7 @@ abstract class AbstractAppActivationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $appName = $input->getArgument('name');
 

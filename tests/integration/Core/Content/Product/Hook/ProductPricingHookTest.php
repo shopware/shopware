@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Hook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductProxy;
@@ -94,7 +93,7 @@ class ProductPricingHookTest extends TestCase
             new Script('foo', (string) \file_get_contents(__DIR__ . '/_fixtures/pricing-cases/product-pricing.twig'), new \DateTimeImmutable()),
         ]);
 
-        $executor = new ScriptExecutor($loader, new NullLogger(), $traces, $this->getContainer(), $this->getContainer()->get('twig.extension.trans'), 'v6.5.0.0');
+        $executor = new ScriptExecutor($loader, $traces, $this->getContainer(), $this->getContainer()->get('twig.extension.trans'), 'v6.5.0.0');
 
         $executor->execute($hook);
 

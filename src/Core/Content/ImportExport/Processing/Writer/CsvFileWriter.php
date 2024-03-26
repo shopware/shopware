@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Log\Package;
 
@@ -30,10 +31,13 @@ class CsvFileWriter extends AbstractFileWriter
         $this->writeToBuffer(array_values($data));
     }
 
+    /**
+     * @param list<string>|list<mixed> $data
+     */
     private function writeToBuffer(array $data): void
     {
         if (fputcsv($this->buffer, $data, $this->delimiter, $this->enclosure) === false) {
-            throw new \RuntimeException('Could not write to buffer');
+            throw ImportExportException::couldNotWriteToBuffer();
         }
     }
 

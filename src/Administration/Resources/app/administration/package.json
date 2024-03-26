@@ -14,6 +14,7 @@
     "dev:inspect": "mode=development node --inspect ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "generate-api-docs": "./node_modules/.bin/jsdoc src -r -c jsdoc.config.js",
     "generate-component-import-resolver-map": "ts-node --transpileOnly ./scripts/componentImportResolver/generate.ts",
+    "generate-vue-compat-components-statistics": "ts-node --transpileOnly ./scripts/vueCompatComponentsStatistics/generate.ts",
     "generate-entity-schema-package": "ts-node --transpileOnly ./scripts/entitySchemaConverter/generate-package.ts",
     "preinstall": "node src/scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
@@ -41,6 +42,7 @@
   ],
   "dependencies": {
     "@shopware-ag/meteor-admin-sdk": "5.0.1",
+    "@shopware-ag/meteor-component-library": "3.1.0",
     "@shopware-ag/meteor-icon-kit": "5.2.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",

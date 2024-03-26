@@ -82,7 +82,7 @@
                                                     <div class="col product-detail-review-language">
                                                         {% if foreignReviewsCount > 0 %}
                                                             <form class="product-detail-review-language-form"
-                                                                  action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.parentId }) }}"
+                                                                  action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                                   method="post"
                                                                   data-form-ajax-submit="true"
                                                                   data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
@@ -127,7 +127,7 @@
 
                                                             {% block component_review_list_action_sortby_form %}
                                                                 <form class="form-inline product-detail-review-sortby-form"
-                                                                      action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.id }) }}"
+                                                                      action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                                       method="post"
                                                                       data-form-ajax-submit="true"
                                                                       data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
@@ -215,7 +215,7 @@
                                                 {% block component_review_list_paging_form %}
                                                     <div class="product-detail-review-pagination">
                                                         <form class="product-detail-review-pagination-form"
-                                                              action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.parentId }) }}"
+                                                              action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                               method="post"
                                                               data-form-ajax-submit="true"
                                                               data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">

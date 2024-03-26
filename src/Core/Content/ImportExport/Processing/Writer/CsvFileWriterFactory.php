@@ -23,6 +23,6 @@ class CsvFileWriterFactory extends AbstractWriterFactory
 
     public function supports(ImportExportLogEntity $logEntity): bool
     {
-        return $logEntity->getProfile()->getFileType() === 'text/csv';
+        return $logEntity->getProfile()?->getFileType() === 'text/csv';
     }
 }

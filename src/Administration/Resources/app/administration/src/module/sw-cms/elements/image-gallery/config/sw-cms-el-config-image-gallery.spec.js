@@ -237,4 +237,27 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(items.at(2).text()).toBe('1');
         expect(items.at(3).text()).toBe('3');
     });
+
+    it('should remove previous mediaItem if it already exists after upload', async () => {
+        const wrapper = await createWrapper('content');
+        await flushPromises();
+
+        // Check length of sliderItems values
+        expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(0);
+
+        // Simulate the upload of the first media item
+        wrapper.vm.onImageUpload(mediaDataMock[0].media);
+        expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
+        expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1.jpg');
+
+        // Simulate the upload of the same media item with different URL (replacement)
+        wrapper.vm.onImageUpload({
+            ...mediaDataMock[0].media,
+            url: 'http://shopware.com/image1-updated.jpg',
+        });
+
+        // Should still only have one item and the URL should be updated
+        expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
+        expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1-updated.jpg');
+    });
 });

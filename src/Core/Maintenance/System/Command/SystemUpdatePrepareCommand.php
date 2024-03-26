@@ -43,7 +43,7 @@ class SystemUpdatePrepareCommand extends Command
 
         $output->writeln('Run Update preparations');
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         // TODO: get new version (from composer.lock?)
         $newVersion = '';

@@ -94,6 +94,6 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
             ->setLimit(1)
             ->addFilter(new EqualsFilter('iso', $isoCode));
 
-        return $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        return $this->snippetSetRepository->searchIds($criteria, Context::createCLIContext())->firstId();
     }
 }

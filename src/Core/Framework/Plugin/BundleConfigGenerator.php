@@ -10,6 +10,9 @@ use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @phpstan-import-type BundleConfig from BundleConfigGeneratorInterface
+ */
 #[Package('core')]
 class BundleConfigGenerator implements BundleConfigGeneratorInterface
 {
@@ -24,16 +27,22 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     ) {
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
-            throw new \RuntimeException('Container parameter "kernel.project_dir" needs to be a string');
+            throw PluginException::projectDirNotInContainer();
         }
         $this->projectDir = $projectDir;
     }
 
+    /**
+     * @return array<string, BundleConfig>
+     */
     public function getConfig(): array
     {
         return array_merge($this->generatePluginConfigs(), $this->generateAppConfigs());
     }
 
+    /**
+     * @return array<string, BundleConfig>
+     */
     private function generatePluginConfigs(): array
     {
         $activePlugins = $this->getActivePlugins();
@@ -79,6 +88,9 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         return $bundles;
     }
 
+    /**
+     * @return array<string, BundleConfig>
+     */
     private function generateAppConfigs(): array
     {
         $configs = [];
@@ -116,7 +128,13 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $path = trim($componentPath, '/');
         $absolutePath = $rootPath . '/' . $path;
 
-        if (!file_exists($absolutePath . '/build/webpack.config.js')) {
+        $configFileName = match (true) {
+            file_exists($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
+            file_exists($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
+            default => null,
+        };
+
+        if ($configFileName === null) {
             return null;
         }
 
@@ -125,9 +143,12 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
         }
 
-        return $path . '/build/webpack.config.js';
+        return $path . '/build/' . $configFileName;
     }
 
+    /**
+     * @return array<string>
+     */
     private function getStyleFiles(string $technicalName): array
     {
         if (!$this->kernel->getContainer()->has(StorefrontPluginRegistry::class)) {
@@ -156,6 +177,9 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($string);
     }
 
+    /**
+     * @return array<string>
+     */
     private function getActivePlugins(): array
     {
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();

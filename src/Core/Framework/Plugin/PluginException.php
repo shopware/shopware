@@ -16,6 +16,7 @@ class PluginException extends HttpException
     public const NO_PLUGIN_IN_ZIP = 'FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP';
     public const STORE_NOT_AVAILABLE = 'FRAMEWORK__STORE_NOT_AVAILABLE';
     public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
+    public const PROJECT_DIR_IS_NOT_A_STRING = 'FRAMEWORK__PROJECT_DIR_IS_NOT_A_STRING';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -85,6 +86,15 @@ class PluginException extends HttpException
             self::CANNOT_CREATE_TEMPORARY_DIRECTORY,
             'Could not create temporary directory in "{{ targetDirectory }}" with prefix "{{ prefix }}"',
             ['targetDirectory' => $targetDirectory, 'prefix' => $prefix]
+        );
+    }
+
+    public static function projectDirNotInContainer(): self
+    {
+        return new self(
+            500,
+            self::PROJECT_DIR_IS_NOT_A_STRING,
+            'Container parameter "kernel.project_dir" needs to be a string'
         );
     }
 }

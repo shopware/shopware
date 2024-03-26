@@ -26,7 +26,8 @@ class CategoryIndexerEvent extends NestedEvent
     public function __construct(
         array $ids,
         Context $context,
-        private readonly array $skip = []
+        private readonly array $skip = [],
+        public bool $isFullIndexing = false
     ) {
         $this->ids = $ids;
         $this->context = $context;

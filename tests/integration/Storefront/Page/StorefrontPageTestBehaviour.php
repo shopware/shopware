@@ -6,12 +6,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Struct\Struct;
@@ -27,17 +30,21 @@ use Shopware\Storefront\Page\PageLoadedEvent;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\Event;
 
 trait StorefrontPageTestBehaviour
 {
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @param class-string<object> $expectedClass
+     * @template TEvent of PageLoadedEvent
+     *
+     * @param class-string<TEvent> $expectedClass
+     * @param TEvent|null $event
      */
     public static function assertPageEvent(
         string $expectedClass,
-        PageLoadedEvent $event,
+        ?PageLoadedEvent $event,
         SalesChannelContext $salesChannelContext,
         Request $request,
         Struct $page
@@ -50,7 +57,10 @@ trait StorefrontPageTestBehaviour
     }
 
     /**
-     * @param class-string<object> $expectedClass
+     * @template TEvent of PageletLoadedEvent
+     *
+     * @param class-string<TEvent> $expectedClass
+     * @param TEvent $event
      */
     public static function assertPageletEvent(
         string $expectedClass,
@@ -121,12 +131,10 @@ trait StorefrontPageTestBehaviour
         $productRepository->create([$data], $context->getContext());
         $this->addTaxDataToSalesChannel($context, $data['tax']);
 
-        /** @var SalesChannelRepository $storefrontProductRepository */
+        /** @var SalesChannelRepository<ProductCollection> $storefrontProductRepository */
         $storefrontProductRepository = $this->getContainer()->get('sales_channel.product.repository');
-        $searchResult = $storefrontProductRepository->search(new Criteria([$id]), $context);
-
-        /** @var ProductEntity $product */
-        $product = $searchResult->first();
+        $product = $storefrontProductRepository->search(new Criteria([$id]), $context)->getEntities()->first();
+        static::assertNotNull($product);
 
         return $product;
     }
@@ -244,9 +252,15 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    protected function catchEvent(string $eventName, ?object &$eventResult): void
+    /**
+     * @template TEventName of Event
+     *
+     * @param class-string<TEventName> $eventName
+     * @param TEventName|null $eventResult
+     */
+    protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
@@ -284,13 +298,13 @@ trait StorefrontPageTestBehaviour
             ],
         ];
 
+        /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
         $repo->create($data, Context::createDefaultContext());
 
-        $result = $repo->search(new Criteria([$customerId]), Context::createDefaultContext());
-        /** @var CustomerEntity $customer */
-        $customer = $result->first();
+        $customer = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($customer);
 
         return $customer;
     }

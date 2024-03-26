@@ -49,7 +49,7 @@ class CreatePageCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         if ($input->getOption('reset')) {
             $this->resetPages($context);

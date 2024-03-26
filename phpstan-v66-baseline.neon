@@ -452,21 +452,6 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Content/ImportExport/Processing/Writer/AbstractFileWriter.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Content/ImportExport/Processing/Writer/AbstractWriter.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Content/ImportExport/Processing/Writer/CsvFileWriter.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 2
             path: src/Core/Content/ImportExport/Service/FileService.php
 
@@ -1177,11 +1162,6 @@ parameters:
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 2
-            path: src/Core/Framework/DependencyInjection/CompilerPass/TwigLoaderConfigCompilerPass.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Core/Framework/Event/BusinessEventCollector.php
 
@@ -1254,11 +1234,6 @@ parameters:
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
             count: 1
             path: src/Core/Framework/Plugin.php
-
-        -
-            message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"
-            count: 1
-            path: src/Core/Framework/Plugin/BundleConfigGenerator.php
 
         -
             message: "#^Throwing new exceptions within classes are not allowed\\. Please use domain exception pattern\\. See https\\://github\\.com/shopware/platform/blob/v6\\.4\\.20\\.0/adr/2022\\-02\\-24\\-domain\\-exceptions\\.md$#"

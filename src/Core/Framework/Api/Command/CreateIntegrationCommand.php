@@ -46,7 +46,7 @@ class CreateIntegrationCommand extends Command
                 'secretAccessKey' => $secret,
                 'admin' => (bool) $input->getOption('admin'),
             ],
-        ], Context::createDefaultContext());
+        ], Context::createCLIContext());
 
         $output->writeln('SHOPWARE_ACCESS_KEY_ID=' . $id);
         $output->writeln('SHOPWARE_SECRET_ACCESS_KEY=' . $secret);

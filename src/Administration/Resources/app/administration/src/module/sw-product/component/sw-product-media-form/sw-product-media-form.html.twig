@@ -39,6 +39,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_media_form_cover_image %}
                     <sw-media-preview-v2
+                        :key="cover ? cover.media?.url : product.cover.media?.url"
                         class="sw-product-media-form__cover-image"
                         :source="cover ? cover.mediaId : product.cover.mediaId"
                     />

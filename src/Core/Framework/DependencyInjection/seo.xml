@@ -31,6 +31,7 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="shopware.seo_url.twig"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlPersister">

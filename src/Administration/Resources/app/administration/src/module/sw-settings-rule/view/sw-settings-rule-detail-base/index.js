@@ -57,18 +57,20 @@ export default {
 
     computed: {
         availableModuleTypes() {
-            return this.ruleConditionDataProviderService.getModuleTypes(moduleType => moduleType);
+            return this.ruleConditionDataProviderService.getModuleTypes();
         },
 
         moduleTypes: {
             get() {
                 return this.rule?.moduleTypes?.types ?? [];
             },
+
             set(value) {
-                if (value === null || value.length === 0) {
+                if (value.length === 0) {
                     this.rule.moduleTypes = null;
                     return;
                 }
+
                 this.rule.moduleTypes = { types: value };
             },
         },

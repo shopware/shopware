@@ -42,7 +42,7 @@ class ThemeChangeCommand extends Command
         private readonly EntityRepository $themeRepository
     ) {
         parent::__construct();
-        $this->context = Context::createDefaultContext();
+        $this->context = Context::createCLIContext();
     }
 
     protected function configure(): void

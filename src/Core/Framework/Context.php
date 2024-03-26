@@ -78,6 +78,11 @@ class Context extends Struct
         return new self($source);
     }
 
+    public static function createCLIContext(?ContextSource $source = null): self
+    {
+        return self::createDefaultContext($source);
+    }
+
     public function getSource(): ContextSource
     {
         return $this->source;

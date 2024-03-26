@@ -1,69 +1,68 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 
 variables:
-    CI_IMAGE_TAG: latest
-    CI_BUILD_IMAGE_TAG: latest
-    MYSQL_ROOT_PASSWORD: app
-    WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
-    GIT_STRATEGY: fetch
-    GIT_DEPTH: 20
-    LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
-    MYSQL_CMD: mysqld
-    PROJECT_ROOT: $CI_PROJECT_DIR
-    ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
-    STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
-    COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
-    DD_ENV: ci
-    DATADOG_SITE: datadoghq.eu
-    MYSQL_INITDB_SKIP_TZINFO: 1
-    DATABASE_URL: mysql://root:app@database:3306/root
-    APP_URL: http://localhost:8000
-    APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-    OPENSEARCH_URL: elasticsearch:9200
-    BLUE_GREEN_DEPLOYMENT: 1
-    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-    FPM_USER: root
-    PHP_MEMORY_LIMIT: 2g
-    SHOPWARE_ES_INDEX_PREFIX: sw
-    SHOPWARE_HTTP_CACHE_ENABLED: 0
-
+  CI_IMAGE_TAG: latest
+  CI_BUILD_IMAGE_TAG: latest
+  MYSQL_ROOT_PASSWORD: app
+  WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+  GIT_STRATEGY: fetch
+  GIT_DEPTH: 20
+  LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
+  MYSQL_CMD: mysqld
+  PROJECT_ROOT: $CI_PROJECT_DIR
+  ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+  STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+  COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
+  DD_ENV: ci
+  DATADOG_SITE: datadoghq.eu
+  MYSQL_INITDB_SKIP_TZINFO: 1
+  DATABASE_URL: mysql://root:app@database:3306/root
+  APP_URL: http://localhost:8000
+  APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+  OPENSEARCH_URL: elasticsearch:9200
+  BLUE_GREEN_DEPLOYMENT: 1
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+  FPM_USER: root
+  PHP_MEMORY_LIMIT: 2g
+  SHOPWARE_ES_INDEX_PREFIX: sw
+  SHOPWARE_HTTP_CACHE_ENABLED: 0
 
 # for jobs which should run on each MR/Pipeline
 .base:
-    image: ${CI_REGISTRY}/infrastructure/docker-base/ci:${CI_IMAGE_TAG}
-    # we want our base pipeline to finish fast
-    timeout: 30m
-    interruptible: true
-    # do not download assets from previous stages by default
-    dependencies: []
-    rules:
-        - !reference [.rules, skip]
-        - !reference [.rules, run]
-        - when: always
-    tags:
-      - shopware
-    before_script:
-        - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
-        - >
-          if [[ -r context.tar.gz ]]; then
-              tar -xzf context.tar.gz
-              mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
-              mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
-              bin/console system:generate-jwt || true
-              touch install.lock
-              bin/console assets:install
-          else
-              composer run setup
-              composer run e2e:sdk-plugin:fixture-to-plugin
-          fi
-        - echo -e "\e[0Ksection_end:`date +%s`:base_init\r\e[0K"
-        - 'rm -Rf /var/www/html/public || true'
-        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
-    after_script:
-        - !reference [.tag-pipeline-span, after_script]
-    artifacts:
-      expire_in: 4 days
+  image: ${CI_REGISTRY}/infrastructure/docker-base/ci:${CI_IMAGE_TAG}
+  # we want our base pipeline to finish fast
+  timeout: 30m
+  interruptible: true
+  # do not download assets from previous stages by default
+  dependencies: []
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - when: always
+  tags:
+    - shopware
+  before_script:
+    - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
+    - >
+      if [[ -r context.tar.gz ]]; then
+          tar -xzf context.tar.gz
+          mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
+          mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
+          bin/console system:generate-jwt || true
+          touch install.lock
+          bin/console assets:install
+      else
+          composer run setup
+          composer run e2e:sdk-plugin:fixture-to-plugin
+      fi
+    - echo -e "\e[0Ksection_end:`date +%s`:base_init\r\e[0K"
+    - "rm -Rf /var/www/html/public || true"
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  after_script:
+    - !reference [.tag-pipeline-span, after_script]
+  artifacts:
+    expire_in: 4 days
 
 .base-with-node:
   extends: .base
@@ -74,34 +73,34 @@ variables:
   services:
     - name: mariadb:10.11
       alias: database
-      entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-  dependencies: [ Build ]
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+  dependencies: [Build]
 
 # sames as .base just without initializing shopware and starting a web server
 .base-no-setup:
-    extends: .base
-    before_script: []
+  extends: .base
+  before_script: []
 
 # only run in `merge_train`s or if the $CI_STAGE::all label is set
 .long-running:
-    extends: .base
-    # this happens after the approve but before merge and may take longer
-    timeout: 2h
-    # do not download assets from previous stages by default
-    dependencies: []
-    rules:
-        - !reference [.rules, skip]
-        - if: !reference [.rules, run-allow-failure, if ]
-          allow_failure: true
-        - !reference [.rules, run]
-        - if: !reference [.rules, long-running-allow-failure, if ]
-          allow_failure: true
-        - !reference [.rules, long-running]
+  extends: .base
+  # this happens after the approve but before merge and may take longer
+  timeout: 2h
+  # do not download assets from previous stages by default
+  dependencies: []
+  rules:
+    - !reference [.rules, skip]
+    - if: !reference [.rules, run-allow-failure, if]
+      allow_failure: true
+    - !reference [.rules, run]
+    - if: !reference [.rules, long-running-allow-failure, if]
+      allow_failure: true
+    - !reference [.rules, long-running]
 
 # sames as .long-running just without initializing shopware and starting a web server
 .long-running-no-setup:
-    extends: .long-running
-    before_script: []
+  extends: .long-running
+  before_script: []
 
 .deploy-job:
   extends: .long-running

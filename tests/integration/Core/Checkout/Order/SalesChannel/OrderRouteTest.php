@@ -748,8 +748,8 @@ class OrderRouteTest extends TestCase
                         'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(\DATE_ISO8601),
-                        'shippingDateLatest' => date(\DATE_ISO8601),
+                        'shippingDateEarliest' => date(\DATE_ATOM),
+                        'shippingDateLatest' => date(\DATE_ATOM),
                         'shippingOrderAddress' => [
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',

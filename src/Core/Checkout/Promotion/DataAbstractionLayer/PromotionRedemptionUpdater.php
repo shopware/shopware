@@ -13,13 +13,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('buyers-experience')]
-class PromotionRedemptionUpdater implements EventSubscriberInterface
+class PromotionRedemptionUpdater implements EventSubscriberInterface, ResetInterface
 {
+    /**
+     * @var array<string, true>
+     */
+    private array $processedPromotions = [];
+
     /**
      * @internal
      */
@@ -71,6 +77,7 @@ SQL;
         if (empty($promotions)) {
             return;
         }
+
         $update = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('UPDATE promotion SET order_count = :count, orders_per_customer_count = :customerCount WHERE id = :id')
@@ -87,6 +94,8 @@ SQL;
                 'count' => (int) $total,
                 'customerCount' => json_encode($totals, \JSON_THROW_ON_ERROR),
             ]);
+
+            $this->processedPromotions[$id] = true;
         }
     }
 
@@ -131,11 +140,18 @@ SQL;
                 $allCustomerCounts[$promotionId][$customerId] = 1 + ($allCustomerCounts[$promotionId][$customerId] ?? 0);
             }
 
-            $update->execute([
-                'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode($allCustomerCounts[$promotionId], \JSON_THROW_ON_ERROR),
-            ]);
+            if (!isset($this->processedPromotions[$promotionId])) {
+                $update->execute([
+                    'id' => Uuid::fromHexToBytes($promotionId),
+                    'customerCount' => json_encode($allCustomerCounts[$promotionId], \JSON_THROW_ON_ERROR),
+                ]);
+            }
         }
+    }
+
+    public function reset(): void
+    {
+        $this->processedPromotions = [];
     }
 
     /**

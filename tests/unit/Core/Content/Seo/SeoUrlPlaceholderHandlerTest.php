@@ -3,12 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,9 +37,17 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
+
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [Defaults::LANGUAGE_SYSTEM]
+        );
 
         $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $this->salesChannelContext->expects(static::once())->method('getLanguageId')->willReturn(Uuid::randomHex());
+        $this->salesChannelContext->expects(static::once())->method('getContext')->willReturn($context);
         $this->salesChannelContext->expects(static::once())->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
@@ -87,7 +100,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     #[DataProvider('replaceDataProvider')]
     public function testReplace(string $host, string $content, string $expected): void
     {
-        $this->connection->method('fetchAllKeyValue')->willReturn([]);
+        $this->connection->expects(static::once())->method('executeQuery')->willReturn($this->createMock(Result::class));
 
         static::assertSame($expected, $this->seoUrlPlaceholderHandler->replace($content, $host, $this->salesChannelContext));
     }
@@ -96,10 +109,20 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $categoryId = Uuid::randomHex();
-        $this->connection->method('fetchAllKeyValue')->willReturnOnConsecutiveCalls(
-            ['/detail/' . $productId => 'awesome-product'],
-            ['/navigation/' . $categoryId => 'cars-default']
-        );
+        $result = $this->createMock(Result::class);
+        $result->expects(static::once())->method('fetchAllAssociative')->willReturn([
+            [
+                'seo_path_info' => 'awesome-product',
+                'path_info' => '/detail/' . $productId,
+                'sales_channel_id' => TestDefaults::SALES_CHANNEL,
+            ],
+            [
+                'seo_path_info' => 'cars-default',
+                'path_info' => '/navigation/' . $categoryId,
+                'sales_channel_id' => TestDefaults::SALES_CHANNEL,
+            ],
+        ]);
+        $this->connection->method('executeQuery')->willReturn($result);
 
         $host = 'http://foo.text:8000/de';
         $template = 'SEO 1: %s and SEO 2: %s';

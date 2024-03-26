@@ -50,7 +50,7 @@ class PluginUpdateAllCommand extends Command
         $helperSet = $this->getHelperSet();
         \assert($helperSet instanceof HelperSet);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         if ($input->getOption('skip-asset-build')) {
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);

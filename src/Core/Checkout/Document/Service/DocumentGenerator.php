@@ -206,14 +206,13 @@ class DocumentGenerator
 
         $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
 
-        $this->connection->executeStatement(
-            'UPDATE `document` SET `updated_at` = :now, `document_media_file_id` = :mediaId WHERE `id` = :id',
+        $this->documentRepository->update([
             [
-                'id' => Uuid::fromHexToBytes($documentId),
-                'mediaId' => Uuid::fromHexToBytes($mediaId),
+                'id' => $documentId,
+                'documentMediaFileId' => $mediaId,
                 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
-        );
+        ], $context);
 
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }

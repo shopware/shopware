@@ -879,14 +879,20 @@ class ApiController extends AbstractController
                 'field' => null,
             ],
         ];
-
         foreach ($parts as $part) {
             /** @var AssociationField|null $field */
             $field = $root->getFields()->get($part['entity']);
+
             if (!$field) {
                 $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
 
                 throw ApiException::notExistingRelation($path);
+            }
+
+            if (!($field instanceof AssociationField)) {
+                $message = sprintf('Field "%s" is not a valid association field.', $part['entity']);
+
+                throw ApiException::pathIsNoAssociationField($message);
             }
 
             if ($field instanceof ManyToManyAssociationField) {

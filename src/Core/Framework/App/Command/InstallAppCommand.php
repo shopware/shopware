@@ -40,7 +40,7 @@ class InstallAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $io = new ShopwareStyle($input, $output);
 
         $names = $input->getArgument('name');

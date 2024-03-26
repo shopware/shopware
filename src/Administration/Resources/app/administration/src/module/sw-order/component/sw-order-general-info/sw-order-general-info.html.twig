@@ -10,7 +10,13 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_header %}
             <div class="sw-order-general-info__summary-main-header">
-                {{ summaryMainHeader }}
+                {{ order.orderNumber }} -
+                <router-link
+                    class="sw-order-general-info__summary-main-header-link"
+                    :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }">
+                    {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
+                </router-link>
+                ({{ order.orderCustomer.email }})
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

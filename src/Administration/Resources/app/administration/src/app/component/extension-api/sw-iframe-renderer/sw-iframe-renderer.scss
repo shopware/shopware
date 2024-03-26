@@ -1,6 +1,7 @@
 .sw-iframe-renderer {
     iframe {
         border: none;
+        display: block;
     }
 
     &--full-screen {

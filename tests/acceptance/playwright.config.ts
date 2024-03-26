@@ -27,6 +27,8 @@ process.env['SHOPWARE_ADMIN_PASSWORD'] = process.env['SHOPWARE_ADMIN_PASSWORD'] 
 process.env['APP_URL'] = process.env['APP_URL'].replace(/\/+$/, '') + '/';
 if (process.env['ADMIN_URL']) {
     process.env['ADMIN_URL'] = process.env['ADMIN_URL'].replace(/\/+$/, '') + '/';
+} else {
+    process.env['ADMIN_URL'] = process.env['APP_URL'] + 'admin/';
 }
 
 const projectRoot = path.resolve('./../../');
@@ -86,8 +88,6 @@ function getPluginProjects() {
         });
 }
 
-const installRegex = /@install/;
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -108,11 +108,15 @@ export default defineConfig({
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env['APP_URL'],
-
-        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-        trace: process.env.CI ? 'on-all-retries' : 'retain-on-failure',
+        trace: 'on',
         video: 'off',
-        screenshot: 'only-on-failure',
+    },
+
+    // we abuse this to wait for the external webserver
+    webServer: {
+        command: 'sleep 1d',
+        url: process.env['APP_URL'],
+        reuseExistingServer: true,
     },
 
     /* Configure projects for major browsers */
@@ -122,14 +126,22 @@ export default defineConfig({
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grepInvert: installRegex,
+            grepInvert: /@install|@update/,
         },
         {
             name: 'Install',
             use: {
                 ...devices['Desktop Chrome'],
             },
-            grep: installRegex,
+            grep: /@install/,
+            retries: 0,
+        },
+        {
+            name: 'Update',
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            grep: /@update/,
             retries: 0,
         },
 

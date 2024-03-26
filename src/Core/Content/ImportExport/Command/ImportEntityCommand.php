@@ -65,7 +65,7 @@ class ImportEntityCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $profileName = $input->getArgument('profile');
         $profile = empty($profileName)

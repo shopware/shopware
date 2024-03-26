@@ -2011,7 +2011,7 @@ This was needed to be able to link the asset in the Storefront as the theme asse
 To improve the performance of `theme:compile` and to reduce the confusion of the usage of assets we copy the files only to `theme/[id]`.
 
 To use the updated asset package,
-replace your current `{{ asset('logo.png', '@ThemeName') }}` with `{{ asset('logo.png', 'theme'') }}`
+replace your current `{{ asset('logo.png', '@ThemeName') }}` with `{{ asset('logo.png', 'theme') }}`
 
 ## Moved and changed the `ThemeCompilerEnrichScssVariablesEvent`
 We moved the event `ThemeCompilerEnrichScssVariablesEvent` from `\Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to `\Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent`.

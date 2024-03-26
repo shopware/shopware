@@ -115,6 +115,10 @@ shopware:
     cdn:
         url: ''
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
+        fastly:
+            api_key: ''
+            soft_purge: false
+            max_parallel_invalidations: 2
 
     increment:
         user_activity:
@@ -465,6 +469,8 @@ shopware:
             FRAMEWORK__LANGUAGE_NOT_FOUND: notice
             FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED: notice
             FRAMEWORK__WRITE_TYPE_INTEND_ERROR: notice
+            FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
+            FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
             SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
             SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
             SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice
@@ -482,6 +488,7 @@ shopware:
             PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY: notice
             FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
             CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
+            FRAMEWORK__API_INVALID_ASSOCIATION: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

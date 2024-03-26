@@ -13,10 +13,20 @@
         :style="styles"
     >
         <img
+            v-if="activeMedia?.mediaType?.name === 'IMAGE'"
             class="sw-cms-el-image-slider__image"
             :src="imgSrc"
             alt=""
         >
+        <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
+        <video
+            v-else-if="activeMedia?.mediaType?.name === 'VIDEO'"
+            class="sw-cms-el-image-slider__video"
+            :src="activeMedia?.url"
+            controls
+        >
+            {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+        </video>
     </div>
     {% endblock %}
 

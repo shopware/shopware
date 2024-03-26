@@ -274,7 +274,7 @@ class MediaRepositoryTest extends TestCase
 
         $mediaPath = $media->getPath();
 
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($mediaPath, $resource);
@@ -318,11 +318,11 @@ class MediaRepositoryTest extends TestCase
         static::assertNotNull($media->getThumbnails()->first());
         $thumbnailPath = $media->getThumbnails()->first()->getPath();
 
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($mediaPath, $resource);
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($thumbnailPath, $resource);
@@ -379,12 +379,12 @@ class MediaRepositoryTest extends TestCase
         $firstPath = $firstMedia->getPath();
         $secondPath = $secondMedia->getPath();
 
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($firstPath, $resource);
 
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($secondPath, $resource);
@@ -431,7 +431,7 @@ class MediaRepositoryTest extends TestCase
 
         $secondPath = $secondMedia->getPath();
 
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($secondPath, $resource);
@@ -519,7 +519,7 @@ class MediaRepositoryTest extends TestCase
 
         $mediaUrl = $media->getPath();
 
-        $resource = fopen(self::FIXTURE_FILE, 'rb');
+        $resource = fopen(self::FIXTURE_FILE, 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($mediaUrl, $resource);

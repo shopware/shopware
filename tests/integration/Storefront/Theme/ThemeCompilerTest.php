@@ -397,7 +397,7 @@ PHP_EOL;
         );
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $stderr = fopen('php://stderr', 'wb');
+        $stderr = fopen('php://stderr', 'w');
 
         $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
     }

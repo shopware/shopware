@@ -108,7 +108,7 @@ class MappingService extends AbstractMappingService
             throw new \RuntimeException('File does not exists');
         }
 
-        $fileHandle = fopen($filePath, 'rb');
+        $fileHandle = fopen($filePath, 'r');
         if (!$fileHandle) {
             throw new FileNotReadableException($filePath);
         }

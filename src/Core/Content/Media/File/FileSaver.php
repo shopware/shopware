@@ -222,7 +222,7 @@ class FileSaver
 
     private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media, Context $context): void
     {
-        $stream = fopen($mediaFile->getFileName(), 'rb');
+        $stream = fopen($mediaFile->getFileName(), 'r');
         if (!\is_resource($stream)) {
             throw MediaException::cannotOpenSourceStreamToRead($mediaFile->getFileName());
         }

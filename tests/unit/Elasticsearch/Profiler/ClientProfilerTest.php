@@ -26,7 +26,7 @@ class ClientProfilerTest extends TestCase
         $builder = new ClientBuilder();
         $builder->setHandler(fn () => new FutureArray(resolve([
             'status' => 200,
-            'body' => fopen('php://memory', 'rb'),
+            'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
                 'total_time' => 0,
             ],
@@ -56,7 +56,7 @@ class ClientProfilerTest extends TestCase
         $builder = new ClientBuilder();
         $builder->setHandler(fn () => new FutureArray(resolve([
             'status' => 200,
-            'body' => fopen('php://memory', 'rb'),
+            'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
                 'total_time' => 0,
             ],
@@ -83,7 +83,7 @@ class ClientProfilerTest extends TestCase
         $builder = new ClientBuilder();
         $builder->setHandler(fn () => new FutureArray(resolve([
             'status' => 200,
-            'body' => fopen('php://memory', 'rb'),
+            'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
                 'total_time' => 0,
             ],
@@ -109,7 +109,7 @@ class ClientProfilerTest extends TestCase
         $builder = new ClientBuilder();
         $builder->setHandler(fn () => new FutureArray(resolve([
             'status' => 200,
-            'body' => fopen('php://memory', 'rb'),
+            'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
                 'total_time' => 0,
             ],

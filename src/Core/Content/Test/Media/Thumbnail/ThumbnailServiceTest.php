@@ -61,7 +61,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPngWithFolder();
 
         $filePath = $media->getPath();
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
 
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -163,7 +163,7 @@ class ThumbnailServiceTest extends TestCase
         $media->getMediaFolder()->getConfiguration()->setThumbnailQuality(100);
 
         $filePath = $media->getPath();
-        $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'r');
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
 
@@ -200,7 +200,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getJpgWithFolderWithoutThumbnails();
 
         $filePath = $media->getPath();
-        $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -338,7 +338,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $url = $media->getPath();
@@ -401,7 +401,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $url = $media->getPath();
@@ -465,7 +465,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $url = $media->getPath();
@@ -535,7 +535,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $location = $media->getPath();

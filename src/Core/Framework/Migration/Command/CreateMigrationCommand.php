@@ -138,7 +138,7 @@ class CreateMigrationCommand extends Command
     private function createMigrationFile(OutputInterface $output, string $directory, string $templatePatch, array $params): void
     {
         $path = rtrim($directory, '/') . '/Migration' . $params['%%timestamp%%'] . $params['%%name%%'] . '.php';
-        $file = fopen($path, 'wb');
+        $file = fopen($path, 'w');
         if ($file === false) {
             return;
         }

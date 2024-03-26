@@ -115,7 +115,7 @@ class DownloadResponseGeneratorTest extends TestCase
         );
 
         $streamInterface = $this->createMock(StreamInterface::class);
-        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'rb'));
+        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
         $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
 
         $response = $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);

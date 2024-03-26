@@ -20,7 +20,7 @@ class CopyBatchTest extends TestCase
         $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
         file_put_contents($tmpFile, 'test');
 
-        $sourceFile = fopen($tmpFile, 'rb');
+        $sourceFile = fopen($tmpFile, 'r');
         static::assertIsResource($sourceFile);
         CopyBatch::copy($fs, new CopyBatchInput($tmpFile, ['test.txt']), new CopyBatchInput($sourceFile, ['test2.txt']));
 

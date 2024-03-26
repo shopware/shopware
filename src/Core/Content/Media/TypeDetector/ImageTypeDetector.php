@@ -70,7 +70,7 @@ class ImageTypeDetector implements TypeDetectorInterface
      */
     private function isGifAnimated(string $filename): bool
     {
-        if (!($fh = @fopen($filename, 'rb'))) {
+        if (!($fh = @fopen($filename, 'r'))) {
             return false;
         }
         $count = 0;
@@ -98,7 +98,7 @@ class ImageTypeDetector implements TypeDetectorInterface
     private function isWebpAnimated(string $filename): bool
     {
         $result = false;
-        $fh = fopen($filename, 'rb');
+        $fh = fopen($filename, 'r');
         if ($fh === false) {
             throw MediaException::cannotOpenSourceStreamToRead($filename);
         }
@@ -128,7 +128,7 @@ class ImageTypeDetector implements TypeDetectorInterface
      */
     private function isAvifAnimated(string $filename): bool
     {
-        $fh = @fopen($filename, 'rb');
+        $fh = @fopen($filename, 'r');
 
         if ($fh === false) {
             throw MediaException::cannotOpenSourceStreamToRead($filename);

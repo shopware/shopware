@@ -1100,7 +1100,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
         $csv = $filesystem->read($logfile->getPath());
         static::assertIsString($csv);
-        $resource = fopen('data://text/plain;base64,' . base64_encode($csv), 'rb');
+        $resource = fopen('data://text/plain;base64,' . base64_encode($csv), 'r');
         static::assertIsResource($resource);
         $reader = new CsvReader();
         $record = null;

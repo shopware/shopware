@@ -27,7 +27,7 @@ class CsvReaderTest extends TestCase
         ]);
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
         static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
@@ -43,7 +43,7 @@ class CsvReaderTest extends TestCase
         $content .= '"asdf";"zxcv"' . \PHP_EOL;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
         static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, 0));
         static::assertSame(['foo' => '1', 'bar' => '2'], $record);
@@ -51,14 +51,14 @@ class CsvReaderTest extends TestCase
         $offset = $reader->getOffset();
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
         static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $record);
 
         $offset = $reader->getOffset();
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
         static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertNull($record);
@@ -80,7 +80,7 @@ class CsvReaderTest extends TestCase
         ]);
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
 
         static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
@@ -110,7 +110,7 @@ class CsvReaderTest extends TestCase
         $content .= '"asdf";"zxcv"' . $eol;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
         static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
@@ -128,7 +128,7 @@ class CsvReaderTest extends TestCase
         $bomContent = self::BOM_UTF8 . $content;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $bomContent, 'rb');
+        $resource = fopen('data://text/plain,' . $bomContent, 'r');
         static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
@@ -144,7 +144,7 @@ class CsvReaderTest extends TestCase
         $content .= self::BOM_UTF8 . 'asdf;"zxcv"' . \PHP_EOL;
 
         $reader = new CsvReader();
-        $resource = fopen('data://text/plain,' . $content, 'rb');
+        $resource = fopen('data://text/plain,' . $content, 'r');
         static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 

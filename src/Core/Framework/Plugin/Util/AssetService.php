@@ -177,7 +177,7 @@ class AssetService
 
     private function copyFile(string $from, string $to): void
     {
-        $fp = fopen($from, 'rb');
+        $fp = fopen($from, 'r');
 
         // @codeCoverageIgnoreStart
         if (!\is_resource($fp)) {

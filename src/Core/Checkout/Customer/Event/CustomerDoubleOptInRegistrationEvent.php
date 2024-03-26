@@ -69,6 +69,11 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
         return $this->customer;
     }
 
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
+    }
+
     public function getConfirmUrl(): string
     {
         return $this->confirmUrl;

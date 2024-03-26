@@ -11,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -92,15 +94,31 @@ class SortingListingProcessor extends AbstractListingProcessor
         $criteria->setTitle('product-listing::load-sortings');
         /** @var string[] $availableSortings */
         $availableSortings = $request->get('availableSortings');
-        $availableSortingsFilter = [];
+        $availableSortingsById = [];
+        $availableSortingsByName = [];
 
         if ($availableSortings) {
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
             $availableSortingsFilter = array_keys($availableSortings);
 
-            $availableSortingsFilter = array_filter($availableSortingsFilter, fn ($filter) => Uuid::isValid($filter));
+            $availableSortingsById = array_filter($availableSortingsFilter, fn ($filter) => Uuid::isValid($filter));
 
-            $criteria->addFilter(new EqualsAnyFilter('id', $availableSortingsFilter));
+            $filter = new EqualsAnyFilter('id', $availableSortingsById);
+
+            $availableSortingsByName = array_filter($availableSortingsFilter, fn ($filter) => !Uuid::isValid($filter));
+            if (!Feature::isActive('v6.7.0.0') && $availableSortingsByName) {
+                Feature::triggerDeprecationOrThrow(
+                    'v6.7.0.0',
+                    'The sorting key in the product listing CMS element configuration has been replaced with the sorting ID. Please use the sorting ID instead.',
+                );
+
+                $filter = new OrFilter([
+                    $filter,
+                    new EqualsAnyFilter('key', $availableSortingsByName),
+                ]);
+            }
+
+            $criteria->addFilter($filter);
         }
 
         $criteria
@@ -110,8 +128,11 @@ class SortingListingProcessor extends AbstractListingProcessor
         /** @var ProductSortingCollection $sortings */
         $sortings = $this->sortingRepository->search($criteria, $context)->getEntities();
 
-        if ($availableSortings) {
-            $sortings->sortByIdArray($availableSortingsFilter);
+        if ($availableSortingsById) {
+            $sortings->sortByIdArray($availableSortingsById);
+        }
+        if ($availableSortingsByName && !Feature::isActive('v6.7.0.0')) {
+            $sortings->sortByKeyArray($availableSortingsByName);
         }
 
         return $sortings;

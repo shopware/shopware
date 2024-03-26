@@ -4,91 +4,95 @@
 # unit stage - This files contains all jobs belonging to the unit stage
 
 Jest (Administration):
-    extends: .base-with-node
-    stage: unit
-    needs: []
-    services: []
-    before_script:
-      - !reference [ .scripts, init, composer ]
-      - !reference [ .scripts, init, npm, admin ]
-      - composer run admin:generate-entity-schema-types
-    script:
-      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
-      - npm --prefix $ADMIN_PATH run unit-setup
-      - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
-      - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
-    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
-    artifacts:
-      reports:
-        coverage_report:
-          coverage_format: cobertura
-          path: build/artifacts/jest/cobertura-coverage.xml
+  extends: .base-with-node
+  stage: unit
+  needs: []
+  services: []
+  before_script:
+    - !reference [.scripts, init, composer]
+    - !reference [.scripts, init, npm, admin]
+    - composer run admin:generate-entity-schema-types
+  script:
+    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+    - npm --prefix $ADMIN_PATH run unit-setup
+    - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
+    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+  coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/artifacts/jest/cobertura-coverage.xml
 
 Jest (Storefront):
-    extends: .base-with-node
-    stage: unit
-    needs: []
-    services: []
-    rules:
-        - !reference [.rules, skip]
-        - !reference [.rules, run]
-        - when: always
-    before_script:
-      - !reference [ .scripts, init, npm, storefront ]
-    script:
-      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
-      - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% | grep -A 5 -E '^(All files|Fail|    )'
-      - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
-    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
-    artifacts:
-        reports:
-            coverage_report:
-                coverage_format: cobertura
-                path: build/artifacts/jest/cobertura-coverage.xml
-
+  extends: .base-with-node
+  stage: unit
+  needs: []
+  services: []
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - when: always
+  before_script:
+    - !reference [.scripts, init, npm, storefront]
+  script:
+    - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% | grep -A 5 -E '^(All files|Fail|    )'
+    - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+  coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/artifacts/jest/cobertura-coverage.xml
 
 PHP integration:
-    extends: .base-no-setup
-    stage: unit
-    needs: []
-    timeout: 30m
-    services:
-        - name: mariadb:10.11
-          alias: database
-          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        - name: redis:7.0
-          alias: redis
-        - name: opensearchproject/opensearch:2.2.0
-          alias: elasticsearch
-          command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
-    variables:
-        APP_ENV: "test"
-        FEATURE_ALL: "major"
-        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
-        REDIS_URL: redis://redis:6379
-    rules:
-        # do not run in merge trains - PHP Full should cover all tests
-        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
-          when: never
-        - !reference [.rules, skip]
-        - !reference [.rules, run]
-        - when: always
-    parallel:
-      matrix:
-        - FEATURE_ALL: [ "false", "major" ]
-    before_script:
-        - !reference [ .scripts, init, composer_full ]
-        - mkdir -p config/jwt || true
-        - 'rm -Rf /var/www/html/public || true'
-        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
-    script:
-        - php vendor/bin/phpunit
-            --configuration phpunit.xml.dist
-            --log-junit phpunit.junit.xml
-            --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
-            --testsuite integration
-            --order-by default
+  extends: .base-no-setup
+  stage: unit
+  needs: []
+  timeout: 30m
+  services:
+    - name: mariadb:10.11
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+    - name: redis:7.0
+      alias: redis
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command:
+        [
+          "bin/opensearch",
+          "-Ediscovery.type=single-node",
+          "-Eplugins.security.disabled=true",
+        ]
+  variables:
+    APP_ENV: "test"
+    FEATURE_ALL: "major"
+    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+    REDIS_URL: redis://redis:6379
+  rules:
+    # do not run in merge trains - PHP Full should cover all tests
+    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+      when: never
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - when: always
+  parallel:
+    matrix:
+      - FEATURE_ALL: ["false", "major"]
+  before_script:
+    - !reference [.scripts, init, composer_full]
+    - mkdir -p config/jwt || true
+    - "rm -Rf /var/www/html/public || true"
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  script:
+    - php vendor/bin/phpunit
+      --configuration phpunit.xml.dist
+      --log-junit phpunit.junit.xml
+      --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
+      --testsuite integration
+      --order-by default
 
 Open Api Schema validation:
   extends: .base-no-setup
@@ -96,235 +100,252 @@ Open Api Schema validation:
   timeout: 2m
   needs: []
   services:
-    -   name: swaggerapi/swagger-validator-v2:v2.0.5
-        alias: swagger
+    - name: swaggerapi/swagger-validator-v2:v2.0.5
+      alias: swagger
   variables:
     APP_ENV: "dev"
   rules:
     # do not run in merge trains
     - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
       when: never
-    - !reference [ .rules, skip ]
-    - !reference [ .rules, run ]
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
     - changes:
-        - '**/*.php'
-        - '**/*.xml'
-        - 'composer.json'
+        - "**/*.php"
+        - "**/*.xml"
+        - "composer.json"
   before_script:
-    - !reference [ .scripts, init, composer ]
+    - !reference [.scripts, init, composer]
   script:
     - php ./bin/console open-api:validate http://swagger:8080/validator/debug
     - php ./bin/console open-api:validate --api-type=store-api http://swagger:8080/validator/debug
 
 PHP unit coverage:
-    extends: .base-no-setup
-    stage: unit
-    needs: []
-    timeout: 10m
-    services: []
-    variables:
-        APP_ENV: "test"
-    rules:
-        - !reference [.rules, skip]
-        - !reference [.rules, run]
-        - when: always
-    before_script:
-        - !reference [ .scripts, init, composer ]
-    script:
-        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
-        - php $PHP_OPTIONS vendor/bin/phpunit
-            --configuration phpunit.xml.dist
-            --bootstrap tests/unit/Common/UnitTestBootstrap.php
-            --exclude-group=quarantined
-            --log-junit phpunit.junit.xml
-            --testsuite unit
-            --coverage-text
-            --coverage-html coverage_tmp/
-            --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
-    after_script:
-     - >
-       if [[ $CI_PIPELINE_SOURCE == "schedule" ]]; then
-          mv coverage_tmp coverage
-       fi
-    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
-    artifacts:
-      reports:
-        coverage_report:
-          coverage_format: cobertura
-          path: cobertura.xml
-      paths:
-       - coverage/
+  extends: .base-no-setup
+  stage: unit
+  needs: []
+  timeout: 10m
+  services: []
+  variables:
+    APP_ENV: "test"
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - when: always
+  before_script:
+    - !reference [.scripts, init, composer]
+  script:
+    - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
+    - php $PHP_OPTIONS vendor/bin/phpunit
+      --configuration phpunit.xml.dist
+      --bootstrap tests/unit/Common/UnitTestBootstrap.php
+      --exclude-group=quarantined
+      --log-junit phpunit.junit.xml
+      --testsuite unit
+      --coverage-text
+      --coverage-html coverage_tmp/
+      --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
+  after_script:
+    - >
+      if [[ $CI_PIPELINE_SOURCE == "schedule" ]]; then
+         mv coverage_tmp coverage
+      fi
+  coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+    paths:
+      - coverage/
 
 PHP migration coverage:
-    extends: .base-no-setup
-    stage: unit
-    needs: []
-    timeout: 10m
-    services:
-        -   name: mariadb:10.11
-            alias: database
-            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-    variables:
-        APP_ENV: "test"
-        FEATURE_ALL: "false"
-    rules:
-        - !reference [.rules, skip]
-        - !reference [.rules, run]
-        - when: always
-    before_script:
-      - !reference [ .scripts, init, composer ]
-    script:
-        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
-        - php $PHP_OPTIONS vendor/bin/phpunit
-            --configuration tests/migration/phpunit.xml
-            --exclude-group=quarantined
-            --log-junit phpunit.junit.xml
-            --testsuite migration-tests
-            --coverage-text
-            --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
-    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
-    artifacts:
-      reports:
-        coverage_report:
-          coverage_format: cobertura
-          path: cobertura.xml
+  extends: .base-no-setup
+  stage: unit
+  needs: []
+  timeout: 10m
+  services:
+    - name: mariadb:10.11
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+  variables:
+    APP_ENV: "test"
+    FEATURE_ALL: "false"
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - when: always
+  before_script:
+    - !reference [.scripts, init, composer]
+  script:
+    - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
+    - php $PHP_OPTIONS vendor/bin/phpunit
+      --configuration tests/migration/phpunit.xml
+      --exclude-group=quarantined
+      --log-junit phpunit.junit.xml
+      --testsuite migration-tests
+      --coverage-text
+      --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
+  coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
 
 PHP Full:
-    extends: .long-running
-    stage: unit
-    services:
-        -   name: $MYSQL_IMAGE
-            alias: database
-            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: opensearchproject/opensearch:2.2.0
-            alias: elasticsearch
-            command: [ "bin/opensearch", "-Ediscovery.type=single-node", "-Eplugins.security.disabled=true" ]
-        -   name: swaggerapi/swagger-validator-v2:v2.0.5
-            alias: swagger
-        -   name: redis:7.0
-            alias: redis
-    variables:
-        TEST_SUITES: "administration storefront content devops framework profiling system unit integration migration migration-tests"
-        APP_ENV: test
-        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
-        ALLOW_FAILURE: "false"
-        REDIS_URL: redis://redis:6379
-        SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
-        FEATURE_ALL: 'false'
-    rules:
-        - !reference [.rules, skip]
-        - if: !reference [.rules, run-allow-failure, if ]
-          allow_failure: true
-        - !reference [.rules, run]
-        - if: !reference [.rules, long-running-allow-failure, if]
-          allow_failure: true
-        # run if it's merge train and has changes or scheduled
-        - if: !reference [.rules, long-running, if]
-          changes:
-            - phpunit.xml.dist
-            - '**/Resources/views/*.html.twig'
-            - '**/*.{php,xml,yaml,json,js,twig}'
-            - 'adr/*'
-            - .gitlab/stages/02-unit.yml
-    parallel:
-        matrix:
-            -   MYSQL_IMAGE: mysql:8
-                CI_IMAGE_TAG:
-                  - "latest"
-                  - "php8.3"
-                FEATURE_ALL: [ "false", "major" ]
-                MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-            -   MYSQL_IMAGE: mysql:8.0.17
-            -   MYSQL_IMAGE: mariadb:10.11
-            -   MYSQL_IMAGE: mariadb:10.11
-                PREFER_LOWEST: 'prefer lowest'
-            -   MYSQL_IMAGE: mariadb:10.11
-                ONLY_CORE: 'only core'
-                TEST_SUITES: "content framework profiling system integration migration"
-            -   MYSQL_IMAGE: mariadb:11.0
-                DEPENDENCY_DEV: 'dev dependencies'
-                ALLOW_FAILURE: 'true'
-                MYSQL_CMD: 'mariadbd'
-                TEST_SUITES: "content framework profiling system integration migration"
-    before_script:
-        - >
-            if [ -n "$FAKE_PHP_VERSION" ]; then
-              composer config platform.php $FAKE_PHP_VERSION
-              composer config -d vendor-bin/cs-fixer platform.php $FAKE_PHP_VERSION
-              composer config -d vendor-bin/rector platform.php $FAKE_PHP_VERSION
-            fi
-        - !reference [ .scripts, init, composer ]
-        - mkdir -p config/jwt || true
-        - 'rm -Rf /var/www/html/public || true'
-        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
-    script:
-        - 'bin/console plugin:deactivate TestPlugin || true'
-        - 'rm -Rf custom/plugins/* || true'
-        - >
-            if [ "$DEPENDENCY_DEV" == "dev dependencies" ]; then
-               composer config minimum-stability dev
-               composer update --no-interaction --optimize-autoloader
-            fi
-        - >
-            if [ "$PREFER_LOWEST" == "prefer lowest" ]; then
-                composer update --prefer-lowest --optimize-autoloader
-                # disable symfony deprecation check, when running with lowest dependency versions
-                export SYMFONY_DEPRECATIONS_HELPER=disabled
-            fi
-        - >
-            if [ "$ONLY_CORE" == "only core" ]; then
-                sed -i '/Shopware\\Administration/d' ./config/bundles.php
-                sed -i '/Shopware\\Storefront/d' ./config/bundles.php
-                sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
-                rm -rf src/Administration/Controller
-                rm -rf tests/integration/Administration
-                rm -rf tests/integration/Elasticsearch
-                rm -rf tests/integration/Storefront
-                composer dump-autoload -o
-            fi
-        - unset SHOPWARE_CACHE_ID
-        - "sed -i -e 's|opcache.enable_cli = 1|opcache.enable_cli = 0|' /usr/local/etc/php/conf.d/docker.ini"
-        - FAILED=0
-        - >
-            for SUITE in $TEST_SUITES; do
-                if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never;
-                else
-                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
-                fi
-            done
-        - '[[ $FAILED -eq 0 ]]'
-    after_script:
-      - !reference [.scripts, handle-failed-merge-train, after_script]
+  extends: .long-running
+  stage: unit
+  services:
+    - name: $MYSQL_IMAGE
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+    - name: opensearchproject/opensearch:2.2.0
+      alias: elasticsearch
+      command:
+        [
+          "bin/opensearch",
+          "-Ediscovery.type=single-node",
+          "-Eplugins.security.disabled=true",
+        ]
+    - name: swaggerapi/swagger-validator-v2:v2.0.5
+      alias: swagger
+    - name: redis:7.0
+      alias: redis
+  variables:
+    TEST_SUITES: "administration storefront content devops framework profiling system unit integration migration migration-tests"
+    APP_ENV: test
+    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+    ALLOW_FAILURE: "false"
+    REDIS_URL: redis://redis:6379
+    SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
+    FEATURE_ALL: "false"
+  rules:
+    - !reference [.rules, skip]
+    - if: !reference [.rules, run-allow-failure, if]
+      allow_failure: true
+    - !reference [.rules, run]
+    - if: !reference [.rules, long-running-allow-failure, if]
+      allow_failure: true
+    # run if it's merge train and has changes or scheduled
+    - if: !reference [.rules, long-running, if]
+      changes:
+        - phpunit.xml.dist
+        - "**/Resources/views/*.html.twig"
+        - "**/*.{php,xml,yaml,json,js,twig}"
+        - "adr/*"
+        - .gitlab/stages/02-unit.yml
+  parallel:
+    matrix:
+      - MYSQL_IMAGE: mysql:8
+        CI_IMAGE_TAG:
+          - "latest"
+          - "php8.3"
+        FEATURE_ALL: ["false", "major"]
+        MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON"
+      - MYSQL_IMAGE: mysql:8.0.17
+      - MYSQL_IMAGE: mariadb:10.11
+      - MYSQL_IMAGE: mariadb:10.11
+        PREFER_LOWEST: "prefer lowest"
+      - MYSQL_IMAGE: mariadb:10.11
+        ONLY_CORE: "only core"
+        TEST_SUITES: "content framework profiling system integration migration"
+      - MYSQL_IMAGE: mariadb:11.0
+        DEPENDENCY_DEV: "dev dependencies"
+        ALLOW_FAILURE: "true"
+        MYSQL_CMD: "mariadbd"
+        TEST_SUITES: "content framework profiling system integration migration"
+  before_script:
+    - >
+      if [ -n "$FAKE_PHP_VERSION" ]; then
+        composer config platform.php $FAKE_PHP_VERSION
+        composer config -d vendor-bin/cs-fixer platform.php $FAKE_PHP_VERSION
+        composer config -d vendor-bin/rector platform.php $FAKE_PHP_VERSION
+      fi
+    - !reference [.scripts, init, composer]
+    - mkdir -p config/jwt || true
+    - "rm -Rf /var/www/html/public || true"
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  script:
+    - "bin/console plugin:deactivate TestPlugin || true"
+    - "rm -Rf custom/plugins/* || true"
+    - >
+      if [ "$DEPENDENCY_DEV" == "dev dependencies" ]; then
+         composer config minimum-stability dev
+         composer update --no-interaction --optimize-autoloader
+      fi
+    - >
+      if [ "$PREFER_LOWEST" == "prefer lowest" ]; then
+          composer update --prefer-lowest --optimize-autoloader
+          # disable symfony deprecation check, when running with lowest dependency versions
+          export SYMFONY_DEPRECATIONS_HELPER=disabled
+      fi
+    - >
+      if [ "$ONLY_CORE" == "only core" ]; then
+          sed -i '/Shopware\\Administration/d' ./config/bundles.php
+          sed -i '/Shopware\\Storefront/d' ./config/bundles.php
+          sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
+          rm -rf src/Administration/Controller
+          rm -rf tests/integration/Administration
+          rm -rf tests/integration/Elasticsearch
+          rm -rf tests/integration/Storefront
+          composer dump-autoload -o
+      fi
+    - unset SHOPWARE_CACHE_ID
+    - "sed -i -e 's|opcache.enable_cli = 1|opcache.enable_cli = 0|' /usr/local/etc/php/conf.d/docker.ini"
+    - FAILED=0
+    - >
+      for SUITE in $TEST_SUITES; do
+          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
+            composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never;
+          else
+            composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
+          fi
+      done
+    - "[[ $FAILED -eq 0 ]]"
+  after_script:
+    - !reference [.scripts, handle-failed-merge-train, after_script]
 
 PHP unit per area:
-    extends: PHP unit coverage
-    stage: unit
-    rules:
-      - !reference [.rules, skip]
-      - !reference [.rules, scheduled]
-    script:
-      - composer dump-autoload -o
-      - bin/console coverage:classes-per-area -g -q
-      - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
-      - php $PHP_OPTIONS vendor/bin/phpunit
-        --configuration phpunit.$PRODUCT_AREA.xml
-        --bootstrap tests/unit/Common/UnitTestBootstrap.php
-        --log-junit phpunit.junit.xml
-        --testsuite unit
-        --exclude-group=quarantined
-        --coverage-text
-        --coverage-html phpunit/
-        --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:'  # do not output covered files lines
-    coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
-    parallel:
-      matrix:
-        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "data-services", "services-settings", "storefront", "system-settings"]
-    artifacts:
-      when: always
-      paths:
-        - coverage/php/$PRODUCT_AREA/cobertura.xml
+  extends: PHP unit coverage
+  stage: unit
+  rules:
+    - !reference [.rules, skip]
+    - !reference [.rules, scheduled]
+  script:
+    - composer dump-autoload -o
+    - bin/console coverage:classes-per-area -g -q
+    - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
+    - php $PHP_OPTIONS vendor/bin/phpunit
+      --configuration phpunit.$PRODUCT_AREA.xml
+      --bootstrap tests/unit/Common/UnitTestBootstrap.php
+      --log-junit phpunit.junit.xml
+      --testsuite unit
+      --exclude-group=quarantined
+      --coverage-text
+      --coverage-html phpunit/
+      --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
+  coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
+  parallel:
+    matrix:
+      - PRODUCT_AREA:
+          [
+            "administration",
+            "buyers-experience",
+            "checkout",
+            "content",
+            "core",
+            "inventory",
+            "data-services",
+            "services-settings",
+            "storefront",
+            "system-settings",
+          ]
+  artifacts:
+    when: always
+    paths:
+      - coverage/php/$PRODUCT_AREA/cobertura.xml
 
 Jest Coverage per Area (Storefront):
   extends: Jest (Storefront)
@@ -335,16 +356,24 @@ Jest Coverage per Area (Storefront):
   variables:
     ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
   script:
-    - !reference [ .scripts, init, composer ]
+    - !reference [.scripts, init, composer]
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$STOREFRONT_PATH/src" -r -p 'src' -i "$STOREFRONT_PATH/src/main.js")
     - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom="${JS_FILES}" --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Storefront/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
-  coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
+  coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "checkout", "content", "inventory", "buyers-experience", "storefront", "unknown" ]
+      - PRODUCT_AREA:
+          [
+            "checkout",
+            "content",
+            "inventory",
+            "buyers-experience",
+            "storefront",
+            "unknown",
+          ]
   artifacts:
     when: always
     paths:
@@ -363,10 +392,21 @@ Jest Coverage per Area (Administration):
     - npm --prefix "$ADMIN_PATH" run unit-setup
     - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
-  coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
+  coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
+      - PRODUCT_AREA:
+          [
+            "admin",
+            "checkout",
+            "content",
+            "inventory",
+            "data-services",
+            "buyers-experience",
+            "services-settings",
+            "system-settings",
+            "unknown",
+          ]
   artifacts:
     when: always
     paths:
@@ -378,10 +418,20 @@ Coverage per Area summary:
   rules:
     - !reference [.rules, skip]
     - !reference [.rules, scheduled]
-  dependencies: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
-  needs: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
+  dependencies:
+    [
+      "PHP unit per area",
+      "Jest Coverage per Area (Administration)",
+      "Jest Coverage per Area (Storefront)",
+    ]
+  needs:
+    [
+      "PHP unit per area",
+      "Jest Coverage per Area (Administration)",
+      "Jest Coverage per Area (Storefront)",
+    ]
   before_script:
-    - !reference [ .scripts, init, composer ]
+    - !reference [.scripts, init, composer]
   script:
     - bin/console coverage:summarize-coverage-reports
   artifacts:
@@ -389,4 +439,18 @@ Coverage per Area summary:
     paths:
       - coverageSummary.html
       - coverageSummary.json
-    expose_as: 'Coverage Summary'
+    expose_as: "Coverage Summary"
+
+Coverage check:
+  extends: .base-no-setup
+  stage: unit
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED == "true" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+      allow_failure: true
+  needs:
+    - Jest (Administration)
+    - Jest (Storefront)
+    - PHP unit coverage
+    - PHP migration coverage
+  script:
+    - .gitlab/bin/coverage.bash check_coverage ${CI_MERGE_REQUEST_IID} ${CI_PIPELINE_ID}

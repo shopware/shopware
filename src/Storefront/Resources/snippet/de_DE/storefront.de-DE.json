@@ -45,6 +45,7 @@
     "404ErrorReturn": "Zurück zum Shop",
     "maintenanceModeHeader": "Wartungsmodus",
     "maintenanceModeDescription": "Wir aktualisieren derzeit die Inhalte dieser Seite. Bitte schauen Sie später wieder vorbei.",
+    "stagingModeDescription": "The Shop befindet sich im Staging mode.",
     "sortingLabel": "Sortierung",
     "next": "Nächstes",
     "previous": "Vorheriges",

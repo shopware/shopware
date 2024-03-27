@@ -44,6 +44,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createStockSection())
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())
+                ->append($this->createStagingNode())
             ->end();
 
         return $treeBuilder;
@@ -765,6 +766,51 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->booleanNode('enable')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createStagingNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('staging');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('mailing')
+                    ->children()
+                        ->booleanNode('disable_delivery')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('storefront')
+                    ->children()
+                        ->booleanNode('show_banner')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('administration')
+                    ->children()
+                        ->booleanNode('show_banner')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('sales_channel')
+                    ->children()
+                        ->arrayNode('domain_rewrite')
+                            ->arrayPrototype()
+                                ->children()
+                                    ->scalarNode('match')->end()
+                                    ->scalarNode('type')->defaultValue('equal')->end()
+                                    ->scalarNode('replace')->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('elasticsearch')
+                    ->children()
+                        ->booleanNode('check_for_existence')->defaultTrue()->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

@@ -17,8 +17,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
     /**
      * @internal
      */
-    public function __construct(private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly bool $showStagingBanner
+    ) {
     }
 
     /**
@@ -53,6 +55,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
+            'showStagingBanner' => $this->showStagingBanner,
         ];
     }
 

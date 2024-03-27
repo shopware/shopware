@@ -30,6 +30,8 @@
         {% endblock %}
 
         {% block base_header %}
+            {% sw_include '@Storefront/storefront/utilities/staging-info.html.twig' %}
+
             <header class="header-main">
                 {% block base_header_inner %}
                     <div class="container">

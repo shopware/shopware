@@ -10,11 +10,26 @@
         grid-template-columns: 1fr;
     }
 
+    &.sw-desktop--staging {
+        grid-template-rows: 50px auto;
+    }
+
     @media screen and (max-width: 500px) {
         display: block;
 
         .sw-desktop__content {
             height: 100%;
         }
+    }
+
+    .sw-staging-bar {
+        grid-column: 1 / 3;
+        display: flex;
+        justify-content: center;
+        background: rgb(61, 68, 77);
+        color: white;
+        font-weight: bold;
+        padding: 1rem;
+        position: sticky;
     }
 }

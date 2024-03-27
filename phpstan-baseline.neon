@@ -3125,10 +3125,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Api/Exception/ResourceNotFoundException.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\AccessToken\\:\\:\\$userIdentifier \\(string\\) does not accept int\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/AccessToken.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"

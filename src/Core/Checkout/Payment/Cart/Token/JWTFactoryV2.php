@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -72,7 +73,10 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw PaymentException::invalidToken($token, $e);
         }
 
-        if (!$this->configuration->validator()->validate($jwtToken, ...$this->configuration->validationConstraints())) {
+        // Remove LooseValidAt constraint, as we want to check it manually and throw a more specific exception
+        $constraints = array_filter($this->configuration->validationConstraints(), fn ($constraint) => !$constraint instanceof LooseValidAt);
+
+        if (!$this->configuration->validator()->validate($jwtToken, ...$constraints)) {
             throw PaymentException::invalidToken($token);
         }
 

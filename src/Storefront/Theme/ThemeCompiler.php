@@ -218,8 +218,9 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
             $distPath = $configuration->getBasePath();
-            $isShopwareBundle = str_contains($configuration->getBasePath(), 'vendor/shopware/');
-            if (!$isShopwareBundle && !str_contains($configuration->getBasePath(), $configuration->getTechnicalName())) {
+            $isVendor = str_contains($configuration->getBasePath(), 'vendor/');
+            $isTechnicalName = str_contains($configuration->getBasePath(), $configuration->getTechnicalName());
+            if (!$isVendor && !$isTechnicalName) {
                 $appPath = '/' . $configuration->getTechnicalName() . '/Resources';
                 $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
             }

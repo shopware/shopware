@@ -52,13 +52,13 @@ class OrderAmountService
             $query->setParameter('timezone', $timezone);
         }
 
-        $query->select([
+        $query->select(
             'DATE_FORMAT(' . $accessor . ', \'%Y-%m-%d\') as `date`',
             'COUNT(`order`.id) as `count`',
             'SUM(
                 `order`.amount_total / IFNULL(`order`.currency_factor, currency.factor)
             ) as `amount`',
-        ]);
+        );
 
         $query->from('`order`');
         $query->leftJoin('`order`', 'currency', 'currency', 'currency.id = `order`.currency_id');

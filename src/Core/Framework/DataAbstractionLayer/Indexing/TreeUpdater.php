@@ -126,7 +126,7 @@ class TreeUpdater
         $escaped = EntityDefinitionQueryHelper::escape($definition->getEntityName());
         $query->from($escaped);
 
-        $query->select($this->getFieldsToSelect($definition));
+        $query->select(...$this->getFieldsToSelect($definition));
         $query->andWhere('parent_id = :id');
         $query->setParameter('id', $parent['id']);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
@@ -263,7 +263,7 @@ class TreeUpdater
 
         $query->from($escaped);
 
-        $query->select($this->getFieldsToSelect($definition));
+        $query->select(...$this->getFieldsToSelect($definition));
         $query->andWhere('id = :id');
         $query->setParameter('id', $parentId);
 

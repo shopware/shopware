@@ -162,7 +162,7 @@ class SystemConfigService implements ResetInterface
         }
 
         $queryBuilder = $this->connection->createQueryBuilder()
-            ->select(['configuration_key', 'configuration_value'])
+            ->select('configuration_key', 'configuration_value')
             ->from('system_config');
 
         if ($inherit) {

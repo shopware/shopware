@@ -85,12 +85,12 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
 
-        $query->select([
+        $query->select(
             'LOWER(HEX(product.id))',
             'product.option_ids as options',
             'product.product_number as productNumber',
             'product.available',
-        ]);
+        );
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
 

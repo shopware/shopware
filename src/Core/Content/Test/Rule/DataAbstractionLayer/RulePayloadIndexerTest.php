@@ -455,7 +455,7 @@ class RulePayloadIndexerTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $rules = $this->connection->createQueryBuilder()
-            ->select(['id', 'payload', 'invalid'])
+            ->select('id', 'payload', 'invalid')
             ->from('rule')
             ->executeQuery()
             ->fetchAllAssociative();

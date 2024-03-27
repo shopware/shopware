@@ -147,9 +147,8 @@ shopware:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
         jwt_key:
-            private_key_path: 'file://%kernel.project_dir%/config/jwt/private.pem'
-            private_key_passphrase: 'shopware'
-            public_key_path: 'file://%kernel.project_dir%/config/jwt/public.pem'
+            # tag:v6.7.0 - delete setting, as it should be always enabled
+            use_app_secret: false
         rate_limiter:
             login:
                 enabled: true

@@ -7,8 +7,6 @@
         <parameter key="env(APP_URL_CHECK_DISABLED)">false</parameter>
     </parameters>
     <services>
-        <defaults autowire="true"/>
-
         <service id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemInstallCommand">
@@ -26,6 +24,7 @@
         <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <argument>%shopware.api.jwt_key.use_app_secret%</argument>
             <tag name="console.command"/>
         </service>
 

@@ -230,34 +230,46 @@
         <service class="League\OAuth2\Server\CryptKey" id="shopware.private_key">
             <argument>%shopware.api.jwt_key.private_key_path%</argument>
             <argument>%shopware.api.jwt_key.private_key_passphrase%</argument>
+            <deprecated package="shopware/core" version="6.7.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement</deprecated>
         </service>
         <service class="League\OAuth2\Server\CryptKey" id="shopware.public_key">
             <argument>%shopware.api.jwt_key.public_key_path%</argument>
+
+            <deprecated package="shopware/core" version="6.7.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement</deprecated>
+        </service>
+
+        <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration">
+            <factory class="Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory"
+                     method="createJWTConfiguration"/>
+
+            <argument>%shopware.api.jwt_key.use_app_secret%</argument>
+            <argument>%shopware.api.jwt_key.private_key_path%</argument>
+            <argument>%shopware.api.jwt_key.private_key_passphrase%</argument>
+            <argument>%shopware.api.jwt_key.public_key_path%</argument>
+        </service>
+
+
+        <service id="Shopware\Core\Framework\Api\OAuth\FakeCryptKey">
+            <argument type="service" id="shopware.jwt_config"/>
         </service>
 
         <service class="League\OAuth2\Server\AuthorizationServer" id="shopware.api.authorization_server">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ClientRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\ScopeRepository"/>
-            <argument type="service" id="shopware.private_key"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\FakeCryptKey"/>
             <argument>%env(APP_SECRET)%</argument>
         </service>
 
-        <service class="League\OAuth2\Server\ResourceServer" id="shopware.api.resource_server">
-            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
-            <argument type="service" id="shopware.public_key"/>
-            <argument type="service" id="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator"/>
+        <service id="Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory"/>
+
+        <service id="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator" class="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator">
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory"/>
         </service>
 
-        <service id="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator">
+        <service id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator">
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
-            <call method="setPublicKey">
-                <argument type="service" id="shopware.public_key"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator" decorates="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator">
-            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\BearerTokenValidator.inner"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.jwt_config"/>
         </service>
@@ -281,15 +293,17 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\ApiAuthenticationListener">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="shopware.api.resource_server"/>
+            <argument type="service" id="League\OAuth2\Server\AuthorizationValidators\BearerTokenValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator"/>
+            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="shopware.api.authorization_server"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\UserRepository"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
-            <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber">

@@ -10,9 +10,13 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use League\OAuth2\Server\CryptKey;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+/**
+ * @deprecated tag:v6.7.0 - Use \Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory instead
+ */
+#[Package('core')]
 class JWTConfigurationFactory
 {
     public static function createJWTConfiguration(
@@ -22,6 +26,8 @@ class JWTConfigurationFactory
         ?Encoder $encoder = null,
         ?Decoder $decoder = null
     ): Configuration {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0'));
+
         /** @var non-empty-string $privateKeyText */
         $privateKeyText = $privateKey->getKeyContents();
         /** @var non-empty-string $publicKeyText */

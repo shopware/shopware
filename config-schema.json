@@ -331,6 +331,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "use_app_secret": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "private_key_path": {
                     "type": "string",
                     "description": "Path to the private key file."

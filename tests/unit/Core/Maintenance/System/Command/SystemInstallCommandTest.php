@@ -7,10 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
-use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -81,7 +79,6 @@ class SystemInstallCommandTest extends TestCase
     public function testDefaultInstallFlow(): void
     {
         $command = $this->prepareCommandInstance([
-            'system:generate-jwt',
             'database:migrate',
             'database:migrate-destructive',
             'system:configure-shop',
@@ -102,7 +99,6 @@ class SystemInstallCommandTest extends TestCase
     public function testBasicSetupFlow(): void
     {
         $command = $this->prepareCommandInstance([
-            'system:generate-jwt',
             'database:migrate',
             'database:migrate-destructive',
             'system:configure-shop',
@@ -146,7 +142,6 @@ class SystemInstallCommandTest extends TestCase
     public function testAssetsInstallCanBeSkipped(): void
     {
         $command = $this->prepareCommandInstance([
-            'system:generate-jwt',
             'database:migrate',
             'database:migrate-destructive',
             'system:configure-shop',
@@ -165,7 +160,7 @@ class SystemInstallCommandTest extends TestCase
 
     /**
      * Test that sub commands of the system:install fire the correct lifecycle events, instead of testing
-     * them all, we just test one: system:generate-jwt-secret. If it works for one it most likely works for all.
+     * them all, we just test one: database:migrate. If it works for one it most likely works for all.
      */
     public function testEventsForSubCommandsAreFired(): void
     {
@@ -181,7 +176,7 @@ class SystemInstallCommandTest extends TestCase
 
             public function __invoke(ConsoleTerminateEvent $event): void
             {
-                if ($event->getCommand()?->getName() === 'system:generate-jwt-secret') {
+                if ($event->getCommand()?->getName() === 'system:install') {
                     $this->terminateCalledForSubCommand = true;
                 }
             }
@@ -193,8 +188,6 @@ class SystemInstallCommandTest extends TestCase
             new SystemInstallCommand(__DIR__, $setupDatabaseAdapterMock, $connectionFactory)
         );
         $application->setDispatcher($dispatcher);
-
-        $application->add(new SystemGenerateJwtSecretCommand(__DIR__, new JwtCertificateGenerator()));
 
         $appTester = new ApplicationTester($application);
 

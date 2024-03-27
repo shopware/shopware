@@ -51,7 +51,7 @@ class AuthControllerTest extends TestCase
             'The resource owner or authorization server denied the request.',
             $response['errors'][0]['title']
         );
-        static::assertEquals('The JWT string must have two dots', $response['errors'][0]['detail']);
+        static::assertEquals('Missing token in "Authorization" header', $response['errors'][0]['detail']);
     }
 
     public function testCreateTokenWithInvalidCredentials(): void

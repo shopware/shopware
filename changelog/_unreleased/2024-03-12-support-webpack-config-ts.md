@@ -1,6 +1,6 @@
 ---
 title: Support webpack config ts & cts files
-issue: NEXT-00000
+issue: NEXT-34525
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

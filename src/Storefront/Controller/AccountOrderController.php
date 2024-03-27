@@ -233,8 +233,10 @@ class AccountOrderController extends StorefrontController
             'changedPayment' => true,
         ]);
 
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('transactions.stateMachineState');
         /** @var OrderEntity|null $order */
-        $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
+        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
 
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);

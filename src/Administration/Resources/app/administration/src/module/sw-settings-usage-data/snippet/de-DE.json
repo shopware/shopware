@@ -6,6 +6,9 @@
       "description": "Lege fest Nutzungsdaten mit uns zu teilen, um Shopware zu verbessern."
     }
   },
+  "sw-settings-usage-data-general": {
+    "tabHeadline": "Allgemein"
+  },
   "sw-usage-data-consent-banner": {
     "headline": "Die Zukunft des E-Commerce mitgestalten",
     "improvingDescription": "Wir arbeiten ständig an der Verbesserung der Dienste, die wir Dir anbieten. Als nächsten Schritt analysieren wir Deine Daten mithilfe von Techniken wie maschinellem Lernen (z. B. Mustererkennung), um unser Produkt weiterzuentwickeln und zu verbessern. Deine Daten werden auch verwendet, um datengetriebene Dienste zu entwickeln, die Deinen Geschäftserfolg steigern. Dies sind die Daten, welche wir sammeln:",

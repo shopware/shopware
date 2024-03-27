@@ -5,6 +5,11 @@ const { Module } = Shopware;
  * @private
  */
 Shopware.Component.register('sw-settings-usage-data', () => import('./page/sw-settings-usage-data'));
+/**
+ * @package services-settings
+ * @private
+ */
+Shopware.Component.register('sw-settings-usage-data-general', () => import('./component/sw-settings-usage-data-general'));
 
 /**
  * @package services-settings
@@ -29,6 +34,19 @@ Module.register('sw-settings-usage-data', {
             meta: {
                 parentPath: 'sw.settings.index.system',
                 privilege: 'system.system_config',
+            },
+            redirect: {
+                name: 'sw.settings.usage.data.index.general',
+            },
+            children: {
+                general: {
+                    component: 'sw-settings-usage-data-general',
+                    path: 'general',
+                    meta: {
+                        parentPath: 'sw.settings.index.system',
+                        privilege: 'system.system_config',
+                    },
+                },
             },
         },
     },

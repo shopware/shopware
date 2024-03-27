@@ -190,4 +190,67 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
+
+    it('should handle order address update', async () => {
+        await wrapper.setData({
+            order: {
+                id: 'order123',
+                deliveries: [
+                    {
+                        id: 'delivery123',
+                    },
+                ],
+            },
+        });
+
+        wrapper.vm.orderService.updateOrderAddresses = jest.fn(() => Promise.resolve());
+
+        const addressMappings = [
+            {
+                orderAddressId: 'orderAddress1',
+                customerAddressId: 'customerAddress1',
+                type: 'billing',
+            },
+            {
+                orderAddressId: 'orderAddress2',
+                customerAddressId: 'customerAddress2',
+                type: 'shipping',
+            },
+        ];
+
+        await wrapper.vm.handleOrderAddressUpdate(addressMappings);
+
+        expect(wrapper.vm.orderService.updateOrderAddresses).toHaveBeenCalledWith(
+            wrapper.vm.orderId,
+            [
+                {
+                    customerAddressId: 'customerAddress1',
+                    type: 'billing',
+                },
+                {
+                    customerAddressId: 'customerAddress2',
+                    type: 'shipping',
+                    deliveryId: 'delivery123',
+                },
+            ],
+            {},
+            { 'sw-version-id': undefined },
+        );
+    });
+
+    it('should skip order address update', async () => {
+        const addressMappings = [
+            {
+                orderAddressId: 'address',
+                customerAddressId: 'address',
+                type: 'billing',
+            },
+        ];
+
+        wrapper.vm.orderService.updateOrderAddress = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.handleOrderAddressUpdate(addressMappings);
+
+        expect(wrapper.vm.orderService.updateOrderAddress).not.toHaveBeenCalled();
+    });
 });

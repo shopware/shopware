@@ -245,8 +245,8 @@ export default {
 
         onAddressChange(customerAddressId) {
             this.$emit('change-address', {
-                orderAddressId: this.addressId,
-                customerAddressId,
+                orderAddressId: this.orderAddressId,
+                customerAddressId: customerAddressId,
                 type: this.type,
             });
         },

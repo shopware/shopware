@@ -61,7 +61,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $session = $this->contextPersister->load($token, $parameters->getSalesChannelId());
 
-            if ($session['expired'] ?? false) {
+            if ($session['expired'] ?? true) {
                 $token = Random::getAlphanumericString(32);
             }
 

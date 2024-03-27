@@ -73,7 +73,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
     public function isRefreshTokenRevoked($tokenId): bool
     {
         $refreshToken = $this->connection->createQueryBuilder()
-            ->select(['token_id'])
+            ->select('token_id')
             ->from('refresh_token')
             ->where('token_id = :tokenId')
             ->setParameter('tokenId', $tokenId)

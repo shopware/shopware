@@ -168,12 +168,12 @@ class OrderActionController extends AbstractController
         }
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(hex(document.document_type_id)) as doc_type',
             'LOWER(hex(document.id)) as doc_id',
             'document.created_at as newest_date',
             'document.sent as sent',
-        ]);
+        );
         $query->from('document', 'document');
         $query->innerJoin('document', 'document_type', 'document_type', 'document.document_type_id = document_type.id');
         $query->where('document.order_id = :orderId');

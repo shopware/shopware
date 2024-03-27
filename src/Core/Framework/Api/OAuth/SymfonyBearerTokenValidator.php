@@ -84,7 +84,7 @@ readonly class SymfonyBearerTokenValidator
     private function validateAccessTokenIssuedAt(\DateTimeImmutable $tokenIssuedAt, string $userId): void
     {
         $lastUpdatedPasswordAt = $this->connection->createQueryBuilder()
-            ->select(['last_updated_password_at'])
+            ->select('last_updated_password_at')
             ->from('user')
             ->where('id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))

@@ -164,7 +164,7 @@ class CheapestPriceUpdater
     private function fetchPrices(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(IFNULL(product.parent_id, product.id))) as parent_id',
             'LOWER(HEX(product.id)) as variant_id',
             'LOWER(HEX(price.rule_id)) as rule_id',
@@ -173,7 +173,7 @@ class CheapestPriceUpdater
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'IFNULL(product.min_purchase, parent.min_purchase) as min_purchase',
             'price.price',
-        ]);
+        );
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.prices AND product.version_id = price.product_version_id');
@@ -200,7 +200,7 @@ class CheapestPriceUpdater
         }
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(IFNULL(product.parent_id, product.id))) as parent_id',
             'LOWER(HEX(product.id)) as variant_id',
             'NULL as rule_id',
@@ -211,7 +211,7 @@ class CheapestPriceUpdater
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'product.child_count as child_count',
-        ]);
+        );
 
         $query->from('product', 'product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');

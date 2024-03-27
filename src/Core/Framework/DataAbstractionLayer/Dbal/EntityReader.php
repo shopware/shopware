@@ -923,10 +923,8 @@ class EntityReader implements EntityReaderInterface
         // create a wrapper query which select the root primary key and the grouped reference ids
         $wrapper = $this->connection->createQueryBuilder();
         $wrapper->select(
-            [
-                'LOWER(HEX(' . $root . '.id)) as id',
-                'LOWER(HEX(child.id)) as child_id',
-            ]
+            'LOWER(HEX(' . $root . '.id)) as id',
+            'LOWER(HEX(child.id)) as child_id',
         );
 
         foreach ($sortings as $i => $sorting) {

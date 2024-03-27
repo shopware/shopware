@@ -196,7 +196,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertFalse($rule->isInvalid());
 
         $ruleData = $this->connection->createQueryBuilder()
-            ->select(['payload', 'invalid'])
+            ->select('payload', 'invalid')
             ->from('rule')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($id))
@@ -235,7 +235,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertTrue($rule->isInvalid());
 
         $ruleData = $this->connection->createQueryBuilder()
-            ->select(['payload', 'invalid'])
+            ->select('payload', 'invalid')
             ->from('rule')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($id))

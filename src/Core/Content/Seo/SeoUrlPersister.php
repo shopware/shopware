@@ -144,13 +144,13 @@ class SeoUrlPersister
         $languageId = Uuid::fromHexToBytes($languageId);
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(seo_url.id)) as id',
             'LOWER(HEX(seo_url.foreign_key)) foreignKey',
             'LOWER(HEX(seo_url.sales_channel_id)) salesChannelId',
             'seo_url.is_modified as isModified',
             'seo_url.seo_path_info seoPathInfo',
-        ]);
+        );
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.route_name = :routeName');

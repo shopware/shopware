@@ -28,7 +28,7 @@ final class ReferenceInvoiceLoader
     {
         $builder = $this->connection->createQueryBuilder();
 
-        $builder->select([
+        $builder->select(
             'LOWER(HEX(`document`.`id`)) as id',
             'LOWER(HEX(`document`.`order_id`)) as orderId',
             'LOWER(HEX(`document`.`order_version_id`)) as orderVersionId',
@@ -36,7 +36,7 @@ final class ReferenceInvoiceLoader
             '`order`.`deep_link_code` as deepLinkCode',
             '`document`.`config` as config',
             '`document`.`document_number` as documentNumber',
-        ])->from('`document`', '`document`')
+        )->from('`document`', '`document`')
             ->innerJoin('`document`', '`document_type`', '`document_type`', '`document`.`document_type_id` = `document_type`.`id`')
             ->innerJoin('`document`', '`order`', '`order`', '`document`.`order_id` = `order`.`id`');
 

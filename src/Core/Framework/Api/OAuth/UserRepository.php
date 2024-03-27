@@ -34,7 +34,7 @@ class UserRepository implements UserRepositoryInterface
         ClientEntityInterface $clientEntity
     ): ?UserEntityInterface {
         $builder = $this->connection->createQueryBuilder();
-        $user = $builder->select(['user.id', 'user.password'])
+        $user = $builder->select('user.id', 'user.password')
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)

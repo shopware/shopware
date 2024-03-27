@@ -226,20 +226,7 @@ export default {
         async onSaveEdits() {
             this.isLoading = true;
 
-            // change new order address
-            if (this.orderAddressIds?.length) {
-                await Promise.all([
-                    ...this.orderAddressIds
-                        .filter(ids => ids.orderAddressId !== ids.customerAddressId)
-                        .map(ids => this.changeOrderAddress(ids)),
-                ]).then(() => {
-                    State.commit('swOrderDetail/setOrderAddressIds', false);
-                }).catch((error) => {
-                    this.createNotificationError({
-                        message: error,
-                    });
-                });
-            }
+            await this.handleOrderAddressUpdate(this.orderAddressIds);
 
             this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
@@ -258,6 +245,41 @@ export default {
                 });
 
             this.$root.$emit('order-edit-save');
+        },
+
+        async handleOrderAddressUpdate(addressMappings) {
+            const mappings = [];
+
+            addressMappings.forEach((addressMapping) => {
+                // If they are the same means that the address has not changed, so skip it
+                if (addressMapping.customerAddressId === addressMapping.orderAddressId) {
+                    return;
+                }
+
+                const mapping = {
+                    customerAddressId: addressMapping.customerAddressId,
+                    type: addressMapping.type,
+                };
+
+                if (addressMapping.type === 'shipping') {
+                    mapping.deliveryId = this.order.deliveries[0].id;
+                }
+
+                mappings.push(mapping);
+            });
+
+            if (mappings.length === 0) {
+                return;
+            }
+
+            await this.updateOrderAddresses(mappings)
+                .then(() => {
+                    State.commit('swOrderDetail/setOrderAddressIds', false);
+                }).catch((error) => {
+                    this.createNotificationError({
+                        message: error,
+                    });
+                });
         },
 
         onCancelEditing() {
@@ -408,12 +430,10 @@ export default {
             });
         },
 
-        changeOrderAddress(ids) {
-            const { orderAddressId, customerAddressId } = ids;
-
-            return this.orderService.changeOrderAddress(
-                orderAddressId,
-                customerAddressId,
+        updateOrderAddresses(mappings) {
+            return this.orderService.updateOrderAddresses(
+                this.orderId,
+                mappings,
                 {},
                 ApiService.getVersionHeader(this.order.versionId),
             );

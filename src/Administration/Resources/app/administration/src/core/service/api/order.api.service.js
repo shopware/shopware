@@ -128,6 +128,23 @@ class OrderApiService extends ApiService {
                 headers,
             });
     }
+
+    updateOrderAddresses(orderId, mapping, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/order-address`;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(
+                route,
+                {
+                    mapping: mapping,
+                },
+                {
+                    additionalParams,
+                    headers,
+                },
+            );
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

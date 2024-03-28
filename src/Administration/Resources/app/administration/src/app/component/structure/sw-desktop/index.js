@@ -107,6 +107,10 @@ Component.register('sw-desktop', {
             const { $module } = this.$route.meta;
             const routeName = this.$route?.name;
 
+            if (!$module) {
+                return false;
+            }
+
             const { name, icon, color, entity, routes, title } = $module;
 
             if (!this.$te((title)) || !routes?.index) {

@@ -65,9 +65,9 @@
     "wishlist": "Merkzettel"
   },
   "error": {
-    "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
-    "VIOLATION::TOO_LOW_ERROR": "%field% darf nicht leer sein.",
-    "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% ist ungültig",
+    "VIOLATION::IS_BLANK_ERROR": "Die Eingabe darf nicht leer sein.",
+    "VIOLATION::TOO_LOW_ERROR": "Die Eingabe darf nicht leer sein.",
+    "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Die Eingabe ist ungültig",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Das Passwort ist nicht korrekt.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "Die eingegebene USt-IdNr. entspricht nicht der erwarteten Struktur",
@@ -78,7 +78,7 @@
     "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
-    "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
+    "VIOLATION::TOO_SHORT_ERROR": "Die Eingabe ist zu kurz.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",

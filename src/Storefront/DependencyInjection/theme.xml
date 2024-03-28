@@ -115,7 +115,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider">
-            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader">

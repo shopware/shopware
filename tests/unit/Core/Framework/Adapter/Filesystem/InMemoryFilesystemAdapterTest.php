@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Filesystem;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\Filesystem;
@@ -10,12 +10,14 @@ use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UnableToSetVisibility;
 use League\Flysystem\Visibility;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 
 /**
  * @internal
  */
+#[CoversClass(MemoryFilesystemAdapter::class)]
 class InMemoryFilesystemAdapterTest extends TestCase
 {
     public function testDelete(): void

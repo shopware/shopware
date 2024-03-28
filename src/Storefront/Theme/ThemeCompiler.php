@@ -3,11 +3,13 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteDirectory;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -100,14 +102,17 @@ class ThemeCompiler implements ThemeCompilerInterface
         $themePrefix = $this->themePathBuilder->generateNewPath($salesChannelId, $themeId, $newThemeHash);
         $oldThemePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
-        try {
-            $this->writeCompiledFiles($themePrefix, $themeId, $compiled, $withAssets, $themeConfig, $configurationCollection);
-        } catch (\Throwable $e) {
-            // delete folder in case of error and rethrow exception
-            if ($themePrefix !== $oldThemePrefix) {
-                $this->filesystem->deleteDirectory($themePrefix);
-            }
+        // If the system does not use seeded theme paths,
+        // we have to delete the complete folder before to ensure that old files are deleted
+        if ($oldThemePrefix === $themePrefix) {
+            $path = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
+            $this->filesystem->deleteDirectory($path);
+        }
+
+        try {
+            $assets = $this->collectCompiledFiles($themePrefix, $themeId, $compiled, $withAssets, $themeConfig, $configurationCollection);
+        } catch (\Throwable $e) {
             throw new ThemeCompileException(
                 $themeConfig->getName() ?? '',
                 'Error while trying to write compiled files: ' . $e->getMessage(),
@@ -115,7 +120,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+        $scriptFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+
+        CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -168,13 +175,18 @@ class ThemeCompiler implements ThemeCompilerInterface
         };
     }
 
+    /**
+     * @return list<CopyBatchInput>
+     */
     private function copyScriptFilesToTheme(
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
-    ): void {
+    ): array {
         $scriptsDist = $this->getScriptDistFolders($configurationCollection);
         $themePath = 'theme/' . $themePrefix;
         $distRelativePath = 'Resources/app/storefront/dist/storefront';
+
+        $copyFiles = [];
 
         foreach ($scriptsDist as $folderName => $basePath) {
             // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
@@ -191,14 +203,13 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
-                $fileName = $file->getFilename();
-                $completeTargetPath = $targetPath . '/' . $fileName;
-                $content = file_get_contents($file->getRealPath());
-                if ($content !== false && $file->getRealPath() !== false) {
-                    $this->filesystem->write($completeTargetPath, $content);
+                if (file_exists($file->getRealPath())) {
+                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
                 }
             }
         }
+
+        return $copyFiles;
     }
 
     /**
@@ -242,13 +253,18 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $finder ?? null;
     }
 
-    private function copyAssets(
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function getAssets(
         StorefrontPluginConfiguration $configuration,
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $outputPath
-    ): void {
+    ): array {
+        $collected = [];
+
         if (!$configuration->getAssetPaths()) {
-            return;
+            return [];
         }
 
         foreach ($configuration->getAssetPaths() as $asset) {
@@ -259,7 +275,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                     throw ThemeException::couldNotFindThemeByName($name);
                 }
 
-                $this->copyAssets($config, $configurationCollection, $outputPath);
+                $collected = [...$collected, ...$this->getAssets($config, $configurationCollection, $outputPath)];
 
                 continue;
             }
@@ -270,8 +286,10 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
-            CopyBatch::copy($this->filesystem, ...$assets);
+            $collected = [...$collected, ...$assets];
         }
+
+        return array_values($collected);
     }
 
     /**
@@ -481,31 +499,46 @@ PHP_EOL;
         return $concatenatedStylesEvent->getConcatenatedStyles();
     }
 
-    private function writeCompiledFiles(
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function collectCompiledFiles(
         string $themePrefix,
         string $themeId,
         string $compiled,
         bool $withAssets,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection
-    ): void {
-        $path = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
+    ): array {
+        $compileLocation = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
-        if ($this->filesystem->has($path)) {
-            $this->filesystem->deleteDirectory($path);
-        }
+        $tempStream = fopen('php://temp', 'rwb');
 
-        $cssFilePath = $path . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
-        $this->filesystem->write($cssFilePath, $compiled);
+        \assert(\is_resource($tempStream));
+        fwrite($tempStream, $compiled);
+        rewind($tempStream);
+
+        $files = [
+            new CopyBatchInput(
+                $tempStream,
+                [
+                    $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
+                ]
+            ),
+        ];
 
         // assets
         if ($withAssets) {
             $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
-            if ($this->filesystem->has($assetPath)) {
+
+            try {
                 $this->filesystem->deleteDirectory($assetPath);
+            } catch (UnableToDeleteDirectory) {
             }
 
-            $this->copyAssets($themeConfig, $configurationCollection, $assetPath);
+            $files = [...$files, ...$this->getAssets($themeConfig, $configurationCollection, $assetPath)];
         }
+
+        return $files;
     }
 }

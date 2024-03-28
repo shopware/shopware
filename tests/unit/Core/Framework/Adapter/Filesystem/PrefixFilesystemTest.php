@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Filesystem;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 /**
  * @internal
  */
+#[CoversClass(PrefixFilesystem::class)]
 class PrefixFilesystemTest extends TestCase
 {
     public function testPrefix(): void

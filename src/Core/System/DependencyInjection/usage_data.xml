@@ -94,7 +94,7 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\System\UsageData\Services\EntityDispatchService">
+        <service id="Shopware\Core\System\UsageData\Services\EntityDispatchService" lazy="true">
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDefinitionService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
             <argument type="service" id="messenger.bus.shopware"/>

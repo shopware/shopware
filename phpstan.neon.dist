@@ -208,7 +208,6 @@ parameters:
         - # Google Cloud Storage filesystem closes the stream even though it should not
             message: '#Call to function is_resource\(\) with resource will always evaluate to true#'
             paths:
-                - src/Core/Framework/Plugin/Util/AssetService.php
                 - src/Core/Content/Media/File/FileSaver.php
                 - src/Core/Content/ImportExport/ImportExport.php
 

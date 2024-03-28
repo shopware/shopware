@@ -82,8 +82,11 @@ class ExportController
         $contentType = $this->getContentType($productExport->getFileFormat());
         $encoding = $productExport->getEncoding();
 
-        return (new Response($content ?: null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]))
-            ->setCharset($encoding);
+        $response = new Response($content ?: null, 200, ['Content-Type' => $contentType . ';charset=' . $encoding]);
+        $response->setLastModified((new \DateTimeImmutable())->setTimestamp($this->fileSystem->lastModified($filePath)));
+        $response->setCharset($encoding);
+
+        return $response;
     }
 
     private function getContentType(string $fileFormat): string

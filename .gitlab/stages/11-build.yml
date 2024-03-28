@@ -13,6 +13,7 @@ include:
       dockerfile: .gitlab/docker/dev/Dockerfile
       enable-scan: "false"
       cache: "false"
+      extra-args: "--compressed-caching=false --single-snapshot"
   - component: gitlab.shopware.com/infrastructure/ci-component-library/kaniko-amd64@trunk
     inputs:
       job-suffix: " tagged"
@@ -24,6 +25,7 @@ include:
       destination-tag: "${SHOPWARE_CORE_VERSION}_${CI_PIPELINE_ID}"
       additional-tags: "${EXTRA_TAGGED_BUILD_TAGS}"
       build-arg: "SHOPWARE_CORE_VERSION=$SHOPWARE_CORE_VERSION"
+      extra-args: "--compressed-caching=false --single-snapshot"
 
 Build:
   extends: .base-with-node

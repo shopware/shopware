@@ -3,6 +3,10 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 
 ## 6.6.0.2
 * [NEXT-34640 - Missing migration to change sorting key to id in CMS slots](./changelog/release-6-6-0-2/2024-03-20-missing-migration-to-change-sorting-key-to-id-in-cms-slots.md)
+
+## 6.6.0.1
+*  [NEXT-34524 - Run blue-green safe destructive migrations in system:update:finish command](./changelog/release-6-6-0-1/2024-03-22-run-blue-green-safe-migrations-in-system-update-finish-command.md)
+
 ## 6.6.0.0
 *  [NEXT-34439 - Ensure decoration of media url generator](./changelog/release-6-6-0-0/2024-03-17-ensure-decoration-of-media-url-generator.md) ([Stefan Poensgen](https://github.com/stefanpoensgen))
 *  [NEXT-32919 - Allow post update indexer to run synchronously on post update event](./changelog/release-6-6-0-0/2024-03-15-allow-post-update-indexer-to-run-on-post-update-event.md)

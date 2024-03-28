@@ -51,6 +51,9 @@ try {
     hostName = undefined;
 }
 
+const useExtensionTwigWatch = process.env.SHOPWARE_STOREFRONT_SKIP_EXTENSION_TWIG_WATCH !== '1';
+let watchFilePaths = isHotMode ? [`${themeFiles.basePath}/**/*.twig`] : [];
+
 const pluginEntries = (() => {
     const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
 
@@ -68,6 +71,12 @@ const pluginEntries = (() => {
             const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
             const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path, '..', 'index.html');
             const hasHtmlFile = fs.existsSync(htmlFilePath);
+
+            if (isHotMode && useExtensionTwigWatch && definition.views?.length > 0) {
+                watchFilePaths = watchFilePaths.concat(definition.views.map((view) => {
+                    return `${path.resolve(projectRootPath, definition.basePath, view)}/**/*.twig`;
+                }));
+            }
 
             return {
                 name,
@@ -445,7 +454,7 @@ const mergedCoreConfig = merge([
                         'Access-Control-Allow-Origin': '*',
                     },
                     watchFiles: {
-                        paths: [`${themeFiles.basePath}/**/*.twig`],
+                        paths: watchFilePaths,
                         options: {
                             persistent: true,
                             cwd: projectRootPath,

@@ -83,7 +83,7 @@
                                                                     {% if displayType == 'color' and option.colorHexCode %}
                                                                         style="background-color: {{ option.colorHexCode }}"
                                                                     {% endif %}
-                                                                       title="{{ option.translated.name }}"
+                                                                       title="{{ option.translated.name|striptags|e('html_attr') }}"
                                                                        for="{{ optionIdentifier }}">
 
                                                                     {% if displayType == 'media' and media %}
@@ -95,8 +95,8 @@
                                                                                 },
                                                                                 attributes: {
                                                                                     class: 'product-detail-configurator-option-image',
-                                                                                    alt: option.translated.name,
-                                                                                    title: option.translated.name
+                                                                                    alt: option.translated.name|striptags|e('html_attr'),
+                                                                                    title: option.translated.name|striptags|e('html_attr')
                                                                                 }
                                                                             } %}
                                                                         {% endblock %}
@@ -104,7 +104,7 @@
                                                                         (displayType == 'media' and not media) or
                                                                         (displayType == 'color' and not option.colorHexCode) %}
                                                                         {% block buy_widget_configurator_option_radio_label_text %}
-                                                                            {{ option.translated.name }}
+                                                                            {{ option.translated.name|sw_sanitize }}
                                                                         {% endblock %}
                                                                     {% endif %}
                                                                 </label>

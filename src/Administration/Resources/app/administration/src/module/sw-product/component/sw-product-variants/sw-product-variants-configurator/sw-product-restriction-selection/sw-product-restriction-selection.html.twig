@@ -56,14 +56,12 @@
 
                 <template
                     #selection-label-property="{ item }"
-                >
-                    {{ item.option.translated.name }}
-                </template>
+                    v-html="$sanitize(item.option.translated.name)"
+                />
                 <template
                     #result-label-property="{ item }"
-                >
-                    {{ item.option.translated.name }}
-                </template>
+                    v-html="$sanitize(item.option.translated.name)"
+                />
             </sw-multi-select>
             {% endblock %}
 

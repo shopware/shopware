@@ -108,6 +108,17 @@ class ProductListingRouteTest extends TestCase
             [
                 $ids,
                 array_merge($defaults, [
+                    'properties' => [],
+                ]),
+                new Request([], ['property-filter' => true]),
+                [
+                    'aggregation' => 'properties',
+                    'instanceOf' => null,
+                ],
+            ],
+            [
+                $ids,
+                array_merge($defaults, [
                     'properties' => [
                         [
                             'id' => $ids->get('red'),
@@ -284,7 +295,7 @@ class ProductListingRouteTest extends TestCase
                 new Request(),
                 [
                     'aggregation' => 'manufacturer',
-                    'instanceOf' => EntityResult::class,
+                    'instanceOf' => null,
                 ],
             ],
             [
@@ -352,12 +363,43 @@ class ProductListingRouteTest extends TestCase
                 new Request(),
                 [
                     'aggregation' => 'rating',
+                    'instanceOf' => null,
+                ],
+            ],
+            [
+                $ids,
+                array_merge($defaults, [
+                    'productReviews' => [
+                        [
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'title' => 'Test',
+                            'content' => 'Test',
+                            'points' => 3,
+                            'status' => true,
+                        ],
+                    ],
+                ]),
+                new Request(),
+                [
+                    'aggregation' => 'rating',
                     'instanceOf' => MaxResult::class,
                 ],
             ],
             [
                 $ids,
-                $defaults,
+                array_merge($defaults, [
+                    'productReviews' => [
+                        [
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'title' => 'Test',
+                            'content' => 'Test',
+                            'points' => 3,
+                            'status' => true,
+                        ],
+                    ],
+                ]),
                 new Request([], ['rating-filter' => true]),
                 [
                     'aggregation' => 'rating',
@@ -366,7 +408,18 @@ class ProductListingRouteTest extends TestCase
             ],
             [
                 $ids,
-                $defaults,
+                array_merge($defaults, [
+                    'productReviews' => [
+                        [
+                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                            'languageId' => Defaults::LANGUAGE_SYSTEM,
+                            'title' => 'Test',
+                            'content' => 'Test',
+                            'points' => '3',
+                            'status' => true,
+                        ],
+                    ],
+                ]),
                 new Request([], ['rating-filter' => false]),
                 [
                     'aggregation' => 'rating',
@@ -383,7 +436,7 @@ class ProductListingRouteTest extends TestCase
                 new Request(),
                 [
                     'aggregation' => 'shipping-free',
-                    'instanceOf' => MaxResult::class,
+                    'instanceOf' => null,
                 ],
             ],
             [

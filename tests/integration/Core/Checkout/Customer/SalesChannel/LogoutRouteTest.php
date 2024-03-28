@@ -55,8 +55,6 @@ class LogoutRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/logout',
-                [
-                ]
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
@@ -95,12 +93,6 @@ class LogoutRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/logout',
-                [
-                    'replace-token' => true,
-                ],
-                [],
-                [
-                ]
             );
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -108,66 +100,13 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/account/customer',
-                [],
-                [],
-                [
-                ]
+                '/store-api/account/customer'
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-    }
-
-    public function testLoggedOutUpdateCustomerContextWithReplaceTokenParameter(): void
-    {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
-
-        $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer($email);
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/login',
-                [
-                    'email' => $email,
-                    'password' => 'shopware',
-                ]
-            );
-
-        static::assertIsString($this->browser->getResponse()->getContent());
-
-        $response = $this->browser->getResponse();
-
-        $currentCustomerToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?: '';
-        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $currentCustomerToken);
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/logout',
-                [
-                    'replace-token' => true,
-                ],
-                [],
-                [
-                ]
-            );
-
-        $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
-
-        static::assertFalse($customerIdWithOldToken);
-
-        $newCustomerContextToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT token FROM sales_channel_api_context WHERE customer_id = ?', [$currentCustomerId]);
-
-        static::assertNotEmpty($newCustomerContextToken);
-        static::assertNotEquals($currentCustomerToken, $newCustomerContextToken);
     }
 
     public function testLoggedOutKeepCustomerContextWithoutReplaceTokenParameter(): void
@@ -193,7 +132,6 @@ class LogoutRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $currentCustomerToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?: '';
-        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $currentCustomerToken);
 
@@ -201,15 +139,10 @@ class LogoutRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/logout',
-                [],
-                [],
-                [
-                ]
             );
 
         $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
-
-        static::assertEquals($currentCustomerId, $customerIdWithOldToken);
+        static::assertFalse($customerIdWithOldToken, 'The old token should be gone');
     }
 
     public function testLogoutRouteReturnContextTokenResponse(): void
@@ -286,7 +219,7 @@ class LogoutRouteTest extends TestCase
             ->logout($context, $request);
 
         static::assertInstanceOf(ContextTokenResponse::class, $logout);
-        static::assertEquals($login->getToken(), $logout->getToken());
+        static::assertNotEquals($login->getToken(), $logout->getToken());
 
         $exists = $this->getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);
@@ -307,12 +240,6 @@ class LogoutRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/account/logout',
-                [
-                    'replace-token' => true,
-                ],
-                [],
-                [
-                ]
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
@@ -325,11 +252,7 @@ class LogoutRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/account/customer',
-                [],
-                [],
-                [
-                ]
+                '/store-api/account/customer'
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());

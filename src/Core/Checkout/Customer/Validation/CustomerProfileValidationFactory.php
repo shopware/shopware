@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -63,8 +65,9 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 
         $definition
             ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $frameworkContext]))
-            ->add('firstName', new NotBlank())
-            ->add('lastName', new NotBlank())
+            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
+            ->add('firstName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
+            ->add('lastName', new NotBlank(), new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]))
             ->add('accountType', new Choice($this->accountTypes));
 
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)

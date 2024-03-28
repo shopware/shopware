@@ -417,7 +417,7 @@
 
                         {% block component_address_form_phone_number_input %}
                             <input type="tel"
-                                   class="form-control"
+                                   class="form-control {% if violationPath %}is-invalid{% endif %}"
                                    autocomplete="{% if prefix == 'shippingAddress' %}shipping {% elseif prefix == 'billingAddress' %}billing {% endif %}tel"
                                    id="{{ idPrefix ~ prefix }}AddressPhoneNumber"
                                    placeholder="{{ 'address.phoneNumberPlaceholder'|trans|striptags }}"

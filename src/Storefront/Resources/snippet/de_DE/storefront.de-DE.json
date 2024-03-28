@@ -66,6 +66,7 @@
     "wishlist": "Merkzettel"
   },
   "error": {
+    "VIOLATION::TOO_LONG_ERROR": "Die Eingabe darf höchstens {{ limit }} Zeichen lang sein.",
     "VIOLATION::IS_BLANK_ERROR": "Die Eingabe darf nicht leer sein.",
     "VIOLATION::TOO_LOW_ERROR": "Die Eingabe darf nicht leer sein.",
     "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Die Eingabe ist ungültig",

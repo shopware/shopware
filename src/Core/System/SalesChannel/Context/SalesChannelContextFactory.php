@@ -254,10 +254,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $addresses = $this->addressRepository->search($criteria, $context);
 
         /** @var CustomerAddressEntity $activeBillingAddress */
-        $activeBillingAddress = $addresses->get($activeBillingAddressId);
+        $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
         $customer->setActiveBillingAddress($activeBillingAddress);
         /** @var CustomerAddressEntity $activeShippingAddress */
-        $activeShippingAddress = $addresses->get($activeShippingAddressId);
+        $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
         $customer->setActiveShippingAddress($activeShippingAddress);
         /** @var CustomerAddressEntity $defaultBillingAddress */
         $defaultBillingAddress = $addresses->get($customer->getDefaultBillingAddressId());

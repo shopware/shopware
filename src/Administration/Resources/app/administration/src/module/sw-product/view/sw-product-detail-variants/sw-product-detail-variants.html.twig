@@ -138,6 +138,7 @@
             :selected-groups="selectedGroups"
             @variants-finish-update="updateVariantListHasContent"
             @generator-open="openModal('variantGeneration')"
+            @add-open="openModal('variantAdd')"
             @delivery-open="openModal('deliveryModal')"
         />
         {% endblock %}
@@ -153,6 +154,22 @@
         :groups="groups"
         :actual-status="activeTab"
         :selected-groups="selectedGroups"
+        :isAddOnly="false"
+        @modal-close="activeModal = ''"
+        @variations-finish-generate="updateVariations"
+    />
+    {% endblock %}
+
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_detail_variants_modal_variant_add %}
+    <sw-product-modal-variant-generation
+        v-if="activeModal === 'variantAdd'"
+        :product="productEntity"
+        :groups="groups"
+        :actual-status="activeTab"
+        :selected-groups="selectedGroups"
+        :isAddOnly="true"
         @modal-close="activeModal = ''"
         @variations-finish-generate="updateVariations"
     />

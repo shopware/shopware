@@ -15,6 +15,7 @@ class SpatialObjectTypeDetector implements TypeDetectorInterface
 {
     protected const SUPPORTED_FILE_EXTENSIONS = [
         'glb' => [],
+        'gltf' => [],
     ];
 
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType

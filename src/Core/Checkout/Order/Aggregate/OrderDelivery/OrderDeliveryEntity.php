@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderDelivery;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -93,6 +94,11 @@ class OrderDeliveryEntity extends Entity
      * @var OrderDeliveryPositionCollection|null
      */
     protected $positions;
+
+    /**
+     * @var DocumentCollection|null
+     */
+    protected $documents;
 
     public function getOrderId(): string
     {
@@ -248,5 +254,15 @@ class OrderDeliveryEntity extends Entity
     public function setShippingOrderAddressVersionId(string $shippingOrderAddressVersionId): void
     {
         $this->shippingOrderAddressVersionId = $shippingOrderAddressVersionId;
+    }
+
+    public function getDocuments(): ?DocumentCollection
+    {
+        return $this->documents;
+    }
+
+    public function setDocuments(DocumentCollection $documents): void
+    {
+        $this->documents = $documents;
     }
 }

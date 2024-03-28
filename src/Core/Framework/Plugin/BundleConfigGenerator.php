@@ -129,6 +129,8 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         $absolutePath = $rootPath . '/' . $path;
 
         $configFileName = match (true) {
+            file_exists($absolutePath . '/build/webpack.config.ts') => 'webpack.config.ts',
+            file_exists($absolutePath . '/build/webpack.config.cts') => 'webpack.config.cts',
             file_exists($absolutePath . '/build/webpack.config.js') => 'webpack.config.js',
             file_exists($absolutePath . '/build/webpack.config.cjs') => 'webpack.config.cjs',
             default => null,

@@ -31,17 +31,25 @@ Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
                 return [];
             },
         },
+
+        errorCode: {
+            type: String,
+            required: false,
+            default() {
+                return 'SHOPWARE_INVALID_IP';
+            },
+        },
     },
 
     computed: {
         errorObject() {
             const err = !this.inputIsValid && this.searchTerm.length > 0;
 
-            return err ? { code: 'SHOPWARE_INVALID_IP' } : null;
+            return err ? { code: this.errorCode } : null;
         },
 
         validKnownIps() {
-            return this.knownIps.filter(ip => string.isValidIp(ip.value));
+            return this.knownIps.filter(ip => this.validate(ip.value));
         },
 
         validUnselectedKnownIps() {

@@ -90,7 +90,9 @@ class OrderEntity extends Entity
     protected $positionPrice;
 
     /**
-     * @var string
+     * @deprecated tag:v6.7.0 - Type will be nullable. Also, it will be natively typed to enforce strict data type checking.
+     *
+     * @var string|null
      */
     protected $taxStatus;
 
@@ -321,9 +323,18 @@ class OrderEntity extends Entity
         return $this->positionPrice;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will also return null
+     * return type will be ?string in v6.7.0.0
+     */
     public function getTaxStatus(): string
     {
-        return $this->taxStatus;
+        /**
+         * @deprecated tag:v6.7.0
+         * remove the null-check
+         * return $this->taxStatus;
+         */
+        return $this->taxStatus ?? '';
     }
 
     public function getShippingCosts(): CalculatedPrice

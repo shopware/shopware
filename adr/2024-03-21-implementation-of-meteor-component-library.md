@@ -25,9 +25,7 @@ To avoid breaking changes, we will keep the old exports in the Meteor Component 
 
 For the current major release phase (6.6), we are implementing the Meteor Component Library in parallel with the current base components. Developers will be able to switch between the two libraries using the major feature flag 6.7. This way, we can ensure that current functionality is not affected by the new implementation.
 
-To have both component implementations working at the same time, we will move each component into a "wrapper" component. This wrapper component will decide which component to render based on the feature flag or given component properties.
-
-You can also use the new components directly with the prefix `mt-`.
+To have both component implementations working at the same time, we will move each component into a "wrapper" component. This wrapper component will decide which component to render based on the feature flag. You can also use the new components directly with the prefix `mt-`.
 
 Example:
 ```html
@@ -35,7 +33,7 @@ Example:
 
 <!-- Is working, emit a warning in console that this component usage is deprecated. -->
 <sw-example oldProperty="old">Example</sw-example>
-<!-- Is working. Switches to the new component from the Meteor Component Library. Can easily be changed to "mt-" prefix without any issues. -->
+<!-- Is NOT working. -->
 <sw-example newProperty="new">Example</sw-example>
 <!-- Is working. Uses directly the component from the Meteor Component Library. -->
 <mt-example newProperty="new">Example</mt-example>
@@ -43,7 +41,7 @@ Example:
 <!-- Shopware 6.7 -->
 <!-- Not working anymore. -->
 <sw-example oldProperty="old">Example</sw-example>
-<!-- Not working anymore. -->
+<!-- Is NOT working. -->
 <sw-example newProperty="new">Example</sw-example>
 <!-- Is working. -->
 <mt-example newProperty="new">Example</mt-example>

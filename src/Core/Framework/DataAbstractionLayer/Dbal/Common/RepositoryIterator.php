@@ -28,6 +28,8 @@ class RepositoryIterator
 
     private bool $autoIncrement = false;
 
+    private bool $endReached = false;
+
     /**
      * @param EntityRepository<TEntityCollection> $repository
      */
@@ -56,6 +58,23 @@ class RepositoryIterator
         $this->context = clone $context;
     }
 
+    public function reset(): void
+    {
+        if ($this->autoIncrement) {
+            $filters = $this->criteria->getFilters();
+            $this->criteria->resetFilters();
+            unset($filters['increment']);
+
+            foreach ($filters as $filterKey => $filter) {
+                $this->criteria->setFilter($filterKey, $filter);
+            }
+        } else {
+            $this->criteria->setOffset(0);
+        }
+
+        $this->endReached = false;
+    }
+
     public function getTotal(): int
     {
         $criteria = clone $this->criteria;
@@ -71,6 +90,10 @@ class RepositoryIterator
      */
     public function fetchIds(): ?array
     {
+        if ($this->endReached) {
+            return null;
+        }
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         $ids = $this->repository->searchIds($this->criteria, $this->context);
@@ -78,11 +101,17 @@ class RepositoryIterator
         $values = $ids->getIds();
 
         if (empty($values)) {
+            $this->endReached = true;
+
             return null;
         }
 
         if (!$this->autoIncrement) {
             $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+
+            if (count($values) < $this->criteria->getLimit()) {
+                $this->endReached = true;
+            }
 
             return $values;
         }
@@ -95,6 +124,10 @@ class RepositoryIterator
         $increment = $ids->getDataFieldOfId($last, 'autoIncrement') ?? 0;
         $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));
 
+        if (count($values) < $this->criteria->getLimit()) {
+            $this->endReached = true;
+        }
+
         return $values;
     }
 
@@ -103,6 +136,10 @@ class RepositoryIterator
      */
     public function fetch(): ?EntitySearchResult
     {
+        if ($this->endReached) {
+            return null;
+        }
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         $result = $this->repository->search(clone $this->criteria, $this->context);
@@ -111,7 +148,13 @@ class RepositoryIterator
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
 
         if (empty($result->getIds())) {
+            $this->endReached = true;
+
             return null;
+        }
+
+        if ($result->count() < $this->criteria->getLimit()) {
+            $this->endReached = true;
         }
 
         return $result;

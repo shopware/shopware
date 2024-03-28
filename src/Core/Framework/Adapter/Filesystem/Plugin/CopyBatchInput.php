@@ -13,7 +13,7 @@ class CopyBatchInput
     private $sourceFile;
 
     /**
-     * @param string|resource $sourceFile
+     * @param string|resource $sourceFile - Passing a path is recommended, resources should not be used for large files
      * @param array<string>        $targetFiles
      */
     public function __construct(

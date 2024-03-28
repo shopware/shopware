@@ -4,12 +4,15 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -175,25 +178,6 @@ class AssetService
         return $localManifest;
     }
 
-    private function copyFile(string $from, string $to): void
-    {
-        $fp = fopen($from, 'r');
-
-        // @codeCoverageIgnoreStart
-        if (!\is_resource($fp)) {
-            throw new \RuntimeException('Could not open file ' . $from);
-        }
-        // @codeCoverageIgnoreEnd
-
-        $this->filesystem->writeStream($to, $fp);
-
-        // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
-        // error, we therefore need to check whether the stream has been closed yet.
-        if (\is_resource($fp)) {
-            fclose($fp);
-        }
-    }
-
     private function getTargetDirectory(string $name): string
     {
         $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));
@@ -225,9 +209,16 @@ class AssetService
             $this->filesystem->delete($targetDirectory . '/' . $file);
         }
 
+        $batches = [];
+
         foreach ($uploads as $file) {
-            $this->copyFile($originDir . '/' . $file, $targetDirectory . '/' . $file);
+            $batches[] = new CopyBatchInput(
+                $originDir . '/' . $file,
+                [$targetDirectory . '/' . $file]
+            );
         }
+
+        CopyBatch::copy($this->filesystem, ...$batches);
     }
 
     /**
@@ -242,7 +233,7 @@ class AssetService
         }
 
         if ($bundle === null) {
-            throw new PluginNotFoundException($bundleName);
+            throw PluginException::notFound($bundleName);
         }
 
         return $bundle;

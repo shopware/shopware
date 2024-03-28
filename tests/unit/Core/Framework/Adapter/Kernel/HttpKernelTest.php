@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Framework\Adapter\Kernel;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Kernel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;

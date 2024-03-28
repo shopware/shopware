@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Framework\Test\TestCaseHelper;
+namespace Shopware\Tests\Unit\Core\Framework\Test\TestCaseHelper;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

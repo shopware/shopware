@@ -72,7 +72,7 @@ class ThemeCompilerTest extends TestCase
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
         // Avoid filesystem operations
-        $mockFilesystem = $this->createMock(FileSystem::class);
+        $mockFilesystem = $this->createMock(Filesystem::class);
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
@@ -397,7 +397,7 @@ PHP_EOL;
         );
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $stderr = fopen('php://stderr', 'wb');
+        $stderr = fopen('php://stderr', 'w');
 
         $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
     }

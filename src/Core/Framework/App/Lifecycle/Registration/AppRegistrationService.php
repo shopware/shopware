@@ -123,7 +123,11 @@ class AppRegistrationService
         AppHandshakeInterface $handshake,
         ResponseInterface $response
     ): array {
-        $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        try {
+            $data = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw AppException::registrationFailed($appName, 'JSON response could not be decoded', $e);
+        }
 
         if (isset($data['error']) && \is_string($data['error'])) {
             throw AppException::registrationFailed($appName, $data['error']);

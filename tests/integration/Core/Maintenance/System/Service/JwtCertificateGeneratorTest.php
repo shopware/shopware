@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Core\Maintenance\System\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 
 /**
@@ -13,8 +13,6 @@ use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 #[CoversClass(JwtCertificateGenerator::class)]
 class JwtCertificateGeneratorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private JwtCertificateGenerator $jwtCertificateGenerator;
 
     private string $privatePath;
@@ -25,7 +23,9 @@ class JwtCertificateGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->jwtCertificateGenerator = $this->getContainer()->get(JwtCertificateGenerator::class);
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
+        $this->jwtCertificateGenerator = new JwtCertificateGenerator();
 
         $this->privatePath = __DIR__ . '/private.pem';
         $this->publicPath = __DIR__ . '/public.pem';

@@ -253,6 +253,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Framework',
             'Storefront',
         ];
+
         // Remove not installed core bundles from hierarchy
         return array_values(
             array_intersect(

@@ -9,24 +9,16 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
-use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Kernel;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException;
-use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
-use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -37,18 +29,6 @@ use Twig\Error\LoaderError;
 class DomainExceptionRule implements Rule
 {
     use InTestClassTrait;
-
-    private const VALID_EXCEPTION_CLASSES = [
-        DecorationPatternException::class,
-        ConstraintViolationException::class,
-        PermissionDeniedException::class,
-        LoaderError::class, // Twig
-        ServiceNotFoundException::class, // Symfony
-        UnrecoverableMessageHandlingException::class, // Symfony
-        RecoverableMessageHandlingException::class, // Symfony
-        NotFoundHttpException::class, // Symfony
-        BadRequestException::class, // Symfony
-    ];
 
     private const VALID_SUB_DOMAINS = [
         'Cart',
@@ -67,9 +47,17 @@ class DomainExceptionRule implements Rule
         RedisReverseProxyGateway::class => ReverseProxyException::class,
     ];
 
+    /**
+     * @var array<string>
+     */
+    private array $validExceptionClasses;
+
     public function __construct(
-        private ReflectionProvider $reflectionProvider
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly Configuration $configuration,
     ) {
+        // see src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon for the default config
+        $this->validExceptionClasses = $this->configuration->getAllowedNonDomainExceptions();
     }
 
     public function getNodeType(): string
@@ -98,7 +86,7 @@ class DomainExceptionRule implements Rule
         \assert($node->expr->class instanceof Node\Name);
         $exceptionClass = $node->expr->class->toString();
 
-        if (\in_array($exceptionClass, self::VALID_EXCEPTION_CLASSES, true)) {
+        if (\in_array($exceptionClass, $this->validExceptionClasses, true)) {
             return [];
         }
 

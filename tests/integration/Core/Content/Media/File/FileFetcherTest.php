@@ -53,7 +53,7 @@ class FileFetcherTest extends TestCase
     {
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
 
         $request = new Request([], [], [], [], [], [], $content);
@@ -84,7 +84,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
 
         $request = new Request([], [], [], [], [], [], $content);
@@ -120,7 +120,7 @@ class FileFetcherTest extends TestCase
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage(\sprintf('Cannot open source stream to write upload data: %s', $fileName));
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
         $request = new Request([], [], [], [], [], [], $content);
         $request->query->set('extension', 'png');
@@ -140,7 +140,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
         $request = new Request([], [], [], [], [], [], $content);
         $request->query->set('extension', 'png');
@@ -278,7 +278,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
         $request = new Request([], [], [], [], [], [], $content);
         $request->query->set('extension', 'png');
@@ -311,7 +311,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
         $request = new Request([], [], [], [], [], [], $content);
         $request->query->set('extension', 'png');
@@ -344,7 +344,7 @@ class FileFetcherTest extends TestCase
 
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
         $request = new Request([], [], [], [], [], [], $content);
         $request->query->set('extension', 'png');
@@ -364,7 +364,7 @@ class FileFetcherTest extends TestCase
     {
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
 
-        $content = fopen(self::TEST_IMAGE, 'rb');
+        $content = fopen(self::TEST_IMAGE, 'r');
         static::assertIsResource($content);
 
         $request = new Request([], [], [], [], [], [], $content);

@@ -4499,6 +4499,82 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    public static function getExtractedFields9(): array
+    {
+        $fields = ThemeFixtures::getExtractedFieldsSub1();
+
+        $fields['sw-color-brand-primary']['value'] = '#adbd00';
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedFields10(): array
+    {
+        $fields = ThemeFixtures::getExtractedFields9();
+
+        foreach ($fields as $key => $field) {
+            $fields[$key]['label'] = $field['label']['en-GB'];
+
+            if ($field['helpText']) {
+                $fields[$key]['helpText'] = $field['helpText']['en-GB'];
+            }
+
+            if ($field['editable'] === 1) {
+                $fields[$key]['editable'] = true;
+            }
+
+            if ($field['fullWidth'] === 1) {
+                $fields[$key]['fullWidth'] = true;
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedFields11(): array
+    {
+        $fields = ThemeFixtures::getExtractedFields9();
+
+        $fields['sw-color-brand-secondary']['value'] = '#46801a';
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedFields12(): array
+    {
+        $fields = ThemeFixtures::getExtractedFields11();
+
+        foreach ($fields as $key => $field) {
+            $fields[$key]['label'] = $field['label']['en-GB'];
+
+            if ($field['helpText']) {
+                $fields[$key]['helpText'] = $field['helpText']['en-GB'];
+            }
+
+            if ($field['editable'] === 1) {
+                $fields[$key]['editable'] = true;
+            }
+
+            if ($field['fullWidth'] === 1) {
+                $fields[$key]['fullWidth'] = true;
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public static function getExtractedBlocks2(): array
     {
         return [
@@ -4585,6 +4661,115 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    public static function getExtractedCurrentFields6(): array
+    {
+        return [
+            'sw-color-brand-primary' => [
+                'isInherited' => false,
+                'value' => '#adbd00',
+            ],
+            'sw-color-brand-secondary' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-border-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-background-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-success' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-info' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-warning' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-danger' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-font-family-base' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-text-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-font-family-headline' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-headline-color' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-price' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-buy-button' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-color-buy-button-text' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-desktop' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-tablet' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-mobile' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-share' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+            'sw-logo-favicon' => [
+                'isInherited' => true,
+                'value' => null,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedCurrentFields7(): array
+    {
+        $currentFields = ThemeFixtures::getExtractedCurrentFields6();
+
+        $currentFields['sw-color-brand-primary'] = [
+            'isInherited' => true,
+            'value' => null,
+        ];
+
+        $currentFields['sw-color-brand-secondary'] = [
+            'isInherited' => false,
+            'value' => '#46801a',
+        ];
+
+        return $currentFields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public static function getExtractedBaseThemeFields4(): array
     {
         return [
@@ -4620,6 +4805,110 @@ class ThemeFixtures
                 'value' => null,
             ],
         ]];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedBaseThemeFields6(): array
+    {
+        return [
+            'sw-color-brand-primary' => [
+                'isInherited' => false,
+                'value' => '#008490',
+            ],
+            'sw-color-brand-secondary' => [
+                'isInherited' => false,
+                'value' => '#526e7f',
+            ],
+            'sw-border-color' => [
+                'isInherited' => false,
+                'value' => '#bcc1c7',
+            ],
+            'sw-background-color' => [
+                'isInherited' => false,
+                'value' => '#fff',
+            ],
+            'sw-color-success' => [
+                'isInherited' => false,
+                'value' => '#3cc261',
+            ],
+            'sw-color-info' => [
+                'isInherited' => false,
+                'value' => '#26b6cf',
+            ],
+            'sw-color-warning' => [
+                'isInherited' => false,
+                'value' => '#ffbd5d',
+            ],
+            'sw-color-danger' => [
+                'isInherited' => false,
+                'value' => '#e52427',
+            ],
+            'sw-font-family-base' => [
+                'isInherited' => false,
+                'value' => '\'Inter\', sans-serif',
+            ],
+            'sw-text-color' => [
+                'isInherited' => false,
+                'value' => '#4a545b',
+            ],
+            'sw-font-family-headline' => [
+                'isInherited' => false,
+                'value' => '\'Inter\', sans-serif',
+            ],
+            'sw-headline-color' => [
+                'isInherited' => false,
+                'value' => '#4a545b',
+            ],
+            'sw-color-price' => [
+                'isInherited' => false,
+                'value' => '#4a545b',
+            ],
+            'sw-color-buy-button' => [
+                'isInherited' => false,
+                'value' => '#008490',
+            ],
+            'sw-color-buy-button-text' => [
+                'isInherited' => false,
+                'value' => '#fff',
+            ],
+            'sw-logo-desktop' => [
+                'isInherited' => false,
+                'value' => 'app/storefront/dist/assets/logo/demostore-logo.png',
+            ],
+            'sw-logo-tablet' => [
+                'isInherited' => false,
+                'value' => 'app/storefront/dist/assets/logo/demostore-logo.png',
+            ],
+            'sw-logo-mobile' => [
+                'isInherited' => false,
+                'value' => 'app/storefront/dist/assets/logo/demostore-logo.png',
+            ],
+            'sw-logo-share' => [
+                'isInherited' => false,
+                'value' => null,
+            ],
+            'sw-logo-favicon' => [
+                'isInherited' => false,
+                'value' => 'app/storefront/dist/assets/logo/favicon.png',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedBaseThemeFields7(): array
+    {
+        $baseThemeFields = ThemeFixtures::getExtractedBaseThemeFields6();
+
+        $baseThemeFields['sw-color-brand-primary'] = [
+            'isInherited' => false,
+            'value' => '#adbd00',
+        ];
+
+        return $baseThemeFields;
     }
 
     /**
@@ -4903,6 +5192,295 @@ class ThemeFixtures
         ]);
 
         return $expected;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedTabs12(): array
+    {
+        return [
+            'default' => [
+                'label' => '',
+                'blocks' => [
+                    'themeColors' => [
+                        'label' => 'Theme colours',
+                        'sections' => [
+                            'default' => [
+                                'label' => null,
+                                'fields' => [
+                                    'sw-color-brand-primary' => [
+                                        'label' => 'Primary colour',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-color-brand-secondary' => [
+                                        'label' => 'Secondary colour',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-border-color' => [
+                                        'label' => 'Border',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-background-color' => [
+                                        'label' => 'Background',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'statusColors' => [
+                        'label' => 'Status messages',
+                        'sections' => [
+                            'default' => [
+                                'label' => null,
+                                'fields' => [
+                                    'sw-color-success' => [
+                                        'label' => 'Success',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-color-info' => [
+                                        'label' => 'Information',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-color-warning' => [
+                                        'label' => 'Notice',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-color-danger' => [
+                                        'label' => 'Error',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'typography' => [
+                        'label' => 'Typography',
+                        'sections' => [
+                            'default' => [
+                                'label' => null,
+                                'fields' => [
+                                    'sw-font-family-base' => [
+                                        'label' => 'Fonttype text',
+                                        'helpText' => null,
+                                        'type' => 'fontFamily',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-text-color' => [
+                                        'label' => 'Text colour',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-font-family-headline' => [
+                                        'label' => 'Fonttype headline',
+                                        'helpText' => null,
+                                        'type' => 'fontFamily',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-headline-color' => [
+                                        'label' => 'Headline colour',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'eCommerce' => [
+                        'label' => 'E-Commerce',
+                        'sections' => [
+                            'default' => [
+                                'label' => null,
+                                'fields' => [
+                                    'sw-color-price' => [
+                                        'label' => 'Price',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-color-buy-button' => [
+                                        'label' => 'Buy button',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-color-buy-button-text' => [
+                                        'label' => 'Buy button text',
+                                        'helpText' => null,
+                                        'type' => 'color',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'media' => [
+                        'label' => 'Media',
+                        'sections' => [
+                            'default' => [
+                                'label' => '',
+                                'fields' => [
+                                    'sw-logo-desktop' => [
+                                        'label' => 'Desktop',
+                                        'helpText' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => true,
+                                    ],
+                                    'sw-logo-tablet' => [
+                                        'label' => 'Tablet',
+                                        'helpText' => 'Displayed between a viewport of 767px to 991px',
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => true,
+                                    ],
+                                    'sw-logo-mobile' => [
+                                        'label' => 'Mobile',
+                                        'helpText' => 'Displayed up to a viewport of 767px',
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => true,
+                                    ],
+                                    'sw-logo-share' => [
+                                        'label' => 'App & share icon',
+                                        'helpText' => null,
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-logo-favicon' => [
+                                        'label' => 'Favicon',
+                                        'helpText' => null,
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedTabs13(): array
+    {
+        $tabs = [
+            'default' => [
+                'label' => null,
+                'blocks' => array_merge(ThemeFixtures::getExtractedTabsSub1(), [
+                    'media' => [
+                        'label' => 'media',
+                        'sections' => [
+                            'default' => [
+                                'label' => null,
+                                'fields' => [
+                                    'sw-logo-desktop' => [
+                                        'label' => [
+                                            'en-GB' => 'Desktop',
+                                            'de-DE' => 'Desktop',
+                                        ],
+                                        'helpText' => [
+                                            'en-GB' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                            'de-DE' => 'Wird bei Ansichten über 991px angezeigt und als Alternative bei kleineren Auflösungen, für die kein anderes Logo eingestellt ist.',
+                                        ],
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => 1,
+                                    ],
+                                    'sw-logo-tablet' => [
+                                        'label' => [
+                                            'en-GB' => 'Tablet',
+                                            'de-DE' => 'Tablet',
+                                        ],
+                                        'helpText' => [
+                                            'en-GB' => 'Displayed between a viewport of 767px to 991px',
+                                            'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
+                                        ],
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => 1,
+                                    ],
+                                    'sw-logo-mobile' => [
+                                        'label' => [
+                                            'en-GB' => 'Mobile',
+                                            'de-DE' => 'Mobil',
+                                        ],
+                                        'helpText' => [
+                                            'en-GB' => 'Displayed up to a viewport of 767px',
+                                            'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
+                                        ],
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => 1,
+                                    ],
+                                    'sw-logo-share' => [
+                                        'label' => [
+                                            'en-GB' => 'App & share icon',
+                                            'de-DE' => 'App- & Share-Icon',
+                                        ],
+                                        'helpText' => null,
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'sw-logo-favicon' => [
+                                        'label' => [
+                                            'en-GB' => 'Favicon',
+                                            'de-DE' => 'Favicon',
+                                        ],
+                                        'helpText' => null,
+                                        'type' => 'media',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]),
+            ],
+        ];
+
+        return $tabs;
     }
 
     /**

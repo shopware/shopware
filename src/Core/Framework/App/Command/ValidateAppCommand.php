@@ -42,7 +42,7 @@ class ValidateAppCommand extends Command
      */
     public function validate(string $appDir): array
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
         $invalids = [];
 
         try {

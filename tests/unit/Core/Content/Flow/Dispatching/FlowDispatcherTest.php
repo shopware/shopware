@@ -116,11 +116,11 @@ class FlowDispatcherTest extends TestCase
             ->method('create')
             ->willReturn($flow);
 
-        $this->container->expects(static::exactly(1))
+        $this->container->expects(static::once())
             ->method('get')
             ->willReturnOnConsecutiveCalls(null);
 
-        static::expectException(ServiceNotFoundException::class);
+        $this->expectException(ServiceNotFoundException::class);
         $this->flowDispatcher->dispatch($event);
     }
 
@@ -149,7 +149,7 @@ class FlowDispatcherTest extends TestCase
             ->method('load')
             ->willReturn([]);
 
-        $this->container->expects(static::exactly(1))
+        $this->container->expects(static::once())
             ->method('get')
             ->willReturnOnConsecutiveCalls($flowLoader);
 
@@ -193,7 +193,7 @@ class FlowDispatcherTest extends TestCase
             ->method('get')
             ->willReturnOnConsecutiveCalls($flowLoader, null);
 
-        static::expectException(ServiceNotFoundException::class);
+        $this->expectException(ServiceNotFoundException::class);
         $this->flowDispatcher->dispatch($event);
     }
 
@@ -288,8 +288,13 @@ class FlowDispatcherTest extends TestCase
         $this->expectExceptionMessage('Flow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found');
 
         $this->logger->expects(static::once())
-            ->method('error')
-            ->with("Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n");
+            ->method('warning')
+            ->with(
+                "Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n",
+                static::callback(static function (array $context) {
+                    return $context['exception'] instanceof ExecuteSequenceException;
+                })
+            );
 
         $this->flowDispatcher->dispatch($event);
     }
@@ -345,8 +350,13 @@ class FlowDispatcherTest extends TestCase
         $this->connection->method('getNestTransactionsWithSavepoints')->willReturn(true);
 
         $this->logger->expects(static::once())
-            ->method('error')
-            ->with("Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n");
+            ->method('warning')
+            ->with(
+                "Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n",
+                static::callback(static function (array $context) {
+                    return $context['exception'] instanceof ExecuteSequenceException;
+                })
+            );
 
         $this->flowDispatcher->dispatch($event);
     }

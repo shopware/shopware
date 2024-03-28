@@ -54,7 +54,7 @@ class CustomFieldRule
      * @param array<string, mixed> $customFields
      * @param array<string|int|bool|float>|string|int|bool|float|null $renderedFieldValue
      */
-    public static function match(array $renderedField, array|string|int|bool|null|float $renderedFieldValue, string $operator, array $customFields): bool
+    public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields): bool
     {
         $actual = self::getValue($customFields, $renderedField);
         $expected = self::getExpectedValue($renderedFieldValue, $renderedField);

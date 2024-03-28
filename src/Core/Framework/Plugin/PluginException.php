@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -96,5 +97,10 @@ class PluginException extends HttpException
             self::PROJECT_DIR_IS_NOT_A_STRING,
             'Container parameter "kernel.project_dir" needs to be a string'
         );
+    }
+
+    public static function notFound(string $name): PluginNotFoundException
+    {
+        return new PluginNotFoundException($name);
     }
 }

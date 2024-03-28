@@ -6,6 +6,7 @@ use Defuse\Crypto\Key;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -127,7 +128,10 @@ class SystemSetupCommand extends Command
         }
 
         if (!$input->isInteractive()) {
-            $this->generateJwt($input, $io);
+            if (!Feature::isActive('v6.7.0.0')) {
+                $this->generateJwt($input, $io);
+            }
+
             $key = Key::createNewRandomKey();
             $env['APP_SECRET'] = $key->saveToAsciiSafeString();
             $env['INSTANCE_ID'] = $this->generateInstanceId();
@@ -160,7 +164,9 @@ class SystemSetupCommand extends Command
 
         $io->section('Generate keys and secrets');
 
-        $this->generateJwt($input, $io);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->generateJwt($input, $io);
+        }
 
         $key = Key::createNewRandomKey();
         $env['APP_SECRET'] = $key->saveToAsciiSafeString();

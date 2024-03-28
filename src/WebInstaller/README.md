@@ -90,5 +90,3 @@ you have to use that version for the next version variable.
 
 Then run the updater regularly with `php shopware-installer.phar.php`,
 it will use the forced version and don't try to determine a version anymore.
-
-

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -163,7 +164,17 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $adapter = $this->createMock(FilesystemAdapter::class);
+        $adapter->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) {
+                static::assertIsResource($stream);
+                // Some flysystem adapters automatically close the stream e.g. google adapter
+                fclose($stream);
+
+                return true;
+            });
+
+        $filesystem = new Filesystem($adapter);
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
@@ -173,15 +184,6 @@ class AssetServiceTest extends TestCase
             $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
-
-        $filesystem->method('writeStream')
-            ->willReturnCallback(function (string $path, $stream) {
-                static::assertIsResource($stream);
-                // Some flysystem adapters automatically close the stream e.g. google adapter
-                fclose($stream);
-
-                return true;
-            });
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }

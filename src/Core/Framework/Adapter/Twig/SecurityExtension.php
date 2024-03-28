@@ -38,8 +38,12 @@ class SecurityExtension extends AbstractExtension
      *
      * @return array<mixed>
      */
-    public function map(iterable $array, string|callable|\Closure $function): array
+    public function map(?iterable $array, string|callable|\Closure $function): ?array
     {
+        if ($array === null) {
+            return null;
+        }
+
         if (\is_array($function)) {
             $function = implode('::', $function);
         }
@@ -61,8 +65,12 @@ class SecurityExtension extends AbstractExtension
      * @param iterable<mixed> $array
      * @param string|callable(mixed): mixed|\Closure $function
      */
-    public function reduce(iterable $array, string|callable|\Closure $function, mixed $initial = null): mixed
+    public function reduce(?iterable $array, string|callable|\Closure $function, mixed $initial = null): mixed
     {
+        if ($array === null) {
+            return null;
+        }
+
         if (\is_array($function)) {
             $function = implode('::', $function);
         }
@@ -85,8 +93,12 @@ class SecurityExtension extends AbstractExtension
      *
      * @return iterable<mixed>
      */
-    public function filter(iterable $array, string|callable|\Closure $arrow): iterable
+    public function filter(?iterable $array, string|callable|\Closure $arrow): ?iterable
     {
+        if ($array === null) {
+            return null;
+        }
+
         if (\is_array($arrow)) {
             $arrow = implode('::', $arrow);
         }
@@ -110,8 +122,12 @@ class SecurityExtension extends AbstractExtension
      *
      * @return array<mixed>
      */
-    public function sort(iterable $array, string|callable|\Closure|null $arrow = null): array
+    public function sort(?iterable $array, string|callable|\Closure|null $arrow = null): ?array
     {
+        if ($array === null) {
+            return null;
+        }
+
         if (\is_array($arrow)) {
             $arrow = implode('::', $arrow);
         }

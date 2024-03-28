@@ -49,6 +49,7 @@ class ApiException extends HttpException
     public const API_INVALID_SYNC_RESOLVERS = 'FRAMEWORK__API_INVALID_SYNC_RESOLVERS';
     public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
     public const API_SYNC_RESOLVER_FIELD_NOT_FOUND = 'FRAMEWORK__API_SYNC_RESOLVER_FIELD_NOT_FOUND';
+    public const API_INVALID_ASSOCIATION_FIELD = 'FRAMEWORK__API_INVALID_ASSOCIATION';
 
     /**
      * @param array<array{pointer: string, entity: string}> $exceptions
@@ -132,6 +133,16 @@ class ApiException extends HttpException
             Response::HTTP_NOT_FOUND,
             $exception->getErrorCode(),
             $exception->getMessage(),
+        );
+    }
+
+    public static function pathIsNoAssociationField(string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_ASSOCIATION_FIELD,
+            'Field "%s" is not a valid association field.',
+            ['path' => $path]
         );
     }
 

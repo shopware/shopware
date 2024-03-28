@@ -653,7 +653,7 @@ class AuthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): Entity|null
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): ?Entity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();

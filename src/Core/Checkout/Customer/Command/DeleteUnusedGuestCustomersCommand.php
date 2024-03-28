@@ -34,7 +34,7 @@ class DeleteUnusedGuestCustomersCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $count = $this->deleteUnusedGuestCustomerService->countUnusedCustomers($context);
 

@@ -212,4 +212,20 @@ describe('src/app/component/structure/sw-desktop', () => {
 
         expect(urlDiffSpy).not.toHaveBeenCalled();
     });
+
+    it('should show the staging bar, when enabled', async () => {
+        Shopware.State.get('context').app.config.settings.enableStagingMode = true;
+
+        const wrapper = await createWrapper();
+        expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.find('.sw-staging-bar').exists()).toBeTruthy();
+    });
+
+    it('should not show the staging bar, when disabled', async () => {
+        Shopware.State.get('context').app.config.settings.enableStagingMode = false;
+
+        const wrapper = await createWrapper();
+        expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.find('.sw-staging-bar').exists()).toBeFalsy();
+    });
 });

@@ -29,6 +29,7 @@ php.ini
 # Caches/Proxies
 .php_cs
 .php_cs.cache
+/.phpunit.cache
 /var/*
 /var/bootstrap.php.cache
 /var/config_administration_plugins.json

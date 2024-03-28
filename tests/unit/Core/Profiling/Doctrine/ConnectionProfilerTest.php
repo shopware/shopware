@@ -137,7 +137,7 @@ class ConnectionProfilerTest extends TestCase
         // @phpstan-ignore-next-line
         $collectedParam = $collectedQueries['default'][0]['params'][0];
         if ($collectedParam instanceof Data) {
-            $out = fopen('php://memory', 'r+b');
+            $out = fopen('php://memory', 'r+');
             \assert(\is_resource($out));
             $dumper = new CliDumper();
             $dumper->setColors(false);
@@ -207,7 +207,7 @@ class ConnectionProfilerTest extends TestCase
         // @phpstan-ignore-next-line
         $collectedParam = $collectedQueries['default'][0]['params'][0];
         if ($collectedParam instanceof Data) {
-            $out = fopen('php://memory', 'r+b');
+            $out = fopen('php://memory', 'r+');
             \assert(\is_resource($out));
             $dumper = new CliDumper();
             $dumper->setColors(false);
@@ -237,7 +237,7 @@ class ConnectionProfilerTest extends TestCase
             ->getMock();
         $connection->expects(static::any())
             ->method('getDatabasePlatform')
-            ->willReturn(new MySqlPlatform());
+            ->willReturn(new MySQLPlatform());
         $connection->expects(static::any())
             ->method('getConfiguration')
             ->willReturn($config);

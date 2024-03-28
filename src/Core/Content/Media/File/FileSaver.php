@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -92,7 +93,7 @@ class FileSaver
             $context
         );
 
-        $this->saveFileToMediaDir($mediaFile, $media);
+        $this->saveFileToMediaDir($mediaFile, $media, $context);
 
         $message = new GenerateThumbnailsMessage();
         $message->setMediaIds([$mediaId]);
@@ -150,6 +151,12 @@ class FileSaver
                 $this->rollbackRenameAction($media, $renamedFiles);
             }
         }
+        $event = new MediaPathChangedEvent($context);
+
+        $event->media(
+            mediaId: $media->getId(),
+            path: $path
+        );
 
         $updateData = [
             'id' => $media->getId(),
@@ -158,6 +165,14 @@ class FileSaver
         ];
 
         if (!empty($thumbnails)) {
+            foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
+                $event->thumbnail(
+                    mediaId: $media->getId(),
+                    thumbnailId: $thumbnailId,
+                    path: $thumbnailPath
+                );
+            }
+
             $updateData['thumbnails'] = array_map(function ($id, $path) {
                 return ['id' => $id, 'path' => $path];
             }, array_keys($thumbnails), $thumbnails);
@@ -168,6 +183,8 @@ class FileSaver
                 // also triggers the indexing, so that the thumbnails_ro is recalculated
                 $this->mediaRepository->update([$updateData], $context);
             });
+
+            $this->eventDispatcher->dispatch($event);
         } catch (\Exception) {
             $this->rollbackRenameAction($media, $renamedFiles);
         }
@@ -203,17 +220,22 @@ class FileSaver
         $this->thumbnailService->deleteThumbnails($media, $context);
     }
 
-    private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media): void
+    private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media, Context $context): void
     {
-        $stream = fopen($mediaFile->getFileName(), 'rb');
+        $stream = fopen($mediaFile->getFileName(), 'r');
         if (!\is_resource($stream)) {
             throw MediaException::cannotOpenSourceStreamToRead($mediaFile->getFileName());
         }
 
         $path = $media->getPath();
 
+        $event = new MediaPathChangedEvent($context);
+        $event->media(mediaId: $media->getId(), path: $path);
+
         try {
             $this->getFileSystem($media)->writeStream($path, $stream);
+
+            $this->eventDispatcher->dispatch($event);
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.

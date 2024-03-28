@@ -18,8 +18,8 @@ RUN echo ${COMPOSER_CACHE_DIR} &&  ls -las ${COMPOSER_CACHE_DIR} \
 
 FROM base-image
 
-COPY --chown=www-data:www-data .gitlab/docker/entrypoint.sh /entrypoint
+COPY --chown=82:82 .gitlab/docker/entrypoint.sh /entrypoint
 
-COPY --from=build --link --chown=www-data:www-data /app /var/www/html
+COPY --from=build --link --chown=82:82 /app /var/www/html
 
 ENTRYPOINT [ "/entrypoint" ]

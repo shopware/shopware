@@ -396,7 +396,13 @@ class OpenApiPathBuilder
                 ],
                 'application/json' => [
                     'schema' => [
-                        '$ref' => '#/components/schemas/' . $schemaName,
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                '$ref' => '#/components/schemas/' . $schemaName,
+                            ],
+                        ],
                     ],
                 ],
             ],

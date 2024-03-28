@@ -42,7 +42,10 @@
 
                             {% block layout_breadcrumb_placeholder %}
                                 {% if key != breadcrumbKeys|last %}
-                                    <div class="breadcrumb-placeholder">
+                                    <div
+                                        class="breadcrumb-placeholder"
+                                        aria-hidden="true"
+                                    >
                                         {% sw_icon 'arrow-medium-right' style { size: 'fluid', pack: 'solid'} %}
                                     </div>
                                 {% endif %}

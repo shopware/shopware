@@ -124,11 +124,11 @@ class VariantListingUpdater
         $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'product.id as id',
             'product.variant_listing_config as config',
             '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
-        ]);
+        );
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');

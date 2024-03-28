@@ -39,7 +39,7 @@ class HookableBusinessEvent implements Hookable
         return $this->flowEventAware->getName();
     }
 
-    public function getWebhookPayload(AppEntity|null $app = null): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return $this->businessEventEncoder->encode($this->flowEventAware);
     }

@@ -53,7 +53,7 @@ class SortingListingProcessorTest extends TestCase
     }
 
     #[DataProvider('processProvider')]
-    public function testProcess(string $requested, null|string $expected): void
+    public function testProcess(string $requested, ?string $expected): void
     {
         $sortings = $this->buildSortings();
 

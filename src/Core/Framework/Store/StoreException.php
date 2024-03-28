@@ -16,6 +16,7 @@ class StoreException extends HttpException
     public const EXTENSION_INSTALL = 'FRAMEWORK__EXTENSION_INSTALL_EXCEPTION';
     public const EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION = 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION';
     public const EXTENSION_NOT_FOUND = 'FRAMEWORK__EXTENSION_NOT_FOUND';
+    public const CANNOT_UPLOAD_CORRECTLY = 'FRAMEWORK__EXTENSION_CANNOT_BE_UPLOADED_CORRECTLY';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -76,6 +77,15 @@ class StoreException extends HttpException
             self::EXTENSION_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'extension', 'field' => 'technical name', 'value' => $technicalName]
+        );
+    }
+
+    public static function couldNotUploadExtensionCorrectly(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CANNOT_UPLOAD_CORRECTLY,
+            'Extension could not be uploaded correctly.'
         );
     }
 }

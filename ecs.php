@@ -53,7 +53,6 @@ use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer
 use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer;
 use Symplify\CodingStandard\Fixer\Spacing\StandaloneLineConstructorParamFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
-use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
 return static function (ECSConfig $ecsConfig): void {
@@ -71,13 +70,11 @@ return static function (ECSConfig $ecsConfig): void {
 
     $ecsConfig->rules([
         ModernizeTypesCastingFixer::class,
-        FopenFlagsFixer::class,
         NativeConstantInvocationFixer::class,
         NullableTypeDeclarationForDefaultNullValueFixer::class,
         VoidReturnFixer::class,
         OperatorLinebreakFixer::class,
         PhpdocLineSpanFixer::class,
-        PhpdocOrderFixer::class,
         PhpUnitConstructFixer::class,
         PhpUnitDedicateAssertInternalTypeFixer::class,
         PhpUnitMockFixer::class,
@@ -97,6 +94,7 @@ return static function (ECSConfig $ecsConfig): void {
         StandaloneLineConstructorParamFixer::class,
     ]);
 
+    $ecsConfig->ruleWithConfiguration(PhpdocOrderFixer::class, ['order' => ['param', 'throws', 'return']]);
     $ecsConfig->ruleWithConfiguration(ClassAttributesSeparationFixer::class, ['elements' => ['property' => 'one', 'method' => 'one']]);
     $ecsConfig->ruleWithConfiguration(MethodArgumentSpaceFixer::class, ['on_multiline' => 'ensure_fully_multiline']);
     $ecsConfig->ruleWithConfiguration(NativeFunctionInvocationFixer::class, [
@@ -118,9 +116,8 @@ return static function (ECSConfig $ecsConfig): void {
         ],
     ]);
 
-    $parameters = $ecsConfig->parameters();
-    $parameters->set(Option::CACHE_DIRECTORY, $_SERVER['SHOPWARE_TOOL_CACHE_ECS'] ?? 'var/cache/cs_fixer');
-    $parameters->set(Option::CACHE_NAMESPACE, 'platform');
+    $ecsConfig->cacheDirectory($_SERVER['SHOPWARE_TOOL_CACHE_ECS'] ?? 'var/cache/cs_fixer');
+    $ecsConfig->cacheNamespace('platform');
 
     $ecsConfig->parallel();
 
@@ -160,5 +157,6 @@ return static function (ECSConfig $ecsConfig): void {
         PhpdocNoPackageFixer::class => null,
         StandaloneLineConstructorParamFixer::class => null,
         LinebreakAfterOpeningTagFixer::class => null,
+        FopenFlagsFixer::class => null,
     ]);
 };

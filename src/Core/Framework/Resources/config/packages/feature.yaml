@@ -10,3 +10,11 @@ shopware:
       - name: v6.7.0.0
         default: false
         major: true
+      - name: DISABLE_VUE_COMPAT
+        default: false
+        major: true
+      - name: ACCESSIBILITY_TWEAKS
+        default: false
+        major: false
+        toggleable: true
+        description: "Accessibility tweaks (highly recommended)\nAccessibility improvements can alter the HTML and CSS structure of the template.\nThe accessibility improvements will be standard as of v6.7.0"

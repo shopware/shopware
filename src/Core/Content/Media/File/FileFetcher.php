@@ -86,7 +86,7 @@ class FileFetcher
     public function fetchBlob(string $blob, string $extension, string $contentType): MediaFile
     {
         $tempFile = (string) tempnam(sys_get_temp_dir(), '');
-        $fh = @fopen($tempFile, 'wb');
+        $fh = @fopen($tempFile, 'w');
         \assert($fh !== false);
 
         $blobSize = (int) @fwrite($fh, $blob);
@@ -154,7 +154,7 @@ class FileFetcher
         ]);
 
         try {
-            $inputStream = @fopen($url, 'rb', false, $streamContext);
+            $inputStream = @fopen($url, 'r', false, $streamContext);
         } catch (\Throwable) {
             throw MediaException::cannotOpenSourceStreamToRead($url);
         }
@@ -174,7 +174,7 @@ class FileFetcher
     private function openDestinationStream(string $filename)
     {
         try {
-            $inputStream = @fopen($filename, 'wb');
+            $inputStream = @fopen($filename, 'w');
         } catch (\Throwable) {
             throw MediaException::cannotOpenSourceStreamToWrite($filename);
         }

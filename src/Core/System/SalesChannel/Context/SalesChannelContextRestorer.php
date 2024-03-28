@@ -126,11 +126,11 @@ class SalesChannelContextRestorer
     public function restoreByCustomer(string $customerId, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         $customer = $this->connection->createQueryBuilder()
-            ->select([
+            ->select(
                 'LOWER(HEX(language_id))',
                 'LOWER(HEX(customer_group_id))',
                 'LOWER(HEX(sales_channel_id))',
-            ])
+            )
             ->from('customer')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($customerId))

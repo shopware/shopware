@@ -73,6 +73,7 @@ class PrefixFilesystem implements FilesystemOperator
                         $info->extraMetadata()
                     );
                 }
+
                 // @codeCoverageIgnoreStart
                 return $info;
                 // @codeCoverageIgnoreEnd

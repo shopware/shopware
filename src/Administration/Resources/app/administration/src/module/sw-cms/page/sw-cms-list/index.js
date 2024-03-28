@@ -38,6 +38,7 @@ export default {
                 gridView: 10,
                 cardView: 9,
             },
+            associationLimit: 25,
             term: '',
             currentPageType: null,
             showMediaModal: false,
@@ -53,6 +54,7 @@ export default {
             defaultCategoryId: '',
             defaultProductId: '',
             newDefaultLayout: undefined,
+            maxVisibleAssignedPages: 3,
         };
     },
 
@@ -94,6 +96,12 @@ export default {
 
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
+            criteria.getAssociation('categories')
+                .addSorting(Criteria.sort('name', 'ASC'))
+                .setLimit(this.associationLimit);
+            criteria.getAssociation('products')
+                .addSorting(Criteria.sort('name', 'ASC'))
+                .setLimit(this.associationLimit);
             criteria.addAssociation('previewMedia')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
@@ -492,6 +500,11 @@ export default {
                 label: this.$tc('sw-cms.list.gridHeaderAssignments'),
                 sortable: false,
             }, {
+                property: 'assignedPages',
+                label: this.$tc('sw-cms.list.gridHeaderAssignedPages'),
+                sortable: false,
+                visible: false,
+            }, {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated'),
                 sortable: false,
@@ -542,6 +555,39 @@ export default {
         getPageCount(page) {
             const pageCount = this.getPageCategoryCount(page) + this.getPageProductCount(page);
             return pageCount > 0 ? pageCount : '-';
+        },
+
+        getPages(page) {
+            return [
+                ...page.categories.map((item) => item.name),
+                ...page.products.map((item) => item.name),
+            ];
+        },
+
+        getPagesString(page) {
+            const items = this.getPages(page);
+            let pagesString = [...items].splice(0, this.maxVisibleAssignedPages).join(', ');
+
+            if (this.maxVisibleAssignedPages < items.length) {
+                pagesString += ', ...';
+            }
+
+            return pagesString;
+        },
+
+        getPagesTooltip(page) {
+            const items = this.getPages(page);
+            let message = items.join(', ');
+
+            if (this.associationLimit < this.getPageCount(page)) {
+                message += ', ...';
+            }
+
+            return {
+                width: 300,
+                message,
+                disabled: this.maxVisibleAssignedPages >= items.length,
+            };
         },
 
         optionContextDeleteDisabled(page) {

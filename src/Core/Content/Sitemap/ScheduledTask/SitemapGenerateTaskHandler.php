@@ -58,7 +58,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
         $criteria->addAssociation('type');
         $criteria->addFilter(new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $this->eventDispatcher->dispatch(
             new SitemapSalesChannelCriteriaEvent($criteria, $context)

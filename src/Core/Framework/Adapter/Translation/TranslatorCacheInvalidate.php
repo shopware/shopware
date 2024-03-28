@@ -66,6 +66,6 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
 
         $snippetSetCacheKeys = array_map(fn (string $setId) => 'translation.catalog.' . $setId, $snippetSetIds);
 
-        $this->cacheInvalidator->invalidate($snippetSetCacheKeys, true);
+        $this->cacheInvalidator->invalidate($snippetSetCacheKeys);
     }
 }

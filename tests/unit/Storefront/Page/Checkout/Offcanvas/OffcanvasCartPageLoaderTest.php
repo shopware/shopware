@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoadedEvent;
@@ -44,12 +45,12 @@ class OffcanvasCartPageLoaderTest extends TestCase
             $this->createMock(ShippingMethodRoute::class)
         );
 
+        static::expectNotToPerformAssertions();
+
         $page = $offcanvasCartPageLoader->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
-
-        static::assertInstanceOf(OffcanvasCartPage::class, $page);
     }
 
     public function testRobotsMetaSetIfGiven(): void
@@ -74,11 +75,11 @@ class OffcanvasCartPageLoaderTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        static::assertInstanceOf(OffcanvasCartPage::class, $page);
         static::assertNotNull($page->getMetaInformation());
         static::assertSame('noindex,follow', $page->getMetaInformation()->getRobots());
     }
 
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testRobotsMetaNotSetIfGiven(): void
     {
         $page = new OffcanvasCartPage();
@@ -100,7 +101,6 @@ class OffcanvasCartPageLoaderTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        static::assertInstanceOf(OffcanvasCartPage::class, $page);
         static::assertNull($page->getMetaInformation());
     }
 
@@ -140,7 +140,6 @@ class OffcanvasCartPageLoaderTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        static::assertInstanceOf(OffcanvasCartPage::class, $page);
         static::assertSame($shippingMethods, $page->getShippingMethods());
     }
 

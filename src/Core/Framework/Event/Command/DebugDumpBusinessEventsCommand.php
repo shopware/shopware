@@ -34,7 +34,7 @@ class DebugDumpBusinessEventsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $result = $this->collector->collect(Context::createDefaultContext());
+        $result = $this->collector->collect(Context::createCLIContext());
 
         $table = new Table($output);
         $table->setHeaders(['name', 'mail-aware', 'log-aware', 'class']);

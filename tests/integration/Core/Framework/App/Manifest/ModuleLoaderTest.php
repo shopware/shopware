@@ -242,6 +242,8 @@ class ModuleLoaderTest extends TestCase
 
     /**
      * @param array<AppModule> $loadedModules
+     *
+     * @param-out array<array{name: string, label: array<string, string|null>, modules: array<int, array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}>, mainModule: array{source: string}|null}> $loadedModules
      */
     private function validateSources(array &$loadedModules): void
     {

@@ -25,40 +25,51 @@
                                    value="{{ {productId: id}|json_encode }}">
                         {% endblock %}
 
-                        {% block page_product_detail_buy_product_buy_info %}
-                            <input type="hidden"
-                                   name="lineItems[{{ id }}][id]"
-                                   value="{{ id }}">
-                            <input type="hidden"
-                                   name="lineItems[{{ id }}][referencedId]"
-                                   value="{{ id }}">
-                            <input type="hidden"
-                                   name="lineItems[{{ id }}][type]"
-                                   value="product">
-                            <input type="hidden"
-                                   name="lineItems[{{ id }}][stackable]"
-                                   value="1">
-                            <input type="hidden"
-                                   name="lineItems[{{ id }}][removable]"
-                                   value="1">
-                            <input type="hidden"
-                                   name="lineItems[{{ id }}][quantity]"
-                                   value="{{ product.minPurchase }}">
+                        {% block component_product_box_action_buy_info %}
+                            {# @deprecated tag:v6.7.0 - Block will be removed, use component_product_box_action_buy_info instead #}
+                            {% block page_product_detail_buy_product_buy_info %}
+                                <input type="hidden"
+                                       name="lineItems[{{ id }}][id]"
+                                       value="{{ id }}">
+                                <input type="hidden"
+                                       name="lineItems[{{ id }}][referencedId]"
+                                       value="{{ id }}">
+                                <input type="hidden"
+                                       name="lineItems[{{ id }}][type]"
+                                       value="product">
+                                <input type="hidden"
+                                       name="lineItems[{{ id }}][stackable]"
+                                       value="1">
+                                <input type="hidden"
+                                       name="lineItems[{{ id }}][removable]"
+                                       value="1">
+                                <input type="hidden"
+                                       name="lineItems[{{ id }}][quantity]"
+                                       value="{{ product.minPurchase }}">
+                            {% endblock %}
                         {% endblock %}
 
-                        {% block page_product_detail_product_buy_meta %}
-                            <input type="hidden"
-                                   name="product-name"
-                                   value="{{ product.translated.name }}">
+                        {% block component_product_box_action_buy_meta %}
+                            {# @deprecated tag:v6.7.0 - Block will be removed, use component_product_box_action_buy_meta instead #}
+                            {% block page_product_detail_product_buy_meta %}
+                                <input type="hidden"
+                                       name="product-name"
+                                       value="{{ product.translated.name }}">
+                            {% endblock %}
                         {% endblock %}
 
-                        {% block page_product_detail_product_buy_button %}
-                            <div class="d-grid">
-                                <button class="btn btn-buy"
-                                        title="{{ 'listing.boxAddProduct'|trans|striptags }}">
-                                    {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
-                                </button>
-                            </div>
+                        {% block component_product_box_action_buy_button %}
+                            {# @deprecated tag:v6.7.0 - Block will be removed, use component_product_box_action_buy_button instead #}
+                            {% block page_product_detail_product_buy_button %}
+                                <div class="d-grid">
+                                    <button class="btn btn-buy"
+                                            title="{{ 'listing.boxAddProduct'|trans|striptags }}">
+                                        {% block page_product_detail_product_buy_button_label %}
+                                            {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
+                                        {% endblock %}
+                                    </button>
+                                </div>
+                            {% endblock %}
                         {% endblock %}
                     {% endblock %}
                 </form>
@@ -67,22 +78,27 @@
             {% block component_product_box_action_detail %}
                 <div class="d-grid">
                     <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
-                       class="btn btn-light"
+                       class="btn btn-light btn-detail"
                        title="{{ 'listing.boxProductDetails'|trans|striptags }}">
-                        {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
+                        {% block component_product_box_action_detail_label %}
+                            {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
+                        {% endblock %}
                     </a>
                 </div>
             {% endblock %}
         {% endif %}
     </div>
 
-    {% block component_product_box_action_meta %}
-        <input type="hidden"
-               name="product-name"
-               value="{{ product.translated.name }}">
+    {# @deprecated tag:v6.7.0 - Block, including the content will be removed. "product-name" and "product-id" will be hold inside "data-product-information" in box-standard.html.twig instead. #}
+    {% if not feature('v6.7.0.0') %}
+        {% block component_product_box_action_meta %}
+            <input type="hidden"
+                   name="product-name"
+                   value="{{ product.translated.name }}">
 
-        <input type="hidden"
-               name="product-id"
-               value="{{ id }}">
-    {% endblock %}
+            <input type="hidden"
+                   name="product-id"
+                   value="{{ id }}">
+        {% endblock %}
+    {% endif %}
 {% endblock %}

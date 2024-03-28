@@ -92,6 +92,10 @@ export default {
             return this.repositoryFactory.create('product_media');
         },
 
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
         productMedia() {
             if (!this.product) {
                 return [];
@@ -182,9 +186,27 @@ export default {
             return productMedia;
         },
 
-        successfulUpload({ targetId }) {
+        async successfulUpload({ targetId }) {
+            const existingMedia = this.product.media.find((productMedia) => productMedia.mediaId === targetId);
+
             // on replace
-            if (this.product.media.find((productMedia) => productMedia.mediaId === targetId)) {
+            if (existingMedia) {
+                const mediaItem = await this.mediaRepository.get(targetId);
+
+                const productMedia = this.createMediaAssociation(targetId);
+                productMedia.media = mediaItem;
+
+                const existingMediaWasCover = this.product.cover?.id === existingMedia.id;
+
+                // replace the media item
+                this.product.media.remove(existingMedia.id);
+                this.product.media.add(productMedia);
+
+                if (existingMediaWasCover) {
+                    this.product.coverId = productMedia.id;
+                    this.product.cover = productMedia;
+                }
+
                 return;
             }
 

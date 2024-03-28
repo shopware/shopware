@@ -101,7 +101,7 @@ class CustomerDefaultPaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{boolean, string, list<string>, string}>
+     * @return array<string, array{bool, string, list<string>, string}>
      */
     public static function getMatchValues(): array
     {

@@ -246,6 +246,62 @@ class ShopwareClass implements CustomShopwareProperties {
         DeviceHelper: DeviceHelper,
     };
 
+    /**
+     * @private
+     *
+     * This is a compatibility configuration for the Vue 2 to Vue 3 migration.
+     * With activated feature flag, the compat configuration will be disabled
+     * for a single component.
+     *
+     * Usage:
+     *
+     * Component.register('your-component', {
+     *     ...
+     *     compatConfig: Shopware.compatConfig,
+     *     ...
+ *   * });
+     */
+    public compatConfig = {
+        GLOBAL_MOUNT: !window._features_.DISABLE_VUE_COMPAT,
+        GLOBAL_EXTEND: !window._features_.DISABLE_VUE_COMPAT,
+        GLOBAL_PROTOTYPE: !window._features_.DISABLE_VUE_COMPAT,
+        GLOBAL_SET: !window._features_.DISABLE_VUE_COMPAT,
+        GLOBAL_DELETE: !window._features_.DISABLE_VUE_COMPAT,
+        GLOBAL_OBSERVABLE: !window._features_.DISABLE_VUE_COMPAT,
+        CONFIG_KEY_CODES: !window._features_.DISABLE_VUE_COMPAT,
+        CONFIG_WHITESPACE: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_SET: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_DELETE: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_EVENT_EMITTER: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_EVENT_HOOKS: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_CHILDREN: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_LISTENERS: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_SCOPED_SLOTS: !window._features_.DISABLE_VUE_COMPAT,
+        OPTIONS_DATA_FN: !window._features_.DISABLE_VUE_COMPAT,
+        OPTIONS_DATA_MERGE: !window._features_.DISABLE_VUE_COMPAT,
+        OPTIONS_BEFORE_DESTROY: !window._features_.DISABLE_VUE_COMPAT,
+        OPTIONS_DESTROYED: !window._features_.DISABLE_VUE_COMPAT,
+        WATCH_ARRAY: !window._features_.DISABLE_VUE_COMPAT,
+        V_ON_KEYCODE_MODIFIER: !window._features_.DISABLE_VUE_COMPAT,
+        CUSTOM_DIR: !window._features_.DISABLE_VUE_COMPAT,
+        ATTR_FALSE_VALUE: !window._features_.DISABLE_VUE_COMPAT,
+        ATTR_ENUMERATED_COERCION: !window._features_.DISABLE_VUE_COMPAT,
+        TRANSITION_GROUP_ROOT: !window._features_.DISABLE_VUE_COMPAT,
+        COMPONENT_ASYNC: !window._features_.DISABLE_VUE_COMPAT,
+        COMPONENT_FUNCTIONAL: !window._features_.DISABLE_VUE_COMPAT,
+        COMPONENT_V_MODEL: !window._features_.DISABLE_VUE_COMPAT,
+        RENDER_FUNCTION: !window._features_.DISABLE_VUE_COMPAT,
+        FILTERS: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_IS_ON_ELEMENT: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_V_BIND_SYNC: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_V_BIND_PROP: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_V_BIND_OBJECT_ORDER: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_V_ON_NATIVE: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_V_FOR_REF: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_NATIVE_TEMPLATE: !window._features_.DISABLE_VUE_COMPAT,
+        COMPILER_FILTERS: !window._features_.DISABLE_VUE_COMPAT,
+    };
+
     public get Context(): VuexRootState['context'] {
         return this.State.get('context');
     }

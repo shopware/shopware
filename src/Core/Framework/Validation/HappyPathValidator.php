@@ -39,7 +39,7 @@ class HappyPathValidator implements ValidatorInterface
     /**
      * @param Constraint|Constraint[]|null $constraints
      */
-    public function validate(mixed $value, Constraint|array $constraints = null, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
+    public function validate(mixed $value, Constraint|array|null $constraints = null, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
     {
         if ($constraints === null) {
             return $this->inner->validate($value, $constraints, $groups);
@@ -67,12 +67,12 @@ class HappyPathValidator implements ValidatorInterface
         return $this->inner->hasMetadataFor($value);
     }
 
-    public function validateProperty(object $object, string $propertyName, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
+    public function validateProperty(object $object, string $propertyName, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
-    public function validatePropertyValue(object|string $objectOrClass, string $propertyName, mixed $value, string|GroupSequence|array $groups = null): ConstraintViolationListInterface
+    public function validatePropertyValue(object|string $objectOrClass, string $propertyName, mixed $value, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
     {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }

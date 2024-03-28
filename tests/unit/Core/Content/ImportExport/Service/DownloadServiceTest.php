@@ -57,7 +57,7 @@ class DownloadServiceTest extends TestCase
 
         $fileSystem = $this->createMock(FilesystemOperator::class);
 
-        $fileSystem->expects(static::once())->method('readStream')->willReturn(fopen('php://memory', 'rb'));
+        $fileSystem->expects(static::once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
         $fileSystem->expects(static::once())->method('fileSize')->willReturn(100);
 
         $downloadService = new DownloadService($fileSystem, $fileRepository);

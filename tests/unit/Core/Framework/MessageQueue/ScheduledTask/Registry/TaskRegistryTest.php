@@ -157,7 +157,7 @@ class TaskRegistryTest extends TestCase
             static::assertNotEmpty($data[0]);
             static::assertNotEmpty($data[1]);
 
-            [ $queueTaskPayload, $scheduledTaskPayload ] = $data;
+            [$queueTaskPayload, $scheduledTaskPayload] = $data;
 
             static::assertArrayHasKey('status', $queueTaskPayload);
             static::assertArrayHasKey('status', $scheduledTaskPayload);
@@ -219,7 +219,7 @@ class TaskRegistryTest extends TestCase
             static::assertNotEmpty($data[0]);
             static::assertNotEmpty($data[1]);
 
-            [ $queueTaskPayload, $skippedTaskPayload ] = $data;
+            [$queueTaskPayload, $skippedTaskPayload] = $data;
 
             static::assertArrayHasKey('status', $queueTaskPayload);
             static::assertArrayHasKey('status', $skippedTaskPayload);

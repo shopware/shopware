@@ -112,6 +112,13 @@ export default defineConfig({
         video: 'off',
     },
 
+    // we abuse this to wait for the external webserver
+    webServer: {
+        command: 'sleep 1d',
+        url: process.env['APP_URL'],
+        reuseExistingServer: true,
+    },
+
     /* Configure projects for major browsers */
     projects: [
         {

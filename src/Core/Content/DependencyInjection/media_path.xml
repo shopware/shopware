@@ -64,13 +64,30 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
-            <tag name="messenger.bus.shopware"/>
+            <tag name="shopware.entity_indexer"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\BanMediaUrl">
+            <argument type="service" id="shopware.media.reverse_proxy"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
+
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaPathChangedEvent" method="changed" />
+        </service>
+
+        <service id="shopware.media.reverse_proxy" alias="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy"/>
+
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy">
+            <argument type="service" id="shopware.reverse_proxy.http_client"/>
+            <argument>%shopware.cdn.fastly.api_key%</argument>
+            <argument>%shopware.cdn.fastly.soft_purge%</argument>
+            <argument>%shopware.cdn.fastly.max_parallel_invalidations%</argument>
+            <argument type="service" id="logger"/>
         </service>
     </services>
 </container>

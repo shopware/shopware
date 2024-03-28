@@ -100,7 +100,7 @@ class LineItemVariantValueRuleTest extends TestCase
     public function testInvalidScopeIsFalse(): void
     {
         $invalidScope = $this->createMock(RuleScope::class);
-        $this->rule->assign(['identifiers' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['identifiers' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
@@ -133,7 +133,7 @@ class LineItemVariantValueRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{boolean, list<string>, list<string>, string}>
+     * @return array<string, array{bool, list<string>, list<string>, string}>
      */
     public static function getMatchValues(): iterable
     {

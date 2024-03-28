@@ -101,6 +101,9 @@
                 },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
+                },
+                "staging": {
+                    "$ref": "#/definitions/staging"
                 }
             },
             "title": "Shopware"
@@ -148,6 +151,78 @@
                 }
             },
             "title": "Usage data"
+        },
+        "staging": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "mailing": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "disable_delivery": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "storefront": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "show_banner": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "administration": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "show_banner": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "sales_channel": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "domain_rewrite": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "match": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": ["equal", "regex", "prefix"]
+                                    },
+                                    "replace": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "elasticsearch": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "check_for_existence": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                }
+            },
+            "title": "Staging"
         },
         "twig": {
             "type": "object",
@@ -331,6 +406,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "use_app_secret": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "private_key_path": {
                     "type": "string",
                     "description": "Path to the private key file."
@@ -544,6 +623,27 @@
                 },
                 "strategy": {
                     "type": "string"
+                },
+                "fastly": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "api_key": {
+                            "type": "string",
+                            "title": "Fastly API key. Configuring this api key, will lead to purge media urls via fast purge requests"
+                        },
+                        "soft_purge": {
+                            "type": "string",
+                            "enum": ["1", "0"],
+                            "default": "0",
+                            "Title": "Soft purge parameter will be passed to fastly API"
+                        },
+                        "max_parallel_invalidations": {
+                            "type": "integer",
+                            "default": 2,
+                            "title": "Max parallel requests to the external server"
+                        }
+                    }
                 }
             },
             "title": "CDN"

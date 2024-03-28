@@ -158,7 +158,7 @@ class ShippingMethodRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<array{id: string, bindShippingfree: boolean, name: string, tax_type: null, availabilityRule: array<string, mixed>, deliveryTime: DeliveryTimeData}>
+     * @return array<array{id: string, bindShippingfree: bool, name: string, tax_type: null, availabilityRule: array<string, mixed>, deliveryTime: DeliveryTimeData}>
      */
     private function createShippingMethodDummyArray(): array
     {

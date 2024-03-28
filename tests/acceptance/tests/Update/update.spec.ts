@@ -37,6 +37,11 @@ test('@update: Update a shop', async ({ page, adminApiContext }) => {
 
     await page.getByRole('button', { name: 'Update Shopware' }).click();
 
+    const response = await page.waitForResponse((response) => response.url().includes('/update/_finish'), { timeout: 120000 });
+    expect(response.status()).toBe(200);
+
+    await page.screenshot();
+
     await expect(page.getByRole('heading', { name: 'Finish' })).toBeVisible({ timeout: 120000 });
 
     await page.getByRole('button', { name: 'Open Administration' }).click();
@@ -47,6 +52,6 @@ test('@update: Update a shop', async ({ page, adminApiContext }) => {
 
     // Wait until the page is loaded
     await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
-        timeout: 20000,
+        timeout: 60000,
     });
 });

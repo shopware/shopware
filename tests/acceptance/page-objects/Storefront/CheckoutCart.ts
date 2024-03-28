@@ -9,6 +9,7 @@ export class CheckoutCartPage implements PageObject {
     public readonly emptyCartAlert: Locator;
     public readonly stockReachedAlert: Locator;
     public readonly cartLineItemImages: Locator;
+    public readonly unitPriceInfo: Locator;
 
     constructor(public readonly page: Page) {
         this.headline = page.getByRole('heading', { name: 'Shopping cart' });
@@ -18,6 +19,7 @@ export class CheckoutCartPage implements PageObject {
         this.emptyCartAlert = page.getByText('Your shopping cart is empty.');
         this.stockReachedAlert = page.getByText('only available 1 times');
         this.cartLineItemImages = page.locator('.line-item-img-link');
+        this.unitPriceInfo = page.locator('.line-item-unit-price-value');
     }
 
     async goTo() {

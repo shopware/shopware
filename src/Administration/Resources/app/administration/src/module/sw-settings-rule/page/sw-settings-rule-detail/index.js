@@ -105,10 +105,6 @@ export default {
         },
 
         conditionRepository() {
-            if (!this.rule) {
-                return null;
-            }
-
             return this.repositoryFactory.create(
                 this.rule.conditions.entity,
                 this.rule.conditions.source,
@@ -260,16 +256,15 @@ export default {
                 return;
             }
 
-            if (to.name === 'sw.settings.rule.detail.assignments' && from.name === 'sw.settings.rule.detail.base') {
-                this.checkUnsavedData({ to, from, next });
-            } else if (to.name === 'sw.settings.rule.detail.base' || to.name === 'sw.settings.rule.create.base') {
+            if ((to.name === 'sw.settings.rule.detail.assignments' && from.name === 'sw.settings.rule.detail.base') ||
+                (to.name === 'sw.settings.rule.detail.base' || to.name === 'sw.settings.rule.create.base')) {
                 this.conditionsTreeContainsUserChanges = false;
                 this.conditionTreeFinishedLoading = false;
                 next();
                 return;
             }
 
-            this.checkUnsavedData({ to, from, next });
+            this.checkUnsavedData({ to, next });
         },
 
         checkUnsavedData({ to, next }) {

@@ -309,9 +309,14 @@ class TestBootstrapper
     {
         foreach ($this->activePlugins as $pluginName) {
             $pathToComposerJson = $this->getProjectDir() . '/custom/plugins/' . $pluginName . '/composer.json';
+            $pathToComposerJsonStaticPlugins = $this->getProjectDir() . '/custom/static-plugins/' . $pluginName . '/composer.json';
+
+            if (!\is_file($pathToComposerJson) && !\is_file($pathToComposerJsonStaticPlugins)) {
+                throw new \RuntimeException(sprintf('Could not find plugin: %s in of these paths: %s or %s', $pluginName, $pathToComposerJson, $pathToComposerJsonStaticPlugins));
+            }
 
             if (!\is_file($pathToComposerJson)) {
-                throw new \RuntimeException(sprintf('Could not find plugin: %s at path: %s', $pluginName, $pathToComposerJson));
+                $pathToComposerJson = $pathToComposerJsonStaticPlugins;
             }
 
             $plugin = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);

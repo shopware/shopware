@@ -125,7 +125,7 @@ deploy to cloud staging:
         - CI_SKIP_INSTANCE_CREATING
     trigger:
       project: shopware/6/product/saas
-      branch: po-390/6-6-build # TODO: Switch to trunk, once v6.6.0.0 is stable
+      branch: trunk
       strategy: depend
 
 Publish SBP platform release:

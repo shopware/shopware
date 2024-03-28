@@ -10,6 +10,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -35,5 +36,21 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
         static::assertEquals('my-confirm-url', $flow->data()['confirmUrl']);
+    }
+
+    public function testCrud(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $customer = new CustomerEntity();
+        $customer->setId('test-id');
+
+        $event = new CustomerDoubleOptInRegistrationEvent($customer, $context, 'my-confirm-url');
+
+        static::assertSame('my-confirm-url', $event->getConfirmUrl());
+        static::assertSame($context, $event->getSalesChannelContext());
+        static::assertSame($customer, $event->getCustomer());
+        static::assertSame($context->getSalesChannelId(), $event->getSalesChannelId());
+        static::assertSame($context->getContext(), $event->getContext());
+        static::assertSame('test-id', $event->getCustomerId());
     }
 }

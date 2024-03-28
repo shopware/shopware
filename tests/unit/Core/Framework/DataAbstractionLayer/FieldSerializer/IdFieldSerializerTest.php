@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class IdFieldSerializerTest extends TestCase
 {
     #[DataProvider('valueProvider')]
-    public function testSerializer(Field $field, string|null $value, ?string $expected = null): void
+    public function testSerializer(Field $field, ?string $value, ?string $expected = null): void
     {
         $validator = $this->createMock(ValidatorInterface::class);
 

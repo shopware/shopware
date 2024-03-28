@@ -180,27 +180,38 @@ commercial tag:
     strategy: depend
     branch: $CI_COMMIT_TAG
 
-plugins:
+.extensions:
   extends: .downstream-job
   needs: []
   rules:
     - !reference [ .rules, skip ]
     - !reference [ .rules, scheduled ]
-  parallel:
-    matrix:
-      - PLUGIN_BRANCH: trunk
-        PLUGIN_PROJECT:
-        - shopware/6/services/swagdynamicaccess
-        - shopware/6/services/swagguidedshopping
-        - shopware/6/services/paypal
-      - PLUGIN_BRANCH: master
-        PLUGIN_PROJECT:
-        - shopware/6/services/migration-assistant
-        - shopware/6/enterprise/publisher
-        - shopware/6/services/customized-product
-        - shopware/6/services/cms-extensions
-        - shopware/6/services/swagsocialshopping
   trigger:
     project: $PLUGIN_PROJECT
     strategy: depend
     branch: $PLUGIN_BRANCH
+
+extensions-saas:
+  extends: .extensions
+  parallel:
+    matrix:
+      - PLUGIN_BRANCH: trunk
+        PLUGIN_PROJECT:
+          - shopware/6/services/swagdynamicaccess
+          - shopware/6/services/paypal
+          - shopware/6/services/migration-assistant
+      - PLUGIN_BRANCH: master
+        PLUGIN_PROJECT:
+          - shopware/6/enterprise/publisher
+          - shopware/6/services/customized-product
+          - shopware/6/services/cms-extensions
+          - shopware/6/services/swagsocialshopping
+
+extensions:
+  extends: .extensions
+  allow_failure: true
+  parallel:
+    matrix:
+      - PLUGIN_BRANCH: trunk
+        PLUGIN_PROJECT:
+          - shopware/6/services/swagdigitalsalesrooms

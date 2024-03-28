@@ -78,7 +78,7 @@
         <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
         <env name="APP_ENV" value="test"/>
         <env name="APP_DEBUG" value="1"/>
-        <env name="APP_SECRET" value="s$cretf0rt3st"/>
+        <env name="APP_SECRET" value="def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48"/>
         <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0"/>
         <env name="SHELL_VERBOSITY" value="-1"/>
         <server name="MAILER_URL" value="null://localhost"/>

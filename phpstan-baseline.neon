@@ -1071,66 +1071,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Processing/Reader/CsvReaderFactory.php
 
 		-
-			message: "#^Parameter \\#1 \\$filename of function fopen expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/AbstractFileWriter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\AbstractFileWriter\\:\\:\\$buffer \\(resource\\) does not accept resource\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/AbstractFileWriter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\AbstractFileWriter\\:\\:\\$tempFile \\(resource\\) does not accept resource\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/AbstractFileWriter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\AbstractFileWriter\\:\\:\\$tempPath \\(string\\) does not accept string\\|false\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/AbstractFileWriter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\AbstractWriter\\:\\:append\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/AbstractWriter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\CsvFileWriter\\:\\:append\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/CsvFileWriter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\CsvFileWriter\\:\\:writeToBuffer\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/CsvFileWriter.php
-
-		-
-			message: "#^Cannot call method getFileType\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/CsvFileWriterFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\XmlFileWriter\\:\\:addDataToNode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Writer\\\\XmlFileWriter\\:\\:append\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
-
-		-
-			message: "#^Parameter \\#1 \\$haystack of function mb_strstr expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriter.php
-
-		-
-			message: "#^Cannot call method getFileType\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Writer/XmlFileWriterFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\AbstractFileService\\:\\:updateFile\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Service/AbstractFileService.php
@@ -2131,36 +2071,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:mimeTypeProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:profileProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testExportProfileShouldThrowExceptionInImport\\(\\) has parameter \\$profile with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testExportProfileShouldThrowExceptionInImport\\(\\) has parameter \\$shouldThrowException with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testExportProfileShouldThrowExceptionInImport\\(\\) has parameter \\$task with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\ImportExportServiceTest\\:\\:testMimeTypeValidation\\(\\) has parameter \\$expectedMimeType with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/ImportExportServiceTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:mappingInputProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
@@ -2299,36 +2209,6 @@ parameters:
 			message: "#^Constant Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Cms\\\\Type\\\\ImageTypeDataResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
-			message: "#^Cannot call method getConfigurationId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 6
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderConfigIndexerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$message of method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\\:\\:handle\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderConfigIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:assertCorrectPathWithOneSubFolderForEachParent\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:assertCorrectPathWithOneSubFolderForEachParent\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:getMediaFolderEntityFromId\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
@@ -3245,10 +3125,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Api/Exception/ResourceNotFoundException.php
 
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\AccessToken\\:\\:\\$userIdentifier \\(string\\) does not accept int\\|string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/AccessToken.php
+
 
 		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"
@@ -7704,8 +7581,3 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"
 			count: 5
 			path: tests/unit/Storefront/Page/Checkout/Finish/CheckoutFinishPageLoaderTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Offcanvas\\\\\\\\OffcanvasCartPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Offcanvas\\\\OffcanvasCartPage will always evaluate to true\\.$#"
-			count: 4
-			path: tests/unit/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php

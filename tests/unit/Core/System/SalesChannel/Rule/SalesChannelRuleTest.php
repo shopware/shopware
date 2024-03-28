@@ -89,7 +89,7 @@ class SalesChannelRuleTest extends TestCase
 
     public function testProvidesConstraints(): void
     {
-        $salesChannelRule = new SalesChannelRule(RUle::OPERATOR_EQ, []);
+        $salesChannelRule = new SalesChannelRule(Rule::OPERATOR_EQ, []);
         $constraints = $salesChannelRule->getConstraints();
 
         static::assertArrayHasKey('salesChannelIds', $constraints);

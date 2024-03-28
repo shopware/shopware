@@ -434,7 +434,10 @@
                                     {% block element_image_gallery_inner_thumbnails_controls %}
                                         <div data-thumbnail-slider-controls="true" class="gallery-slider-thumbnails-controls">
                                             {% block element_image_gallery_inner_thumbnails_controls_prev %}
-                                                <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev">
+                                                <button
+                                                    class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev"
+                                                    aria-label="{{ 'general.previous'|trans|striptags }}"
+                                                >
                                                     {% if galleryPosition == "left" %}
                                                         {% block element_image_gallery_inner_thumbnails_controls_left_prev_icon %}
                                                             {% sw_icon 'arrow-head-up' %}
@@ -448,7 +451,10 @@
                                             {% endblock %}
 
                                             {% block element_image_gallery_inner_thumbnails_controls_next %}
-                                                <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next">
+                                                <button
+                                                    class="base-slider-controls-next gallery-slider-thumbnails-controls-next"
+                                                    aria-label="{{ 'general.next'|trans|striptags }}"
+                                                >
                                                     {% if galleryPosition == "left" %}
                                                         {% block element_image_gallery_inner_thumbnails_controls_left_next_icon %}
                                                             {% sw_icon 'arrow-head-down' %}

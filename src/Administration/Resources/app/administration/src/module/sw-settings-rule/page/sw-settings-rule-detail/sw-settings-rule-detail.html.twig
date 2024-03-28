@@ -21,6 +21,7 @@
         {% block sw_settings_rule_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
+            class="sw-settings-rule-detail__cancel-action"
             :disabled="isLoading"
             @click="onCancel"
         >

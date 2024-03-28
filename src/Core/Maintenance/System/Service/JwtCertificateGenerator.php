@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Exception\JwtCertificateGenerationException;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed without a replacement
+ */
 #[Package('core')]
 class JwtCertificateGenerator
 {
@@ -13,6 +17,8 @@ class JwtCertificateGenerator
      */
     public function generateString(?string $passphrase = null): array
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Using RSA JWT keys are deprecated and will be removed with Shopware 6.7.0.0. Consider enabling HMAC JWT keys using shopware.api.jwt_key.use_app_secret');
+
         $key = \openssl_pkey_new([
             'private_key_bits' => 2048,
             'digest_alg' => 'aes256',
@@ -39,6 +45,8 @@ class JwtCertificateGenerator
 
     public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Using RSA JWT keys are deprecated and will be removed with Shopware 6.7.0.0. Consider enabling HMAC JWT keys using shopware.api.jwt_key.use_app_secret');
+
         [$private, $public] = $this->generateString($passphrase);
 
         // Ensure that the directories we should generate the public / private key exist.

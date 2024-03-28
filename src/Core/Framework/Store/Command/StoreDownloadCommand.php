@@ -65,7 +65,7 @@ class StoreDownloadCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $pluginName = (string) $input->getOption('pluginName');
         $user = $input->getOption('user');
@@ -109,7 +109,7 @@ class StoreDownloadCommand extends Command
             return $context;
         }
 
-        return Context::createDefaultContext(new AdminApiSource($userEntity->getId()));
+        return Context::createCLIContext(new AdminApiSource($userEntity->getId()));
     }
 
     private function validatePluginIsNotManagedByComposer(string $pluginName, Context $context): void

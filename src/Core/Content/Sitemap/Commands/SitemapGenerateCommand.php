@@ -64,7 +64,7 @@ class SitemapGenerateCommand extends Command
     {
         $salesChannelId = $input->getOption('salesChannelId');
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $criteria = $this->createCriteria($salesChannelId);
 

@@ -50,6 +50,8 @@ return [
 
         'Shopware\\\\Storefront\\\\Theme\\\\ThemeScripts was marked "@internal"',
 
-        'An enum expression .* is not supported in .*' // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+        'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+
+        'League\\\\OAuth2\\\\Server\\\\Entities\\\\Traits\\\\AccessTokenTrait#initJwtConfiguration\(\) changed from no type to void'
     ],
 ];

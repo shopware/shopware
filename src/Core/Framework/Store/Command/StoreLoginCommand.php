@@ -53,7 +53,7 @@ class StoreLoginCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $host = $input->getOption('host');
         if (!empty($host)) {

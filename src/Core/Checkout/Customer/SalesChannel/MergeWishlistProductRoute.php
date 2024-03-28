@@ -133,10 +133,10 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     private function loadCustomerProducts(string $wishlistId, array $productIds): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(`product_id`)) as `product_id`',
             'LOWER(HEX(`id`)) as id',
-        ]);
+        );
         $query->from('`customer_wishlist_product`');
         $query->where('`customer_wishlist_id` = :id');
         $query->andWhere('`product_id` IN (:productIds)');

@@ -27,22 +27,29 @@ export default class ViewItemListEvent extends AnalyticsEvent
         }
 
         productBoxes.forEach(item => {
-            const id = DomAccessHelper.querySelector(item, 'input[name=product-id]').value;
-            const name = DomAccessHelper.querySelector(item, 'input[name=product-name]').value;
+            /** @deprecated tag:v6.7.0 - Data will be retrieved from the data attribute "data-product-information" instead of hidden inputs. */
+            if (window.Feature.isActive('v6.7.0.0')) {
+                if (item.dataset['productInformation']) {
+                    lineItems.push(JSON.parse(item.dataset['productInformation']));
+                }
+            } else {
+                const id = DomAccessHelper.querySelector(item, 'input[name=product-id]').value;
+                const name = DomAccessHelper.querySelector(item, 'input[name=product-name]').value;
 
-            if (!id || !name) {
-                return;
+                if (!id || !name) {
+                    return;
+                }
+
+                lineItems.push({id, name});
             }
-
-            lineItems.push({
-                id,
-                name,
-            });
         });
 
         return lineItems;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Unused function will be removed without replacement
+     */
     fetchProductId(inputs) {
         let productId = null;
 

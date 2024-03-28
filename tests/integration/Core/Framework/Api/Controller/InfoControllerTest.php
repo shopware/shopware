@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
@@ -49,7 +50,7 @@ class InfoControllerTest extends TestCase
     public function testGetConfig(): void
     {
         $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
@@ -64,6 +65,7 @@ class InfoControllerTest extends TestCase
                 'appsRequireAppUrl' => false,
                 'private_allowed_extensions' => $this->getContainer()->getParameter('shopware.filesystem.private_allowed_extensions'),
                 'enableHtmlSanitizer' => $this->getContainer()->getParameter('shopware.html_sanitizer.enabled'),
+                'enableStagingMode' => false,
             ],
         ];
 
@@ -177,7 +179,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersion(): void
     {
         $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
         ];
 
         $url = '/api/_info/version';
@@ -197,7 +199,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersionOldVersion(): void
     {
         $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
         ];
 
         $url = '/api/v1/_info/version';
@@ -323,6 +325,8 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.transports' => 'transports',
                 'shopware.filesystem.private_allowed_extensions' => ['png'],
                 'shopware.html_sanitizer.enabled' => true,
+                'shopware.media.enable_url_upload_feature' => true,
+                'shopware.staging.administration.show_banner' => true,
             ]),
             $kernelMock,
             $packagesMock,
@@ -332,8 +336,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get(AppUrlVerifier::class),
             $this->getContainer()->get('router'),
             $eventCollector,
-            true,
-            []
+            $this->getContainer()->get(SystemConfigService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -381,6 +384,8 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.transports' => 'transports',
                 'shopware.filesystem.private_allowed_extensions' => ['png'],
                 'shopware.html_sanitizer.enabled' => true,
+                'shopware.media.enable_url_upload_feature' => true,
+                'shopware.staging.administration.show_banner' => false,
             ]),
             $kernelMock,
             $packagesMock,
@@ -390,8 +395,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get(AppUrlVerifier::class),
             $this->getContainer()->get('router'),
             $eventCollector,
-            true,
-            []
+            $this->getContainer()->get(SystemConfigService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -450,6 +454,8 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.transports' => 'transports',
                 'shopware.filesystem.private_allowed_extensions' => ['png'],
                 'shopware.html_sanitizer.enabled' => true,
+                'shopware.media.enable_url_upload_feature' => true,
+                'shopware.staging.administration.show_banner' => false,
             ]),
             $kernelMock,
             $assets,
@@ -459,8 +465,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get(AppUrlVerifier::class),
             $this->getContainer()->get('router'),
             $eventCollector,
-            true,
-            []
+            $this->getContainer()->get(SystemConfigService::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

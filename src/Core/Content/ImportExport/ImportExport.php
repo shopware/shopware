@@ -309,7 +309,7 @@ class ImportExport
         $this->importExportService->saveProgress($progress);
 
         $tmpFile = tempnam(sys_get_temp_dir(), '');
-        $tmp = fopen($tmpFile ?: '', 'w+b');
+        $tmp = fopen($tmpFile ?: '', 'w+');
         \assert(\is_resource($tmp));
 
         $file = $logEntity->getFile();

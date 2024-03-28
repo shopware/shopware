@@ -44,6 +44,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createStockSection())
                 ->append($this->createUsageDataSection())
                 ->append($this->createFeatureToggleNode())
+                ->append($this->createStagingNode())
             ->end();
 
         return $treeBuilder;
@@ -127,6 +128,13 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->arrayNode('fastly')
+                    ->children()
+                        ->scalarNode('api_key')->end()
+                        ->scalarNode('soft_purge')->end()
+                        ->integerNode('max_parallel_invalidations')->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -168,9 +176,19 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
             ->arrayNode('jwt_key')
                 ->children()
-                    ->scalarNode('private_key_path')->end()
-                    ->scalarNode('private_key_passphrase')->defaultValue('shopware')->end()
-                    ->scalarNode('public_key_path')->end()
+                    ->booleanNode('use_app_secret')->defaultFalse()->end()
+                    ->scalarNode('private_key_path')
+                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_path is deprecated and will be removed with Shopware 6.7')
+                        ->defaultValue('file://%kernel.project_dir%/config/jwt/private.pem')
+                    ->end()
+                    ->scalarNode('private_key_passphrase')
+                        ->setDeprecated('shopware/core', '6.7.0.0', 'private_key_passphrase is deprecated and will be removed with Shopware 6.7')
+                        ->defaultValue('shopware')
+                    ->end()
+                    ->scalarNode('public_key_path')
+                        ->setDeprecated('shopware/core', '6.7.0.0', 'public_key_path is deprecated and will be removed with Shopware 6.7')
+                        ->defaultValue('file://%kernel.project_dir%/config/jwt/public.pem')
+                    ->end()
                 ->end()
             ->end()
             ->scalarNode('max_limit')->end()
@@ -748,6 +766,51 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->booleanNode('enable')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createStagingNode(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('staging');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('mailing')
+                    ->children()
+                        ->booleanNode('disable_delivery')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('storefront')
+                    ->children()
+                        ->booleanNode('show_banner')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('administration')
+                    ->children()
+                        ->booleanNode('show_banner')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('sales_channel')
+                    ->children()
+                        ->arrayNode('domain_rewrite')
+                            ->arrayPrototype()
+                                ->children()
+                                    ->scalarNode('match')->end()
+                                    ->scalarNode('type')->defaultValue('equal')->end()
+                                    ->scalarNode('replace')->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('elasticsearch')
+                    ->children()
+                        ->booleanNode('check_for_existence')->defaultTrue()->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

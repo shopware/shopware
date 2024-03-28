@@ -115,6 +115,10 @@ shopware:
     cdn:
         url: ''
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
+        fastly:
+            api_key: ''
+            soft_purge: false
+            max_parallel_invalidations: 2
 
     increment:
         user_activity:
@@ -143,9 +147,8 @@ shopware:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
             max_limit: 100
         jwt_key:
-            private_key_path: 'file://%kernel.project_dir%/config/jwt/private.pem'
-            private_key_passphrase: 'shopware'
-            public_key_path: 'file://%kernel.project_dir%/config/jwt/public.pem'
+            # tag:v6.7.0 - delete setting, as it should be always enabled
+            use_app_secret: false
         rate_limiter:
             login:
                 enabled: true
@@ -404,6 +407,8 @@ shopware:
             CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED: notice
             CHECKOUT__RECURRING_PROCESS_INTERRUPTED: notice
             CHECKOUT__REFUND_PROCESS_INTERRUPTED: notice
+            CHECKOUT__PAYMENT_TOKEN_EXPIRED: notice
+            CHECKOUT__PAYMENT_TOKEN_INVALIDATED: notice
             CHECKOUT__DUPLICATE_SHIPPING_METHOD_TECHNICAL_NAME: notice
             CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME: notice
             CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE: notice
@@ -465,6 +470,8 @@ shopware:
             FRAMEWORK__LANGUAGE_NOT_FOUND: notice
             FRAMEWORK__SYNC_ACTION_PROCESS_INTERRUPTED: notice
             FRAMEWORK__WRITE_TYPE_INTEND_ERROR: notice
+            FRAMEWORK__MISSING_REQUEST_PARAMETER: notice
+            FRAMEWORK__INVALID_REQUEST_PARAMETER: notice
             SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS: notice
             SYSTEM__LANGUAGE_INVALID_EXCEPTION: notice
             SYSTEM__COUNTRY_DOES_NOT_EXISTS_EXCEPTION: notice
@@ -473,6 +480,7 @@ shopware:
             SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION: notice
             SYSTEM__SNIPPET_INVALID_FILTER_NAME: notice
             SYSTEM__SNIPPET_INVALID_LIMIT_QUERY: notice
+            SYSTEM__STATE_MACHINE_INVALID_ENTITY_ID: notice
             SYSTEM__NO_CONTEXT_DATA_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_FOOTER_EXCEPTION: notice
             PRODUCT_EXPORT__RENDER_HEADER_EXCEPTION: notice
@@ -482,6 +490,7 @@ shopware:
             PRODUCT_CONFIGURATION_OPTION_EXISTS_ALREADY: notice
             FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
             CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
+            FRAMEWORK__API_INVALID_ASSOCIATION: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
@@ -530,3 +539,15 @@ shopware:
 
     feature_toggle:
         enable: true
+
+    staging:
+        mailing:
+            disable_delivery: true
+        storefront:
+            show_banner: true
+        administration:
+            show_banner: true
+        sales_channel:
+            domain_rewrite: []
+        elasticsearch:
+            check_for_existence: true

@@ -13,6 +13,8 @@ use Symfony\Component\Mime\Email;
 #[Package('system-settings')]
 class MailSender extends AbstractMailSender
 {
+    public const DISABLE_MAIL_DELIVERY = 'core.mailerSettings.disableDelivery';
+
     /**
      * @internal
      */
@@ -34,7 +36,7 @@ class MailSender extends AbstractMailSender
     {
         $failedRecipients = [];
 
-        $disabled = $this->configService->get('core.mailerSettings.disableDelivery');
+        $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
         if ($disabled) {
             return;
         }

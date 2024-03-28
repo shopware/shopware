@@ -237,7 +237,7 @@ class FileSaverTest extends TestCase
 
         $pathName = $png->getPath();
 
-        $resource = fopen($tempFile, 'rb');
+        $resource = fopen($tempFile, 'r');
         static::assertIsResource($resource);
         $this->getPublicFilesystem()->writeStream($pathName, $resource);
 

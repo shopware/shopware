@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\Service;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\RouterInterface;
 
 #[Package('inventory')]
 class CategoryBreadcrumbBuilder
@@ -24,8 +29,11 @@ class CategoryBreadcrumbBuilder
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $categoryRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $categoryRepository,
+        private readonly RouterInterface $router,
+        private readonly AbstractSeoResolver $seoResolver
+    ) {
     }
 
     /**
@@ -68,8 +76,14 @@ class CategoryBreadcrumbBuilder
         return $categoryBreadcrumb;
     }
 
-    public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context, ?Request $request = null): ?CategoryEntity
     {
+        $category = $this->getCategoryByReferer($request, $product, $context);
+
+        if ($category !== null) {
+            return $category;
+        }
+
         $category = $this->getMainCategory($product, $context);
 
         if ($category !== null) {
@@ -107,6 +121,76 @@ class CategoryBreadcrumbBuilder
         }
 
         return null;
+    }
+
+    private function getCategoryByReferer(?Request $request, ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    {
+        if ($request === null || $request->headers->has('referer') === false) {
+            return null;
+        }
+
+        $referer = $request->headers->get('referer');
+
+        if (!\is_string($referer)) {
+            return null;
+        }
+
+        $host = \parse_url($referer, \PHP_URL_HOST);
+
+        if (!\is_string($host) || $host !== $request->getHost()) {
+            return null;
+        }
+
+        $path = \parse_url($referer, \PHP_URL_PATH);
+
+        if (!\is_string($path)) {
+            return null;
+        }
+
+        return $this->getCategoryByPath($path, $product, $context);
+    }
+
+    private function getCategoryByPath(string $pathinfo, ProductEntity $product, SalesChannelContext $context, bool $resolve = true): ?CategoryEntity
+    {
+        try {
+            $match = $this->router->match($pathinfo);
+        } catch (ResourceNotFoundException $e) {
+            if ($resolve === false) {
+                return null;
+            }
+
+            $salesChannel = $context->getSalesChannel();
+            $resolved = $this->seoResolver->resolve($salesChannel->getLanguageId(), $salesChannel->getId(), $pathinfo);
+
+            if ($resolved['pathInfo'] === $pathinfo) {
+                return null;
+            }
+
+            return $this->getCategoryByPath($resolved['pathInfo'], $product, $context, false);
+        } catch (MethodNotAllowedException $e) {
+            return null;
+        }
+
+        if ($match['_route'] !== 'frontend.navigation.page') {
+            return null;
+        }
+
+        $categoryId = $match['navigationId'];
+
+        $criteria = new Criteria([$categoryId]);
+        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter($this->getSalesChannelFilter($context));
+
+        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
+
+        if ($categories->count() <= 0) {
+            return null;
+        }
+
+        /** @var CategoryEntity $entity */
+        $entity = $categories->first();
+
+        return $product->getCategoryIds() !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
     }
 
     private function getSalesChannelFilter(SalesChannelContext $context): MultiFilter

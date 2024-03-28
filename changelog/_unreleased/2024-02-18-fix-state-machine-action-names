@@ -1,0 +1,8 @@
+---
+title: Fix state machine action names for paid transitions
+author: Florian Ressel
+author_email: florian@genxtreme.de
+author_github: @resslinger
+---
+# Core
+* Fix state machine action names for paid transitions

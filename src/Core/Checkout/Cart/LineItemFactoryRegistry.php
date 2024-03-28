@@ -3,11 +3,14 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
+use Shopware\Core\Checkout\Cart\Extension\LineItemFactoryCreateExtension;
+use Shopware\Core\Checkout\Cart\Extension\LineItemFactoryUpdateExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -33,7 +36,8 @@ class LineItemFactoryRegistry
     public function __construct(
         private readonly iterable $handlers,
         private readonly DataValidator $validator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExtensionDispatcher $dispatcher
     ) {
         $this->validatorDefinition = $this->createValidatorDefinition();
     }
@@ -42,6 +46,14 @@ class LineItemFactoryRegistry
      * @param array<string|int, mixed> $data
      */
     public function create(array $data, SalesChannelContext $context): LineItem
+    {
+        return $this->dispatcher->publish(
+            extension: new LineItemFactoryCreateExtension($data, $context),
+            function: $this->_create(...)
+        );
+    }
+
+    private function _create(array $data, SalesChannelContext $context): LineItem
     {
         if (!isset($data['id'])) {
             $data['id'] = Uuid::randomHex();
@@ -68,10 +80,14 @@ class LineItemFactoryRegistry
             throw CartException::lineItemNotFound($identifier ?? '');
         }
 
-        $this->updateLineItem($cart, $data, $lineItem, $context);
+        $this->dispatcher->publish(
+            extension: new LineItemFactoryUpdateExtension($cart, $data, $lineItem, $context),
+            function: $this->updateLineItem(...)
+        );
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Becomes internal, use update() instead
      * @param array<string|int, mixed> $data
      */
     public function updateLineItem(Cart $cart, array $data, LineItem $lineItem, SalesChannelContext $context): void

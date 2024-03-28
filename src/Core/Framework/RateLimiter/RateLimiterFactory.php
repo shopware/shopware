@@ -72,9 +72,8 @@ class RateLimiterFactory
         // prevent symfony errors due to customized values
         /** @var RateLimiterConfig $rateLimiterConfig */
         $rateLimiterConfig = \array_filter($this->config, static fn ($key): bool => !\in_array($key, ['enabled', 'reset', 'cache_pool', 'lock_factory', 'limits'], true), \ARRAY_FILTER_USE_KEY);
-        $this->config = $rateLimiterConfig;
 
-        $sfFactory = new SymfonyRateLimiterFactory($this->config, $this->storage, $this->lockFactory);
+        $sfFactory = new SymfonyRateLimiterFactory($rateLimiterConfig, $this->storage, $this->lockFactory);
 
         return $sfFactory->create($key);
     }

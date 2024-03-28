@@ -4,7 +4,7 @@ $sw-country-list-color-error: $color-crimson-500;
 $sw-country-list-color-success: $color-emerald-500;
 
 .sw-settings-country-list {
-    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
         .is--inactive {
             color: $sw-country-list-color-error;
         }

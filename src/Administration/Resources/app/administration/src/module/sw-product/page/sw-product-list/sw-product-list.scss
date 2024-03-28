@@ -10,7 +10,7 @@ $sw-product-list-color-success: $color-emerald-500;
         position: absolute;
     }
 
-    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
+    .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
         .sw-data-grid__cell-content {
             .is--inactive {
                 width: 16px;

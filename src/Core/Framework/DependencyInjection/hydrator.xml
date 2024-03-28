@@ -9,6 +9,10 @@
             <argument type="service" id="service_container"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\MediaHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\ProductHydrator" public="true">
             <argument type="service" id="service_container"/>
         </service>

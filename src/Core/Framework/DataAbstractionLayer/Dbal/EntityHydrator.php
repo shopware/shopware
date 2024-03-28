@@ -314,9 +314,12 @@ class EntityHydrator
         $translatedFields = $this->getTranslatedFields($definition, $fields);
 
         foreach ($translatedFields as $field => $typed) {
-            $entity->addTranslated($field, $typed->getSerializer()->decode($typed, self::value($row, $root, $field)));
+            $fieldValue = self::value($row, $root, $field);
+            $translation = $fieldValue ? $typed->getSerializer()->decode($typed, $fieldValue) : null;
+            $entity->addTranslated($field, $translation);
 
-            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field));
+            $chainFieldValue = self::value($row, $chain[0], $field);
+            $entity->$field = $chainFieldValue ? ($fieldValue === $chainFieldValue ? $translation : $typed->getSerializer()->decode($typed, $chainFieldValue)) : null;
         }
     }
 

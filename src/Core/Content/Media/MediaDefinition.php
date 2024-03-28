@@ -80,6 +80,11 @@ class MediaDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return MediaHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         $fields = new FieldCollection([

@@ -119,8 +119,6 @@ class ProductController extends StorefrontController
     #[Route(path: '/product/{productId}/rating', name: 'frontend.detail.review.save', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->checkReviewsActive($context);
-
         try {
             $this->productReviewSaveRoute->save($productId, $data, $context);
         } catch (ConstraintViolationException $formViolations) {

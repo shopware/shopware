@@ -118,7 +118,6 @@
             {% endblock %}
 
             <sw-tabs-item
-                v-if="!storefrontEsEnable"
                 v-bind="$props"
                 class="sw-settings-search__searchable-content-tab-title"
                 :name="tabNames.customTab"
@@ -146,7 +145,7 @@
             {% endblock %}
 
             <sw-settings-search-searchable-content-customfields
-                v-if="active === tabNames.customTab && !storefrontEsEnable"
+                v-if="active === tabNames.customTab"
                 :is-empty="isListEmpty"
                 :is-loading="isLoading"
                 :columns="getProductSearchFieldColumns"

@@ -53,17 +53,21 @@ elasticsearch:
                 type: custom
                 filter: ['lowercase']
         analyzer:
+            sw_whitespace_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['lowercase']
             sw_ngram_analyzer:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_ngram_filter']
             sw_english_analyzer:
                 type: custom
-                tokenizer: standard
+                tokenizer: whitespace
                 filter: ['lowercase', 'sw_english_stop_filter']
             sw_german_analyzer:
                 type: custom
-                tokenizer: standard
+                tokenizer: whitespace
                 filter: ['lowercase', 'sw_german_stop_filter']
         filter:
             sw_ngram_filter:

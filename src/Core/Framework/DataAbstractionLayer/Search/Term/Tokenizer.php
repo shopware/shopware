@@ -14,13 +14,19 @@ class Tokenizer implements TokenizerInterface
     {
     }
 
-    public function tokenize(string $string): array
+    public function tokenize(string $string/* , array $preservedChars = ['.', '/', '\\'] */): array
     {
+        $preservedChars = ['.', '@', '+', '/', '\\'];
+
+        if (\func_num_args() > 1) {
+            $preservedChars = func_get_arg(1);
+        }
+
         $string = mb_strtolower(html_entity_decode($string), 'UTF-8');
-        $string = trim(str_replace(['.', '/', '\\'], ' ', $string));
+        $string = trim(str_replace($preservedChars, ' ', $string));
         $string = str_replace('<', ' <', $string);
         $string = strip_tags($string);
-        $string = trim((string) preg_replace("/[^\pL\-_0-9]/u", ' ', $string));
+        $string = trim((string) preg_replace("/[^\pL\-@+e._0-9]/u", ' ', $string));
 
         /** @var list<string> $tags */
         $tags = array_filter(explode(' ', $string));

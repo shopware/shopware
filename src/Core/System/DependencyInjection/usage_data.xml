@@ -8,6 +8,7 @@
         <!-- Api -->
         <service id="Shopware\Core\System\UsageData\Api\ConsentController" public="true">
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\BannerService"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -18,9 +19,12 @@
         <service id="Shopware\Core\System\UsageData\Consent\ConsentService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="system_config.repository"/>
-            <argument type="service" id="user_config.repository"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentReporter"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="clock"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Consent\BannerService">
+            <argument type="service" id="user_config.repository"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber">
@@ -34,6 +38,14 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="clock"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Subscriber\ShopIdChangedSubscriber">
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\BannerService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -55,6 +67,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\UsageData\EntitySync\EntityDispatcher"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -67,11 +80,11 @@
 
         <service id="Shopware\Core\System\UsageData\EntitySync\EntityDispatcher">
             <argument type="service" id="shopware.usage_data.gateway.client"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="clock"/>
             <argument>%kernel.environment%</argument>
+            <argument>%shopware.usage_data.gateway.dispatch_enabled%</argument>
         </service>
 
         <service id="Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder">
@@ -81,13 +94,14 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\System\UsageData\Services\EntityDispatchService">
+        <service id="Shopware\Core\System\UsageData\Services\EntityDispatchService" lazy="true">
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDefinitionService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="clock"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\GatewayStatusService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ManyToManyAssociationService">
@@ -105,12 +119,16 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="string">%env(APP_URL)%</argument>
+            <argument>%shopware.usage_data.gateway.dispatch_enabled%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\UsageDataAllowListService"/>
 
         <service id="Shopware\Core\System\UsageData\Services\ShopIdProvider">
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\GatewayStatusService">
@@ -120,6 +138,7 @@
         <service id="Shopware\Core\System\UsageData\Client\GatewayClient">
             <argument type="service" id="shopware.usage_data.gateway.client"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
+            <argument>%shopware.usage_data.gateway.dispatch_enabled%</argument>
         </service>
 
         <!-- Scheduled tasks -->
@@ -129,6 +148,7 @@
 
         <service id="Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
 
             <tag name="messenger.message_handler"/>

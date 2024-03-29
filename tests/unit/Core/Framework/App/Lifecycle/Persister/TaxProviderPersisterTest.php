@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -21,9 +22,8 @@ use Shopware\Core\System\TaxProvider\TaxProviderEntity;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister
  */
+#[CoversClass(TaxProviderPersister::class)]
 class TaxProviderPersisterTest extends TestCase
 {
     private const META_APP_NAME = 'testApp';
@@ -142,13 +142,7 @@ class TaxProviderPersisterTest extends TestCase
      */
     private function createManifest(array $providers = []): Manifest
     {
-        $ref = new \ReflectionClass(Manifest::class);
-        $manifestConstructor = $ref->getConstructor();
-        static::assertNotNull($manifestConstructor);
-
-        $manifestConstructor->setAccessible(true);
-
-        $manifest = $ref->newInstanceWithoutConstructor();
+        $manifest = $this->createMock(Manifest::class);
 
         $tax = Tax::fromArray([
             'taxProviders' => $providers,
@@ -175,23 +169,9 @@ class TaxProviderPersisterTest extends TestCase
 
         $metaData = Metadata::fromXml($domElement);
 
-        $manifestConstructor->invoke(
-            $manifest,
-            'foo',
-            $metaData,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            $tax,
-            null,
-        );
+        $manifest->method('getPath')->willReturn('foo');
+        $manifest->method('getMetaData')->willReturn($metaData);
+        $manifest->method('getTax')->willReturn($tax);
 
         return $manifest;
     }

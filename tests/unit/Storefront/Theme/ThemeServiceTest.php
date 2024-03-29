@@ -3,6 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
@@ -10,12 +14,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
+use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -35,9 +39,8 @@ use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeService
  */
+#[CoversClass(ThemeService::class)]
 class ThemeServiceTest extends TestCase
 {
     private Connection&MockObject $connectionMock;
@@ -300,11 +303,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -492,11 +491,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
         $this->themeService->resetTheme($themeId, $this->context);
     }
 
@@ -525,21 +520,16 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfiguration(array $ids, ThemeCollection $themeCollection, ?array $expected = null): void
     {
         $this->themeRepositoryMock->method('search')->willReturn(
@@ -573,12 +563,11 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationNoTranslation(
         array $ids,
         ThemeCollection $themeCollection,
@@ -620,13 +609,12 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationStructured(
         array $ids,
         ThemeCollection $themeCollection,
@@ -665,14 +653,13 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
      * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationStructuredNoTranslation(
         array $ids,
         ThemeCollection $themeCollection,
@@ -713,6 +700,44 @@ class ThemeServiceTest extends TestCase
         static::assertArrayHasKey('default', $config['tabs']);
         static::assertArrayHasKey('blocks', $config['tabs']['default']);
         static::assertEquals($expectedStructured, $config);
+    }
+
+    public function testAsyncCompilationIsSkippedWhenUsingStaticConfigLoader(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(sprintf('theme-config/%s.json', $themeId), (string) json_encode([
+            'styleFiles' => [],
+            'scriptFiles' => [],
+        ]));
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $themeService = new ThemeService(
+            $this->storefrontPluginRegistryMock,
+            $this->themeRepositoryMock,
+            $this->themeSalesChannelRepositoryMock,
+            $this->themeCompilerMock,
+            $this->eventDispatcherMock,
+            $configLoader,
+            $this->connectionMock,
+            $this->systemConfigMock,
+            $this->messageBusMock,
+            $this->createMock(NotificationService::class)
+        );
+
+        $this->systemConfigMock->expects(static::never())->method('get');
+        $this->messageBusMock->expects(static::never())->method('dispatch');
+
+        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
     /**
@@ -1142,6 +1167,7 @@ class ThemeServiceTest extends TestCase
                     [
                         (new ThemeEntity())->assign(
                             [
+                                'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
                                 'configValues' => [
@@ -1151,8 +1177,9 @@ class ThemeServiceTest extends TestCase
                         ),
                         (new ThemeEntity())->assign(
                             [
+                                'id' => $baseThemeId,
                                 'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => Uuid::randomHex(),
+                                '_uniqueIdentifier' => $baseThemeId,
                             ]
                         ),
                     ]
@@ -1180,6 +1207,7 @@ class ThemeServiceTest extends TestCase
                     [
                         (new ThemeEntity())->assign(
                             [
+                                'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
                                 'configValues' => [],
@@ -1187,8 +1215,9 @@ class ThemeServiceTest extends TestCase
                         ),
                         (new ThemeEntity())->assign(
                             [
+                                'id' => $baseThemeId,
                                 'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => Uuid::randomHex(),
+                                '_uniqueIdentifier' => $baseThemeId,
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
                                 ],
@@ -1219,6 +1248,7 @@ class ThemeServiceTest extends TestCase
                     [
                         (new ThemeEntity())->assign(
                             [
+                                'id' => $themeId,
                                 '_uniqueIdentifier' => $themeId,
                                 'salesChannels' => new SalesChannelCollection(),
                                 'baseConfig' => [
@@ -1234,8 +1264,9 @@ class ThemeServiceTest extends TestCase
                         ),
                         (new ThemeEntity())->assign(
                             [
+                                'id' => $baseThemeId,
                                 'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                                '_uniqueIdentifier' => Uuid::randomHex(),
+                                '_uniqueIdentifier' => $baseThemeId,
                                 'configValues' => [
                                     'test' => ['value' => ['no_test']],
                                 ],
@@ -1257,6 +1288,189 @@ class ThemeServiceTest extends TestCase
                 ],
                 'expectedStructuredNotTranslated' => [
                     'tabs' => ThemeFixtures::getExtractedTabs9(),
+                ],
+            ],
+            [
+                'ids' => [
+                    'themeId' => $themeId,
+                    'parentThemeId' => $parentThemeId,
+                    'baseThemeId' => $baseThemeId,
+                ],
+                'themeCollection' => new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $themeId,
+                                'technicalName' => 'Theme',
+                                '_uniqueIdentifier' => $themeId,
+                                'baseConfig' => [
+                                    'fields' => [
+                                        'sw-color-brand-primary' => [
+                                            'value' => '#adbd00',
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $baseThemeId,
+                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                                '_uniqueIdentifier' => $baseThemeId,
+                                'baseConfig' => ThemeFixtures::getThemeJsonConfig(),
+                                'labels' => [
+                                    'blocks.media' => 'Media',
+                                    'blocks.eCommerce' => 'E-Commerce',
+                                    'blocks.unordered' => 'Misc',
+                                    'blocks.typography' => 'Typography',
+                                    'blocks.themeColors' => 'Theme colours',
+                                    'blocks.statusColors' => 'Status messages',
+                                    'fields.sw-color-info' => 'Information',
+                                    'fields.sw-logo-share' => 'App & share icon',
+                                    'fields.sw-text-color' => 'Text colour',
+                                    'fields.sw-color-price' => 'Price',
+                                    'fields.sw-logo-mobile' => 'Mobile',
+                                    'fields.sw-logo-tablet' => 'Tablet',
+                                    'fields.sw-border-color' => 'Border',
+                                    'fields.sw-color-danger' => 'Error',
+                                    'fields.sw-logo-desktop' => 'Desktop',
+                                    'fields.sw-logo-favicon' => 'Favicon',
+                                    'fields.sw-color-success' => 'Success',
+                                    'fields.sw-color-warning' => 'Notice',
+                                    'fields.sw-headline-color' => 'Headline colour',
+                                    'fields.sw-background-color' => 'Background',
+                                    'fields.sw-color-buy-button' => 'Buy button',
+                                    'fields.sw-font-family-base' => 'Fonttype text',
+                                    'fields.sw-color-brand-primary' => 'Primary colour',
+                                    'fields.sw-font-family-headline' => 'Fonttype headline',
+                                    'fields.sw-color-brand-secondary' => 'Secondary colour',
+                                    'fields.sw-color-buy-button-text' => 'Buy button text',
+                                ],
+                                'helpTexts' => [
+                                    'fields.sw-logo-mobile' => 'Displayed up to a viewport of 767px',
+                                    'fields.sw-logo-tablet' => 'Displayed between a viewport of 767px to 991px',
+                                    'fields.sw-logo-desktop' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                ],
+                            ]
+                        ),
+                    ]
+                ),
+                'expected' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields10(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields6(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields6(),
+                ],
+                'expectedNotTranslated' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields9(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields6(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields6(),
+                ],
+                'expectedStructured' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs12(),
+                ],
+                'expectedStructuredNotTranslated' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs13(),
+                ],
+            ],
+            [
+                'ids' => [
+                    'themeId' => $themeId,
+                    'parentThemeId' => $parentThemeId,
+                    'baseThemeId' => $baseThemeId,
+                ],
+                'themeCollection' => new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $themeId,
+                                '_uniqueIdentifier' => $themeId,
+                                'salesChannels' => new SalesChannelCollection(),
+                                'parentThemeId' => $parentThemeId,
+                                'baseConfig' => [
+                                    'fields' => [
+                                        'sw-color-brand-secondary' => [
+                                            'value' => '#46801a',
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $parentThemeId,
+                                'technicalName' => 'Theme',
+                                '_uniqueIdentifier' => $parentThemeId,
+                                'baseConfig' => [
+                                    'fields' => [
+                                        'sw-color-brand-primary' => [
+                                            'value' => '#adbd00',
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $baseThemeId,
+                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                                '_uniqueIdentifier' => $baseThemeId,
+                                'baseConfig' => ThemeFixtures::getThemeJsonConfig(),
+                                'labels' => [
+                                    'blocks.media' => 'Media',
+                                    'blocks.eCommerce' => 'E-Commerce',
+                                    'blocks.unordered' => 'Misc',
+                                    'blocks.typography' => 'Typography',
+                                    'blocks.themeColors' => 'Theme colours',
+                                    'blocks.statusColors' => 'Status messages',
+                                    'fields.sw-color-info' => 'Information',
+                                    'fields.sw-logo-share' => 'App & share icon',
+                                    'fields.sw-text-color' => 'Text colour',
+                                    'fields.sw-color-price' => 'Price',
+                                    'fields.sw-logo-mobile' => 'Mobile',
+                                    'fields.sw-logo-tablet' => 'Tablet',
+                                    'fields.sw-border-color' => 'Border',
+                                    'fields.sw-color-danger' => 'Error',
+                                    'fields.sw-logo-desktop' => 'Desktop',
+                                    'fields.sw-logo-favicon' => 'Favicon',
+                                    'fields.sw-color-success' => 'Success',
+                                    'fields.sw-color-warning' => 'Notice',
+                                    'fields.sw-headline-color' => 'Headline colour',
+                                    'fields.sw-background-color' => 'Background',
+                                    'fields.sw-color-buy-button' => 'Buy button',
+                                    'fields.sw-font-family-base' => 'Fonttype text',
+                                    'fields.sw-color-brand-primary' => 'Primary colour',
+                                    'fields.sw-font-family-headline' => 'Fonttype headline',
+                                    'fields.sw-color-brand-secondary' => 'Secondary colour',
+                                    'fields.sw-color-buy-button-text' => 'Buy button text',
+                                ],
+                                'helpTexts' => [
+                                    'fields.sw-logo-mobile' => 'Displayed up to a viewport of 767px',
+                                    'fields.sw-logo-tablet' => 'Displayed between a viewport of 767px to 991px',
+                                    'fields.sw-logo-desktop' => 'Displayed on viewport sizes above 991px and as a fallback on smaller viewports, if no other logo is set.',
+                                ],
+                            ]
+                        ),
+                    ]
+                ),
+                'expected' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields12(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields7(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields7(),
+                ],
+                'expectedNotTranslated' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields11(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields7(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields7(),
+                ],
+                'expectedStructured' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs12(),
+                ],
+                'expectedStructuredNotTranslated' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs13(),
                 ],
             ],
         ];

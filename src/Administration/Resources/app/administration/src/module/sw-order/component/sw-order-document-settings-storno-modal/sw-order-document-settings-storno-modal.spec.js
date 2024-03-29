@@ -1,18 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderDocumentSettingsStornoModal from 'src/module/sw-order/component/sw-order-document-settings-storno-modal';
-import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-group';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field';
+import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
-Shopware.Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsStornoModal);
 
 const orderFixture = {
     id: 'order1',
@@ -67,7 +57,7 @@ const orderFixture = {
         },
     ],
     currency: {
-        shortName: 'EUR',
+        isoCode: 'EUR',
     },
     taxStatus: 'gross',
     orderNumber: '10000',
@@ -77,41 +67,43 @@ const orderFixture = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-document-settings-storno-modal'), {
-        stubs: {
-            'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+    return mount(await wrapTestComponent('sw-order-document-settings-storno-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', { sync: true }),
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-datepicker': true,
+                'sw-checkbox-field': true,
+                'sw-switch-field': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
+                'sw-context-menu-item': true,
+                'sw-upload-listener': true,
+                'sw-textarea-field': true,
+                'sw-icon': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-field-error': true,
+                'sw-loader': true,
             },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
+            provide: {
+                numberRangeService: {
+                    reserve: () => Promise.resolve({}),
+                },
+                mediaService: {},
             },
-            'sw-text-field': true,
-            'sw-datepicker': true,
-            'sw-checkbox-field': true,
-            'sw-switch-field': true,
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-group': await Shopware.Component.build('sw-button-group'),
-            'sw-context-menu-item': true,
-            'sw-upload-listener': true,
-            'sw-textarea-field': true,
-            'sw-icon': true,
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-loader': true,
         },
-        provide: {
-            numberRangeService: {
-                reserve: () => Promise.resolve({}),
-            },
-            mediaService: {},
-        },
-        propsData: {
+        props: {
             order: orderFixture,
             isLoading: false,
             currentDocumentType: {},
@@ -144,10 +136,10 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
         const wrapper = await createWrapper();
 
         const createButton = wrapper.find('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes().disabled).toBe('disabled');
+        expect(createButton.attributes().disabled).toBeDefined();
 
         const createContextMenu = wrapper.find('.sw-context-button');
-        expect(createContextMenu.attributes().disabled).toBe('disabled');
+        expect(createContextMenu.attributes().disabled).toBeDefined();
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {

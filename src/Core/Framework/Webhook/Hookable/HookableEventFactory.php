@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ * @internal
  */
 #[Package('core')]
 class HookableEventFactory

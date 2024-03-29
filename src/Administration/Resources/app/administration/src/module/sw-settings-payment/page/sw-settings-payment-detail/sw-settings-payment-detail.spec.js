@@ -1,79 +1,98 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsPaymentDetail from 'src/module/sw-settings-payment/page/sw-settings-payment-detail';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
-Shopware.Component.register('sw-settings-payment-detail', swSettingsPaymentDetail);
 
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-settings-payment-detail'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-                params: {
-                    id: '12312',
+    return mount(await wrapTestComponent('sw-settings-payment-detail', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
+                    params: {
+                        id: '12312',
+                    },
                 },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                id: '1a2b3c',
+                                name: 'Test settings-payment',
+                                entity: 'settings-payment',
+                                pluginId: '12321-a',
+                            };
+                        },
+                        get: () => Promise.resolve({
                             id: '1a2b3c',
                             name: 'Test settings-payment',
                             entity: 'settings-payment',
                             pluginId: '12321-a',
-                        };
-                    },
-                    get: () => Promise.resolve({
-                        id: '1a2b3c',
-                        name: 'Test settings-payment',
-                        entity: 'settings-payment',
-                        pluginId: '12321-a',
+                        }),
+                        search: () => Promise.resolve({
+                            first: () => Promise.resolve({
+                                id: '1a2b3c',
+                                name: 'Test settings-payment',
+                                entity: 'settings-payment',
+                                pluginId: '12321-a',
+                                getEntityName: () => 'payment-method',
+                            }),
+                        }),
                     }),
-                    search: () => Promise.resolve({}),
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
+                feature: {
+                    isActive: () => true,
                 },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div class="sw-page">
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content"></slot>
+                        </div>
+                    `,
+                },
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-language-switch': true,
+                'sw-card-view': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-alert': true,
+                'sw-switch-field': true,
+                'sw-number-field': true,
+                'sw-text-field': true,
+                'sw-language-info': true,
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
+                'sw-plugin-box': true,
+                'sw-textarea-field': true,
+                'sw-select-rule-create': true,
+                'sw-sidebar': true,
+                'sw-sidebar-media-item': true,
+                'sw-skeleton': true,
+                'sw-context-menu-item': true,
             },
-            feature: {
-                isActive: () => true,
-            },
-        },
-        stubs: {
-            'sw-page': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-language-switch': true,
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-switch-field': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
-            'sw-language-info': true,
-            'sw-upload-listener': true,
-            'sw-media-upload-v2': true,
-            'sw-plugin-box': true,
-            'sw-textarea-field': true,
-            'sw-select-rule-create': true,
-            'sw-sidebar': true,
-            'sw-sidebar-media-item': true,
-            'sw-skeleton': true,
-            'sw-context-menu-item': true,
         },
     });
 }
@@ -102,7 +121,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
             paymentMethod: mockPaymentMethod,
             isLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-payment-detail__save-action');
         expect(saveButton.attributes().disabled).toBeTruthy();
@@ -116,7 +135,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
             paymentMethod: mockPaymentMethod,
             isLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-payment-detail__save-action');
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -128,7 +147,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
             paymentMethod: mockPaymentMethod,
             isLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
         const positionField = wrapper.find('.sw-settings-payment-detail__field-position');
@@ -157,7 +176,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
             paymentMethod: mockPaymentMethod,
             isLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
         const positionField = wrapper.find('.sw-settings-payment-detail__field-position');

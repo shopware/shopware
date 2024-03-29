@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -25,23 +26,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(EntityDeleteSubscriber::class)]
 class EntityDeleteSubscriberTest extends TestCase
 {
     private UsageDataAllowListService $usageDataAllowListServiceMock;
@@ -125,8 +125,7 @@ class EntityDeleteSubscriberTest extends TestCase
                     ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
                 ]),
                 $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ConsentReporter::class),
+                new CollectingEventDispatcher(),
                 new MockClock(),
             ),
         );
@@ -210,8 +209,7 @@ class EntityDeleteSubscriberTest extends TestCase
                     ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
                 ]),
                 $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ConsentReporter::class),
+                new CollectingEventDispatcher(),
                 new MockClock(),
             ),
         );
@@ -283,8 +281,7 @@ class EntityDeleteSubscriberTest extends TestCase
                     ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
                 ]),
                 $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ConsentReporter::class),
+                new CollectingEventDispatcher(),
                 new MockClock(),
             ),
         );
@@ -342,8 +339,7 @@ class EntityDeleteSubscriberTest extends TestCase
                     ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
                 ]),
                 $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ConsentReporter::class),
+                new CollectingEventDispatcher(),
                 new MockClock(),
             ),
         );
@@ -383,8 +379,7 @@ class EntityDeleteSubscriberTest extends TestCase
                     ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
                 ]),
                 $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
-                $this->createMock(ConsentReporter::class),
+                new CollectingEventDispatcher(),
                 new MockClock(),
             ),
         );
@@ -412,8 +407,7 @@ class EntityDeleteSubscriberTest extends TestCase
                 ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REQUESTED->value,
             ]),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ConsentReporter::class),
+            new CollectingEventDispatcher(),
             new MockClock(),
         );
 

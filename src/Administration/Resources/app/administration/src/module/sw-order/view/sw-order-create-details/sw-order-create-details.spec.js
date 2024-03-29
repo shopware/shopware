@@ -1,43 +1,35 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import swOrderCreateDetails from 'src/module/sw-order/view/sw-order-create-details';
-import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
-Shopware.Component.register('sw-order-create-details', swOrderCreateDetails);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('tooltip', {});
-    localVue.filter('currency', v => v);
-    return shallowMount(await Shopware.Component.build('sw-order-create-details'), {
-        localVue,
-        stubs: {
-            'sw-card-view': true,
-            'sw-card': {
-                template: `
-                    <div class="sw-card__content">
-                        <slot name="grid"></slot>
-                    </div>
-                `,
+    return mount(await wrapTestComponent('sw-order-create-details', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card-view': true,
+                'sw-card': {
+                    template: `
+                        <div class="sw-card__content">
+                            <slot name="grid"></slot>
+                        </div>
+                    `,
+                },
             },
-        },
-        provide: {
-            cartStoreService: {},
-            repositoryFactory: {
-                create: () => ({
-                    get: () => Promise.resolve(),
-                }),
+            provide: {
+                cartStoreService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        get: () => Promise.resolve(),
+                    }),
+                },
             },
         },
     });
 }
-
 
 describe('src/module/sw-order/view/sw-order-create-details', () => {
     beforeAll(() => {

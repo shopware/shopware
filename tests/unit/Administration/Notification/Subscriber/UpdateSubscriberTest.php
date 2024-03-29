@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Administration\Notification\Subscriber;
 
-use PHPUnit\Framework\Constraint\TraversableContainsIdentical;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
 use Shopware\Administration\Notification\Subscriber\UpdateSubscriber;
@@ -12,9 +12,8 @@ use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Notification\Subscriber\UpdateSubscriber
  */
+#[CoversClass(UpdateSubscriber::class)]
 class UpdateSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
@@ -29,68 +28,39 @@ class UpdateSubscriberTest extends TestCase
         );
     }
 
-    public function testUpdateSucessfull(): void
+    public function testUpdateSuccessful(): void
     {
         $context = Context::createDefaultContext();
         $version = '6.0.1_test';
 
         $notificationServiceMock = $this->createMock(NotificationService::class);
-        $notificationServiceMock->expects(static::once())->method('createNotification')->with(
-            new TraversableContainsIdentical('Updated successfully to version ' . $version)
-        );
+        $notificationServiceMock
+            ->expects(static::once())
+            ->method('createNotification')
+            ->willReturnCallback(function ($data): void {
+                static::assertEquals('something to inform' . \PHP_EOL, $data['message']);
+            });
 
-        $eventMock = $this->createMock(UpdatePostFinishEvent::class);
-        $eventMock->expects(static::any())->method('getContext')->willReturn($context);
-        $eventMock->expects(static::any())->method('getNewVersion')->willReturn($version);
+        $event = new UpdatePostFinishEvent($context, $version, $version);
+        $event->appendPostUpdateMessage('something to inform');
 
         $updateSubscriber = new UpdateSubscriber($notificationServiceMock);
 
-        $updateSubscriber->updateFinishedDone($eventMock);
+        $updateSubscriber->updateFinishedDone($event);
     }
 
-    public function testUpdateSucessfullAdminScope(): void
+    public function testUpdateWithoutMessageGetsSkipped(): void
     {
         $context = Context::createDefaultContext(new AdminApiSource('userId123', 'integrationId321'));
         $version = '6.0.1_test';
 
         $notificationServiceMock = $this->createMock(NotificationService::class);
-        $notificationServiceMock->expects(static::once())->method('createNotification')->willReturnCallback(
-            function ($data): void {
-                static::assertContains('success', $data);
-                static::assertContains('userId123', $data);
-                static::assertContains('integrationId321', $data);
-            }
-        );
+        $notificationServiceMock->expects(static::never())->method('createNotification');
 
-        $eventMock = $this->createMock(UpdatePostFinishEvent::class);
-        $eventMock->expects(static::any())->method('getContext')->willReturn($context);
-        $eventMock->expects(static::any())->method('getNewVersion')->willReturn($version);
+        $event = new UpdatePostFinishEvent($context, $version, $version);
 
         $updateSubscriber = new UpdateSubscriber($notificationServiceMock);
 
-        $updateSubscriber->updateFinishedDone($eventMock);
-    }
-
-    public function testUpdateWarning(): void
-    {
-        $context = Context::createDefaultContext();
-        $version = '6.0.1_test';
-
-        $notificationServiceMock = $this->createMock(NotificationService::class);
-        $notificationServiceMock->expects(static::once())->method('createNotification')->willReturnCallback(
-            function ($data) use ($version): void {
-                static::assertContains('Updated successfully to version ' . $version . \PHP_EOL . 'something to inform', $data);
-                static::assertContains('warning', $data);
-            }
-        );
-
-        $eventMock = $this->createMock(UpdatePostFinishEvent::class);
-        $eventMock->expects(static::any())->method('getContext')->willReturn($context);
-        $eventMock->expects(static::any())->method('getNewVersion')->willReturn($version);
-        $eventMock->expects(static::any())->method('getPostUpdateMessage')->willReturn('something to inform');
-
-        $updateSubscriber = new UpdateSubscriber($notificationServiceMock);
-
-        $updateSubscriber->updateFinishedDone($eventMock);
+        $updateSubscriber->updateFinishedDone($event);
     }
 }

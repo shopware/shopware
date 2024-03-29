@@ -62,11 +62,7 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading"
                 variant="primary"
-                {% if VUE3 %}
                 @update:process-success="saveFinish"
-                {% else %}
-                @process-finish="saveFinish"
-                {% endif %}
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-customer.detail.buttonSave') }}
@@ -180,7 +176,6 @@
                 <sw-skeleton />
             </template>
 
-            {% if VUE3 %}
             <router-view
                 v-if="customer"
                 v-slot="{ Component }"
@@ -193,14 +188,6 @@
                     :customer-edit-mode="editMode"
                 />
             </router-view>
-            {% else %}
-            <router-view
-                v-if="customer"
-                v-show="!isLoading"
-                :customer="customer"
-                :customer-edit-mode="editMode"
-            />
-            {% endif %}
             {% endblock %}
         </sw-card-view>
     </template>

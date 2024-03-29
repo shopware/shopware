@@ -7,18 +7,14 @@ https://getbootstrap.com/docs/5.2/components/breadcrumb
 */
 
 .breadcrumb {
+    .breadcrumb-placeholder {
+        margin: 0 $spacer-sm;
+    }
+
     svg {
         height: $font-size-base;
         width: auto;
         top: 3px;
-    }
-
-    .breadcrumb-container {
-        display: flex;
-    }
-
-    .breadcrumb-placeholder {
-        margin: 0 $spacer-sm;
     }
 
     a {

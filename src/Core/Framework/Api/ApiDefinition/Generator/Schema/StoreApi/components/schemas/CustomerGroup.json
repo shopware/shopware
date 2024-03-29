@@ -1,0 +1,31 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CustomerGroup": {
+                "required": ["translated"],
+                "properties": {
+                    "translated": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "registrationIntroduction": {
+                                "type": "string"
+                            },
+                            "registrationSeoMetaDescription": {
+                                "type": "string"
+                            },
+                            "registrationTitle": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

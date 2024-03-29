@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\User\Recovery;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -86,9 +87,7 @@ class UserRecoveryServiceTest extends TestCase
         static::assertNull($userRecovery);
     }
 
-    /**
-     * @dataProvider dataProviderTestCheckHash
-     */
+    #[DataProvider('dataProviderTestCheckHash')]
     public function testCheckHash(\DateInterval $timeInterval, string $hash, bool $expectedResult): void
     {
         $user = $this->userRepo->search(new Criteria(), $this->context)->first();

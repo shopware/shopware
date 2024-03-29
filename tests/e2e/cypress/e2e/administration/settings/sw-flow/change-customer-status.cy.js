@@ -6,7 +6,7 @@ describe('Flow builder: change customer status testing', () => {
         cy.createCustomerFixture();
     });
 
-    it('@settings: change customer status flow', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: change customer status flow', { tags: ['pa-services-settings'] }, () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');

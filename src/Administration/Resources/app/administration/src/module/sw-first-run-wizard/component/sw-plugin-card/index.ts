@@ -20,9 +20,8 @@ type RecommendedPlugin = {
 
 /**
  * @package services-settings
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -70,9 +69,6 @@ export default Shopware.Component.wrapComponentConfig({
             void this.setupPlugin();
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - Will emit hypernated event only.
-         */
         async setupPlugin(): Promise<void> {
             this.pluginIsLoading = true;
             this.pluginIsSaveSuccessful = false;
@@ -82,8 +78,6 @@ export default Shopware.Component.wrapComponentConfig({
                 this.pluginIsSaveSuccessful = true;
                 this.$emit('extension-activated');
             } catch (error: unknown) {
-                // ts can not recognize functions from mixins
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.showExtensionErrors(error);
             } finally {
@@ -99,7 +93,6 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.shopwareExtensionService.updateExtensionData();
 
                 this.$emit('on-plugin-installed', this.plugin.name);
-                this.$emit('onPluginInstalled', this.plugin.name);
             }
         },
     },

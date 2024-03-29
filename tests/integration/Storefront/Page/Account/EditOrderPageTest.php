@@ -105,9 +105,6 @@ class EditOrderPageTest extends TestCase
         $orderId = $this->placeRandomOrder($context);
         $this->setOrderToTransactionState($orderId, $context, StateMachineTransitionActions::ACTION_PAID);
 
-        $event = null;
-        $this->catchEvent(AccountEditOrderPageLoader::class, $event);
-
         $this->expectException(OrderException::class);
 
         $request->request->set('orderId', $orderId);

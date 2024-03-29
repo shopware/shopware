@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
@@ -50,9 +51,7 @@ class MappingServiceTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider templateProfileProvider
-     */
+    #[DataProvider('templateProfileProvider')]
     public function testCreateTemplateFromProfileMapping($profile): void
     {
         if ($profile === null) {
@@ -89,9 +88,7 @@ class MappingServiceTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider mappingInputProvider
-     */
+    #[DataProvider('mappingInputProvider')]
     public function testGetMappingFromTemplate($data): void
     {
         // prepare profile for lookup
@@ -117,7 +114,7 @@ class MappingServiceTest extends TestCase
         // prepare csv file for guessing
         $filePath = tempnam(sys_get_temp_dir(), '');
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
-            $file = fopen($filePath, 'wb');
+            $file = fopen($filePath, 'w');
             static::assertIsResource($file);
             fwrite($file, (string) $data['csvHeader']);
             fclose($file);
@@ -165,7 +162,7 @@ class MappingServiceTest extends TestCase
 
         // creating a file
         /** @var resource $file */
-        $file = fopen($filePath, 'wb');
+        $file = fopen($filePath, 'w');
         fwrite($file, $csvHeaders);
         fclose($file);
 

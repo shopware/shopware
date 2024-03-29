@@ -1,5 +1,6 @@
 import type Bottle from 'bottlejs';
-import Vue from 'vue';
+import type { App } from 'vue';
+import { reactive } from 'vue';
 import type { ContextState } from '../app/state/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
@@ -25,7 +26,7 @@ interface bundlesPluginResponse {
 }
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  *
  * The application bootstrapper bootstraps the application and registers the necessary
  * and optional parts of the application in a shared DI container which provides you
@@ -323,7 +324,7 @@ class ApplicationBootstrapper {
     /**
      * Returns the root of the application e.g. a new Vue instance
      */
-    getApplicationRoot(): Vue | false {
+    getApplicationRoot(): App<Element> | false {
         if (!this.view?.root) {
             return false;
         }
@@ -440,8 +441,14 @@ class ApplicationBootstrapper {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (firstRunWizard && !router?.history?.current?.name?.startsWith('sw.first.run.wizard.')) {
+
+        const loginService = this.getContainer('service').loginService;
+        if (
+            firstRunWizard &&
+            loginService.isLoggedIn() &&
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            !router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')
+        ) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             router.push({
                 name: 'sw.first.run.wizard.index',
@@ -577,9 +584,13 @@ class ApplicationBootstrapper {
             await this.injectPlugin(plugins['swag-commercial']);
         }
 
+        if (plugins.SwagCommercial) {
+            await this.injectPlugin(plugins.SwagCommercial);
+        }
+
         const injectAllPlugins = Object.entries(plugins).filter(([pluginName]) => {
             // Filter the swag-commercial plugin because it was loaded beforehand
-            return pluginName !== 'swag-commercial';
+            return !['swag-commercial', 'SwagCommercial'].includes(pluginName);
         }).map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
@@ -743,17 +754,26 @@ class ApplicationBootstrapper {
             permissions = bundles[bundleName].permissions;
         }
 
-        const extension = {
+        const extension: {
+            active?: boolean,
+            integrationId?: string,
+            name: string,
+            baseUrl: string,
+            version?: string,
+            type?: 'app'|'plugin',
+            permissions?: Record<string, unknown>,
+        } = {
             active,
             integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
             type: bundleType,
+            permissions: undefined,
         };
 
         // To keep permissions reactive no matter if empty or not
-        Vue.set(extension, 'permissions', permissions ?? Vue.observable({}));
+        extension.permissions = permissions ?? reactive({});
 
         Shopware.State.commit('extensions/addExtension', extension);
     }

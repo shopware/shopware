@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
@@ -13,9 +14,8 @@ use Symfony\Component\Mime\Email;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\Mail
  */
+#[CoversClass(Mail::class)]
 class MailTest extends TestCase
 {
     public function testMailInstance(): void

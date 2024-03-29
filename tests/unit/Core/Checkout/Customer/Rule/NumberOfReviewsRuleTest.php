@@ -2,26 +2,27 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\NumberOfReviewsRule;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\NumberOfReviewsRule
  */
+#[Package('services-settings')]
+#[CoversClass(NumberOfReviewsRule::class)]
+#[Group('rules')]
 class NumberOfReviewsRuleTest extends TestCase
 {
     private NumberOfReviewsRule $rule;
@@ -36,7 +37,7 @@ class NumberOfReviewsRuleTest extends TestCase
         $config = (new NumberOfReviewsRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'count' => [
                     'name' => 'count',
                     'type' => 'int',
                     'config' => [],
@@ -72,14 +73,12 @@ class NumberOfReviewsRuleTest extends TestCase
         $rule = new NumberOfReviewsRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
+        $result = $rule->match($this->createMock(RuleScope::class));
 
         static::assertFalse($result);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, ?int $reviewCount, int $ruleOrderCount, bool $noCustomer = false): void
     {
         $rule = new NumberOfReviewsRule();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -17,9 +18,8 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeWithStorefrontSkinScss\Th
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeFileResolver
  */
+#[CoversClass(ThemeFileResolver::class)]
 class ThemeFileResolverTest extends TestCase
 {
     public function testResolvedFilesIncludeSkinScssPath(): void
@@ -130,7 +130,7 @@ class ThemeFileResolverTest extends TestCase
         );
 
         $scriptFiles = $resolvedFiles['script'];
-        $pluginScriptFile = 'SimplePlugin/Resources/app/storefront/dist/storefront/js/main.js';
+        $pluginScriptFile = 'SimplePlugin/Resources/app/storefront/dist/storefront/js/simple-plugin/simple-plugin.js';
         $pluginScriptIncluded = false;
 
         foreach ($scriptFiles->getFilepaths() as $path) {

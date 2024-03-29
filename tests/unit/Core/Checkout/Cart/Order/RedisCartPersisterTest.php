@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -19,9 +21,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\RedisCartPersister
  */
+#[CoversClass(RedisCartPersister::class)]
 class RedisCartPersisterTest extends TestCase
 {
     public function testDecorated(): void
@@ -99,10 +100,9 @@ class RedisCartPersisterTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderInvalidData
-     *
      * @param class-string<\Throwable> $exceptionClass
      */
+    #[DataProvider('dataProviderInvalidData')]
     public function testLoadingInvalidCart(mixed $data, string $exceptionClass): void
     {
         $token = Uuid::randomHex();

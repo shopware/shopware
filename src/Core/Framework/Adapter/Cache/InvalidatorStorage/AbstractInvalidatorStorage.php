@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractInvalidatorStorage
 {
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      */
     abstract public function store(array $tags): void;
 

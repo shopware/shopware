@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\CustomEntityEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\CustomEntityEntity
  */
+#[CoversClass(CustomEntityEntity::class)]
 class CustomEntityEntityTest extends TestCase
 {
     public function testGettersAndSetters(): void

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Framework\Context;
@@ -13,9 +14,8 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1681382023AddCustomFieldAllowCartExpose
  */
+#[CoversClass(Migration1681382023AddCustomFieldAllowCartExpose::class)]
 class Migration1681382023AddCustomFieldAllowCartExposeTest extends TestCase
 {
     use KernelTestBehaviour;

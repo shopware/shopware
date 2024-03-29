@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Calculation;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Ticket;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -48,10 +50,9 @@ class PromotionPercentageCalculationTest extends TestCase
      * We add a product to the cart and apply a code for a promotion with 100% discount.
      * Our cart should have a total value of 0,00 in the end.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function test100PercentageDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -84,10 +85,9 @@ class PromotionPercentageCalculationTest extends TestCase
      * We add a product to the cart and apply a code for a promotion with 50% discount.
      * Our cart should have a total value of 15,00 in the end.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function test50PercentageDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -147,9 +147,8 @@ class PromotionPercentageCalculationTest extends TestCase
      * We have a 100 EUR product and 50% OFF but a maximum
      * of 30 EUR discount. This means our cart should be minimum 70 EUR in the end.
      * We have
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function test50PercentageDiscountWithMaximumValue(): void
     {
         $productId = Uuid::randomHex();
@@ -185,9 +184,8 @@ class PromotionPercentageCalculationTest extends TestCase
      * a max global threshold of 40 EUR.
      * But for your currency, we use 30 EUR instead.
      * Our test needs to verify that we use 30 EUR, and end with a product sum of 70 EUR in the end.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function test50PercentageDiscountWithMaximumValueAndCurrencies(): void
     {
         $productId = Uuid::randomHex();
@@ -228,11 +226,9 @@ class PromotionPercentageCalculationTest extends TestCase
      * product total sum is 0,00 but we still have a promotion that will be calculated.
      * We fake a product with 0,00 price and just try to add our promotion in here.
      * We must not get a division by zero!
-     *
-     * @group promotions
-     *
-     * @ticket NEXT-4146
      */
+    #[Ticket('NEXT-4146')]
+    #[Group('promotions')]
     public function testPercentagePromotionDivisionByZero(): void
     {
         $productId = Uuid::randomHex();

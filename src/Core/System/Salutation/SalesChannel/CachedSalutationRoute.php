@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\Event\SalutationRouteCacheKeyEvent;
 use Shopware\Core\System\Salutation\Event\SalutationRouteCacheTagsEvent;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;

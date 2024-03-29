@@ -211,11 +211,7 @@
                                 <template #inline-edit>
                                     <sw-text-field
                                         ref="nameEditor"
-                                        {% if VUE3 %}
                                         v-model:value="item.name"
-                                        {% else %}
-                                        v-model="item.name"
-                                        {% endif %}
                                         name="sw-field--item-name"
                                         :placeholder="$tc('sw-settings-snippet.setList.placeholderName')"
                                     />
@@ -261,11 +257,7 @@
                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_file_editor %}
                                 <template #inline-edit>
                                     <sw-select-field
-                                        {% if VUE3 %}
                                         v-model:value="item.baseFile"
-                                        {% else %}
-                                        v-model="item.baseFile"
-                                        {% endif %}
                                     >
                                         <option
                                             v-for="file in baseFiles"

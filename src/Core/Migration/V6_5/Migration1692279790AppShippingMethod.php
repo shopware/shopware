@@ -27,14 +27,10 @@ class Migration1692279790AppShippingMethod extends MigrationStep
         $this->addDefaultMediaFolder($connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function addAppShippingMethodTable(Connection $connection): void
     {
         $connection->executeStatement(
-            <<<SQL
+            <<<'SQL'
 CREATE TABLE IF NOT EXISTS `app_shipping_method` (
     `id`                 BINARY(16)                              NOT NULL,
     `app_id`             BINARY(16)                                  NULL,

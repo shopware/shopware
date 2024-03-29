@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Increment;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -108,11 +107,5 @@ class MySQLIncrementerTest extends TestCase
 
         static::assertEquals(1, $list['sw.product.index']['count']);
         static::assertEquals(0, $list['sw.order.index']['count']);
-    }
-
-    public function testGetDecorated(): void
-    {
-        static::expectException(DecorationPatternException::class);
-        $this->mysqlIncrementer->getDecorated();
     }
 }

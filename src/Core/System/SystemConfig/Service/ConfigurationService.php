@@ -83,10 +83,15 @@ class ConfigurationService
                 $newField['config'] = $field;
                 $card['elements'][$j] = $newField;
             }
+
+            if (isset($card['elements']) && \is_array($card['elements'])) {
+                $card['elements'] = array_values($card['elements']);
+            }
+
             $config[$i] = $card;
         }
 
-        return $config;
+        return array_values($config);
     }
 
     /**

@@ -1,5 +1,4 @@
 {% block page_checkout_change_payment_form %}
-
     {% set formAjaxSubmitOptions = {
         changeTriggerSelectors: ['.payment-method-input']
     } %}
@@ -9,10 +8,8 @@
               name="changePaymentForm"
               action="{{ actionPath }}"
               data-form-auto-submit="true"
-              {# ludtwig-ignore html-string-quotation #}
-              data-form-auto-submit-options='{{ formAjaxSubmitOptions|json_encode }}'
+              data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
-
             {% block page_checkout_change_payment_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
                 <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
@@ -20,8 +17,8 @@
 
             {% block page_checkout_change_payment_form_fields %}
                 {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-                    'visiblePaymentMethodsLimit': 5,
-                    'selectedPaymentMethodId': context.paymentMethod.id
+                    visiblePaymentMethodsLimit: 5,
+                    selectedPaymentMethodId: context.paymentMethod.id
                 } %}
             {% endblock %}
         </form>

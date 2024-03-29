@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Hookable;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -16,9 +18,8 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent
  */
+#[CoversClass(HookableEntityWrittenEvent::class)]
 class HookableEntityWrittenEventTest extends TestCase
 {
     public function testGetter(): void
@@ -34,7 +35,7 @@ class HookableEntityWrittenEventTest extends TestCase
                 'primaryKey' => $entityId,
                 'updatedFields' => [],
             ],
-        ], $event->getWebhookPayload());
+        ], $event->getWebhookPayload(new AppEntity()));
     }
 
     public function testGetterWithVersionId(): void
@@ -54,7 +55,7 @@ class HookableEntityWrittenEventTest extends TestCase
                 'updatedFields' => ['versionId'],
                 'versionId' => Defaults::LIVE_VERSION,
             ],
-        ], $event->getWebhookPayload());
+        ], $event->getWebhookPayload(new AppEntity()));
     }
 
     public function testIsAllowed(): void

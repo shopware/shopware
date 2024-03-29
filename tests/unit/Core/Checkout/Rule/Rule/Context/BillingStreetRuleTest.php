@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Context;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -12,11 +13,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Customer\Rule\BillingStreetRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(BillingStreetRule::class)]
 class BillingStreetRuleTest extends TestCase
 {
     public function testWithExactMatch(): void

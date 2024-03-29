@@ -2,14 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/select/base/sw-multi-tag-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/utils/sw-popover';
+import { mount } from '@vue/test-utils';
 
 const selector = {
     multiDataSelect: {
@@ -19,29 +12,31 @@ const selector = {
     },
 };
 
-const createMultiDataSelect = async (customOptions) => {
-    const options = {
-        stubs: {
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-icon': {
-                template: '<div></div>',
+const createWrapper = async (customOptions = {}) => {
+    const wrapper = mount(await wrapTestComponent('sw-multi-tag-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-icon': {
+                    template: '<div></div>',
+                },
             },
         },
-        propsData: {
+        props: {
             value: [],
             disabled: false,
         },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-multi-tag-select'), {
-        ...options,
         ...customOptions,
     });
+
+    await flushPromises();
+
+    return wrapper;
 };
 
 const pressKey = async (el, key) => {
@@ -51,24 +46,21 @@ const pressKey = async (el, key) => {
 };
 
 const pressEnter = el => pressKey(el, 'Enter');
-const pressEspace = el => pressKey(el, 'Escape');
+const pressEscape = el => pressKey(el, 'Escape');
 
 describe('components/sw-multi-tag-select', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createMultiDataSelect();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the options popover when the user click on .sw-select__selection', async () => {
-        const multiDataSelect = await createMultiDataSelect();
-        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        const wrapper = await createWrapper();
 
-        const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
+        await wrapper.find(selector.multiDataSelect.container).trigger('click');
+        await flushPromises();
+
+        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
         expect(selectOptionsPopover.isVisible()).toBeTruthy();
     });
 
     it('should focus input when the user click on .sw-select__selection', async () => {
-        const wrapper = await createMultiDataSelect();
+        const wrapper = await createWrapper();
         const focusSpy = jest.spyOn(wrapper.vm.$refs.selectionList, 'focus');
 
         wrapper.vm.setDropDown(true);
@@ -76,84 +68,75 @@ describe('components/sw-multi-tag-select', () => {
     });
 
     it('should show the select field\'s options popover', async () => {
-        const messageAddData = 'global.sw-multi-tag-select.addData';
-        const messageEnterValidData = 'global.sw-multi-tag-select.enterValidData';
+        const wrapper = await createWrapper();
 
-        const multiDataSelect = await createMultiDataSelect();
-        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        await wrapper.find(selector.multiDataSelect.container).trigger('click');
+        await flushPromises();
 
-        const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover.text()).toBe(messageEnterValidData);
+        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.enterValidData');
 
-        const input = multiDataSelect.find(selector.multiDataSelect.input);
+        const input = wrapper.find(selector.multiDataSelect.input);
         await input.setValue('anything');
 
-        expect(selectOptionsPopover.text()).toBe(messageAddData);
+        expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.addData');
     });
 
     it('should add a new item when the user selects one using the enter key', async () => {
-        const changeSpy = jest.fn();
         const value = 'a16d4da0-4ba5-4c75-973b-515e23e6498a';
 
-        const multiDataSelect = await createMultiDataSelect({
-            listeners: {
-                change: changeSpy,
-            },
-        });
+        const wrapper = await createWrapper();
 
-        const input = multiDataSelect.find(selector.multiDataSelect.input);
+        const input = wrapper.find(selector.multiDataSelect.input);
         await input.setValue(value);
 
-        expect(multiDataSelect.vm.searchTerm).toBe(value);
+        expect(wrapper.vm.searchTerm).toBe(value);
 
-        pressEnter(input);
+        await pressEnter(input);
+        await flushPromises();
 
-        expect(changeSpy).toHaveBeenCalledWith([value]);
-        expect(multiDataSelect.vm.searchTerm).toBe('');
+        expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
+        expect(wrapper.vm.searchTerm).toBe('');
     });
 
     it('should add a new item when the user selects one using the popover', async () => {
-        const changeSpy = jest.fn();
         const value = '5f8c8049-ee9f-4f10-b8b6-5daa9536e0c4';
 
-        const multiDataSelect = await createMultiDataSelect({
-            listeners: {
-                change: changeSpy,
-            },
-        });
+        const wrapper = await createWrapper();
 
-        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        await wrapper.find(selector.multiDataSelect.container).trigger('click');
+        await flushPromises();
 
-        const input = multiDataSelect.find(selector.multiDataSelect.input);
+        const input = wrapper.find(selector.multiDataSelect.input);
         await input.setValue(value);
 
-        expect(multiDataSelect.vm.searchTerm).toBe(value);
+        expect(wrapper.vm.searchTerm).toBe(value);
 
-        const addItemPopover = multiDataSelect.find('.sw-multi-tag-select-valid');
+        const addItemPopover = wrapper.find('.sw-multi-tag-select-valid');
         await addItemPopover.trigger('click');
 
-        expect(changeSpy).toHaveBeenCalledWith([value]);
-        expect(multiDataSelect.vm.searchTerm).toBe('');
+        expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
+        expect(wrapper.vm.searchTerm).toBe('');
     });
 
     it('should set inputIsValid to false, when there\'s no searchTerm given', async () => {
         const value = 'a676344c-c0dd-49e5-8fbb-5f570c27762c';
 
-        const multiDataSelect = await createMultiDataSelect();
-        const input = multiDataSelect.find(selector.multiDataSelect.input);
+        const wrapper = await createWrapper();
+        const input = wrapper.find(selector.multiDataSelect.input);
 
-        expect(multiDataSelect.vm.inputIsValid).toBeFalsy();
-        expect(multiDataSelect.vm.errorObject).toBeNull();
+        expect(wrapper.vm.inputIsValid).toBeFalsy();
+        expect(wrapper.vm.errorObject).toBeNull();
 
         await input.setValue(value);
 
-        expect(multiDataSelect.vm.searchTerm).toBe(value);
-        expect(multiDataSelect.vm.inputIsValid).toBeTruthy();
+        expect(wrapper.vm.searchTerm).toBe(value);
+        expect(wrapper.vm.inputIsValid).toBeTruthy();
 
         await input.setValue('');
 
-        expect(multiDataSelect.vm.inputIsValid).toBeFalsy();
-        expect(multiDataSelect.vm.errorObject).toBeNull();
+        expect(wrapper.vm.inputIsValid).toBeFalsy();
+        expect(wrapper.vm.errorObject).toBeNull();
     });
 
     it('should return the correct property or fallback-value when getKey is used', async () => {
@@ -168,42 +151,184 @@ describe('components/sw-multi-tag-select', () => {
             },
         };
 
-        const multiDataSelect = await createMultiDataSelect();
+        const wrapper = await createWrapper();
 
-        expect(multiDataSelect.vm.getKey(subject, 'lorem', null)).toBe(subject.lorem);
-        expect(multiDataSelect.vm.getKey(subject, 'ipsum.dolor.sit.amet', null)).toBe(subject.ipsum.dolor.sit.amet);
-        expect(multiDataSelect.vm.getKey(subject, 'lorem.ipsum.dolor.sit.amet', 'Whoops!')).toBe('Whoops!');
+        expect(wrapper.vm.getKey(subject, 'lorem', null)).toBe(subject.lorem);
+        expect(wrapper.vm.getKey(subject, 'ipsum.dolor.sit.amet', null)).toBe(subject.ipsum.dolor.sit.amet);
+        expect(wrapper.vm.getKey(subject, 'lorem.ipsum.dolor.sit.amet', 'Whoops!')).toBe('Whoops!');
     });
 
     it('should add a new value when the option popover is blurred', async () => {
-        const changeSpy = jest.fn();
         const value = 'df8777d8-5969-475e-bbc2-f55a14d49ed7';
 
-        const multiDataSelect = await createMultiDataSelect({
-            listeners: {
-                change: changeSpy,
-            },
-        });
-        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        const wrapper = await createWrapper();
+        await wrapper.find(selector.multiDataSelect.container).trigger('click');
+        await flushPromises();
 
-        const input = multiDataSelect.find(selector.multiDataSelect.input);
+        const input = wrapper.find(selector.multiDataSelect.input);
         await input.setValue(value);
 
-        expect(multiDataSelect.vm.searchTerm).toBe(value);
+        expect(wrapper.vm.searchTerm).toBe(value);
 
-        pressEspace(input);
+        await pressEscape(input);
 
-        expect(multiDataSelect.vm.searchTerm).toBe('');
-        expect(changeSpy).toHaveBeenCalledWith([value]);
+        expect(wrapper.vm.searchTerm).toBe('');
+        expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
     });
 
     it('should be disabled correctly', async () => {
-        const multiDataSelect = await createMultiDataSelect();
+        const wrapper = await createWrapper();
 
-        await multiDataSelect.setProps({ disabled: true });
-        expect(multiDataSelect.find('.sw-select').classes()).toContain('is--disabled');
+        await wrapper.setProps({ disabled: true });
+        expect(wrapper.find('.sw-select input').wrapperElement).toBeDisabled();
 
-        await multiDataSelect.setProps({ disabled: false });
-        expect(multiDataSelect.find('.sw-select').classes()).not.toContain('is--disabled');
+        await wrapper.setProps({ disabled: false });
+        expect(wrapper.find('.sw-select input').wrapperElement).toBeEnabled();
+    });
+
+    it('should show only five tags of selection list and convert to a object', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        expect(multiDataSelect.vm.visibleValues).toEqual([
+            {
+                value: 'Selection1',
+            },
+            {
+                value: 'Selection2',
+            },
+            {
+                value: 'Selection3',
+            },
+            {
+                value: 'Selection4',
+            },
+            {
+                value: 'Selection5',
+            },
+        ]);
+    });
+
+    it('should count invisiable value', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [],
+        });
+
+        expect(multiDataSelect.vm.invisibleValueCount).toBe(0);
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        expect(multiDataSelect.vm.invisibleValueCount).toBe(1);
+    });
+
+    it('should not remove the last item when value item is empty', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [],
+        });
+
+        multiDataSelect.vm.removeLastItem();
+
+        expect(multiDataSelect.emitted()['update:value']).toBeFalsy();
+    });
+
+    it('should expand value first when use keyboard delete last item', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        multiDataSelect.vm.removeLastItem();
+
+        expect(multiDataSelect.vm.limit).toBe(10);
+        expect(multiDataSelect.emitted()['update:value']).toBeFalsy();
+    });
+
+    it('should emmited a update value when remove item', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+            ],
+        });
+
+        multiDataSelect.vm.$emit('update:value', ['Selection1', 'Selection2', 'Selection3', 'Selection4']);
+        multiDataSelect.vm.remove({ value: 'Selection5' });
+
+        expect(multiDataSelect.emitted()['update:value']).toBeTruthy();
+        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([['Selection1', 'Selection2', 'Selection3', 'Selection4']]);
+    });
+
+    it('should remove the last item', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+            ],
+        });
+
+        multiDataSelect.vm.removeLastItem();
+
+        expect(multiDataSelect.emitted()['update:value']).toBeTruthy();
+        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([['Selection1', 'Selection2', 'Selection3', 'Selection4']]);
+    });
+
+    it('should expand value limit', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        multiDataSelect.vm.expandValueLimit();
+
+        expect(multiDataSelect.vm.limit).toBe(10);
     });
 });

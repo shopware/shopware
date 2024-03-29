@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -14,10 +15,9 @@ use Shopware\Core\Migration\V6_5\Migration1697532722FixADInMediaPath;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1697532722FixADInMediaPath
  */
 #[Package('checkout')]
+#[CoversClass(Migration1697532722FixADInMediaPath::class)]
 class Migration1697532722FixADInMediaPathTest extends TestCase
 {
     use KernelTestBehaviour;

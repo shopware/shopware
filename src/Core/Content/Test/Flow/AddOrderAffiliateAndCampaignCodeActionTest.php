@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction;
@@ -41,9 +42,8 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
      * @param array<string, mixed> $existedData
      * @param array<string, mixed> $updateData
      * @param array<string, mixed> $expectData
-     *
-     * @dataProvider createDataProvider
      */
+    #[DataProvider('createDataProvider')]
     public function testAddAffiliateAndCampaignCodeForOrder(array $existedData, array $updateData, array $expectData): void
     {
         $this->createCustomerAndLogin();

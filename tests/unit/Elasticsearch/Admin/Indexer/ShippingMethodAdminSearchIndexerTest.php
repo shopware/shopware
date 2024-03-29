@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer
  */
+#[CoversClass(ShippingMethodAdminSearchIndexer::class)]
 class ShippingMethodAdminSearchIndexerTest extends TestCase
 {
     private ShippingMethodAdminSearchIndexer $searchIndexer;

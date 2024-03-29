@@ -9,16 +9,11 @@
     {% block sw_users_permissions_detailed_additional_permissions_additional_privileges %}
     <template
         v-for="privilege in detailedAdditionalPermissions"
-        {% if VUE3 %}
         :key="privilege.key"
-        {% endif %}
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_headline %}
         <h4
-            {% if VUE2 %}
-            :key="privilege.key"
-            {% endif %}
             :class="'sw-users-permissions-additional-permissions_' + privilege.key"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -33,35 +28,23 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches %}
         <div
-            {% if VUE2 %}
-            :key="`body-${privilege.key}`"
-            {% endif %}
             class="sw-users-permissions-detailed-additional-permissions__switches"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content %}
             <template
                 v-for="(value, roleName) in privilege.roles"
-                {% if VUE3 %}
                 :key="roleName"
-                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch %}
                 <sw-switch-field
-                    {% if VUE2 %}
-                    :key="`field-${privilege.key}-${roleName}`"
-                    {% endif %}
                     :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
                     :value="isEntitySelected(roleName)"
                     :disabled="isEntityDisabled(roleName) || disabled"
                     :label="roleName"
                     :bordered="true"
-                    {% if VUE3 %}
                     @update:value="changePermissionForEntity(roleName)"
-                    {% else %}
-                    @change="changePermissionForEntity(roleName)"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>

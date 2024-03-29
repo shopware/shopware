@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -12,6 +14,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,16 +24,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder
  */
+#[CoversClass(RequestCriteriaBuilder::class)]
 class RequestCriteriaBuilderTest extends TestCase
 {
     private RequestCriteriaBuilder $requestCriteriaBuilder;
@@ -73,9 +75,7 @@ class RequestCriteriaBuilderTest extends TestCase
         yield 'Test max limit with lower limit' => [50, 100, 50, false];
     }
 
-    /**
-     * @dataProvider maxApiLimitProvider
-     */
+    #[DataProvider('maxApiLimitProvider')]
     public function testMaxApiLimit(?int $limit, ?int $max, ?int $expected, bool $exception = false): void
     {
         $body = ['limit' => $limit];
@@ -121,10 +121,9 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidCriteriaIdsProvider
-     *
      * @param array<mixed> $ids
      */
+    #[DataProvider('invalidCriteriaIdsProvider')]
     public function testInvalidCriteriaIds(array $ids): void
     {
         $body = ['ids' => $ids];
@@ -171,11 +170,10 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider validCriteriaIdsProvider
-     *
      * @param string|array<mixed> $idPayload
      * @param array<string>|array<int, array<string>> $expectedIds
      */
+    #[DataProvider('validCriteriaIdsProvider')]
     public function testValidCriteriaIds($idPayload, array $expectedIds): void
     {
         $body = ['ids' => $idPayload];
@@ -297,16 +295,14 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertEquals($testArray, $criteriaArray);
     }
 
-    public function testManualScoreSorting(): void
+    /**
+     * @param array<string, mixed> $sortingPayload
+     * @param list<FieldSorting> $expectedParsedSortings
+     */
+    #[DataProvider('sortingCaseProvider')]
+    public function testSorting(array $sortingPayload, array $expectedParsedSortings): void
     {
-        $body = [
-            'sort' => [
-                [
-                    'field' => '_score',
-                ],
-            ],
-        ];
-        $request = new Request([], $body, [], [], []);
+        $request = new Request([], $sortingPayload, [], [], []);
         $request->setMethod(Request::METHOD_POST);
 
         $criteria = $this->requestCriteriaBuilder->handleRequest(
@@ -317,8 +313,200 @@ class RequestCriteriaBuilderTest extends TestCase
         );
 
         $sorting = $criteria->getSorting();
-        static::assertCount(1, $sorting);
-        static::assertEquals('_score', $sorting[0]->getField());
+        static::assertCount(\count($expectedParsedSortings), $sorting);
+        foreach ($expectedParsedSortings as $index => $expectedParsedSorting) {
+            static::assertInstanceOf($expectedParsedSorting::class, $sorting[$index]);
+            static::assertEquals($expectedParsedSorting->getField(), $sorting[$index]->getField());
+            static::assertEquals($expectedParsedSorting->getDirection(), $sorting[$index]->getDirection());
+            static::assertEquals($expectedParsedSorting->getNaturalSorting(), $sorting[$index]->getNaturalSorting());
+        }
+    }
+
+    public static function sortingCaseProvider(): \Generator
+    {
+        yield 'manual score sorting' => [
+            [
+                'sort' => [
+                    [
+                        'field' => '_score',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('_score'),
+            ],
+        ];
+
+        yield 'multiple sortings' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'id',
+                        'order' => 'ASC',
+                        'naturalSorting' => true,
+                    ],
+                    [
+                        'field' => 'price',
+                        'order' => 'DESC',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('product.id', FieldSorting::ASCENDING, true),
+                new FieldSorting('product.price', FieldSorting::DESCENDING),
+            ],
+        ];
+
+        yield 'count sorting' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'id',
+                        'type' => 'count',
+                    ],
+                ],
+            ],
+            [
+                new CountSorting('product.id'),
+            ],
+        ];
+
+        yield 'simple sorting' => [
+            [
+                'sort' => 'id',
+            ],
+            [
+                new FieldSorting('product.id'),
+            ],
+        ];
+
+        yield 'multiple simple sortings' => [
+            [
+                'sort' => 'id,-price',
+            ],
+            [
+                new FieldSorting('product.id'),
+                new FieldSorting('product.price', FieldSorting::DESCENDING),
+            ],
+        ];
+
+        yield 'empty array sorting' => [
+            [
+                'sort' => [],
+            ],
+            [],
+        ];
+
+        yield 'invalid order option falls back to ascending' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'id',
+                        'order' => 'invalid',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('product.id'),
+            ],
+        ];
+
+        yield 'true-ish naturals sort option' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'id',
+                        'naturalSorting' => '1',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('product.id', FieldSorting::ASCENDING, true),
+            ],
+        ];
+
+        yield 'false-ish naturals sort option' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'id',
+                        'naturalSorting' => '0',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('product.id'),
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $sortingPayload
+     */
+    #[DataProvider('invalidSortingCaseProvider')]
+    public function testInvalidSorting(array $sortingPayload, InvalidSortQueryException $expected): void
+    {
+        $request = new Request([], $sortingPayload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        $wasThrown = false;
+
+        try {
+            $this->requestCriteriaBuilder->handleRequest(
+                $request,
+                new Criteria(),
+                $this->staticDefinitionRegistry->get(ProductDefinition::class),
+                Context::createDefaultContext()
+            );
+        } catch (SearchRequestException $e) {
+            $sortException = $e->getErrors()->current();
+            static::assertEquals($expected->getErrorCode(), $sortException['code']);
+            static::assertEquals($expected->getMessage(), $sortException['detail']);
+            static::assertEquals($expected->getStatusCode(), $sortException['status']);
+            static::assertEquals($expected->getParameter('path'), $sortException['source']['pointer']);
+
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+    }
+
+    public static function invalidSortingCaseProvider(): \Generator
+    {
+        yield 'empty string sorting' => [
+            [
+                'sort' => '',
+            ],
+            DataAbstractionLayerException::invalidSortQuery('The "sort" parameter needs to be a sorting array or a comma separated list of fields', '/sort'),
+        ];
+
+        yield 'empty array sorting' => [
+            [
+                'sort' => [[]],
+            ],
+            DataAbstractionLayerException::invalidSortQuery('The "sort" array needs to be an associative array at least containing a field name', '/sort/0'),
+        ];
+
+        yield 'non nested array' => [
+            [
+                'sort' => ['id'],
+            ],
+            DataAbstractionLayerException::invalidSortQuery('The "sort" array needs to be an associative array at least containing a field name', '/sort/0'),
+        ];
+
+        yield 'field is not a string' => [
+            [
+                'sort' => [['field' => 1]],
+            ],
+            DataAbstractionLayerException::invalidSortQuery('The "sort" array needs to be an associative array at least containing a field name', '/sort/0'),
+        ];
+
+        yield 'array invalid second sorting' => [
+            [
+                'sort' => [['field' => 'id'], []],
+            ],
+            DataAbstractionLayerException::invalidSortQuery('The "sort" array needs to be an associative array at least containing a field name', '/sort/1'),
+        ];
     }
 
     public function testMaxLimitForAssociations(): void
@@ -377,9 +565,7 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertEmpty($criteria->getAssociations());
     }
 
-    /**
-     * @dataProvider providerTotalCount
-     */
+    #[DataProvider('providerTotalCount')]
     public function testDifferentTotalCount(mixed $totalCountMode, int $expectedMode): void
     {
         $payload = [
@@ -441,6 +627,105 @@ class RequestCriteriaBuilderTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $pagingPayload
+     */
+    #[DataProvider('providerPaging')]
+    public function testPaging(array $pagingPayload, ?int $expectedOffset, ?int $expectedLimit): void
+    {
+        $criteria = $this->requestCriteriaBuilder->fromArray($pagingPayload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        static::assertSame($expectedOffset, $criteria->getOffset());
+        static::assertSame($expectedLimit, $criteria->getLimit());
+    }
+
+    public static function providerPaging(): \Generator
+    {
+        yield 'offset correctly calculated' => [
+            ['page' => 3, 'limit' => 10],
+            20,
+            10,
+        ];
+
+        yield 'no page' => [
+            ['limit' => 10],
+            null,
+            10,
+        ];
+
+        yield 'no limit' => [
+            ['page' => '3'],
+            0,
+            null,
+        ];
+
+        yield 'no paging info' => [
+            [],
+            null,
+            null,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $pagingPayload
+     */
+    #[DataProvider('providerInvalidPaging')]
+    public function testInvalidPaging(array $pagingPayload, string $expectedExceptionCode, string $path): void
+    {
+        $wasThrown = false;
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($pagingPayload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $sortException = $e->getErrors()->current();
+            static::assertEquals($expectedExceptionCode, $sortException['code']);
+            static::assertEquals(400, $sortException['status']);
+            static::assertEquals($path, $sortException['source']['pointer']);
+
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+    }
+
+    public static function providerInvalidPaging(): \Generator
+    {
+        yield 'empty page' => [
+            ['page' => '', 'limit' => 10],
+            'FRAMEWORK__INVALID_PAGE_QUERY',
+            '/page',
+        ];
+
+        yield 'negative page' => [
+            ['page' => '-3', 'limit' => 10],
+            'FRAMEWORK__INVALID_PAGE_QUERY',
+            '/page',
+        ];
+
+        yield 'page is string' => [
+            ['page' => 'foo', 'limit' => 10],
+            'FRAMEWORK__INVALID_PAGE_QUERY',
+            '/page',
+        ];
+
+        yield 'negative limit' => [
+            ['page' => '3', 'limit' => '-10'],
+            'FRAMEWORK__INVALID_LIMIT_QUERY',
+            '/limit',
+        ];
+
+        yield 'empty limit' => [
+            ['page' => '3', 'limit' => ''],
+            'FRAMEWORK__INVALID_LIMIT_QUERY',
+            '/limit',
+        ];
+
+        yield 'limit is string' => [
+            ['page' => '3', 'limit' => 'foo'],
+            'FRAMEWORK__INVALID_LIMIT_QUERY',
+            '/limit',
+        ];
+    }
+
     public function testSimpleFilterAddsExceptionWithArrayInValue(): void
     {
         $payload = [
@@ -458,6 +743,29 @@ class RequestCriteriaBuilderTest extends TestCase
 
             static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
             static::assertEquals('The value for filter "name" must be scalar.', $error['detail']);
+            static::assertEquals(400, $error['status']);
+
+            throw $e;
+        }
+    }
+
+    public function testFilterElementIsInvalid(): void
+    {
+        $payload = [
+            'filter' => [
+                0 => 'test',
+            ],
+        ];
+
+        $this->expectException(SearchRequestException::class);
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            $error = $e->getErrors()->current();
+
+            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertEquals('The filter parameter has to be an array.', $error['detail']);
             static::assertEquals(400, $error['status']);
 
             throw $e;

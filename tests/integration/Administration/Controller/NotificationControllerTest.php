@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Administration\Controller;
 
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationCollection;
 use Shopware\Core\Framework\Context;
@@ -38,9 +39,8 @@ class NotificationControllerTest extends TestCase
 
     /**
      * @param array<string> $requirePrivileges
-     *
-     * @dataProvider saveNotificationProvider
      */
+    #[DataProvider('saveNotificationProvider')]
     public function testSaveNotification(
         string $client,
         string $status,
@@ -115,9 +115,8 @@ class NotificationControllerTest extends TestCase
     /**
      * @param array<string> $requiredPrivileges
      * @param array<string>|null $userPrivileges
-     *
-     * @dataProvider getNotificationProvider
      */
+    #[DataProvider('getNotificationProvider')]
     public function testGetNotifications(
         bool $adminOnly,
         array $requiredPrivileges,

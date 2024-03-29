@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import { reactive } from 'vue';
 import UserConfigClass from '../../../core/service/support/user-config.class';
 
 const { Application } = Shopware;
@@ -6,7 +6,10 @@ const { Application } = Shopware;
 class CmsBlockFavoritesService extends UserConfigClass {
     static USER_CONFIG_KEY = 'cms-block-favorites';
 
-    private state: { favorites: string[] } = Vue.observable({ favorites: [] });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    private state: { favorites: string[] } = reactive({
+        favorites: [],
+    });
 
     public getFavoriteBlockNames(): string[] {
         return this.state.favorites;

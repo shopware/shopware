@@ -1,52 +1,36 @@
-/**
- * @package buyers-experience
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swPromotionV2List from 'src/module/sw-promotion-v2/page/sw-promotion-v2-list';
+import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-Shopware.Component.register('sw-promotion-v2-list', swPromotionV2List);
-
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.filter('asset', key => key);
-
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-list'), {
-        localVue,
-        stubs: {
-            'sw-page': {
-                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
-            },
-            'sw-button': true,
-            'sw-entity-listing': true,
-            'sw-promotion-v2-empty-state-hero': true,
-            'sw-context-menu-item': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-promotion-v2-list', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                 },
+                'sw-button': true,
+                'sw-entity-listing': true,
+                'sw-promotion-v2-empty-state-hero': true,
+                'sw-context-menu-item': true,
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([]),
-                    get: () => Promise.resolve([]),
-                    create: () => {},
-                }),
-            },
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                        get: () => Promise.resolve([]),
+                        create: () => {},
+                    }),
                 },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
                 },
             },
         },
@@ -55,6 +39,8 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     it('should disable create button when privilege not available', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
@@ -63,9 +49,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable create button when privilege available', async () => {
-        const wrapper = await createWrapper([
-            'promotion.creator',
-        ]);
+        global.activeAclRoles = ['promotion.creator'];
+
+        const wrapper = await createWrapper();
         const smartBarButton = wrapper.find('.sw-promotion-v2-list__smart-bar-button-add');
 
         expect(smartBarButton.exists()).toBeTruthy();
@@ -73,6 +59,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should disable editing of entries when privilege not set', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -89,10 +77,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable editing of entries when privilege is set', async () => {
-        const wrapper = await createWrapper([
-            'promotion.viewer',
-            'promotion.editor',
-        ]);
+        global.activeAclRoles = ['promotion.viewer', 'promotion.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -108,11 +95,9 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable deletion of entries when privilege is set', async () => {
-        const wrapper = await createWrapper([
-            'promotion.viewer',
-            'promotion.editor',
-            'promotion.deleter',
-        ]);
+        global.activeAclRoles = ['promotion.viewer', 'promotion.editor', 'promotion.deleter'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -128,6 +113,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
@@ -151,6 +138,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -171,6 +160,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should not build query score when search ranking field is null', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',
@@ -195,6 +186,8 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo',

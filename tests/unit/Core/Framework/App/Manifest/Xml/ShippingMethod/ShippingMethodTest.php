@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\ShippingMethod;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
@@ -12,9 +13,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod
  */
+#[CoversClass(ShippingMethod::class)]
 class ShippingMethodTest extends TestCase
 {
     public const XSD_FILE = __DIR__ . '/../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd';
@@ -46,7 +46,6 @@ class ShippingMethodTest extends TestCase
         ];
 
         foreach ($shippingMethods as $i => $shippingMethod) {
-            static::assertInstanceOf(ShippingMethod::class, $shippingMethod);
             static::assertSame($shippingMethod->getIdentifier(), $expectedValues[$i]['identifier']);
             static::assertSame($shippingMethod->getName(), $expectedValues[$i]['name']);
         }

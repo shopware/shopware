@@ -20,7 +20,12 @@
                         {% block buy_widget_configurator_group %}
                             <div class="product-detail-configurator-group">
                                 {% if group.displayType == 'select' %}
-                                    {% sw_include '@Storefront/storefront/page/product-detail/configurator/select.html.twig' %}
+                                    {# @deprecated tag:v6.7.0 - Template `select.html.twig` is deprecated. Use `storefront/component/buy-widget/configurator/select.html.twig` instead. #}
+                                    {% if feature('v6.7.0.0') %}
+                                        {% sw_include '@Storefront/storefront/component/buy-widget/configurator/select.html.twig' %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/page/product-detail/configurator/select.html.twig' %}
+                                    {% endif %}
                                 {% else %}
                                     {% block buy_widget_configurator_group_title %}
                                         <div class="product-detail-configurator-group-title">
@@ -86,12 +91,12 @@
                                                                             {% sw_thumbnails 'configurator-option-img-thumbnails' with {
                                                                                 media: media,
                                                                                 sizes: {
-                                                                                    'default': '52px'
+                                                                                    default: '52px'
                                                                                 },
                                                                                 attributes: {
-                                                                                    'class': 'product-detail-configurator-option-image',
-                                                                                    'alt': option.translated.name,
-                                                                                    'title': option.translated.name
+                                                                                    class: 'product-detail-configurator-option-image',
+                                                                                    alt: option.translated.name,
+                                                                                    title: option.translated.name
                                                                                 }
                                                                             } %}
                                                                         {% endblock %}

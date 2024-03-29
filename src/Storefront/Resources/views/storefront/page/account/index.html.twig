@@ -27,9 +27,10 @@
 
             {% block page_account_overview_welcome %}
                 <div class="account-welcome">
-                    <h1>{{ "account.overviewTitle"|trans|sw_sanitize }}</h1>
+                    <h1>{{ 'account.overviewTitle'|trans|sw_sanitize }}</h1>
+
                     {% block page_account_overview_welcome_intro %}
-                        <p>{{ "account.overviewInfo"|trans|sw_sanitize }}</p>
+                        <p>{{ 'account.overviewInfo'|trans|sw_sanitize }}</p>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -43,7 +44,7 @@
                                     <div class="card-body">
                                         {% block page_account_overview_profile_title %}
                                             <h2 class="card-title">
-                                                {{ "account.overviewProfileHeader"|trans|sw_sanitize }}
+                                                {{ 'account.overviewProfileHeader'|trans|sw_sanitize }}
                                             </h2>
                                         {% endblock %}
 
@@ -61,7 +62,7 @@
 
                                         {% block page_account_overview_profile_company %}
                                             {% sw_include '@Storefront/storefront/component/account/customer-overview-personal-company.html.twig' with {
-                                                'customer': context.customer,
+                                                customer: context.customer,
                                             } %}
                                         {% endblock %}
 
@@ -89,7 +90,7 @@
                                     <div class="card-body">
                                         {% block page_account_overview_payment_title %}
                                             <h2 class="card-title">
-                                                {{ "account.overviewPaymentHeader"|trans|sw_sanitize }}
+                                                {{ 'account.overviewPaymentHeader'|trans|sw_sanitize }}
                                             </h2>
                                         {% endblock %}
 
@@ -117,13 +118,13 @@
                         <div class="card-body">
                             {% block page_account_overview_newsletter_title %}
                                 <h2 class="card-title">
-                                    {{ "account.newsletterTitle"|trans|sw_sanitize }}
+                                    {{ 'account.newsletterTitle'|trans|sw_sanitize }}
                                 </h2>
                             {% endblock %}
 
                             {% block page_account_overview_newsletter_content %}
                                 <div class="js-newsletter-wrapper">
-                                    {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "newsletterAccountPagelet": page.getNewsletterAccountPagelet() } %}
+                                    {% sw_include '@Storefront/storefront/page/account/newsletter.html.twig' with { newsletterAccountPagelet: page.getNewsletterAccountPagelet() } %}
                                 </div>
                             {% endblock %}
                         </div>
@@ -132,7 +133,7 @@
             {% endblock %}
 
             {% block page_account_overview_addresses_include %}
-                {% sw_include "@Storefront/storefront/page/account/address.html.twig" %}
+                {% sw_include '@Storefront/storefront/page/account/address.html.twig' %}
             {% endblock %}
 
             {% block page_account_overview_newest_order %}
@@ -142,7 +143,7 @@
                             <div class="card-body">
                                 {% block page_account_overview_newest_order_title %}
                                     <h2 class="card-title">
-                                        {{ "account.overviewNewestOrderHeader"|trans|sw_sanitize }}
+                                        {{ 'account.overviewNewestOrderHeader'|trans|sw_sanitize }}
                                     </h2>
                                 {% endblock %}
 

@@ -79,11 +79,7 @@
             :label="$tc('global.sw-pagination.labelItemsPerPage')"
             :value="String(perPage)"
             aside
-            {% if VUE3 %}
             @update:value="onPageSizeChange"
-            {% else %}
-            @change="onPageSizeChange"
-            {% endif %}
         >
             <option
                 v-for="step in possibleSteps"

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\SeoUrlRoute;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -13,10 +14,9 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(ProductPageSeoUrlRoute::class)]
 class ProductPageSeoUrlRouteTest extends TestCase
 {
     public function testGetConfig(): void

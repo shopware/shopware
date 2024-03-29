@@ -43,7 +43,6 @@ class AppLoadedSubscriberTest extends TestCase
                 'iconRaw' => file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png'),
                 'integration' => [
                     'label' => 'App1',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

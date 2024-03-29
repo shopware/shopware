@@ -14,8 +14,7 @@ const URL_REGEX = {
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description URL field component which supports a switch for https and http.
  * @status ready
  * @example-type dynamic
@@ -26,6 +25,10 @@ const URL_REGEX = {
 Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
+
+    emits: [
+        'update:value',
+    ],
 
     inject: ['feature'],
 
@@ -48,7 +51,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
     data() {
         return {
             sslActive: true,
-            currentValue: this.value || '',
+            currentUrlValue: '',
             errorUrl: null,
             currentDebounce: null,
         };
@@ -72,7 +75,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
         },
 
         url() {
-            const trimmedValue = this.currentValue.trim();
+            const trimmedValue = this.currentUrlValue.trim();
             if (trimmedValue === '') {
                 return '';
             }
@@ -90,14 +93,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
     },
 
     watch: {
-        value() {
-            if (this.feature.isActive('VUE3')) {
-                this.$nextTick(() => {
-                    this.checkInput(this.value || '');
-                });
-            } else {
+        value: {
+            handler() {
                 this.checkInput(this.value || '');
-            }
+            },
+            immediate: true,
         },
     },
 
@@ -107,7 +107,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     methods: {
         createdComponent() {
-            this.checkInput(this.currentValue);
+            this.currentUrlValue = this.validateCurrentValue(this.value || '');
+            this.checkInput(this.currentUrlValue || '');
         },
 
         onBlur(event) {
@@ -117,7 +118,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
         checkInput(inputValue) {
             this.errorUrl = null;
 
-            if (!inputValue.length) {
+            if (!inputValue || !inputValue.length) {
                 this.handleEmptyUrl();
 
                 return;
@@ -131,22 +132,15 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
             if (!validated) {
                 this.setInvalidUrlError();
-            } else {
-                this.currentValue = validated;
+            } else if (this.currentUrlValue !== validated) {
+                this.currentUrlValue = validated;
 
-                if (this.feature.isActive('VUE3')) {
-                    if (this.value !== this.url) {
-                        this.$emit('update:value', this.url);
-                    }
-                    return;
-                }
-
-                this.$emit('input', this.url);
+                this.$emit('update:value', this.url);
             }
         },
 
         handleEmptyUrl() {
-            this.currentValue = '';
+            this.currentUrlValue = '';
         },
 
         validateCurrentValue(value) {
@@ -182,12 +176,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             this.sslActive = !this.sslActive;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.url);
-                return;
-            }
-
-            this.$emit('input', this.url);
+            this.$emit('update:value', this.url);
         },
 
         getURLInstance(value) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Context;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -13,11 +14,10 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(ShippingZipCodeRule::class)]
 class ShippingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void

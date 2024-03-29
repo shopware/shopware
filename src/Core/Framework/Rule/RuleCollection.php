@@ -47,9 +47,9 @@ class RuleCollection extends Collection
         $this->classes = [];
     }
 
-    public function filterInstance(string $class): RuleCollection
+    public function filterInstance(string $class): static
     {
-        return new self(
+        return new static(
             array_filter(
                 $this->flat,
                 fn (Rule $rule) => $rule instanceof $class

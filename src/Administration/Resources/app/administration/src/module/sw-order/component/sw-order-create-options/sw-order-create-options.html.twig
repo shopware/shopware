@@ -18,11 +18,7 @@
         class="sw-order-create-options__disable-auto-promotion"
         :value="disabledAutoPromotion"
         :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-        {% if VUE3 %}
         @update:value="onToggleAutoPromotion"
-        {% else %}
-        @change="onToggleAutoPromotion"
-        {% endif %}
     />
     {% endblock %}
 
@@ -36,11 +32,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_language %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="context.languageId"
-            {% else %}
-            v-model="context.languageId"
-            {% endif %}
             entity="language"
             class="sw-order-create-options__order-language"
             :criteria="salesChannelCriteria"
@@ -57,11 +49,7 @@
             :value="promotionCodes"
             :label="$tc('sw-order.createBase.labelPromotions')"
             :validate="validatePromotions"
-            {% if VUE3 %}
             @update:value="changePromotionCodes"
-            {% else %}
-            @change="changePromotionCodes"
-            {% endif %}
         >
             <template #message-add-data>
                 <span>{{ $tc('sw-order.initialModal.options.placeholderAddPromotion') }}</span>
@@ -92,11 +80,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_payment_method %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="context.paymentMethodId"
-            {% else %}
-            v-model="context.paymentMethodId"
-            {% endif %}
             entity="payment_method"
             label-property="distinguishableName"
             class="sw-order-create-options__payment-method"
@@ -110,11 +94,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_billing_address %}
         <sw-order-customer-address-select
-            {% if VUE3 %}
             v-model:value="context.billingAddressId"
-            {% else %}
-            v-model="context.billingAddressId"
-            {% endif %}
             class="sw-order-create-options__billing-address"
             :label="$tc('sw-order.createBase.labelBillingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
@@ -126,11 +106,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_order_currency %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="context.currencyId"
-            {% else %}
-            v-model="context.currencyId"
-            {% endif %}
             class="sw-order-create-options__currency-select"
             entity="currency"
             :criteria="salesChannelCriteria"
@@ -158,11 +134,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_method %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="context.shippingMethodId"
-            {% else %}
-            v-model="context.shippingMethodId"
-            {% endif %}
             class="sw-order-create-options__shipping-method"
             entity="shipping_method"
             show-clearable-button
@@ -173,18 +145,10 @@
         {% endblock %}
 
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="shippingCost"
-            {% else %}
-            v-model="shippingCost"
-            {% endif %}
             class="sw-order-create-options__shipping-cost"
             :label="$tc('sw-order.initialModal.options.labelShippingCosts')"
-            {% if VUE3 %}
             @update:value="onChangeShippingCost"
-            {% else %}
-            @change="onChangeShippingCost"
-            {% endif %}
         >
             <template #suffix>
                 {{ currency.symbol }}
@@ -192,25 +156,15 @@
         </sw-number-field>
 
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="isSameAsBillingAddress"
-            {% else %}
-            v-model="isSameAsBillingAddress"
-            {% endif %}
-            {% if VUE3 %}
             name="sw-field--isSameAsBillingAddress"
-            {% endif %}
             :label="$tc('sw-order.initialModal.options.labelSameAsBillingAddress')"
         />
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_options_shipping_address %}
         <sw-order-customer-address-select
-            {% if VUE3 %}
             v-model:value="context.shippingAddressId"
-            {% else %}
-            v-model="context.shippingAddressId"
-            {% endif %}
             class="sw-order-create-options__shipping-address"
             :label="$tc('sw-order.createBase.labelShippingAddress')"
             :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"

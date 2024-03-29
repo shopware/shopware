@@ -3,9 +3,11 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -14,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -49,7 +50,6 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
 
         $repo = $this->getContainer()->get('newsletter_recipient.repository');
@@ -84,7 +84,6 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
 
         $repo = $this->getContainer()->get('newsletter_recipient.repository');
@@ -103,7 +102,6 @@ class NewsletterControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
 
         $criteria = new Criteria();
@@ -164,11 +162,16 @@ class NewsletterControllerTest extends TestCase
             'customerNumber' => '12345',
         ];
 
+        /** @var EntityRepository<CustomerCollection> $repo */
         $repo = $this->getContainer()->get('customer.repository');
 
         $repo->create([$this->customerData], Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 
     private function validateRecipientData(NewsletterRecipientEntity $recipientEntry): void

@@ -1,0 +1,24 @@
+
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": [],
+  "components": {
+    "schemas": {
+      "Simple": {
+        "type": "object",
+        "properties": {
+          "apiAlias": {
+            "type": "string",
+            "enum": [
+              "simple_test"
+            ]
+          }
+        },
+        "required": [
+          "apiAlias"
+        ]
+      }
+    }
+  }
+}

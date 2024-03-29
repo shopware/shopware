@@ -1,99 +1,72 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swDashboardStatistics from 'src/module/sw-dashboard/component/sw-dashboard-statistics';
-import 'src/app/component/form/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-chart-card';
-import 'src/app/component/base/sw-card';
+import { mount } from '@vue/test-utils';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
-import { currency } from 'src/core/service/utils/format.utils';
 
-Shopware.Component.register('sw-dashboard-statistics', swDashboardStatistics);
+const hasOrderTodayMock = [
+    {},
+];
 
-async function createWrapper(privileges = [], orderSumToday = null) {
-    const localVue = createLocalVue();
-    localVue.filter('asset', v => v);
-    localVue.filter('date', v => v);
-    localVue.filter('currency', currency);
-
-    const responseMock = {
-        aggregations: {
-            order_count_bucket: {
-                buckets: [],
-            },
-            order_sum_bucket: {
-                buckets: [],
-            },
+async function createWrapper(privileges = [], repository = {}) {
+    const repositoryMock = {
+        search: () => Promise.resolve([]),
+        buildHeaders: () => {
         },
+        ...repository,
     };
 
-    const options = {
-        localVue,
-        stubs: {
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-chart-card': await Shopware.Component.build('sw-chart-card'),
-            'sw-entity-listing': true,
-            'sw-chart': true,
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-skeleton': true,
-            'sw-help-text': true,
-            'sw-ignore-class': true,
-            'sw-extension-component-section': true,
-            'sw-icon': true,
-            'sw-field-error': true,
-        },
-        mocks: {
-            $tc: (...args) => JSON.stringify([...args]),
-            $i18n: {
-                locale: 'en-GB',
-                messages: {
-                    'en-GB': dictionary,
+    return mount(await wrapTestComponent('sw-dashboard-statistics', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-chart-card': await wrapTestComponent('sw-chart-card'),
+                'sw-entity-listing': true,
+                'sw-chart': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-skeleton': true,
+                'sw-help-text': true,
+                'sw-ignore-class': true,
+                'sw-extension-component-section': true,
+                'sw-icon': true,
+                'sw-field-error': true,
+            },
+            mocks: {
+                $tc: (...args) => JSON.stringify([...args]),
+                $i18n: {
+                    locale: 'en-GB',
+                    messages: {
+                        'en-GB': dictionary,
+                    },
+                },
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => (repositoryMock),
+                },
+                stateStyleDataProviderService: {},
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
                 },
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve(responseMock),
-                    buildHeaders: () => {},
-                }),
-            },
-            stateStyleDataProviderService: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                },
-            },
-        },
-        computed: {
-            systemCurrencyISOCode() {
-                return 'EUR';
-            },
-            isSessionLoaded() {
-                return true;
-            },
-        },
-    };
-
-    if (orderSumToday !== null) {
-        options.computed.hasOrderToday = () => true;
-        options.computed.orderSumToday = () => orderSumToday;
-    }
-
-    return shallowMount(await Shopware.Component.build('sw-dashboard-statistics'), options);
+    });
 }
 
 /**
  * @package services-settings
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
-    let wrapper = null;
+    let wrapper;
 
     beforeAll(() => {
+        Shopware.Context.app.systemCurrencyISOCode = 'EUR';
+
         if (Shopware.State.get('session')) {
             Shopware.State.unregisterModule('session');
         }
@@ -121,18 +94,8 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         jest.useFakeTimers('modern');
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     afterAll(() => {
         jest.useRealTimers();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not show the stats', async () => {
@@ -160,8 +123,55 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         expect(statisticsSum.exists()).toBeTruthy();
     });
 
+
+    it('should show the todays stats', async () => {
+        const orderSearchResult = {
+            search: () => Promise.resolve([
+                {
+                    id: '1a2b3c',
+                    orderNumber: '12345',
+                    amountTotal: 123.45,
+                    stateMachineState: {
+                        name: 'open',
+                    },
+                },
+                {
+                    id: '1b2a3c',
+                    orderNumber: '23456',
+                    amountTotal: 19.45,
+                    stateMachineState: {
+                        name: 'closed',
+                    },
+                },
+            ]),
+        };
+
+        orderSearchResult.criteris = { page: 1 };
+        wrapper = await createWrapper(['order.viewer'], orderSearchResult);
+        await flushPromises();
+
+        const orderToday = wrapper.find('.sw-dashboard-statistics__intro-stats-today');
+
+        expect(orderToday.exists()).toBeTruthy();
+    });
+
+    it('should call fetchTodayData and add stateMachineState association', async () => {
+        const orderSearchResult = {
+            search: jest.fn().mockResolvedValue([]),
+        };
+
+        wrapper = await createWrapper(['order.viewer'], orderSearchResult);
+        await wrapper.vm.fetchTodayData();
+
+        expect(orderSearchResult.search.mock.lastCall[0].associations[1].association).toBe('stateMachineState');
+    });
+
     it('should not exceed decimal places of two', async () => {
         wrapper = await createWrapper(['order.viewer'], 43383.13234554);
+        await wrapper.setData({
+            hasOrderToday: hasOrderTodayMock,
+            orderSumToday: 43383.13234554,
+        });
         await flushPromises();
 
         const todaysTotalSum = wrapper.find('.sw-dashboard-statistics__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();

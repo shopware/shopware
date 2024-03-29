@@ -2,55 +2,18 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/app/component/form/sw-text-editor';
-import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
-import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';
-import 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-colorpicker';
-import 'src/app/component/form/sw-compact-colorpicker';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(allowInlineDataMapping = true) {
     // set body for app
     document.body.innerHTML = '<div id="app"></div>';
 
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    // localVue.directive('tooltip', {});
 
-    return shallowMount(await Shopware.Component.build('sw-text-editor'), {
+    return mount(await wrapTestComponent('sw-text-editor', { sync: true }), {
         attachTo: document.getElementById('app'),
-        propsData: {
+        props: {
             allowInlineDataMapping,
-        },
-        localVue,
-        stubs: {
-            'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
-            'sw-text-editor-link-menu': await Shopware.Component.build('sw-text-editor-link-menu'),
-            'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
-            'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-container': await Shopware.Component.build('sw-container'),
-            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-icon': { template: '<div class="sw-icon"></div>' },
-            'sw-select-field': true,
-            'sw-field-error': true,
         },
         data() {
             return {
@@ -63,8 +26,29 @@ async function createWrapper(allowInlineDataMapping = true) {
                 },
             };
         },
-        provide: {
-            validationService: {},
+        global: {
+            stubs: {
+                'sw-text-editor-toolbar-button': await wrapTestComponent('sw-text-editor-toolbar-button'),
+                'sw-text-editor-link-menu': await wrapTestComponent('sw-text-editor-link-menu'),
+                'sw-compact-colorpicker': await wrapTestComponent('sw-compact-colorpicker'),
+                'sw-text-editor-toolbar': await wrapTestComponent('sw-text-editor-toolbar'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-icon': { template: '<div class="sw-icon"></div>' },
+                'sw-select-field': true,
+                'sw-field-error': true,
+            },
+            provide: {
+                validationService: {},
+            },
         },
     });
 }
@@ -152,10 +136,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         };
     });
 
-    beforeEach(async () => {});
-
     afterEach(() => {
-        if (wrapper) { wrapper.destroy(); }
         document.getSelection().removeAllRanges();
     });
 
@@ -189,6 +170,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should update the placeholderVisible prop in the code editor mode', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         const placeholder = 'Enter description...';
         await wrapper.setProps({ placeholder: placeholder });
@@ -209,7 +191,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
 
         // input something and expect the placeholderVisible flag to be unset
-        wrapper.find('#sw-code-editor').vm.$emit('blur', 'something');
+        wrapper.findComponent('#sw-code-editor').vm.$emit('blur', 'something');
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
@@ -223,6 +205,8 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should insert the link correctly', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
+
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
         const buttonLink = wrapper.find('.sw-text-editor-toolbar-button__type-link');
 
@@ -233,6 +217,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // click on button for link generation
         await buttonLink.find('.sw-text-editor-toolbar-button__icon').trigger('click');
+        await flushPromises();
 
         // set link
         await buttonLink.find('#sw-field--linkTarget').setValue('https://www.foo-bar.com');
@@ -253,7 +238,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(contentEditor.element.innerHTML).toEqual(expectedValue);
 
         // check if content value was emitted right
-        const emittedValue = wrapper.emitted().input[1];
+        const emittedValue = wrapper.emitted('update:value')[1];
         expect(emittedValue[0]).toEqual(expectedValue);
     });
 
@@ -304,13 +289,14 @@ describe('src/app/component/form/sw-text-editor', () => {
             expect(contentEditor.element.innerHTML).toEqual(expectedValue);
 
             // check if content value was emitted right
-            const emittedValue = wrapper.emitted().input[1];
+            const emittedValue = wrapper.emitted('update:value')[1];
             expect(emittedValue[0]).toEqual(expectedValue);
         });
     });
 
     it('should handle inserting inline mapping', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
 
@@ -322,19 +308,18 @@ describe('src/app/component/form/sw-text-editor', () => {
         // eslint-disable-next-line max-len
         const inlineMappingButton = wrapper.find('.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon');
         await inlineMappingButton.trigger('click');
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // insert inline data mapping
         await wrapper.find('.sw-text-editor-toolbar-button__children :first-child > div').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if newly edited content is correct
         const expectedTextContent = '<p id="text-editor-content">some random {{ category.type }}</p>';
         expect(contentEditor.element.innerHTML).toBe(expectedTextContent);
 
         // check emitted events
-        const event = wrapper.emitted('input')[1];
+        const event = wrapper.emitted('update:value')[1];
         expect(event[0]).toBe(expectedTextContent);
     });
 
@@ -517,6 +502,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should show the link url when you select a text block with a link', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No Link</p>
@@ -534,7 +520,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -552,6 +538,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should show the link url with newTab active when you select a text block with a link', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No Link</p>
@@ -569,7 +556,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -587,6 +574,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should show no link url when you select a text block without a link', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No link</p>
@@ -604,6 +592,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
+        await flushPromises();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -621,6 +610,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should be able to switch from active link to non link text', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, `
             <p id="paragraphWithoutLink">No link</p>
@@ -638,7 +628,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         let linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // link menu should be opened
         let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -679,6 +669,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should be able to switch from one link to another link', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, `
             <a id="linkOne" href="http://shopware.com" target="_self">Shopware</a>
@@ -693,7 +684,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         let linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // link menu should be opened
         let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -735,6 +726,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should remove link from text', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u>Shop<strike id="anchor">ware</strike></u></bold></a>');
 
@@ -745,6 +737,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // click on link button
         await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+        await flushPromises();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -761,6 +754,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should let the toolbar disappear, when containing component unmounts', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u id="content">Shopware</u></bold></a>');
 
@@ -771,18 +765,23 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // click on link button
         await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+        await flushPromises();
 
         // link menu should be opened
-        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(true);
 
         // unmount component
-        await wrapper.destroy();
+        await wrapper.unmount();
+        await flushPromises();
+
+        linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(false);
     });
 
     it("should leave the text alone, if there isn't link to be removed", async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, '<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
 
@@ -793,6 +792,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // click on link button
         await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+        await flushPromises();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
@@ -807,6 +807,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should copy html from the wysiwyg mode and ignore p elements', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, '<bold><p><u>Shop<strike id="anchor">ware</strike></u></p></bold>');
 
@@ -828,6 +829,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should paste html styled text if the shift key is not pressed', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
 
@@ -859,6 +861,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
     it('should paste text instead of html when the shift key is pressed', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
 

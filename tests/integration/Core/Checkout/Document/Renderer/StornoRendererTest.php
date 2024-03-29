@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -75,10 +76,9 @@ class StornoRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider stornoNoteRendererDataProvider
-     *
      * @param array<string, string> $additionalConfig
      */
+    #[DataProvider('stornoNoteRendererDataProvider')]
     public function testRender(array $additionalConfig, \Closure $assertionCallback): void
     {
         $cart = $this->generateDemoCart([7, 31]);
@@ -155,7 +155,7 @@ class StornoRendererTest extends TestCase
         static::assertEmpty($processedTemplate->getSuccess());
         static::assertNotEmpty($errors = $processedTemplate->getErrors());
         static::assertArrayHasKey($orderId, $errors);
-        static::assertInstanceOf(DocumentGenerationException::class, $errors[$orderId]);
+        static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertEquals(
             "Unable to generate document. Can not generate storno document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()

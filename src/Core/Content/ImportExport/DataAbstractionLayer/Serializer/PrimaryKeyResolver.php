@@ -37,14 +37,17 @@ class PrimaryKeyResolver
             return $record;
         }
 
+        $context = Context::createDefaultContext();
+
         return $this->resolvePrimaryKey(
             $config,
             $definition,
-            $this->handleManyToManyAssociations($config, $definition, $record)
+            $this->handleManyToManyAssociations($config, $definition, $record, $context),
+            $context
         );
     }
 
-    private function resolvePrimaryKey(Config $config, EntityDefinition $definition, iterable $record): iterable
+    private function resolvePrimaryKey(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         $updatedBy = $config->getUpdateBy()->get($definition->getEntityName());
 
@@ -83,7 +86,8 @@ class PrimaryKeyResolver
         $updateByField = $this->handleTranslationsAssociation(
             $definition,
             $updateByFieldPath,
-            $criteria
+            $criteria,
+            $context
         );
 
         if (!$updateByField) {
@@ -101,7 +105,7 @@ class PrimaryKeyResolver
         ));
 
         $repository = $this->definitionInstanceRegistry->getRepository($definition->getEntityName());
-        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $repository->searchIds($criteria, $context)->firstId();
 
         if ($id) {
             $record[$primaryKeyProperty] = $id;
@@ -131,7 +135,8 @@ class PrimaryKeyResolver
     private function handleTranslationsAssociation(
         EntityDefinition $definition,
         array $updateByFieldPath,
-        Criteria $criteria
+        Criteria $criteria,
+        Context $context
     ): ?string {
         \assert(\is_string($updateByFieldPath[0]));
 
@@ -150,7 +155,7 @@ class PrimaryKeyResolver
                 ->getRepository(LanguageDefinition::ENTITY_NAME)
                 ->searchIds(
                     (new Criteria())->addFilter(new EqualsFilter('locale.code', $updateByFieldPath[1]))->setLimit(1),
-                    Context::createDefaultContext()
+                    $context
                 )->firstId();
         }
 
@@ -168,7 +173,7 @@ class PrimaryKeyResolver
         return implode('.', $updateByFieldPath);
     }
 
-    private function handleManyToManyAssociations(Config $config, EntityDefinition $definition, iterable $record): iterable
+    private function handleManyToManyAssociations(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         foreach ($definition->getFields() as $field) {
             if (!$field instanceof ManyToManyAssociationField) {
@@ -195,7 +200,8 @@ class PrimaryKeyResolver
             $updateByField = $this->handleTranslationsAssociation(
                 $definition,
                 explode('.', $updateByField),
-                $criteria
+                $criteria,
+                $context
             );
 
             if (!$updateByField) {
@@ -212,7 +218,7 @@ class PrimaryKeyResolver
             $repository = $this->definitionInstanceRegistry->getRepository($manyToManyDefinition->getEntityName());
 
             /** @var array<string> $ids */
-            $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $ids = $repository->searchIds($criteria, $context)->getIds();
 
             $record[$field->getPropertyName()] = implode('|', $ids);
         }

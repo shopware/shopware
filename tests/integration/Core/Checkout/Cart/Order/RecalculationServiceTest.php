@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Order;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -37,7 +38,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -57,10 +57,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class RecalculationServiceTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -524,13 +523,8 @@ class RecalculationServiceTest extends TestCase
 
         static::assertIsArray($stocks);
 
-        if (Feature::isActive('STOCK_HANDLING')) {
-            static::assertEquals(4, $stocks['stock']);
-            static::assertEquals(4, $stocks['available_stock']);
-        } else {
-            static::assertEquals(5, $stocks['stock']);
-            static::assertEquals(4, $stocks['available_stock']);
-        }
+        static::assertEquals(4, $stocks['stock']);
+        static::assertEquals(4, $stocks['available_stock']);
     }
 
     public function testAddCustomLineItemToOrder(): void

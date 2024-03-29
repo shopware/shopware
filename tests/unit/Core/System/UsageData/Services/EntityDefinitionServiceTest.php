@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -22,10 +24,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\EntityDefinitionService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(EntityDefinitionService::class)]
 class EntityDefinitionServiceTest extends TestCase
 {
     /**
@@ -85,7 +86,7 @@ class EntityDefinitionServiceTest extends TestCase
         $result = $entityDefinitionService->getManyToManyAssociationIdFields($this->definitionsByName[EntityWithManyToManyWithoutIdFieldDefinition::class]->getFields());
 
         static::assertCount(1, $result);
-        static::assertNotNull($result[0]['associationField']);
+        static::assertArrayHasKey('associationField', $result[0]);
         static::assertNull($result[0]['idField']);
     }
 
@@ -97,12 +98,10 @@ class EntityDefinitionServiceTest extends TestCase
         $result = $entityDefinitionService->getManyToManyAssociationIdFields($this->definitionsByName[EntityWithManyToManyWithIdFieldDefinition::class]->getFields());
         static::assertCount(1, $result);
         static::assertInstanceOf(ManyToManyIdField::class, $result[0]['idField']);
-        static::assertEquals('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
+        static::assertSame('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
     }
 
-    /**
-     * @dataProvider provideEntityDefinitions
-     */
+    #[DataProvider('provideEntityDefinitions')]
     public function testNewsletterRecipientDefinitionIsPuidEntity(
         EntityDefinition $entityDefinition,
         bool $isPuidEntity,
@@ -116,7 +115,7 @@ class EntityDefinitionServiceTest extends TestCase
 
         $service = new EntityDefinitionService([$entityDefinition], new UsageDataAllowListService());
 
-        static::assertEquals($isPuidEntity, $service->isPuidEntity($entityDefinition), $errorMessage);
+        static::assertSame($isPuidEntity, $service->isPuidEntity($entityDefinition), $errorMessage);
     }
 
     /**

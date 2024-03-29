@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<BusinessEventDefinition>
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class BusinessEventCollectorResponse extends Collection
 {
     protected function getExpectedClass(): ?string

@@ -1,0 +1,52 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Category": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["category"]
+                    },
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "children": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Category"
+                        },
+                        "nullable": true
+                    },
+
+                    "childCount": {
+                        "type": "number"
+                    },
+                    "breadcrumb": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "translated": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "properties": {
+                            "breadcrumb": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": ["breadcrumb", "children", "childCount", "translated"]
+            }
+        }
+    }
+}

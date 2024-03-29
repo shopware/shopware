@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
@@ -11,9 +12,8 @@ use Shopware\Elasticsearch\Product\ProductUpdater;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\ProductUpdater
  */
+#[CoversClass(ProductUpdater::class)]
 class ProductUpdaterTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

@@ -90,13 +90,13 @@ class CleanPersonalDataCommand extends Command
             );
 
             $ids = $this->customerRepository
-                ->searchIds($criteria, Context::createDefaultContext())
+                ->searchIds($criteria, Context::createCLIContext())
                 ->getIds();
 
             if ($ids) {
                 $ids = array_map(fn ($id) => ['id' => $id], $ids);
 
-                $this->customerRepository->delete($ids, Context::createDefaultContext());
+                $this->customerRepository->delete($ids, Context::createCLIContext());
             }
         }
 

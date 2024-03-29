@@ -16,7 +16,7 @@ abstract class WriteCommand
 
     /**
      * @param array<string, mixed> $payload
-     * @param array<string> $primaryKey
+     * @param array<string, string> $primaryKey
      */
     public function __construct(
         protected EntityDefinition $definition,
@@ -61,7 +61,7 @@ abstract class WriteCommand
     }
 
     /**
-     * @return array<string>
+     * @return array<string, string>
      */
     public function getPrimaryKey(): array
     {

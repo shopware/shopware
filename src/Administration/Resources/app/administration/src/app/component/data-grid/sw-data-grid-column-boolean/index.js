@@ -36,7 +36,7 @@ Component.register('sw-data-grid-column-boolean', {
             },
 
             set(newValue) {
-                this.$emit('input', newValue);
+                this.$emit('update:value', newValue);
             },
         },
     },

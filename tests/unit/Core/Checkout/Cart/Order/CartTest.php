@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -10,9 +11,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Cart
  */
+#[CoversClass(Cart::class)]
 class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -21,7 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -76,8 +75,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $this->getBeforeConfirmValidation(hash('sha1', (string) $customer->getEmail()))
         );
 
-        if ((!Feature::isActive('v6.6.0.0') && $customer->getActive())
-            || $customer->getDoubleOptInConfirmDate() !== null) {
+        if ($customer->getDoubleOptInConfirmDate() !== null) {
             throw CustomerException::customerAlreadyConfirmed($customer->getId());
         }
 
@@ -85,9 +83,6 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             'id' => $customer->getId(),
             'doubleOptInConfirmDate' => new \DateTimeImmutable(),
         ];
-        if (!Feature::isActive('v6.6.0.0')) {
-            $customerUpdate['active'] = true;
-        }
         $this->customerRepository->update([$customerUpdate], $context->getContext());
 
         $newToken = $this->contextPersister->replace($context->getToken(), $context);

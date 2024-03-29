@@ -6,7 +6,6 @@ stages:
     - build
     - test
     - E2E
-    - visual
     - deploy
 
 variables:
@@ -16,7 +15,7 @@ variables:
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_ROOT_PASSWORD: root
     DATABASE_URL: 'mysql://root:root@database:3306/root'
-    APP_SECRET: 'devsecret'
+    APP_SECRET: 'def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48'
     APP_URL: http://localhost:8000
     APP_ENV: test
     # cypress
@@ -78,14 +77,12 @@ workflow:
     if: '$CI_MERGE_REQUEST_EVENT_TYPE != "merge_train" && $UPSTREAM_MERGE_REQUEST_EVENT_TYPE != "merge_train" && (
         ($CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::lint::skip.*/) && $CI_JOB_STAGE == "lint"
         || ($CI_MERGE_REQUEST_LABELS =~ /.*test::skip.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::test::skip.*/) && $CI_JOB_STAGE == "test"
-        || ($CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::E2E::skip.*/) && $CI_JOB_STAGE == "E2E"
-        || ($CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::visual::skip.*/) && $CI_JOB_STAGE == "visual")'
+        || ($CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::E2E::skip.*/) && $CI_JOB_STAGE == "E2E")'
     when: never
   run:
     if: '($CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::lint::all.*/) && $CI_JOB_STAGE == "lint"
         || ($CI_MERGE_REQUEST_LABELS =~ /.*test::all.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::test::all.*/) && $CI_JOB_STAGE == "test"
-        || ($CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::E2E::all.*/) && $CI_JOB_STAGE == "E2E"
-        || ($CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::visual::all.*/) && $CI_JOB_STAGE == "visual"'
+        || ($CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ || $UPSTREAM_MERGE_REQUEST_LABELS =~ /.*downstream::E2E::all.*/) && $CI_JOB_STAGE == "E2E"'
 
 .setup_platform_and_plugin_files: &setup_platform_and_plugin_files
   - tar -czf /tmp/plugin.tar.gz .
@@ -101,7 +98,12 @@ workflow:
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
   - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
-  - PLATFORM_VERSION="${LATEST_TAG#"v"}"
+  - >
+    if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
+        PLATFORM_VERSION='6.6.99.99';
+    else
+        PLATFORM_VERSION="${LATEST_TAG#"v"}"
+    fi
   - composer config version "$PLATFORM_VERSION"
   - composer update
   - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
@@ -189,7 +191,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.3.13
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.26
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
@@ -197,6 +199,7 @@ build and validate zip:
     variables:
         SHOPWARE_PROJECT_ROOT: "${CI_PROJECT_DIR}"
         APP_ENV: 'dev'
+        NODE_VERSION: 20
     before_script:
       - *setup_platform_and_plugin_files
     script:
@@ -262,17 +265,6 @@ ecs:
     script:
         - ${PROJECT_ROOT}/vendor/bin/ecs
 
-validate snippets:
-    stage: test
-    needs: []
-    rules:
-        - if: '$CI_PIPELINE_SOURCE == "pipeline"'
-          when: never
-        - changes:
-              - '**/*.json'
-    script:
-        - ${PROJECT_ROOT}/bin/console snippets:validate
-
 jest (administration):
     stage: test
     needs: []
@@ -288,30 +280,15 @@ jest (administration):
     script:
         - '(cd $ADMIN_PATH && npm ci)'
         - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
-        - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
-        - npm ci --no-audit --prefer-offline
-        - npm exec jest -- --config jest.config.js --ci
-    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
-
-jest (administration vue3):
-    stage: test
-    needs: []
-    rules:
-        # exists does not support variables, so we cannot use ${PLUGIN_SOURCE_DIR} here
-        - exists:
-              - src/Resources/app/administration/jest.vue3.config.js
-              - Resources/app/administration/jest.vue3.config.js
-    variables:
-        APP_ENV: prod
-        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
-        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
-    script:
-        - '(cd $ADMIN_PATH && npm ci)'
-        - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - npm --prefix $ADMIN_PATH run unit-setup
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
         - npm ci --no-audit --prefer-offline
-        - VUE3=1 npm exec jest -- --config jest.vue3.config.js --ci
+        - >
+          if [[ "$PLATFORM_VERSION" = "6.6"* ]]; then
+              export VUE3=1;
+          fi
+        - npm exec jest -- --config jest.config.js --ci
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
 jest (storefront):
     stage: test
@@ -355,7 +332,7 @@ template filled:
     - npm ci --no-audit --prefer-offline
 
 .base e2e:
-    image: shopware/development:8.2-composer-2
+    image: shopware/development:8.2-node-20.10-composer-2
     stage: E2E
     needs: []
     script:
@@ -417,7 +394,7 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.3.13
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.26
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     variables:
         GIT_STRATEGY: none
@@ -434,3 +411,48 @@ upload zip to store:
         - export SHOPWARE_CLI_ACCOUNT_PASSWORD=${ACCOUNT_PASSWORD}
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - shopware-cli account producer extension upload $(realpath "$PLUGIN_NAME.zip")
+
+
+# this job creates an environment just so we can define a job that runs after the MR is merged
+# the actual backport script is run in the __backport__ job
+# we can always run this, because only the job in the pipeline of the latest "deployment" is executed
+# that job will do nothing, if the MR status is not "merged"
+backport:
+  stage: .post
+  variables:
+    GIT_STRATEGY: none
+  rules:
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-*/'
+      allow_failure: true
+  environment:
+    name: backport/$CI_COMMIT_REF_SLUG
+    on_stop: __backport__
+  before_script: []
+  script:
+    - echo 'fake env for backport'
+  after_script: []
+
+__backport__:
+  stage: .post
+  rules:
+    - when: manual
+      allow_failure: true
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: backport/$CI_COMMIT_REF_SLUG
+    action: stop
+  before_script: []
+  script:
+    - 'BACKPORT_BRANCH=$(echo $CI_MERGE_REQUEST_LABELS | tr , \\n | grep backport- | sed -e "s/backport-//g" | tr \\n , | sed "s/,\$//")'
+    - |
+      MR_STATE=$(curl --header "Private-Token: $CI_GITLAB_API_TOKEN" $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID | jq .state -r)
+      if [[ $MR_STATE != "merged" ]]; then
+        echo "MR status not merged. Status=$MR_STATE"
+        exit 1
+      fi
+    - 'echo "Backport branches: $BACKPORT_BRANCH"'
+    - npm install -g @kie/git-backporting
+    - 'MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"'
+    - git-backporting -tb ${BACKPORT_BRANCH} -pr $MR_URL -a "${CI_GITLAB_API_TOKEN}" --labels backport --comments "Backport of $MR_URL"
+  after_script: []

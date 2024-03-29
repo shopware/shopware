@@ -59,8 +59,8 @@ export default {
                 this.getConfigValue(formField, 'allowRemove') === true;
         },
 
-        onChangeValue(value, fieldName) {
-            if (this.feature.isActive('VUE3')) {
+        onChangeValue(value, fieldName, valueChange = true) {
+            if (valueChange) {
                 this.entity[fieldName] = value;
             }
 
@@ -68,6 +68,10 @@ export default {
                 this.bulkEditData[fieldName].value = value;
             }
             this.$emit('change-value', fieldName, value);
+        },
+
+        onChangeToggle(value, fieldName) {
+            this.onChangeValue(value, fieldName, false);
         },
 
         onInheritanceRestore(item) {

@@ -11,7 +11,7 @@ class TestKey implements Key
 {
     public function contents(): string
     {
-        return '';
+        return 'test';
     }
 
     public function passphrase(): string

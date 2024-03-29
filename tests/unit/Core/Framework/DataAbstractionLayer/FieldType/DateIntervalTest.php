@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldType;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(DateInterval::class)]
 class DateIntervalTest extends TestCase
 {
     public function testEquals(): void

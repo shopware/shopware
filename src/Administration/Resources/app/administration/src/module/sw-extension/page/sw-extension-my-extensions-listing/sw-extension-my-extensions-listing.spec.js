@@ -1,67 +1,64 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swExtensionMyExtensionsListing from 'src/module/sw-extension/page/sw-extension-my-extensions-listing';
-import 'src/app/component/grid/sw-pagination';
-import 'src/app/component/base/sw-alert';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/sw-select-field';
-import swExtensionMyExtensionsListingControls from 'src/module/sw-extension/component/sw-extension-my-extensions-listing-controls';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
+
+const routes = [{
+    name: 'sw.extension.my-extensions.listing.app',
+    path: '/sw/extension/my-extensions/listing/app',
+    query: {},
+}, {
+    name: 'sw.extension.my-extensions.listing.theme',
+    path: '/sw/extension/my-extensions/listing/theme',
+    query: {},
+}];
 
 const shopwareService = new ShopwareService({}, {}, {}, {});
 shopwareService.updateExtensionData = jest.fn();
-const routerReplaceMock = jest.fn();
-
-Shopware.Component.register('sw-extension-my-extensions-listing', swExtensionMyExtensionsListing);
-Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExtensionMyExtensionsListingControls);
 
 async function createWrapper() {
-    const localVue = createLocalVue();
+    delete config.global.mocks.$router;
+    delete config.global.mocks.$route;
 
-    return shallowMount(await Shopware.Component.build('sw-extension-my-extensions-listing'), {
-        localVue,
-        mocks: {
-            $route: {
-                name: 'sw.extension.my-extensions.listing.app',
-                query: {},
-            },
-            $router: {
-                replace: routerReplaceMock,
-            },
-        },
-        stubs: {
-            'router-link': true,
-            'sw-self-maintained-extension-card': {
-                template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
-                props: ['extension'],
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-meteor-card': true,
-            'sw-pagination': await Shopware.Component.build('sw-pagination'),
-            'sw-icon': true,
-            'sw-field': true,
-            // eslint-disable-next-line max-len
-            'sw-extension-my-extensions-listing-controls': await Shopware.Component.build('sw-extension-my-extensions-listing-controls'),
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-alert': await Shopware.Component.build('sw-alert'),
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {};
+    const router = createRouter({
+        routes,
+        history: createWebHashHistory(),
+    });
+
+    await router.push(routes[0]);
+    await router.isReady();
+
+    return mount(await wrapTestComponent('sw-extension-my-extensions-listing', { sync: true }), {
+        global: {
+            plugins: [router],
+            stubs: {
+                'router-link': true,
+                'sw-self-maintained-extension-card': {
+                    template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
+                    props: ['extension'],
                 },
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-meteor-card': true,
+                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
+                'sw-icon': true,
+                'sw-field': true,
+                // eslint-disable-next-line max-len
+                'sw-extension-my-extensions-listing-controls': await wrapTestComponent('sw-extension-my-extensions-listing-controls', { sync: true }),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
+                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-alert': await wrapTestComponent('sw-alert', { sync: true }),
             },
-            shopwareExtensionService: shopwareService,
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {};
+                    },
+                },
+                shopwareExtensionService: shopwareService,
+            },
         },
-
         attachTo: document.body,
     });
 }
@@ -70,9 +67,6 @@ async function createWrapper() {
  * @package services-settings
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     beforeAll(() => {
         if (Shopware.State.get('shopwareExtensions')) {
             Shopware.State.unregisterModule('shopwareExtensions');
@@ -125,20 +119,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 installedAt: null,
             },
         ]);
-
-        routerReplaceMock.mockClear();
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('openStore should call router', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.$router = {
             push: jest.fn(),
         };
@@ -149,6 +134,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('openThemesStore should call router', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.$router = {
             push: jest.fn(),
         };
@@ -159,19 +146,25 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('updateList should call update extensions', async () => {
+        const wrapper = await createWrapper();
+
         wrapper.vm.updateList();
 
         expect(shopwareService.updateExtensionData).toHaveBeenCalled();
     });
 
     it('extensionList default has a app', async () => {
+        const wrapper = await createWrapper();
+
         const extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
 
         expect(extensionCards).toHaveLength(1);
     });
 
     it('extensionList default has a no themes', async () => {
-        wrapper.vm.$route.name = 'sw.extension.my-extensions.listing.theme';
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.$router.push(routes[1]);
 
         await wrapper.vm.$nextTick();
 
@@ -180,8 +173,10 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(extensionCards).toHaveLength(0);
     });
 
-    it('extensionList withThemes has a themes', async () => {
-        wrapper.vm.$route.name = 'sw.extension.my-extensions.listing.theme';
+    it('extensionList withThemes has a theme', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.$router.push(routes[1]);
 
         Shopware.State.commit('shopwareExtensions/setExtensions', [{
             name: 'Test',
@@ -197,18 +192,23 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('should update the route with the default values', async () => {
-        expect(routerReplaceMock).toHaveBeenCalledWith({
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.$route).toMatchObject({
             name: 'sw.extension.my-extensions.listing.app',
-            params: undefined,
+            params: {},
             query: {
-                limit: 25,
-                page: 1,
-                term: undefined,
+                limit: '25',
+                page: '1',
             },
         });
     });
 
     it('should update the route with the new values from pagination', async () => {
+        const wrapper = await createWrapper();
+
         // load 40 extensions
         const extensions = Array(40).fill().map((_, i) => {
             return { name: `extension card number ${i}`, installedAt: `foo-${i}`, updatedAt: null };
@@ -218,12 +218,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$nextTick();
 
-        // reset mock
-        routerReplaceMock.mockClear();
-        expect(routerReplaceMock).not.toHaveBeenCalled();
-
         // check if only shows first 25 extensions
-        let extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
+        let extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
         expect(extensionCards).toHaveLength(25);
         expect(extensionCards.at(0).props('extension').name).toBe('extension card number 0');
 
@@ -231,20 +227,18 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const nextButton = wrapper.find('.sw-pagination__page-button-next');
         await nextButton.trigger('click');
 
-        // check if router goes to second page
-        expect(routerReplaceMock.mock.calls[0][0].query.page).toBe(2);
-
         // simulate change in url
-        wrapper.vm.$route.query = { page: 2 };
-        await wrapper.vm.$nextTick();
+        await wrapper.vm.$router.push({ name: wrapper.vm.$route.name, query: { page: 2 } });
 
         // check if it shows now only 15 extensions
-        extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
+        extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
         expect(extensionCards).toHaveLength(15);
         expect(extensionCards.at(0).props('extension').name).toBe('extension card number 25');
     });
 
     it('should search the extensions', async () => {
+        const wrapper = await createWrapper();
+
         // load 60 extensions
         const extensions = Array(40).fill().map((_, i) => {
             return { name: `extension card number ${i}`, installedAt: `foo-${i}`, updatedAt: null };
@@ -255,16 +249,15 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         await wrapper.vm.$nextTick();
 
         // check if only shows first 25 extensions
-        let extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
+        let extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
         expect(extensionCards).toHaveLength(25);
         expect(extensionCards.at(0).props('extension').name).toBe('extension card number 0');
 
         // enter search value
-        wrapper.vm.$route.query = { term: 'number 1' };
-        await wrapper.vm.$nextTick();
+        await wrapper.vm.$router.push({ name: wrapper.vm.$route.name, query: { term: 'number 1' } });
 
         // check if it shows now only 11 extensions
-        extensionCards = wrapper.findAll('.sw-self-maintained-extension-card');
+        extensionCards = wrapper.findAllComponents('.sw-self-maintained-extension-card');
         expect(extensionCards).toHaveLength(11);
 
         // check some random entries
@@ -273,43 +266,9 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(extensionCards.at(10).props('extension').name).toBe('extension card number 19');
     });
 
-    [
-        {
-            key: 'page',
-            value: 2,
-        },
-        {
-            key: 'limit',
-            value: 50,
-        },
-        {
-            key: 'term',
-            value: 'number 1',
-        },
-    ].forEach(({ key, value }) => {
-        it(`should update ${key} in route when it gets changed in the pagination`, async () => {
-            // load 60 extensions
-            const extensions = Array(60).fill().map((_, i) => {
-                return { name: `extension card number ${i}`, installedAt: `foo-${i}`, updatedAt: null };
-            });
-
-            Shopware.State.commit('shopwareExtensions/setExtensions', extensions);
-
-            await wrapper.vm.$nextTick();
-
-            // reset mock
-            routerReplaceMock.mockClear();
-            expect(routerReplaceMock).not.toHaveBeenCalled();
-
-            // change computed value
-            wrapper.vm[key] = value;
-
-            // check if route gets update
-            expect(routerReplaceMock.mock.calls[0][0].query[key]).toEqual(value);
-        });
-    });
-
     it('should filter the extensions by their active state', async () => {
+        const wrapper = await createWrapper();
+
         const activeExtensions = Array(20).fill().map((_, i) => {
             return { name: `extension card number ${i}`, installedAt: `foo-${i}`, active: true, updatedAt: null };
         });
@@ -332,7 +291,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const allExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
         expect(allExtensions).toHaveLength(25);
 
-
         const switchField = wrapper.find('.sw-field--switch input[type="checkbox"]');
         await switchField.trigger('click');
 
@@ -341,6 +299,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('should sort the extensions by their name in an ascending order', async () => {
+        const wrapper = await createWrapper();
+
         const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
         const extensions = extensionNames.map((name, i) => {
             return { name, label: name, installedAt: `foo-${i}`, active: true, updatedAt: null };
@@ -357,7 +317,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         const correctOrder = ['very smart plugin', 'semi good plugin', '#1 best plugin'];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
-        orderedExtensions.wrappers.forEach((currentWrapper, i) => {
+        orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
 
             expect(currentWrapperLabel).toBe(correctOrder[i]);
@@ -365,6 +325,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('should sort the extensions by their name in an decending order', async () => {
+        const wrapper = await createWrapper();
+
         const extensionNames = ['very smart plugin', '#1 best plugin', 'semi good plugin'];
         const extensions = extensionNames.map((name, i) => {
             return { name, label: name, installedAt: `foo-${i}`, active: true, updatedAt: null };
@@ -381,7 +343,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         const correctOrder = ['#1 best plugin', 'semi good plugin', 'very smart plugin'];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
-        orderedExtensions.wrappers.forEach((currentWrapper, i) => {
+        orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
 
             expect(currentWrapperLabel).toBe(correctOrder[i]);
@@ -389,6 +351,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('should sort the extensions by their updatedAt property', async () => {
+        const wrapper = await createWrapper();
+
         const unsortedUpdatedAtValues = [
             '2021-04-22T23:00:00.000Z',
             '2021-01-22T23:00:00.000Z',
@@ -415,7 +379,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         const correctOrder = ['extension no. 2', 'extension no. 0', 'extension no. 1'];
         const orderedExtensions = wrapper.findAll('.sw-self-maintained-extension-card');
 
-        orderedExtensions.wrappers.forEach((currentWrapper, i) => {
+        orderedExtensions.forEach((currentWrapper, i) => {
             const currentWrapperLabel = currentWrapper.text();
 
             expect(currentWrapperLabel).toBe(correctOrder[i]);
@@ -423,11 +387,15 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     it('should not show a warning if the APP_URL is setup correctly', async () => {
+        const wrapper = await createWrapper();
+
         const alert = wrapper.find('.sw-extension-my-extensions-listing__app-url-warning');
         expect(alert.exists()).toBe(false);
     });
 
     it('should show a warning if the APP_URL is not setup correctly', async () => {
+        const wrapper = await createWrapper();
+
         Shopware.State.get('context').app.config.settings.appUrlReachable = false;
 
         await wrapper.vm.$nextTick();

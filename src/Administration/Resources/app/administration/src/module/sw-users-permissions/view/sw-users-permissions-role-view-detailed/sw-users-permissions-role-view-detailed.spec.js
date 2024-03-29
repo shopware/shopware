@@ -1,31 +1,30 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swUsersPermissionsRoleViewDetailed from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed';
-
-Shopware.Component.register('sw-users-permissions-role-view-detailed', swUsersPermissionsRoleViewDetailed);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-view-detailed'), {
-        localVue,
-        stubs: {
-            'sw-alert': true,
-            'sw-users-permissions-detailed-permissions-grid': true,
-            'sw-users-permissions-detailed-additional-permissions': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-users-permissions-role-view-detailed', {
+        sync: true,
+    }), {
+        props: {
             role: {},
             detailedPrivileges: [],
         },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-alert': true,
+                'sw-users-permissions-detailed-permissions-grid': true,
+                'sw-users-permissions-detailed-additional-permissions': true,
+            },
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
         },

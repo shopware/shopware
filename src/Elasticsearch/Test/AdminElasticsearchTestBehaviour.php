@@ -4,6 +4,8 @@ namespace Shopware\Elasticsearch\Test;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
@@ -16,9 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[Package('system-settings')]
 trait AdminElasticsearchTestBehaviour
 {
-    /**
-     * @before
-     */
+    #[Before]
     public function enableElasticsearch(): void
     {
         $this->getDiContainer()
@@ -26,9 +26,7 @@ trait AdminElasticsearchTestBehaviour
             ->setEnabled(true);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function disableElasticsearch(): void
     {
         $this->getDiContainer()
@@ -36,9 +34,7 @@ trait AdminElasticsearchTestBehaviour
             ->setEnabled(false);
     }
 
-    /**
-     * @before
-     */
+    #[Before]
     public function enableAdminElasticsearch(): void
     {
         $this->getDiContainer()
@@ -46,9 +42,7 @@ trait AdminElasticsearchTestBehaviour
             ->setEnabled(true);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function disableAdminElasticsearch(): void
     {
         $this->getDiContainer()

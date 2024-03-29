@@ -33,6 +33,14 @@ class CmsSectionCollection extends EntityCollection
         return 'cms_page_section_collection';
     }
 
+    /**
+     * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+     */
+    public function hasBlockWithType(string $type): bool
+    {
+        return $this->firstWhere(fn (CmsSectionEntity $section) => $section->getBlocks()?->hasBlockWithType($type)) !== null;
+    }
+
     protected function getExpectedClass(): string
     {
         return CmsSectionEntity::class;

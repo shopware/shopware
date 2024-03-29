@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -31,11 +30,10 @@ class CacheInvalidator
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      */
     public function invalidate(array $tags, bool $force = false): void
     {
-        /** @var list<string> $tags */
         $tags = array_filter(array_unique($tags));
 
         if (empty($tags)) {
@@ -51,15 +49,8 @@ class CacheInvalidator
         $this->purge($tags);
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - The parameter $time is obsolete and will be removed in v6.6.0.0
-     */
-    public function invalidateExpired(?\DateTime $time = null): void
+    public function invalidateExpired(): void
     {
-        if ($time) {
-            Feature::triggerDeprecationOrThrow('v6.6.0.0', 'The parameter $time in \Shopware\Core\Framework\Adapter\Cache\CacheInvalidator::invalidateExpired is obsolete and will be removed in v6.6.0.0');
-        }
-
         $tags = $this->cache->loadAndDelete();
 
         if (empty($tags)) {
@@ -72,7 +63,7 @@ class CacheInvalidator
     }
 
     /**
-     * @param list<string> $keys
+     * @param array<string> $keys
      */
     private function purge(array $keys): void
     {

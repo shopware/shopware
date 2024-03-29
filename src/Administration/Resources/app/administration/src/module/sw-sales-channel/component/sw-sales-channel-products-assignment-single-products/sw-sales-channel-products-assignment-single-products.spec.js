@@ -2,19 +2,8 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-simple-search-field';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/context-menu/sw-context-button';
+import { mount } from '@vue/test-utils';
+
 
 let productData = [];
 
@@ -42,48 +31,49 @@ function setProductData(products) {
 }
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-products-assignment-single-products'), {
-        stubs: {
-            'sw-container': true,
-            'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>',
-            },
-            'sw-card-section': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-context-button': await Shopware.Component.build('sw-context-button'),
-            'sw-context-menu-item': true,
-            'sw-empty-state': true,
-            'sw-modal': true,
-            'sw-tabs': true,
-            'sw-tab-items': true,
-            'sw-icon': true,
-            'sw-pagination': true,
-            'sw-data-grid-skeleton': true,
-            'sw-data-grid-settings': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(productData),
-                    };
+    return mount(await wrapTestComponent('sw-sales-channel-products-assignment-single-products', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-container': true,
+                'sw-card': {
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
+                'sw-card-section': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-field-error': true,
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
+                'sw-context-menu-item': true,
+                'sw-empty-state': true,
+                'sw-modal': true,
+                'sw-tabs': true,
+                'sw-tab-items': true,
+                'sw-icon': true,
+                'sw-pagination': true,
+                'sw-data-grid-skeleton': true,
+                'sw-data-grid-settings': true,
             },
-            validationService: {},
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(productData),
+                        };
+                    },
+                },
+                validationService: {},
+            },
         },
-        propsData: {
+        props: {
             salesChannel: {
                 id: 1,
                 name: 'Headless',
@@ -139,7 +129,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.vm.$nextTick();
 
         await wrapper.find('.sw-data-grid__select-all .sw-field__checkbox input').trigger('click');
-        expect(wrapper.emitted()['selection-change'][0]).toEqual([
+        expect(wrapper.emitted('selection-change').at(-1)).toEqual([
             [
                 {
                     id: 1,

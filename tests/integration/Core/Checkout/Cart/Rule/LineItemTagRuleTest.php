@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemTagRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -351,9 +352,7 @@ class LineItemTagRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $identifiers[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, ?string $tag, bool $withItemWithoutPayload = true): void
     {
         $identifiers = ['kyln123', 'kyln456'];

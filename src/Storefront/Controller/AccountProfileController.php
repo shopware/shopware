@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,7 +19,7 @@ use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedHook;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -87,14 +88,18 @@ class AccountProfileController extends StorefrontController
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
-            $this->changeEmailRoute->change($data->get('email')->toRequestDataBag(), $context, $customer);
+            $emailParam = $data->get('email');
+            if (!($emailParam instanceof RequestDataBag)) {
+                throw RoutingException::missingRequestParameter('email');
+            }
+            $this->changeEmailRoute->change($emailParam->toRequestDataBag(), $context, $customer);
 
             $this->addFlash(self::SUCCESS, $this->trans('account.emailChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
             $this->addFlash(self::DANGER, $this->trans('account.emailChangeNoSuccess'));
 
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'emailFormViolation' => true]);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['e' => $exception]);
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
@@ -106,7 +111,11 @@ class AccountProfileController extends StorefrontController
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {
-            $this->changePasswordRoute->change($data->get('password')->toRequestDataBag(), $context, $customer);
+            $passwordParam = $data->get('password');
+            if (!($passwordParam instanceof RequestDataBag)) {
+                throw RoutingException::missingRequestParameter('password');
+            }
+            $this->changePasswordRoute->change($passwordParam->toRequestDataBag(), $context, $customer);
 
             $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -44,9 +46,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1106,11 +1107,8 @@ class EntityAggregatorTest extends TestCase
         static::assertEquals(75, $price->getAvg());
     }
 
-    /**
-     * @dataProvider dateHistogramProvider
-     *
-     * @group slow
-     */
+    #[DataProvider('dateHistogramProvider')]
+    #[Group('slow')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();
@@ -1325,6 +1323,18 @@ class EntityAggregatorTest extends TestCase
         $this->expectException(InvalidAggregationQueryException::class);
         $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
 
+        $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+    }
+
+    public function testAggregationWithBacktickInName(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
+
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Backtick not allowed in identifier');
         $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 

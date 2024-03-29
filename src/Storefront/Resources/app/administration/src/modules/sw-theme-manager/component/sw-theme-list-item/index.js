@@ -2,7 +2,7 @@ import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
 
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 const { Component, Application } = Shopware;

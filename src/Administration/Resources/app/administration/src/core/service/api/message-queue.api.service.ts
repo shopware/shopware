@@ -19,17 +19,15 @@ class MessageQueueApiService extends ApiService {
      *
      * @returns {Promise<T>}
      */
-    consume(receiver: string, cancelToken ?: CancelToken): Promise<{ handledMessages: number}> {
+    consume(receiver: string, cancelToken ?: CancelToken): Promise<{ handledMessages: number }> {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/consume`, { receiver }, {
+            .post<{ handledMessages: number}>(`/_action/${this.getApiBasePath()}/consume`, { receiver }, {
                 headers,
                 cancelToken,
             })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            }) as Promise<{ handledMessages: number}>;
+            .then(ApiService.handleResponse.bind(this));
     }
 }
 

@@ -7,8 +7,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Modal box component which can be displayed in different variants and sizes
  * @status ready
  * @example-type static
@@ -74,6 +73,14 @@ Component.register('sw-modal', {
             default: true,
         },
 
+        showFooter: {
+            type: Boolean,
+            required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
+
         closable: {
             type: Boolean,
             required: false,
@@ -93,14 +100,8 @@ Component.register('sw-modal', {
         modalClasses() {
             return {
                 [`sw-modal--${this.variant}`]: (this.variant && !this.size),
+                'sw-modal--has-sidebar': this.showHelpSidebar,
             };
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - will be removed
-         */
-        identifierClass() {
-            return `sw-modal--${this.id}`;
         },
 
         modalDialogClasses() {
@@ -110,8 +111,18 @@ Component.register('sw-modal', {
             ];
         },
 
+        modalBodyClasses() {
+            return {
+                'has--no-footer': !this.showFooter,
+            };
+        },
+
         hasFooterSlot() {
             return !!this.$slots['modal-footer'];
+        },
+
+        showHelpSidebar() {
+            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
         },
     },
 

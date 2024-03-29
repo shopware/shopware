@@ -49,7 +49,7 @@ class MigrationCollection
     }
 
     /**
-     * @return list<class-string<MigrationStep>>
+     * @return array<class-string<MigrationStep>>
      */
     public function migrateInPlace(?int $until = null, ?int $limit = null): array
     {
@@ -62,7 +62,7 @@ class MigrationCollection
     }
 
     /**
-     * @return list<class-string<MigrationStep>>
+     * @return array<class-string<MigrationStep>>
      */
     public function migrateDestructiveInPlace(?int $until = null, ?int $limit = null): array
     {
@@ -70,7 +70,7 @@ class MigrationCollection
     }
 
     /**
-     * @return list<class-string<MigrationStep>>
+     * @return array<class-string<MigrationStep>>
      */
     public function getExecutableMigrations(?int $until = null, ?int $limit = null): array
     {
@@ -78,7 +78,7 @@ class MigrationCollection
     }
 
     /**
-     * @return list<class-string<MigrationStep>>
+     * @return array<class-string<MigrationStep>>
      */
     public function getExecutableDestructiveMigrations(?int $until = null, ?int $limit = null): array
     {

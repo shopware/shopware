@@ -8,34 +8,15 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class IterateEntityMessage implements LowPriorityMessageInterface
 {
     public function __construct(
-        private readonly string $entityName,
-        private readonly Operation $operation,
-        private readonly \DateTimeImmutable $runDate,
-        private readonly \DateTimeImmutable|null $lastRun
+        public readonly string $entityName,
+        public readonly Operation $operation,
+        public readonly \DateTimeImmutable $runDate,
+        public readonly ?\DateTimeImmutable $lastRun,
+        public readonly ?string $shopId = null
     ) {
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entityName;
-    }
-
-    public function getOperation(): Operation
-    {
-        return $this->operation;
-    }
-
-    public function getRunDate(): \DateTimeImmutable
-    {
-        return $this->runDate;
-    }
-
-    public function getLastRun(): \DateTimeImmutable|null
-    {
-        return $this->lastRun;
     }
 }

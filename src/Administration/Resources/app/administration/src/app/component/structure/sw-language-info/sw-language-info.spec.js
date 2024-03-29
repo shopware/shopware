@@ -2,8 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/structure/sw-language-info';
+import { mount } from '@vue/test-utils';
 
 describe('src/app/component/structure/sw-language-info', () => {
     let wrapper = null;
@@ -17,16 +16,29 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: '456',
         });
 
-        wrapper = shallowMount(await Shopware.Component.build('sw-language-info'), {
-            stubs: {},
-            mocks: {
-                $tc: (v1, v2, v3) => ({ v1, v2, v3 }),
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        get: () => Promise.resolve({}),
-                    }),
+        wrapper = mount(await wrapTestComponent('sw-language-info', { sync: true }), {
+            global: {
+                mocks: {
+                    $tc: (snippetKey, count, args) => {
+                        let value = `|${snippetKey}|${count}|`;
+
+                        if (typeof args !== 'object') {
+                            return value;
+                        }
+
+                        Object.keys(args).forEach((key) => {
+                            value += `${key}:${args[key]}|`;
+                        });
+
+                        return value;
+                    },
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => Promise.resolve({}),
+                        }),
+                    },
                 },
             },
         });
@@ -45,7 +57,7 @@ describe('src/app/component/structure/sw-language-info', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.html()).toBe('');
+        expect(wrapper.text()).toBe('');
     });
 
     it('should not render the infoText when user is in default language', async () => {
@@ -58,7 +70,7 @@ describe('src/app/component/structure/sw-language-info', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.html()).toBe('');
+        expect(wrapper.text()).toBe('');
     });
 
     it('should render the infoText for a new entity', async () => {
@@ -66,12 +78,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             isNewEntity: true,
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextNewEntity');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: '',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextNewEntity|0|entityDescription:|');
     });
 
     it('should render the infoText for a child language', async () => {
@@ -80,12 +87,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: '123',
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextChildLanguage');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: '',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:|language:undefined|');
     });
 
     it('should render the infoText for a root language', async () => {
@@ -97,12 +99,7 @@ describe('src/app/component/structure/sw-language-info', () => {
 
         await wrapper.vm.$nextTick();
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextRootLanguage');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: '',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:|language:undefined|');
     });
 
     it('should render the infoText with entityDescription for a new entity', async () => {
@@ -111,12 +108,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextNewEntity');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: 'My entity description',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextNewEntity|0|entityDescription:My entity description|');
     });
 
     it('should render the infoText with entityDescription for a child language', async () => {
@@ -129,12 +121,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextChildLanguage');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: 'My entity description',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:undefined|');
     });
 
     it('should render the infoText with entityDescription for a root language', async () => {
@@ -148,12 +135,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextRootLanguage');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: 'My entity description',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:undefined|');
     });
 
     it('should render the infoText with language name for a child language', async () => {
@@ -167,13 +149,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextChildLanguage');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: 'My entity description',
-            language: 'demoLanguage',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextChildLanguage|0|entityDescription:My entity description|language:demoLanguage|');
     });
 
     it('should render the infoText with language name for a root language', async () => {
@@ -188,12 +164,6 @@ describe('src/app/component/structure/sw-language-info', () => {
             entityDescription: 'My entity description',
         });
 
-        const infoText = JSON.parse(wrapper.find('.sw_language-info__info').text());
-        expect(infoText.v1).toBe('sw-language-info.infoTextRootLanguage');
-        expect(infoText.v2).toBe(0);
-        expect(infoText.v3).toEqual({
-            entityDescription: 'My entity description',
-            language: 'demoLanguage',
-        });
+        expect(wrapper.find('.sw_language-info__info').text()).toBe('|sw-language-info.infoTextRootLanguage|0|entityDescription:My entity description|language:demoLanguage|');
     });
 });

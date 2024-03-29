@@ -49,20 +49,12 @@ export default {
             return criteria;
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - will be removed
-         * Use `secretAccessKeyFieldTypeIsText` and `secretAccessKeyFieldTypeIsPassword` instead
-         */
-        secretAccessKeyFieldType() {
-            return this.showSecretAccessKey ? 'text' : 'password';
-        },
-
         secretAccessKeyFieldTypeIsText() {
-            return this.secretAccessKeyFieldType === 'text';
+            return this.showSecretAccessKey;
         },
 
         secretAccessKeyFieldTypeIsPassword() {
-            return this.secretAccessKeyFieldType === 'password';
+            return !this.showSecretAccessKey;
         },
 
         integrationColumns() {

@@ -147,7 +147,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return new SystemSource();
         }
 
-        $clientId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
+        $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
         $keyOrigin = AccessKeyHelper::getOrigin($clientId);
 
         if ($keyOrigin === 'user') {
@@ -198,7 +198,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             throw RoutingException::languageNotFound($languageId);
         }
         $data = $this->connection->createQueryBuilder()
-            ->select(['LOWER(HEX(language.parent_id))'])
+            ->select('LOWER(HEX(language.parent_id))')
             ->from('language')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($languageId))
@@ -215,7 +215,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getUserIdByAccessKey(string $clientId): string
     {
         $id = $this->connection->createQueryBuilder()
-            ->select(['user_id'])
+            ->select('user_id')
             ->from('user_access_key')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
@@ -228,7 +228,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getSalesChannelIdByAccessKey(string $clientId): string
     {
         $id = $this->connection->createQueryBuilder()
-            ->select(['id'])
+            ->select('id')
             ->from('sales_channel')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
@@ -241,7 +241,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getIntegrationIdByAccessKey(string $clientId): string
     {
         $id = $this->connection->createQueryBuilder()
-            ->select(['id'])
+            ->select('id')
             ->from('integration')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientId)
@@ -303,7 +303,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function fetchPermissions(string $userId): array
     {
         $permissions = $this->connection->createQueryBuilder()
-            ->select(['role.privileges'])
+            ->select('role.privileges')
             ->from('acl_user_role', 'mapping')
             ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
             ->where('mapping.user_id = :userId')
@@ -368,7 +368,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function fetchIntegrationPermissions(string $integrationId): array
     {
         $permissions = $this->connection->createQueryBuilder()
-            ->select(['role.privileges'])
+            ->select('role.privileges')
             ->from('integration_role', 'mapping')
             ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
             ->where('mapping.integration_id = :integrationId')
@@ -388,7 +388,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function fetchAppNameByIntegrationId(string $integrationId): ?string
     {
         $name = $this->connection->createQueryBuilder()
-            ->select(['app.name'])
+            ->select('app.name')
             ->from('app', 'app')
             ->innerJoin('app', 'integration', 'integration', 'integration.id = app.integration_id')
             ->where('integration.id = :integrationId')

@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
@@ -22,9 +22,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister
  */
+#[CoversClass(ShippingMethodPersister::class)]
 class ShippingMethodPersisterTest extends TestCase
 {
     private const ICON_URL = __DIR__ . '/Icons/TestIcon.png';
@@ -72,12 +71,9 @@ class ShippingMethodPersisterTest extends TestCase
         $deliveryTime = new DeliveryTimeEntity();
         $deliveryTime->setId('ca565fa321ad4c87a2669161907fc4c8');
 
-        $ruleId = 'd4bdfbb82f624c7482b4c16599d31a30';
-
         return new ShippingMethodPersister(
             \array_key_exists('shippingMethodRepository', $services) ? $services['shippingMethodRepository'] : $this->createShippingMethodRepositoryMock(),
             \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
-            \array_key_exists('ruleRepository', $services) ? $services['ruleRepository'] : $this->createRuleRepositoryMock([[$ruleId], [$ruleId]]),
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
             \array_key_exists('appLoader', $services) ? $services['appLoader'] : $this->createAppLoaderMock(),
@@ -104,14 +100,6 @@ class ShippingMethodPersisterTest extends TestCase
         );
 
         return $appShippingMethodMock;
-    }
-
-    /**
-     * @param list<list<string>> $ruleIds
-     */
-    private function createRuleRepositoryMock(array $ruleIds = []): EntityRepository
-    {
-        return new StaticEntityRepository($ruleIds, new RuleDefinition());
     }
 
     private function createMediaRepositoryMock(): EntityRepository

@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Struct\Version;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Struct\Version
  */
+#[CoversClass(Version::class)]
 class VersionTest extends TestCase
 {
     public function testEmptyConstructor(): void

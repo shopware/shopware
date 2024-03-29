@@ -1,0 +1,17 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "NavigationType": {
+                "type": "string",
+                "enum": [
+                    "main-navigation",
+                    "footer-navigation",
+                    "service-navigation"
+                ]
+            }
+        }
+    }
+}

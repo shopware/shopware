@@ -2,11 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\LastNameRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -15,14 +19,11 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\LastNameRule
  */
+#[Package('services-settings')]
+#[CoversClass(LastNameRule::class)]
+#[Group('rules')]
 class LastNameRuleTest extends TestCase
 {
     private LastNameRule $rule;
@@ -48,9 +49,7 @@ class LastNameRuleTest extends TestCase
         static::assertEquals(RuleConstraints::string(), $constraints['lastName']);
     }
 
-    /**
-     * @dataProvider getMatchCustomerLastNameValues
-     */
+    #[DataProvider('getMatchCustomerLastNameValues')]
     public function testLastNameRuleMatching(bool $expected, ?string $customerName, ?string $ruleNameValue, string $operator): void
     {
         $customer = new CustomerEntity();

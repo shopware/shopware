@@ -71,8 +71,8 @@ export default {
             if (!this.product) {
                 return null;
             }
-            const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
-            return this.product.media.find(media => media.id === coverId);
+
+            return this.product.media.find(media => media.id === this.product.coverId);
         },
 
         coverImageSource() {

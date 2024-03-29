@@ -1,5 +1,4 @@
-import { reactive } from 'vue3';
-import Vue from 'vue';
+import { reactive } from 'vue';
 
 const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
@@ -21,18 +20,12 @@ Application.addServiceProvider('cmsService', () => {
     };
 });
 
-const isVue3 = !!window._features_?.vue3;
-
-const elementRegistry = isVue3 ? reactive({}) : Vue.observable({});
-const blockRegistry = isVue3 ? reactive({}) : Vue.observable({});
-const mappingTypesCache = isVue3 ? reactive({}) : Vue.observable({});
+const elementRegistry = reactive({});
+const blockRegistry = reactive({});
+const mappingTypesCache = reactive({});
 
 // This hack is needed to access changes inside the reactive registries
-const cmsServiceState = isVue3 ? reactive({
-    elementRegistry,
-    blockRegistry,
-    mappingTypesCache,
-}) : Vue.observable({
+const cmsServiceState = reactive({
     elementRegistry,
     blockRegistry,
     mappingTypesCache,
@@ -105,15 +98,11 @@ function registerCmsElement(config) {
         };
     }
 
-    if (!isVue3) {
-        Shopware.Application.view.setReactive(
-            elementRegistry,
-            config.name,
-            config,
-        );
-    } else {
-        elementRegistry[config.name] = config;
-    }
+    Shopware.Application.view.setReactive(
+        elementRegistry,
+        config.name,
+        config,
+    );
 
     return true;
 }

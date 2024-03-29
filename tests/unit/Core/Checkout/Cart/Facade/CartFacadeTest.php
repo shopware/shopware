@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -20,9 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\CartFacade
  */
+#[CoversClass(CartFacade::class)]
 class CartFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -46,7 +46,7 @@ class CartFacadeTest extends TestCase
         ));
 
         $cart->setErrors(new ErrorCollection([
-            new GenericCartError('foo', 'foo', [], 1, false, false),
+            new GenericCartError('foo', 'foo', [], 1, false, false, false),
         ]));
 
         $facade = new CartFacade(
@@ -66,8 +66,8 @@ class CartFacadeTest extends TestCase
         $price = $facade->price();
         static::assertEquals(100, $price->getTotal());
 
-        $errors = $facade->errors();
-        static::assertCount(1, $errors);
+        $errors = $facade->errors()->getIterator();
+        static::assertCount(1, iterator_to_array($errors));
 
         static::assertSame('my-container', $facade->container('my-container')->getId());
         static::assertEquals(3, $facade->count());

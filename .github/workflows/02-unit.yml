@@ -26,7 +26,7 @@ jobs:
       APP_ENV: test
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       APP_URL: http://localhost:8000
-      APP_SECRET: devsecret
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -92,7 +92,7 @@ jobs:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000
-      APP_SECRET: devsecret
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
 
@@ -111,14 +111,14 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: node-cache
         with:
           path: src/Administration/Resources/app/administration/node_modules
@@ -137,7 +137,9 @@ jobs:
         run: composer install
 
       - name: Generate Schema
-        run: bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
+        run: |
+          composer run framework:schema:dump
+          composer run npm:admin run unit-setup
 
       - name: Run Jest Admin
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
@@ -149,20 +151,20 @@ jobs:
       APP_ENV: prod
       DATABASE_URL: mysql://root:root@database:3306/root
       APP_URL: http://localhost:8000
-      APP_SECRET: devsecret
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: elasticsearch:9200
       BLUE_GREEN_DEPLOYMENT: 1
 
     steps:
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: node-cache
         with:
           path: src/Storefront/Resources/app/storefront/node_modules

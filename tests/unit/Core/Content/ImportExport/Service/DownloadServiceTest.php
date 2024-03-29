@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
@@ -17,15 +19,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\Service\DownloadService
  */
 #[Package('system-settings')]
+#[CoversClass(DownloadService::class)]
 class DownloadServiceTest extends TestCase
 {
-    /**
-     * @dataProvider dataProviderInvalidAccessToken
-     */
+    #[DataProvider('dataProviderInvalidAccessToken')]
     public function testInvalidAccessToken(ImportExportFileEntity $fileEntity, string $accessToken): void
     {
         static::expectException(InvalidFileAccessTokenException::class);
@@ -37,9 +36,7 @@ class DownloadServiceTest extends TestCase
         $downloadService->createFileResponse(Context::createDefaultContext(), $fileEntity->getId(), $accessToken);
     }
 
-    /**
-     * @dataProvider dataProviderNotFoundFile
-     */
+    #[DataProvider('dataProviderNotFoundFile')]
     public function testNotFoundFile(ImportExportFileEntity $fileEntity, string $accessToken, string $fileId): void
     {
         static::expectException(FileNotFoundException::class);
@@ -52,9 +49,7 @@ class DownloadServiceTest extends TestCase
         $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, $accessToken);
     }
 
-    /**
-     * @dataProvider dataProviderCreateFileResponse
-     */
+    #[DataProvider('dataProviderCreateFileResponse')]
     public function testCreateFileResponse(ImportExportFileEntity $fileEntity, string $accessToken, string $fileId, string $expectOutputFilename): void
     {
         /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
@@ -62,7 +57,7 @@ class DownloadServiceTest extends TestCase
 
         $fileSystem = $this->createMock(FilesystemOperator::class);
 
-        $fileSystem->expects(static::once())->method('readStream')->willReturn(fopen('php://memory', 'rb'));
+        $fileSystem->expects(static::once())->method('readStream')->willReturn(fopen('php://memory', 'r'));
         $fileSystem->expects(static::once())->method('fileSize')->willReturn(100);
 
         $downloadService = new DownloadService($fileSystem, $fileRepository);

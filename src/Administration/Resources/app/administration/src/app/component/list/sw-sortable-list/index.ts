@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 
@@ -33,8 +33,7 @@ interface ScrollOnDragConf {
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @description A configurable list component that can be used to sort items via drag-and-drop.
@@ -68,6 +67,8 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<DragConfig>,
             required: false,
             default(): DragConfig {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultConfig;
             },
         },
@@ -83,6 +84,8 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<ScrollOnDragConf>,
             required: false,
             default(): ScrollOnDragConf {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultScrollOnDragConf;
             },
         },
@@ -139,7 +142,7 @@ Component.register('sw-sortable-list', {
         },
 
         scrollableParent(): Element|null {
-            return this.findScrollableParent(this.$el);
+            return this.findScrollableParent(this.$el as Element|null);
         },
     },
 

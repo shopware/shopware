@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -9,10 +10,8 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Context\ExecutionContext;
@@ -24,9 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator
  */
+#[CoversClass(CustomerZipCodeValidator::class)]
 class CustomerZipcodeValidatorTest extends TestCase
 {
     private CustomerZipCode $constraint;
@@ -112,11 +110,7 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidateWithInvalidCountryId(): void
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(CountryNotFoundException::class);
-        } else {
-            static::expectException(CustomerException::class);
-        }
+        static::expectException(CustomerException::class);
 
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects(static::once())->method('get')->with($this->constraint->countryId)->willReturn(null);

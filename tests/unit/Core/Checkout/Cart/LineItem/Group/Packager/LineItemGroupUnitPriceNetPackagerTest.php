@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Packager;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
@@ -12,11 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNetPackager
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupUnitPriceNetPackager::class)]
 class LineItemGroupUnitPriceNetPackagerTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
@@ -39,9 +40,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * Please keep in mind, if you change the identifier, there might still
      * be old keys in the SetGroup entities in the database of shops, that
      * try to execute a packager that does not exist anymore with this key.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testKey(): void
     {
         static::assertEquals('PRICE_UNIT_NET', $this->packager->getKey());
@@ -51,9 +51,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * This test verifies that we have finished building our
      * package, as soon as we have reached a gross item price of 100.0.
      * This is archived with 4 items.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testPackageDoneWhenSumReached(): void
     {
         $items = new LineItemFlatCollection();
@@ -73,9 +72,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
     /**
      * This test verifies that our packager returns an empty result
      * if we dont have enough items to fill a group.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testResultEmptyIfNotEnoughItems(): void
     {
         $items = new LineItemFlatCollection();
@@ -93,9 +91,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does also work
      * with an empty list of items. We should also get an empty result list.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testNoItemsReturnsEmptyList(): void
     {
         $items = new LineItemFlatCollection();
@@ -108,9 +105,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does also work
      * with an invalid negative count. In that case we want an empty result list.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testNegativeCountReturnsEmptyList(): void
     {
         $items = new LineItemFlatCollection();
@@ -123,9 +119,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does also work
      * with an invalid zero count. In that case we want an empty result list.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testZeroCountReturnsEmptyList(): void
     {
         $items = new LineItemFlatCollection();
@@ -138,9 +133,8 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does ignore products
      * that have no calculated price.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testPriceNullIsIgnored(): void
     {
         $items = new LineItemFlatCollection();

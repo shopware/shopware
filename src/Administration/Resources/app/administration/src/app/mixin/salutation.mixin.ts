@@ -2,7 +2,6 @@
  * @package admin
  */
 
-/* @private */
 import { defineComponent } from 'vue';
 
 type SalutationFilterEntityType = {
@@ -18,7 +17,7 @@ type SalutationFilterEntityType = {
 };
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('salutation', defineComponent({
     computed: {

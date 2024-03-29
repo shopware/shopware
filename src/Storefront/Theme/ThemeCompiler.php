@@ -3,15 +3,16 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToDeleteDirectory;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -97,33 +98,21 @@ class ThemeCompiler implements ThemeCompilerInterface
             $context
         );
 
-        $concatenatedScripts = '';
-
-        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
-        if (!Feature::isActive('v6.6.0.0')) {
-            try {
-                $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
-            } catch (\Throwable $e) {
-                throw new ThemeCompileException(
-                    $themeConfig->getName() ?? '',
-                    'Error while trying to concatenate Scripts: ' . $e->getMessage(),
-                    $e
-                );
-            }
-        }
-
         $newThemeHash = Uuid::randomHex();
         $themePrefix = $this->themePathBuilder->generateNewPath($salesChannelId, $themeId, $newThemeHash);
         $oldThemePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
-        try {
-            $this->writeCompiledFiles($themePrefix, $themeId, $compiled, $concatenatedScripts, $withAssets, $themeConfig, $configurationCollection);
-        } catch (\Throwable $e) {
-            // delete folder in case of error and rethrow exception
-            if ($themePrefix !== $oldThemePrefix) {
-                $this->filesystem->deleteDirectory($themePrefix);
-            }
+        // If the system does not use seeded theme paths,
+        // we have to delete the complete folder before to ensure that old files are deleted
+        if ($oldThemePrefix === $themePrefix) {
+            $path = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
+            $this->filesystem->deleteDirectory($path);
+        }
+
+        try {
+            $assets = $this->collectCompiledFiles($themePrefix, $themeId, $compiled, $withAssets, $themeConfig, $configurationCollection);
+        } catch (\Throwable $e) {
             throw new ThemeCompileException(
                 $themeConfig->getName() ?? '',
                 'Error while trying to write compiled files: ' . $e->getMessage(),
@@ -131,10 +120,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
-        }
+        $scriptFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+
+        CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -147,6 +135,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 // delay is configured in seconds, symfony expects milliseconds
                 $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
             }
+
             $this->messageBus->dispatch(
                 new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
                 $stamps
@@ -186,37 +175,41 @@ class ThemeCompiler implements ThemeCompilerInterface
         };
     }
 
+    /**
+     * @return list<CopyBatchInput>
+     */
     private function copyScriptFilesToTheme(
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
-    ): void {
+    ): array {
         $scriptsDist = $this->getScriptDistFolders($configurationCollection);
-        $themePath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
-        $distRelativePath = 'Resources' . \DIRECTORY_SEPARATOR . 'app' . \DIRECTORY_SEPARATOR . 'storefront' . \DIRECTORY_SEPARATOR . 'dist' . \DIRECTORY_SEPARATOR . 'storefront';
+        $themePath = 'theme/' . $themePrefix;
+        $distRelativePath = 'Resources/app/storefront/dist/storefront';
+
+        $copyFiles = [];
 
         foreach ($scriptsDist as $folderName => $basePath) {
             // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
-            $path = str_replace(\DIRECTORY_SEPARATOR . 'Resources', '', $basePath);
-            $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . $folderName;
+            $path = str_replace('/Resources', '', $basePath);
+            $pathToJsFiles = $path . '/' . $distRelativePath . '/js/' . $folderName;
             if ($folderName === 'storefront') {
-                $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath;
+                $pathToJsFiles = $path . '/' . $distRelativePath;
             }
 
-            $files = $this->getScriptDistFiles($pathToJsFiles);
+            $files = $this->getScriptDistFiles($this->themeFileImporter->getRealPath($pathToJsFiles));
             if ($files === null) {
                 continue;
             }
 
-            $targetPath = $themePath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . $folderName;
+            $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
-                $fileName = $file->getFilename();
-                $completeTargetPath = $targetPath . \DIRECTORY_SEPARATOR . $fileName;
-                $content = file_get_contents($file->getRealPath());
-                if ($content !== false && $file->getRealPath() !== false) {
-                    $this->filesystem->write($completeTargetPath, $content);
+                if (file_exists($file->getRealPath())) {
+                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
                 }
             }
         }
+
+        return $copyFiles;
     }
 
     /**
@@ -227,11 +220,23 @@ class ThemeCompiler implements ThemeCompilerInterface
         $scriptsDistFolders = [];
         foreach ($configurationCollection as $configuration) {
             $scripts = $configuration->getScriptFiles();
-            $technicalName = preg_replace('/(?<!^)[A-Z]/', '-$0', $configuration->getTechnicalName());
-            if ($technicalName !== null && $scripts->count() > 0) {
-                $outputFolder = strtolower($technicalName);
-                $scriptsDistFolders[$outputFolder] = $configuration->getBasePath();
+            foreach ($scripts as $key => $script) {
+                if ($script->getFilepath() === '@Storefront') {
+                    $scripts->remove($key);
+                }
             }
+            if ($scripts->count() === 0) {
+                continue;
+            }
+            $distPath = $configuration->getBasePath();
+            $isVendor = str_contains($configuration->getBasePath(), 'vendor/');
+            $isTechnicalName = str_contains($configuration->getBasePath(), $configuration->getTechnicalName());
+            if (!$isVendor && !$isTechnicalName) {
+                $appPath = '/' . $configuration->getTechnicalName() . '/Resources';
+                $distPath = str_replace('/Resources', $appPath, $configuration->getBasePath());
+            }
+
+            $scriptsDistFolders[$configuration->getAssetName()] = $distPath;
         }
 
         return $scriptsDistFolders;
@@ -240,7 +245,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     private function getScriptDistFiles(string $path): ?Finder
     {
         try {
-            $finder = (new Finder())->files()->in($path)->exclude('js');
+            $finder = (new Finder())->files()->followLinks()->in($path)->exclude('js');
         } catch (DirectoryNotFoundException $e) {
             $this->logger->error($e->getMessage());
         }
@@ -248,13 +253,18 @@ class ThemeCompiler implements ThemeCompilerInterface
         return $finder ?? null;
     }
 
-    private function copyAssets(
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function getAssets(
         StorefrontPluginConfiguration $configuration,
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $outputPath
-    ): void {
+    ): array {
+        $collected = [];
+
         if (!$configuration->getAssetPaths()) {
-            return;
+            return [];
         }
 
         foreach ($configuration->getAssetPaths() as $asset) {
@@ -265,7 +275,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                     throw ThemeException::couldNotFindThemeByName($name);
                 }
 
-                $this->copyAssets($config, $configurationCollection, $outputPath);
+                $collected = [...$collected, ...$this->getAssets($config, $configurationCollection, $outputPath)];
 
                 continue;
             }
@@ -276,8 +286,10 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
-            CopyBatch::copy($this->filesystem, ...$assets);
+            $collected = [...$collected, ...$assets];
         }
+
+        return array_values($collected);
     }
 
     /**
@@ -487,54 +499,46 @@ PHP_EOL;
         return $concatenatedStylesEvent->getConcatenatedStyles();
     }
 
-    private function getConcatenatedScripts(
-        FileCollection $scriptFiles,
-        StorefrontPluginConfiguration $themeConfig,
-        string $salesChannelId
-    ): string {
-        $concatenatedScripts = '';
-        foreach ($scriptFiles as $file) {
-            $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
-        }
-
-        $concatenatedScriptsEvent = new ThemeCompilerConcatenatedScriptsEvent($concatenatedScripts, $salesChannelId);
-        $this->eventDispatcher->dispatch($concatenatedScriptsEvent);
-
-        return $concatenatedScriptsEvent->getConcatenatedScripts();
-    }
-
-    private function writeCompiledFiles(
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function collectCompiledFiles(
         string $themePrefix,
         string $themeId,
         string $compiled,
-        string $concatenatedScripts,
         bool $withAssets,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection
-    ): void {
-        $path = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
+    ): array {
+        $compileLocation = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
-        if ($this->filesystem->has($path)) {
-            $this->filesystem->deleteDirectory($path);
-        }
+        $tempStream = fopen('php://temp', 'rwb');
 
-        $cssFilePath = $path . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
-        $this->filesystem->write($cssFilePath, $compiled);
+        \assert(\is_resource($tempStream));
+        fwrite($tempStream, $compiled);
+        rewind($tempStream);
 
-        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
-        if (!Feature::isActive('v6.6.0.0')) {
-            $scriptFilepath = $path . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
-            $this->filesystem->write($scriptFilepath, $concatenatedScripts);
-        }
+        $files = [
+            new CopyBatchInput(
+                $tempStream,
+                [
+                    $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
+                ]
+            ),
+        ];
 
         // assets
         if ($withAssets) {
             $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
-            if ($this->filesystem->has($assetPath)) {
+
+            try {
                 $this->filesystem->deleteDirectory($assetPath);
+            } catch (UnableToDeleteDirectory) {
             }
 
-            $this->copyAssets($themeConfig, $configurationCollection, $assetPath);
+            $files = [...$files, ...$this->getAssets($themeConfig, $configurationCollection, $assetPath)];
         }
+
+        return $files;
     }
 }

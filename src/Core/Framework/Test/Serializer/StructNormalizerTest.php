@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Serializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
@@ -106,9 +107,7 @@ class StructNormalizerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider denormalizeShouldReturnNonArraysProvider
-     */
+    #[DataProvider('denormalizeShouldReturnNonArraysProvider')]
     public function testDenormalizeShouldReturnNonArrays(mixed $input): void
     {
         static::assertEquals($input, $this->normalizer->denormalize($input));

@@ -57,14 +57,13 @@ class SeoUrlDefinition extends EntityDefinition
             (new BoolField('is_canonical', 'isCanonical'))->addFlags(new ApiAware()),
             (new BoolField('is_modified', 'isModified'))->addFlags(new ApiAware()),
             (new BoolField('is_deleted', 'isDeleted'))->addFlags(new ApiAware()),
+            (new StringField('error', 'error'))->addFlags(new Runtime(), new ApiAware()),
 
             (new StringField('url', 'url'))->addFlags(new ApiAware(), new Runtime()),
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
 
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
-
-            (new BoolField('is_valid', 'isValid'))->addFlags(new ApiAware(), new Runtime()),
         ]);
     }
 }

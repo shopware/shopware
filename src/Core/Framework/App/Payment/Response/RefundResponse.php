@@ -16,7 +16,7 @@ class RefundResponse extends AbstractResponse
      * Usually, this is one of: complete, fail, reopen
      * By default, the refund will remain on 'open'
      *
-     * @See StateMachineTransitionActions
+     * @see StateMachineTransitionActions
      */
     protected ?string $status = null;
 

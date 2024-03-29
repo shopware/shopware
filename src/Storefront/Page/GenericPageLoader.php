@@ -63,7 +63,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
             $criteria = new Criteria();
             $criteria->setTitle('generic-page::shipping-methods');
 
-            $event = new ShippingMethodRouteRequestEvent($request, new Request(), $context, $criteria);
+            $event = new ShippingMethodRouteRequestEvent($request, $request->duplicate(), $context, $criteria);
             $this->eventDispatcher->dispatch($event);
 
             $shippingMethods = $this->shippingMethodRoute
@@ -75,7 +75,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
             $criteria = new Criteria();
             $criteria->setTitle('generic-page::payment-methods');
 
-            $event = new PaymentMethodRouteRequestEvent($request, new Request(), $context, $criteria);
+            $event = new PaymentMethodRouteRequestEvent($request, $request->duplicate(), $context, $criteria);
             $this->eventDispatcher->dispatch($event);
 
             $paymentMethods = $this->paymentMethodRoute

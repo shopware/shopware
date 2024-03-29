@@ -30,6 +30,7 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
+        'Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\FkReference#__construct\(\)',
 
         // Removed boot method from Bundle
         'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
@@ -46,5 +47,11 @@ return [
         // Will be typed in Symfony 7
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#add\(\) changed from no type to void',
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#set\(\) changed from no type to void',
+
+        'Shopware\\\\Storefront\\\\Theme\\\\ThemeScripts was marked "@internal"',
+
+        'An enum expression .* is not supported in .*', // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
+
+        'League\\\\OAuth2\\\\Server\\\\Entities\\\\Traits\\\\AccessTokenTrait#initJwtConfiguration\(\) changed from no type to void'
     ],
 ];

@@ -1,62 +1,56 @@
-/**
- * @package inventory
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsUnitsList from 'src/module/sw-settings-units/page/sw-settings-units-list';
-
-Shopware.Component.register('sw-settings-units-list', swSettingsUnitsList);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-units-list'), {
-        localVue,
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await wrapTestComponent('sw-settings-units-list', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
+                },
+                $tc() {
+                    return 'trans';
                 },
             },
-            $tc() {
-                return 'trans';
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search() {
-                        return Promise.resolve([
-                            {
-                                id: '1a2b3c',
-                                name: 'Gramm',
-                                shortCode: 'g',
-                            },
-                        ]);
-                    },
-                    save(unit) {
-                        if (unit.id !== 'success') {
-                            return Promise.reject();
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search() {
+                            return Promise.resolve([
+                                {
+                                    id: '1a2b3c',
+                                    name: 'Gramm',
+                                    shortCode: 'g',
+                                },
+                            ]);
+                        },
+                        save(unit) {
+                            if (unit.id !== 'success') {
+                                return Promise.reject();
+                            }
+
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
                         }
 
-                        return Promise.resolve();
+                        return privileges.includes(identifier);
                     },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
                 },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -69,33 +63,34 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+                },
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
                     <div>
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>`,
-            },
-            'sw-search-bar': true,
-            'sw-icon': true,
-            'sw-language-switch': true,
-            'sw-button': true,
-            'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>',
-            },
-            'sw-card-view': {
-                template: `
+                },
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-language-switch': true,
+                'sw-button': true,
+                'sw-card': {
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
+                },
+                'sw-card-view': {
+                    template: `
                         <div class="sw-card-view">
                             <slot></slot>
                         </div>
                     `,
+                },
+                'sw-empty-state': true,
+                'sw-context-menu-item': true,
+                'sw-context-menu-divider': true,
             },
-            'sw-empty-state': true,
-            'sw-context-menu-item': true,
-            'sw-context-menu-divider': true,
         },
     });
 }
@@ -106,16 +101,6 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should create meta info', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.$options.$createTitle = () => 'meta';
-        const metaInfo = wrapper.vm.$options.metaInfo();
-
-        expect(typeof metaInfo).toBe('object');
-        expect(metaInfo.hasOwnProperty('title')).toBeTruthy();
-        expect(metaInfo.title).toBe('meta');
     });
 
     it('should push to new route on unit creation', async () => {

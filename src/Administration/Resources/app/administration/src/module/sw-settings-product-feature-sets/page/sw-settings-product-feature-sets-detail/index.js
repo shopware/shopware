@@ -100,10 +100,6 @@ export default {
             this.isLoading = true;
 
             if (this.productFeatureSetId) {
-                if (!this.feature.isActive('VUE3')) {
-                    this.productFeatureSetId = this.$route.params.id;
-                }
-
                 this.productFeatureSetsRepository.get(this.productFeatureSetId)
                     .then((productFeatureSet) => {
                         if (productFeatureSet.features && !productFeatureSet.features.length) {

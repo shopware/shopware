@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
@@ -12,11 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartWeightRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(CartWeightRule::class)]
 class CartWeightRuleTest extends TestCase
 {
     public function testMatchWithWrongScopeShouldReturnFalse(): void
@@ -28,9 +29,7 @@ class CartWeightRuleTest extends TestCase
         static::assertFalse($cartVolumeRule->match($wrongScope));
     }
 
-    /**
-     * @dataProvider matchTestDataProvider
-     */
+    #[DataProvider('matchTestDataProvider')]
     public function testMatch(string $operator, float $weight, bool $expectedResult): void
     {
         $cartVolumeRule = new CartWeightRule($operator, $weight);
@@ -183,6 +182,6 @@ class CartWeightRuleTest extends TestCase
         $result = $cartVolumeRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('weight', $result['fields'][0]['config']['unit']);
+        static::assertSame('weight', $result['fields']['weight']['config']['unit']);
     }
 }

@@ -47,7 +47,7 @@ describe('src/app/service/entity-validation.service.js', () => {
 
         // found errors should match
         expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
-        expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual([
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 source: { pointer: '/0/taxId' },
@@ -62,11 +62,11 @@ describe('src/app/service/entity-validation.service.js', () => {
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/name' },
+                source: { pointer: '/0/stock' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/stock' },
+                source: { pointer: '/0/name' },
             },
         ]);
     });
@@ -92,7 +92,7 @@ describe('src/app/service/entity-validation.service.js', () => {
 
         // found errors should match
         expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
-        expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual([
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 source: { pointer: '/0/price/0/net' },
@@ -125,7 +125,7 @@ describe('src/app/service/entity-validation.service.js', () => {
 
         // found errors should match
         expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
-        expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual([]);
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual([]);
     });
 
     it('should validate a product and report callback errors', () => {
@@ -165,7 +165,7 @@ describe('src/app/service/entity-validation.service.js', () => {
 
         // found errors should match
         expect(service.errorResolver.handleWriteErrors.mock.calls).toHaveLength(1);
-        expect(service.errorResolver.handleWriteErrors.mock.calls[0][0].errors).toEqual(expectedErrors);
+        expect(service.errorResolver.handleWriteErrors.mock.calls[0][1].errors).toEqual(expectedErrors);
 
         // custom validator should have been called with the right arguments
         expect(customValidator.mock.calls).toHaveLength(1);

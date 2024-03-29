@@ -37,9 +37,5 @@
         <service id="Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer">
             <tag name="serializer.normalizer"/>
         </service>
-
-        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\ConsumeMessagesSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>

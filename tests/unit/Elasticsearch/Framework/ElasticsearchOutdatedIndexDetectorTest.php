@@ -4,34 +4,31 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector
  */
+#[CoversClass(ElasticsearchOutdatedIndexDetector::class)]
 class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 {
     public function testUsesChunks(): void
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(Feature::isActive('ES_MULTILINGUAL_INDEX') ? 2 : 4))
+            ->expects(static::exactly(2))
             ->method('get')
             ->willReturnCallback(fn () => [
                 Uuid::randomHex() => [
@@ -73,20 +70,11 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 
         $esHelper = $this->createMock(ElasticsearchHelper::class);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $esHelper->method('enabledMultilingualIndex')->willReturn(true);
-        }
-
-        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper, $this->createMock(ElasticsearchLanguageProvider::class));
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         $arr = $detector->get();
         static::assertNotNull($arr);
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertCount(1, $arr);
-            static::assertCount(2, $detector->getAllUsedIndices());
-        } else {
-            static::assertCount(2, $arr);
-            static::assertCount(4, $detector->getAllUsedIndices());
-        }
+        static::assertCount(1, $arr);
+        static::assertCount(2, $detector->getAllUsedIndices());
     }
 
     public function testDoesNothingWithoutIndices(): void
@@ -101,13 +89,10 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $client->method('indices')->willReturn($indices);
 
         $registry = $this->createMock(ElasticsearchRegistry::class);
-        $repository = $this->createMock(EntityRepository::class);
-        $repository
-            ->method('search')
-            ->willReturn(new EntitySearchResult('test', 0, new LanguageCollection(), null, new Criteria(), Context::createDefaultContext()));
+
         $esHelper = $this->createMock(ElasticsearchHelper::class);
 
-        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper, new ElasticsearchLanguageProvider($repository, new EventDispatcher()));
+        $detector = new ElasticsearchOutdatedIndexDetector($client, $registry, $esHelper);
         static::assertEmpty($detector->get());
     }
 }

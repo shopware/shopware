@@ -1,19 +1,18 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import swOrderGeneralInfo from 'src/module/sw-order/component/sw-order-general-info';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-general-info', swOrderGeneralInfo);
 
 const deleteFn = jest.fn(() => Promise.resolve());
 const assignFn = jest.fn(() => Promise.resolve());
 
 const orderMock = {
+    id: '123',
     orderNumber: 10000,
     orderCustomer: {
+        customerId: 'orderID',
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@doe.dev',
@@ -98,52 +97,55 @@ orderMock.deliveries.last = () => ({
 });
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-general-info'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-general-info', { sync: true }), {
+        props: {
             order: orderMock,
             isLoading: false,
         },
-        provide: {
-            orderStateMachineService: {},
-            stateStyleDataProviderService: {
-                getStyle: () => {
-                    return {
-                        placeholder: {
-                            icon: 'small-arrow-small-down',
-                            iconStyle: 'sw-order-state__bg-neutral-icon',
-                            iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
-                            selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
-                            variant: 'neutral',
-                            colorCode: '#94a6b8',
-                        },
-                    };
+        global: {
+            provide: {
+                orderStateMachineService: {},
+                stateStyleDataProviderService: {
+                    getStyle: () => {
+                        return {
+                            placeholder: {
+                                icon: 'small-arrow-small-down',
+                                iconStyle: 'sw-order-state__bg-neutral-icon',
+                                iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
+                                selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
+                                variant: 'neutral',
+                                colorCode: '#94a6b8',
+                            },
+                        };
+                    },
+                },
+                stateMachineService: {
+                    getState: () => { return { data: { } }; },
+                },
+                feature: {
+                    isActive: () => true,
+                },
+                repositoryFactory: {
+                    create() {
+                        return {
+                            search: () => Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                            )),
+                            delete: deleteFn,
+                            assign: assignFn,
+                        };
+                    },
                 },
             },
-            stateMachineService: {
-                getState: () => { return { data: { } }; },
-            },
-            feature: {
-                isActive: () => true,
-            },
-            repositoryFactory: {
-                create() {
-                    return {
-                        search: () => Promise.resolve(new EntityCollection(
-                            '',
-                            '',
-                            Shopware.Context.api,
-                            null,
-                        )),
-                        delete: deleteFn,
-                        assign: assignFn,
-                    };
-                },
+            stubs: {
+                'sw-order-state-select-v2': true,
+                'sw-entity-tag-select': true,
             },
         },
-        stubs: {
-            'sw-order-state-select-v2': true,
-            'sw-entity-tag-select': true,
-        },
+
     });
 }
 
@@ -168,10 +170,8 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         global.repositoryFactoryMock.showError = false;
         wrapper = await createWrapper();
         await flushPromises();
-    });
 
-    afterEach(() => {
-        wrapper.destroy();
+        jest.clearAllMocks();
     });
 
     it('should be a Vue.js component', async () => {
@@ -180,13 +180,17 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
     it('should show correct summary header', async () => {
         const summary = wrapper.find('.sw-order-general-info__summary-main-header');
+        const link = wrapper.find('.sw-order-general-info__summary-main-header-link');
 
         expect(summary.exists()).toBeTruthy();
-        expect(summary.text()).toBe('10000 - John Doe (john@doe.dev)');
+        expect(link.exists()).toBeTruthy();
+        expect(summary.text()).toContain('10000');
+        expect(summary.text()).toContain('John Doe');
+        expect(summary.text()).toContain('john@doe.dev');
     });
 
     it('should not mutate the original of the order\'s tags when removing tag', async () => {
-        const tagsStub = wrapper.find('sw-entity-tag-select-stub');
+        const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
 
         expect(tagsStub.exists()).toBeTruthy();
 
@@ -201,7 +205,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     it('should not mutate the original of the order\'s tags when adding tag', async () => {
-        const tagsStub = wrapper.find('sw-entity-tag-select-stub');
+        const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
 
         expect(tagsStub.exists()).toBeTruthy();
 
@@ -213,5 +217,13 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         expect(assignFn).toHaveBeenCalledTimes(1);
         expect(orderMock.tags).toHaveLength(2);
         expect(wrapper.vm.$data.tagCollection).toHaveLength(3);
+    });
+
+    it('should call createComponent on order id change', async () => {
+        const spyCreatedComponent = jest.spyOn(wrapper.vm, 'createdComponent');
+
+        wrapper.vm.$options.watch['order.id'].call(wrapper.vm);
+
+        expect(spyCreatedComponent).toHaveBeenCalledTimes(1);
     });
 });

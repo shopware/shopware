@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Asset;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
 use Shopware\Core\Framework\Adapter\Asset\PrefixVersionStrategy;
@@ -11,9 +12,7 @@ use Shopware\Core\Framework\Adapter\Asset\PrefixVersionStrategy;
  */
 class PrefixVersionStrategyTest extends TestCase
 {
-    /**
-     * @dataProvider dataProvider
-     */
+    #[DataProvider('dataProvider')]
     public function testPathGetsPrefixed(string $prefix, string $fileName, string $returnPath, string $expected): void
     {
         $orgVersion = $this->createMock(FlysystemLastModifiedVersionStrategy::class);

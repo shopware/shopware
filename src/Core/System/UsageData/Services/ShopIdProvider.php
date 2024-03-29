@@ -2,26 +2,30 @@
 
 namespace Shopware\Core\System\UsageData\Services;
 
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider as AppSystemShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ShopIdProvider
 {
     public function __construct(
-        private readonly \Shopware\Core\Framework\App\ShopId\ShopIdProvider $shopIdProvider,
+        private readonly AppSystemShopIdProvider $shopIdProvider,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
     public function getShopId(): string
     {
-        try {
+        $shopId = $this->systemConfigService->get(AppSystemShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+
+        if (!\is_array($shopId)) {
             return $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
-            return $e->getShopId();
         }
+
+        return $shopId['value'];
     }
 }

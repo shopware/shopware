@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
@@ -31,9 +33,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\PriceFacade
  */
+#[CoversClass(PriceFacade::class)]
 class PriceFacadeTest extends TestCase
 {
     public function testLineItemsGetUpdatePriceDefinition(): void
@@ -68,9 +69,7 @@ class PriceFacadeTest extends TestCase
         static::assertEquals(2, $original->getUnitPrice());
     }
 
-    /**
-     * @dataProvider providerChange
-     */
+    #[DataProvider('providerChange')]
     public function testChange(string $currencyKey, string $taxState, float $unit, float $tax): void
     {
         $ids = new IdsCollection([
@@ -91,9 +90,7 @@ class PriceFacadeTest extends TestCase
         static::assertEquals($tax, $price->getTaxes()->getAmount());
     }
 
-    /**
-     * @dataProvider providerDiscount
-     */
+    #[DataProvider('providerDiscount')]
     public function testDiscount(string $taxState, float $unit, float $tax): void
     {
         $ids = new IdsCollection(['default' => Defaults::CURRENCY]);
@@ -106,9 +103,7 @@ class PriceFacadeTest extends TestCase
         static::assertEquals($tax, $price->getTaxes()->getAmount());
     }
 
-    /**
-     * @dataProvider providerSurcharge
-     */
+    #[DataProvider('providerSurcharge')]
     public function testSurcharge(string $taxState, float $unit, float $tax): void
     {
         $ids = new IdsCollection(['default' => Defaults::CURRENCY]);
@@ -121,9 +116,7 @@ class PriceFacadeTest extends TestCase
         static::assertEquals($tax, $price->getTaxes()->getAmount());
     }
 
-    /**
-     * @dataProvider providerPlus
-     */
+    #[DataProvider('providerPlus')]
     public function testPlus(string $currencyKey, string $taxState, float $unit, float $tax): void
     {
         $ids = new IdsCollection([
@@ -144,9 +137,7 @@ class PriceFacadeTest extends TestCase
         static::assertEquals($tax, $price->getTaxes()->getAmount());
     }
 
-    /**
-     * @dataProvider providerMinus
-     */
+    #[DataProvider('providerMinus')]
     public function testMinus(string $currencyKey, string $taxState, float $unit, float $tax): void
     {
         $ids = new IdsCollection([

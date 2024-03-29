@@ -2,19 +2,20 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\ScheduledTask;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(CollectEntityDataTaskHandler::class)]
 class CollectEntityDataTaskHandlerTest extends TestCase
 {
     public function testItStartsCollectingData(): void
@@ -25,6 +26,7 @@ class CollectEntityDataTaskHandlerTest extends TestCase
 
         $taskHandler = new CollectEntityDataTaskHandler(
             new StaticEntityRepository([], new ScheduledTaskDefinition()),
+            $this->createMock(LoggerInterface::class),
             $entityDispatchService
         );
 

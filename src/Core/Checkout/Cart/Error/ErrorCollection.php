@@ -42,7 +42,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error|null>
+     * @return array<array-key, Error>
      */
     public function getErrors(): array
     {
@@ -50,7 +50,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error|null>
+     * @return array<array-key, Error>
      */
     public function getWarnings(): array
     {
@@ -58,7 +58,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error|null>
+     * @return array<array-key, Error>
      */
     public function getNotices(): array
     {
@@ -71,7 +71,7 @@ class ErrorCollection extends Collection
     }
 
     /**
-     * @return array<array-key, Error|null>
+     * @return array<array-key, Error>
      */
     public function filterByErrorLevel(int $errorLevel): array
     {

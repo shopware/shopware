@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 use Shopware\Core\Content\Product\Stock\StockStorage;
@@ -12,9 +13,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\StockStorage
  */
+#[CoversClass(StockStorage::class)]
 class StockStorageTest extends TestCase
 {
     public function testLoadDoesNothing(): void

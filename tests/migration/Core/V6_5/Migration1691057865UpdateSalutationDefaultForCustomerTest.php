@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -15,10 +16,9 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1691057865UpdateSalutationDefaultForCustomer
  */
 #[Package('checkout')]
+#[CoversClass(Migration1691057865UpdateSalutationDefaultForCustomer::class)]
 class Migration1691057865UpdateSalutationDefaultForCustomerTest extends TestCase
 {
     use MigrationTestTrait;

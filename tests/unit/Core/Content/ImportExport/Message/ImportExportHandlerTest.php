@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Message;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
@@ -12,20 +14,17 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\CollectingMessageBus;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\Message\ImportExportHandler
  */
 #[Package('system-settings')]
+#[CoversClass(ImportExportHandler::class)]
 class ImportExportHandlerTest extends TestCase
 {
-    /**
-     * @dataProvider dataProviderForTestImportExport
-     */
+    #[DataProvider('dataProviderForTestImportExport')]
     public function testImportExportHandlerDispatchesMessage(string $activity): void
     {
         $messageBus = new CollectingMessageBus();

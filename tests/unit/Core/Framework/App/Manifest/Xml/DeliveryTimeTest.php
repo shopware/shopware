@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\DeliveryTime;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\DeliveryTime
  */
+#[CoversClass(DeliveryTime::class)]
 class DeliveryTimeTest extends TestCase
 {
     public const XSD_FILE = __DIR__ . '/../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd';

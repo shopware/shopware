@@ -23,6 +23,7 @@
 
         <service id="Shopware\Core\Content\Newsletter\ScheduledTask\NewsletterRecipientTaskHandler">
             <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="logger"/>
             <argument type="service" id="newsletter_recipient.repository" />
             <tag name="messenger.message_handler" />
         </service>

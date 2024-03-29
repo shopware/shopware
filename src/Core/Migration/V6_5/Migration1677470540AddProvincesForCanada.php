@@ -150,8 +150,4 @@ class Migration1677470540AddProvincesForCanada extends MigrationStep
             $this->importTranslation('country_state_translation', $translations, $connection);
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

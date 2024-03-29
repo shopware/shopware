@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Cache;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group cache
  */
+#[Group('cache')]
 class CacheIdLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

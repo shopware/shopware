@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\UsageData;
 
 use Shopware\Core\Framework\Api\Context\ContextSource;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class UsageDataException extends HttpException
 {
     public const MISSING_USER_IN_CONTEXT_SOURCE = 'SYSTEM__USAGE_DATA_MISSING_USER_IN_CONTEXT_SOURCE';
@@ -127,8 +128,16 @@ class UsageDataException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 will be removed with no replacement
+     */
     public static function shopIdChanged(): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, '6.7.0.0')
+        );
+
         return new ShopIdChangedException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::SYSTEM__USAGE_DATA_SHOP_ID_CHANGED,

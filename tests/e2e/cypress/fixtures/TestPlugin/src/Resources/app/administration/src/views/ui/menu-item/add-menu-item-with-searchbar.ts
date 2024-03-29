@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { notification, context, data } from '@shopware-ag/admin-extension-sdk';
+import { notification, context, data } from '@shopware-ag/meteor-admin-sdk';
 
 const { repository, Classes: { Criteria } } = data;
 

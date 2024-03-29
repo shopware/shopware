@@ -1,8 +1,7 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderCreateGeneralInfo from 'src/module/sw-order/component/sw-order-create-general-info';
+import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const cart = {
@@ -31,26 +30,24 @@ const context = {
         totalRounding: {
             decimals: 2,
         },
-        translated: {
-            shortName: 'EUR',
-        },
+        isoCode: 'EUR',
     },
 };
 
-Shopware.Component.register('sw-order-create-general-info', swOrderCreateGeneralInfo);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-create-general-info'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-create-general-info', { sync: true }), {
+        props: {
             context,
             cart,
             isLoading: false,
         },
-        provide: {
-        },
-        stubs: {
-            'sw-order-state-select-v2': true,
-            'sw-entity-tag-select': true,
+        global: {
+            provide: {
+            },
+            stubs: {
+                'sw-order-state-select-v2': true,
+                'sw-entity-tag-select': true,
+            },
         },
     });
 }
@@ -61,10 +58,6 @@ describe('src/module/sw-order/component/sw-order-create-general-info', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

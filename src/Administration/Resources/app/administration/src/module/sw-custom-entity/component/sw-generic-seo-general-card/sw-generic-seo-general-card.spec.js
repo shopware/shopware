@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import swGenericSeoGeneralCard from 'src/module/sw-custom-entity/component/sw-generic-seo-general-card';
 
@@ -9,16 +9,20 @@ const TEST_SEO_META_DESCRIPTION = 'TEST_SEO_META_DESCRIPTION';
 const TEST_SEO_META_URL = 'TEST_SEO_META_URL';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-generic-seo-general-card'), {
-        stubs: {
-            'sw-card': true,
-            'sw-text-field': {
-                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
-            },
-            'sw-textarea-field': {
-                template: '<textarea class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
+    return mount(await wrapTestComponent('sw-generic-seo-general-card', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-text-field': {
+                    template: '<input class="sw-text-field" />',
+                    props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
+                },
+                'sw-textarea-field': {
+                    template: '<textarea class="sw-text-field" />',
+                    props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
+                },
             },
         },
     });
@@ -31,7 +35,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
     it('should display the seoMetaTitle and allow changing it', async () => {
         const wrapper = await createWrapper();
 
-        const seoMetaTitleInput = wrapper.get('.sw-generic-seo-general-card__seo-meta-title-input');
+        const seoMetaTitleInput = wrapper.getComponent('.sw-generic-seo-general-card__seo-meta-title-input');
         const seoMetaTitleDisplay = wrapper.get('.sw-generic-seo-general-card__google-preview-title');
 
         expect(seoMetaTitleInput.props('placeholder')).toBe('sw-landing-page.base.seo.placeholderMetaTitle');
@@ -42,8 +46,8 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoMetaTitleInput.props('value')).toBe('');
         expect(seoMetaTitleDisplay.text()).toBe('');
 
-        await seoMetaTitleInput.setValue(TEST_SEO_META_TITLE);
-        expect(wrapper.emitted()).toEqual({ 'update:seo-meta-title': [[TEST_SEO_META_TITLE]] });
+        await seoMetaTitleInput.vm.$emit('update:value', TEST_SEO_META_TITLE);
+        expect(wrapper.emitted('update:seo-meta-title')).toEqual([[TEST_SEO_META_TITLE]]);
 
         await wrapper.setProps({
             seoMetaTitle: TEST_SEO_META_TITLE,
@@ -56,7 +60,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
     it('should display the seoMetaDescription and allow changing it', async () => {
         const wrapper = await createWrapper();
 
-        const seoMetaDescriptionInput = wrapper.get('.sw-generic-seo-general-card__seo-meta-description-input');
+        const seoMetaDescriptionInput = wrapper.getComponent('.sw-generic-seo-general-card__seo-meta-description-input');
         const seoMetaDescriptionDisplay = wrapper.get('.sw-generic-seo-general-card__google-preview-description');
 
         expect(seoMetaDescriptionInput.props('placeholder')).toBe('sw-landing-page.base.seo.placeholderMetaDescription');
@@ -67,8 +71,8 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoMetaDescriptionInput.props('value')).toBe('');
         expect(seoMetaDescriptionDisplay.text()).toBe('');
 
-        await seoMetaDescriptionInput.setValue(TEST_SEO_META_DESCRIPTION);
-        expect(wrapper.emitted()).toEqual({ 'update:seo-meta-description': [[TEST_SEO_META_DESCRIPTION]] });
+        await seoMetaDescriptionInput.vm.$emit('update:value', TEST_SEO_META_DESCRIPTION);
+        expect(wrapper.emitted('update:seo-meta-description')).toEqual([[TEST_SEO_META_DESCRIPTION]]);
 
         await wrapper.setProps({
             seoMetaDescription: TEST_SEO_META_DESCRIPTION,
@@ -82,7 +86,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         const seoUrlPrefix = 'https://www.example.com >';
         const wrapper = await createWrapper();
 
-        const seoUrlInput = wrapper.get('.sw-generic-seo-general-card__seo-url-input');
+        const seoUrlInput = wrapper.getComponent('.sw-generic-seo-general-card__seo-url-input');
         const seoUrlDisplay = wrapper.get('.sw-generic-seo-general-card__google-preview-link');
 
         expect(seoUrlInput.props('placeholder')).toBe('sw-landing-page.base.seo.placeholderUrl');
@@ -92,8 +96,8 @@ describe('src/module/sw-custom-entity/component/sw-generic-seo-general-card', ()
         expect(seoUrlInput.props('value')).toBe('');
         expect(seoUrlDisplay.text()).toBe(seoUrlPrefix);
 
-        await seoUrlInput.setValue(TEST_SEO_META_URL);
-        expect(wrapper.emitted()).toEqual({ 'update:seo-url': [[TEST_SEO_META_URL]] });
+        await seoUrlInput.vm.$emit('update:value', TEST_SEO_META_URL);
+        expect(wrapper.emitted('update:seo-url')).toEqual([[TEST_SEO_META_URL]]);
 
         await wrapper.setProps({
             seoUrl: TEST_SEO_META_URL,

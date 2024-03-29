@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -11,9 +12,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1668435503ChangeStornoDocumentTranslationName
  */
+#[CoversClass(Migration1668435503ChangeStornoDocumentTranslationName::class)]
 class Migration1668435503ChangeStornoDocumentTranslationNameTest extends TestCase
 {
     use MigrationTestTrait;

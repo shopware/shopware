@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
@@ -15,7 +17,7 @@ use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -40,13 +42,11 @@ class SearchController extends StorefrontController
     {
         try {
             $page = $this->searchPageLoader->load($request, $context);
-            if ($page->getListing()->getTotal() === 1) {
-                $product = $page->getListing()->first();
-                if ($request->get('search') === $product->getProductNumber()) {
-                    $productId = $product->getId();
 
-                    return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
-                }
+            $response = $this->handleFirstHit($request, $page);
+
+            if ($response !== null) {
+                return $response;
             }
         } catch (RoutingException $e) {
             if ($e->getErrorCode() !== RoutingException::MISSING_REQUEST_PARAMETER_CODE) {
@@ -64,6 +64,10 @@ class SearchController extends StorefrontController
     #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
+        if (!$request->request->has('no-aggregations')) {
+            $request->request->set('no-aggregations', true);
+        }
+
         $page = $this->suggestPageLoader->load($request, $context);
 
         $this->hook(new SuggestPageLoadedHook($page, $context));
@@ -120,5 +124,25 @@ class SearchController extends StorefrontController
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
+    }
+
+    private function handleFirstHit(Request $request, SearchPage $page): ?Response
+    {
+        if ($page->getListing()->getTotal() > 1) {
+            return null;
+        }
+
+        $product = $page->getListing()->first();
+        if (!$product instanceof ProductEntity) {
+            return null;
+        }
+
+        if ($request->get('search') === $product->getProductNumber()) {
+            $productId = $product->getId();
+
+            return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
+        }
+
+        return null;
     }
 }

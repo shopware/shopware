@@ -1,39 +1,36 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigText from 'src/module/sw-cms/elements/text/config';
-import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
-
-Shopware.Component.register('sw-cms-el-config-text', swCmsElConfigText);
-Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-text'), {
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+    return mount(await wrapTestComponent('sw-cms-el-config-text', { sync: true }), {
+        global: {
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { text: {} };
+                    },
                 },
-                getCmsElementRegistry: () => {
-                    return { text: {} };
+            },
+            stubs: {
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
+                'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
+                'sw-text-editor': {
+                    props: ['value'],
+                    template: '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
             },
         },
-        stubs: {
-            'sw-container': true,
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
-            'sw-text-editor': {
-                props: ['value'],
-                template: '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'input\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
-            },
-        },
-        propsData: {
+        props: {
             element: {
                 config: {
                     content: {

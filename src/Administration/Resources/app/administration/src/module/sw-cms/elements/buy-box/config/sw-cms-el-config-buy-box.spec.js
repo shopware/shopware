@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigBuyBox from 'src/module/sw-cms/elements/buy-box/config';
-
-Shopware.Component.register('sw-cms-el-config-buy-box', swCmsElConfigBuyBox);
 
 const productMock = {
     name: 'Lorem Ipsum dolor',
@@ -20,12 +17,11 @@ const productMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-buy-box'), {
-        localVue,
+    return mount(await wrapTestComponent('sw-cms-el-config-buy-box', {
+        sync: true,
+    }), {
         sync: false,
-        propsData: {
+        props: {
             element: {
                 data: {},
                 config: {},
@@ -48,29 +44,31 @@ async function createWrapper() {
                 },
             };
         },
-        stubs: {
-            'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
-            },
-            'sw-tabs-item': true,
-            'sw-entity-single-select': true,
-            'sw-alert': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+        global: {
+            stubs: {
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                 },
-                getCmsElementRegistry: () => {
-                    return { 'buy-box': {} };
-                },
+                'sw-tabs-item': true,
+                'sw-entity-single-select': true,
+                'sw-alert': true,
             },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock),
-                    };
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'buy-box': {} };
+                    },
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(productMock),
+                            search: () => Promise.resolve(productMock),
+                        };
+                    },
                 },
             },
         },

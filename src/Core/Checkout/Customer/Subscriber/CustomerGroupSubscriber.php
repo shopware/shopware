@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -125,11 +124,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $criteria->addAssociation('registrationSalesChannels.languages');
         $criteria->addAssociation('translations');
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $criteria->getAssociation('registrationSalesChannels')->addFilter(
-                new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)])
-            );
-        }
+        $criteria->getAssociation('registrationSalesChannels')->addFilter(
+            new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)])
+        );
 
         /** @var CustomerGroupCollection $groups */
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
@@ -146,9 +143,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 }
 
                 if ($registrationSalesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
-                    if (Feature::isActive('v6.6.0.0')) {
-                        continue;
-                    }
+                    continue;
                 }
 
                 /** @var array<string> $languageIds */

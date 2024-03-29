@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -57,9 +59,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver
  */
+#[CoversClass(ProductSliderCmsElementResolver::class)]
 class ProductSliderCmsElementResolverTest extends TestCase
 {
     private ProductSliderCmsElementResolver $sliderResolver;
@@ -351,9 +352,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
         static::assertEquals($criteria, $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id']);
     }
 
-    /**
-     * @dataProvider enrichDataProvider
-     */
+    #[DataProvider('enrichDataProvider')]
     public function testEnrich(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {

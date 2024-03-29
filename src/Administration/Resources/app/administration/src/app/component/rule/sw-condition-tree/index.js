@@ -6,7 +6,7 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Component.register('sw-condition-tree', {
     template,
@@ -156,8 +156,10 @@ Component.register('sw-condition-tree', {
             });
 
             groups.sort((a, b) => {
-                if (a.id === 'misc') { return 1; }
+                if (a.id === 'general') { return -1; }
+                if (b.id === 'general') { return 1; }
 
+                if (a.id === 'misc') { return 1; }
                 if (b.id === 'misc') { return -1; }
 
                 return a.label.localeCompare(b.label);

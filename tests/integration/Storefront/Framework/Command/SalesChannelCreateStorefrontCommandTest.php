@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Command;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,9 +26,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    /**
-     * @dataProvider dataProviderTestExecuteCommandSuccess
-     */
+    #[DataProvider('dataProviderTestExecuteCommandSuccess')]
     public function testExecuteCommandSuccessfully(string $isoCode, string $isoCodeExpected): void
     {
         $commandTester = new CommandTester($this->getContainer()->get(SalesChannelCreateStorefrontCommand::class));

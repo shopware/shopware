@@ -34,7 +34,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntityMessageHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -45,8 +45,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = $this->getMockHttpClient();
         $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
@@ -69,8 +68,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
@@ -86,13 +84,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             $headers = array_values($options['headers']);
 
-            static::assertEquals(Request::METHOD_POST, $method);
+            static::assertSame(Request::METHOD_POST, $method);
             static::assertStringContainsString('/v1/entities', $url);
-            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
-            static::assertContains('Content-Type: application/json', array_values($headers));
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
+            static::assertContains('Content-Type: application/json', $headers);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+            static::assertSame(Operation::CREATE->value, $payload['operation']);
 
             static::assertArrayHasKey('entities', $payload);
             static::assertCount(2, $payload['entities']);
@@ -100,26 +98,26 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $firstProduct = $payload['entities'][0];
             static::assertIsArray($firstProduct);
             static::assertArrayHasKey('id', $firstProduct);
-            static::assertEquals($ids->get('test-product-1'), $firstProduct['id']);
+            static::assertSame($ids->get('test-product-1'), $firstProduct['id']);
 
             // product.categoriesRo are not in the usage-data-allow-list.json
             static::assertArrayNotHasKey('categoriesRo', $firstProduct);
 
             static::assertArrayHasKey('customFieldSets', $firstProduct);
-            static::assertEquals($firstProduct['customFieldSets'], [
+            static::assertSame($firstProduct['customFieldSets'], [
                 $ids->get('test-customFieldSet-1'),
             ]);
 
             $secondProduct = $payload['entities'][1];
             static::assertIsArray($secondProduct);
             static::assertArrayHasKey('id', $secondProduct);
-            static::assertEquals($ids->get('test-product-2'), $secondProduct['id']);
+            static::assertSame($ids->get('test-product-2'), $secondProduct['id']);
 
             // product.categoriesRo are not in the usage-data-allow-list.json
             static::assertArrayNotHasKey('categoriesRo', $secondProduct);
 
             static::assertArrayHasKey('customFieldSets', $secondProduct);
-            static::assertEquals($secondProduct['customFieldSets'], [
+            static::assertSame($secondProduct['customFieldSets'], [
                 $ids->get('test-customFieldSet-1'),
                 $ids->get('test-customFieldSet-2'),
             ]);
@@ -167,8 +165,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
@@ -184,13 +181,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             $headers = array_values($options['headers']);
 
-            static::assertEquals(Request::METHOD_POST, $method);
+            static::assertSame(Request::METHOD_POST, $method);
             static::assertStringContainsString('/v1/entities', $url);
-            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
-            static::assertContains('Content-Type: application/json', array_values($headers));
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
+            static::assertContains('Content-Type: application/json', $headers);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+            static::assertSame(Operation::CREATE->value, $payload['operation']);
 
             static::assertArrayHasKey('entities', $payload);
             static::assertCount(2, $payload['entities']);
@@ -200,20 +197,20 @@ class DispatchEntityMessageHandlerTest extends TestCase
             static::assertArrayNotHasKey('productVersionId', $firstProductTranslation);
 
             static::assertArrayHasKey('productId', $firstProductTranslation);
-            static::assertEquals($ids->get('test-product-1'), $firstProductTranslation['productId']);
+            static::assertSame($ids->get('test-product-1'), $firstProductTranslation['productId']);
 
             static::assertArrayHasKey('languageId', $firstProductTranslation);
-            static::assertEquals(Defaults::LANGUAGE_SYSTEM, $firstProductTranslation['languageId']);
+            static::assertSame(Defaults::LANGUAGE_SYSTEM, $firstProductTranslation['languageId']);
 
             $secondProductTranslation = $payload['entities'][1];
             static::assertIsArray($secondProductTranslation);
             static::assertArrayNotHasKey('productVersionId', $secondProductTranslation);
 
             static::assertArrayHasKey('productId', $secondProductTranslation);
-            static::assertEquals($ids->get('test-product-2'), $secondProductTranslation['productId']);
+            static::assertSame($ids->get('test-product-2'), $secondProductTranslation['productId']);
 
             static::assertArrayHasKey('languageId', $secondProductTranslation);
-            static::assertEquals(Defaults::LANGUAGE_SYSTEM, $secondProductTranslation['languageId']);
+            static::assertSame(Defaults::LANGUAGE_SYSTEM, $secondProductTranslation['languageId']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
@@ -249,8 +246,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) {
             $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
@@ -259,12 +255,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             $headers = array_values($options['headers']);
 
-            static::assertEquals(Request::METHOD_POST, $method);
-            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
-            static::assertContains('Content-Type: application/json', array_values($headers));
+            static::assertSame(Request::METHOD_POST, $method);
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
+            static::assertContains('Content-Type: application/json', $headers);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::UPDATE->value, $payload['operation']);
+            static::assertSame(Operation::UPDATE->value, $payload['operation']);
 
             static::assertArrayHasKey('entities', $payload);
 
@@ -307,8 +303,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     {
         $ids = new IdsCollection();
 
-        /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
             $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
@@ -317,12 +312,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             $headers = array_values($options['headers']);
 
-            static::assertEquals(Request::METHOD_POST, $method);
-            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
-            static::assertContains('Content-Type: application/json', array_values($headers));
+            static::assertSame(Request::METHOD_POST, $method);
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
+            static::assertContains('Content-Type: application/json', $headers);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+            static::assertSame(Operation::CREATE->value, $payload['operation']);
 
             static::assertArrayHasKey('entities', $payload);
 
@@ -333,9 +328,9 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
             static::assertIsArray($newsletterRecipient);
             static::assertArrayHasKey('id', $newsletterRecipient);
-            static::assertEquals($ids->get('newsletter-recipient-test'), $newsletterRecipient['id']);
+            static::assertSame($ids->get('newsletter-recipient-test'), $newsletterRecipient['id']);
             static::assertArrayHasKey('puid', $newsletterRecipient);
-            static::assertEquals($expectedPuid, $newsletterRecipient['puid']);
+            static::assertSame($expectedPuid, $newsletterRecipient['puid']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
@@ -368,8 +363,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $firstEntity = $this->insertEntityDeletionEntry($this->idsCollection->get('product-entity-deletion-1'));
         $secondEntity = $this->insertEntityDeletionEntry($this->idsCollection->get('product-entity-deletion-2'));
 
-        /** @var MockHttpClient $client */
-        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client = $this->getMockHttpClient();
         $client->setResponseFactory(function ($method, $url, $options) use ($firstEntity, $secondEntity) {
             $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
@@ -378,16 +372,16 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             $headers = array_values($options['headers']);
 
-            static::assertEquals(Request::METHOD_POST, $method);
-            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
-            static::assertContains('Content-Type: application/json', array_values($headers));
+            static::assertSame(Request::METHOD_POST, $method);
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, $headers);
+            static::assertContains('Content-Type: application/json', $headers);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::DELETE->value, $payload['operation']);
+            static::assertSame(Operation::DELETE->value, $payload['operation']);
 
             static::assertArrayHasKey('entities', $payload);
             static::assertCount(2, $payload['entities']);
-            static::assertEquals([
+            static::assertSame([
                 json_decode($firstEntity['entity_ids'], true),
                 json_decode($secondEntity['entity_ids'], true),
             ], $payload['entities']);
@@ -544,5 +538,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
             ],
         ];
         $repo->create([$attributeSet], Context::createDefaultContext());
+    }
+
+    private function getMockHttpClient(): MockHttpClient
+    {
+        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        static::assertInstanceOf(MockHttpClient::class, $client);
+
+        return $client;
     }
 }

@@ -1,46 +1,46 @@
 import 'src/app/component/structure/sw-admin';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
 
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
-    const wrapper = shallowMount(await Shopware.Component.build('sw-admin'), {
-        stubs: {
-            'sw-notifications': true,
-            'sw-duplicated-media-v2': true,
-            'sw-settings-cache-modal': true,
-            'sw-license-violation': true,
-            'sw-hidden-iframes': true,
-            'sw-modals-renderer': true,
-            'sw-app-wrong-app-url-modal': true,
-            'router-view': true,
-        },
-        mocks: {
-            $router: {
-                currentRoute: {
-                    name: route,
+    return mount(await wrapTestComponent('sw-admin', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-notifications': true,
+                'sw-duplicated-media-v2': true,
+                'sw-settings-cache-modal': true,
+                'sw-license-violation': true,
+                'sw-hidden-iframes': true,
+                'sw-modals-renderer': true,
+                'sw-app-wrong-app-url-modal': true,
+                'router-view': true,
+            },
+            mocks: {
+                $router: {
+                    currentRoute: {
+                        value: {
+                            name: route,
+                        },
+                    },
                 },
             },
-        },
-        provide: {
-            cacheApiService: {},
-            extensionStoreActionService: {},
-            licenseViolationService: {},
-            userActivityService: {
-                updateLastUserActivity: () => {
-                    localStorage.setItem('lastActivity', 'foo');
+            provide: {
+                cacheApiService: {},
+                extensionStoreActionService: {},
+                licenseViolationService: {},
+                userActivityService: {
+                    updateLastUserActivity: () => {
+                        localStorage.setItem('lastActivity', 'foo');
+                    },
                 },
-            },
-            loginService: {
-                isLoggedIn: () => isLoggedIn,
-                forwardLogout,
+                loginService: {
+                    isLoggedIn: () => isLoggedIn,
+                    forwardLogout,
+                },
             },
         },
         attachTo: document.body,
     });
-
-    await flushPromises();
-
-    return wrapper;
 }
 
 describe('src/app/component/structure/sw-admin/index.ts', () => {
@@ -52,7 +52,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();

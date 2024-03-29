@@ -10,7 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
@@ -28,10 +29,21 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
-        $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
+        try {
+            $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
+        } catch (CategoryException $e) {
+            if (!$e->is(CategoryException::FOOTER_CATEGORY_NOT_FOUND, CategoryException::SERVICE_CATEGORY_NOT_FOUND)) {
+                throw $e;
+            }
+
+            $response = new NavigationRouteResponse(new CategoryCollection());
+            $response->setStatusCode(Response::HTTP_NO_CONTENT);
+
+            return $response;
+        }
 
         $rootId = $this->resolveAliasId($rootId, $context->getSalesChannel());
 

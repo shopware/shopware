@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@shopware-ag/admin-extension-sdk": "3.0.13",
+    "@shopware-ag/meteor-admin-sdk": "^4.0.0",
     "@shopware-ag/meteor-component-library": "2.1.1",
     "regenerator-runtime": "^0.13.9",
     "vue": "2.7.14",

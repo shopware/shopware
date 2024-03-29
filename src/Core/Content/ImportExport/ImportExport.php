@@ -70,8 +70,8 @@ class ImportExport
     {
         $progress = $this->importExportService->getProgress($this->logEntity->getId(), $offset);
 
-        /** @var ImportExportFileEntity $file */
         $file = $this->logEntity->getFile();
+        \assert($file instanceof ImportExportFileEntity);
 
         $progress->setTotal($file->getSize());
 
@@ -190,7 +190,6 @@ class ImportExport
         // importing the file is complete
         if ($this->reader->getOffset() === $this->filesystem->fileSize($path)) {
             if ($this->logEntity->getInvalidRecordsLog() instanceof ImportExportLogEntity) {
-                /** @var ImportExportLogEntity $invalidLog */
                 $invalidLog = $this->logEntity->getInvalidRecordsLog();
                 $invalidRecordsProgress ??= $this->importExportService->getProgress($invalidLog->getId(), $invalidLog->getRecords());
 
@@ -238,8 +237,8 @@ class ImportExport
         $criteria->setLimit($this->exportLimit <= 0 ? 250 : $this->exportLimit);
         $fullExport = $this->exportLimit <= 0;
 
-        /** @var ImportExportFileEntity $file */
         $file = $this->logEntity->getFile();
+        \assert($file instanceof ImportExportFileEntity);
         $targetFile = $this->getPartFilePath($file->getPath(), $offset);
 
         do {
@@ -310,11 +309,11 @@ class ImportExport
         $this->importExportService->saveProgress($progress);
 
         $tmpFile = tempnam(sys_get_temp_dir(), '');
-        /** @var resource $tmp */
-        $tmp = fopen($tmpFile ?: '', 'w+b');
+        $tmp = fopen($tmpFile ?: '', 'w+');
+        \assert(\is_resource($tmp));
 
-        /** @var ImportExportFileEntity $file */
         $file = $logEntity->getFile();
+        \assert($file instanceof ImportExportFileEntity);
         $target = $file->getPath();
 
         $dir = \dirname($target);
@@ -347,6 +346,8 @@ class ImportExport
         // copy final file into filesystem
         $this->filesystem->writeStream($target, $tmp);
 
+        // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
+        // error, we therefore need to check whether the stream has been closed yet.
         if (\is_resource($tmp)) {
             fclose($tmp);
         }
@@ -377,13 +378,12 @@ class ImportExport
     }
 
     /**
-     * @param iterable<Entity|array<mixed>> $records
+     * @param iterable<Entity|array<string, mixed>> $records
      */
     private function exportChunk(Config $config, iterable $records, Progress $progress, string $targetFile): Progress
     {
         $exportedRecords = 0;
         $offset = $progress->getOffset();
-        /** @var Entity|array<mixed> $originalRecord */
         foreach ($records as $originalRecord) {
             $originalRecord = $originalRecord instanceof Entity
                 ? $originalRecord->jsonSerialize()
@@ -423,7 +423,7 @@ class ImportExport
      * In case we failed to import some invalid records, we export them as a new csv with the same format and
      * an additional _error column.
      *
-     * @param array<Entity|array<mixed>> $failedRecords
+     * @param array<Entity|array<string, mixed>> $failedRecords
      */
     private function exportInvalid(Context $context, array $failedRecords): Progress
     {
@@ -459,26 +459,24 @@ class ImportExport
             }
         }
 
-        /** @var ImportExportLogEntity $failedImportLogEntity */
         $failedImportLogEntity = $this->logEntity->getInvalidRecordsLog();
+        \assert($failedImportLogEntity instanceof ImportExportLogEntity);
         $config = Config::fromLog($failedImportLogEntity);
 
         $offset = $failedImportLogEntity->getRecords();
 
-        /** @var ImportExportFileEntity $failedImportLogFile */
         $failedImportLogFile = $failedImportLogEntity->getFile();
+        \assert($failedImportLogFile instanceof ImportExportFileEntity);
         $targetFile = $this->getPartFilePath($failedImportLogFile->getPath(), $offset);
 
         $progress = $this->importExportService->getProgress($failedImportLogEntity->getId(), $offset);
 
-        $progress = $this->exportChunk(
+        return $this->exportChunk(
             $config,
             $failedRecords,
             $progress,
             $targetFile
         );
-
-        return $progress;
     }
 
     /**

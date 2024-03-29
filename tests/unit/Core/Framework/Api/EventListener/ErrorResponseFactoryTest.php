@@ -2,8 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Util\Annotation\DocBlock;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -14,14 +15,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory
  */
+#[CoversClass(ErrorResponseFactory::class)]
 class ErrorResponseFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider getResponseFromExceptionProvider
-     */
+    #[DataProvider('getResponseFromExceptionProvider')]
     public function testStackTraceForExceptionInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
@@ -45,16 +43,14 @@ class ErrorResponseFactoryTest extends TestCase
         static::assertSame(self::class, $stack[0]['class']);
         static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
 
-        static::assertSame(DocBlock::class, $stack[1]['class']);
-        static::assertSame('getDataFromDataProviderAnnotation', $stack[1]['function']);
+        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[1]['class']);
+        static::assertSame('dataProvidedByMethods', $stack[1]['function']);
 
-        static::assertSame(DocBlock::class, $stack[2]['class']);
-        static::assertSame('getProvidedData', $stack[2]['function']);
+        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[2]['class']);
+        static::assertSame('providedData', $stack[2]['function']);
     }
 
-    /**
-     * @dataProvider getResponseFromExceptionProvider
-     */
+    #[DataProvider('getResponseFromExceptionProvider')]
     public function testNoStackTraceForExceptionNotInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
@@ -270,9 +266,7 @@ class ErrorResponseFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidUtf8SequencesProvider
-     */
+    #[DataProvider('invalidUtf8SequencesProvider')]
     public function testInvalidUtf8CharactersShouldNotThrow(string $invalid): void
     {
         $prefix = 'valid prefix';

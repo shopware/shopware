@@ -1,19 +1,16 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsCountryCurrencyDependentModal from 'src/module/sw-settings-country/component/sw-settings-country-currency-dependent-modal';
-
-Shopware.Component.register('sw-settings-country-currency-dependent-modal', swSettingsCountryCurrencyDependentModal);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], isBasedItem = true) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    // const localVue = createLocalVue();
+    // localVue.directive('tooltip', {});
 
-    return shallowMount(await Shopware.Component.build('sw-settings-country-currency-dependent-modal'), {
-        localVue,
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-country-currency-dependent-modal', {
+        sync: true,
+    }), {
+        props: {
             currencyDependsValue: [{
                 enabled: isBasedItem,
                 currencyId: '49a246dca3f245e6b83b8b3255c90038',
@@ -28,33 +25,35 @@ async function createWrapper(privileges = [], isBasedItem = true) {
             isLoading: '',
         },
 
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([]);
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([]);
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                feature: {
+                    isActive: () => true,
                 },
             },
-            feature: {
-                isActive: () => true,
-            },
-        },
 
-        stubs: {
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-            },
-            'sw-data-grid': {
-                props: ['dataSource', 'columns'],
-                template: `
+            stubs: {
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-data-grid': {
+                    props: ['dataSource', 'columns'],
+                    template: `
                     <div class="sw-data-grid-stub">
                     <template v-for="item in dataSource">
                         <slot name="column-amount" v-bind="{ item }"></slot>
@@ -63,12 +62,14 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                     </template>
                     </div>
                 `,
+                },
+                'sw-context-menu-item': true,
+                'sw-radio-field': true,
+                'sw-number-field': true,
+                'sw-button': true,
             },
-            'sw-context-menu-item': true,
-            'sw-radio-field': true,
-            'sw-number-field': true,
-            'sw-button': true,
         },
+
     });
 }
 
@@ -81,8 +82,9 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
 
     it('should able to show right column on grid', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        const modalGrid = wrapper.find('.sw-data-grid-stub');
+        await flushPromises();
+        const modalGrid = wrapper.findComponent('.sw-data-grid-stub');
+
         expect(modalGrid.props().columns).toStrictEqual([{
             inlineEdit: 'string',
             label: '',
@@ -103,7 +105,7 @@ describe('module/sw-settings-country/component/sw-settings-country-currency-depe
     it('should able to show right data on grid', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
-        const modalGrid = wrapper.find('.sw-data-grid-stub');
+        const modalGrid = wrapper.findComponent('.sw-data-grid-stub');
 
         expect(modalGrid.props().dataSource).toStrictEqual([{
             enabled: true,

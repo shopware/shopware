@@ -49,17 +49,11 @@ class DefinitionValidator
         'product.wishlists',
         'order.billingAddress',
         'product_search_config.excludedTerms',
-        'integration.writeAccess',
         'media.metaDataRaw',
         'product.sortedProperties',
         'product.cheapestPriceContainer',
         'product.cheapest_price',
         'product.cheapest_price_accessor',
-
-        // @deprecated tag:v6.6.0 - Deprecated columns
-        'shipping_method_price.currency',
-        'payment_method.shortName',
-        'state_machine_history.entityId',
     ];
 
     private const PLURAL_EXCEPTIONS = [

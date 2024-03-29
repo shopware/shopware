@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
@@ -40,8 +40,8 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/address/default-shipping/{addressId}', name: 'store-api.account.address.change.default.shipping', methods: ['PATCH'], defaults: ['type' => 'shipping', '_loginRequired' => true])]
-    #[Route(path: '/store-api/account/address/default-billing/{addressId}', name: 'store-api.account.address.change.default.billing', methods: ['PATCH'], defaults: ['type' => 'billing', '_loginRequired' => true])]
+    #[Route(path: '/store-api/account/address/default-shipping/{addressId}', name: 'store-api.account.address.change.default.shipping', methods: ['PATCH'], defaults: ['type' => 'shipping', '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(path: '/store-api/account/address/default-billing/{addressId}', name: 'store-api.account.address.change.default.billing', methods: ['PATCH'], defaults: ['type' => 'billing', '_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function swap(string $addressId, string $type, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);

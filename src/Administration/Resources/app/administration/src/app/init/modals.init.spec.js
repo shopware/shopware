@@ -1,5 +1,5 @@
 import initializeModal from 'src/app/init/modals.init';
-import { ui } from '@shopware-ag/admin-extension-sdk';
+import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 let stateDispatchBackup;
 describe('src/app/init/modals.init.ts', () => {
@@ -34,6 +34,7 @@ describe('src/app/init/modals.init.ts', () => {
             locationId: 'your-location-id',
             variant: 'large',
             showHeader: true,
+            showFooter: false,
             closable: true,
             buttons: [
                 {
@@ -63,6 +64,7 @@ describe('src/app/init/modals.init.ts', () => {
             locationId: 'your-location-id',
             variant: 'large',
             showHeader: true,
+            showFooter: false,
             closable: true,
             buttons: [
                 {
@@ -101,6 +103,7 @@ describe('src/app/init/modals.init.ts', () => {
                 locationId: 'your-location-id',
                 variant: 'large',
                 showHeader: true,
+                showFooter: false,
                 closable: true,
                 buttons: [
                     {

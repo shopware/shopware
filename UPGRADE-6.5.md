@@ -1,3 +1,166 @@
+# 6.5.8.0
+## Cache rework preparation
+With 6.6 we are marking a lot of HTTP Cache and Reverse Proxy classes as @internal and move them to the core. 
+We are preparing a bigger cache rework in the next releases. The cache rework will be done within the v6.6 version lane and and will be released with 6.7.0 major version. 
+The cache rework will be a breaking change and will be announced in the changelog of 6.7.0. We will provide a migration guide for the cache rework, so that you can prepare your project for the cache rework.
+
+You can find more details about the cache rework in the [shopware/shopware discussions](https://github.com/shopware/shopware/discussions/3299)
+
+Since the cache is a critical component for systems, we have taken the liberty of marking almost all classes as @internal for the time being. However, we have left the important events and interfaces public so that you can prepare your systems for the changes now.
+Even though there were a lot of deprecations in this release, 99% of them involved moving the classes to the core domain.
+
+But there is one big change that affects each project and nearly all repositories outside which are using phpstan. 
+
+### Kernel bootstrapping
+We had to refactor the Kernel bootstrapping and the Kernel itself. 
+When you forked our production template, or you boot the kernel somewhere by your own, you have to change the bootstrapping as follows:
+
+```php
+
+#### Before #####
+
+$kernel = new Kernel(
+    environment: $appEnv, 
+    debug: $debug, 
+    pluginLoader: $pluginLoader
+);
+
+#### After #####
+
+$kernel = KernelFactory::create(
+    environment: $appEnv,
+    debug: $debug,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader
+);
+
+
+### In case of static code analysis
+
+KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
+/** @var StaticAnalyzeKernel $kernel */
+$kernel = KernelFactory::create(
+    environment: 'phpstan',
+    debug: true,
+    classLoader: $this->getClassLoader(),
+    pluginLoader: $pluginLoader
+);
+
+```
+
+### Session access in phpunit tests
+The way how you can access the session in unit test has changed.
+The session is no more accessible via the request/response.
+You have to use the `session.factory` service to access it or use the `SessionTestBehaviour` for a shortcut
+
+```php
+##### Before
+
+$this->request(....);
+
+$session = $this->getBrowser()->getRequest()->getSession();
+
+##### After
+
+use SessionTestBehaviour;
+
+$this->request(....);
+
+// shortcut via trait 
+$this->getSession();
+
+// code behind the shortcut
+$this->getContainer()->get('session.factory')->getSession();
+
+```
+
+### Manipulate the http cache
+Since we are moving the cache to the core, you have to change the way you can manipulate the http cache. 
+
+1) If you decorated or replaced the `src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php`, this will be no more possible in the upcoming release. You should use the http cache events
+2) You used one of the http cache events --> They will be moved to the core, so you have to adapt the namespace+name of the event class. The signature is also not 100% the same, so please check the new event classes (public properties, etc.)
+
+```php
+
+#### Before
+
+<?php
+
+namespace Foo;
+
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class Subscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            HttpCacheHitEvent::class => 'onHit',
+            HttpCacheGenerateKeyEvent::class => 'onKey',
+            HttpCacheItemWrittenEvent::class => 'onWrite',
+        ];
+    }
+}
+
+#### After
+<?php
+
+namespace Foo;
+
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class Subscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            HttpCacheHitEvent::class => 'onHit',
+            HttpCacheKeyEvent::class => 'onKey',
+            HttpCacheStoreEvent::class => 'onWrite',
+        ];
+    }
+}
+
+
+
+```
+
+### Own reverse proxy gateway
+If you implement an own reverse proxy gateway, you have to change the namespace of the gateway and the event.
+
+```php
+#### Before
+
+class RedisReverseProxyGateway extends \Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway
+{
+    // ...
+}
+
+
+#### After
+
+class RedisReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
+{
+    // ...
+}
+```
+
+### Http cache warmer
+
+We deprecated all Http cache warmer, because they will be not usable with the new http kernel anymore. 
+They are also not suitable for the new cache rework or for systems which have a reverse proxy or a load balancer in front of the shopware system.
+Therefore, we marked them as deprecated and will remove them in the next major version.
+You should use instead a real website crawler to warmup your desired sites, which is much more suitable and realistic for your system.
+
+If you are relying on the `sales_channel.analytics` association, please associate the definition directly with the criteria because we will remove autoload from version 6.6.0.0.
+
 # 6.5.7.0
 ## New context state scoping feature
 You can now simply adding a context state temporarily for an internal process without saving the previous scope and restore it:
@@ -339,7 +502,7 @@ shopware:
 ```
 
 # 6.5.5.0
-Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](../../adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
+Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
 
 It is disabled by default, but you can opt in to the new system by enabling the `STOCK_HANDLING` feature flag.
 
@@ -779,47 +942,7 @@ If you are relying on the association `import_export_log.file`, please associate
 * Renamed error code from `FRAMEWORK__STORE_CANNOT_DOWNLOAD_PLUGIN_MANAGED_BY_SHOPWARE` to `FRAMEWORK__STORE_CANNOT_DELETE_COMPOSER_MANAGED`
 
 # 6.5.1.0
-## Changes to data-attribute selector names
 
-We want to change several data-attribute selector names to be more aligned with the JavaScript plugin name which is initialized on the data-attribute selector.
-When you use one of the selectors listed below inside HTML/Twig, JavaScript or CSS, please change the selector to the new selector.
-
-## HTML/Twig example
-
-### Before
-
-```twig
-<div 
-    data-offcanvas-menu="true" {# <<< Did not match options attr #}
-    data-off-canvas-menu-options='{ ... }'
->
-</div>
-```
-
-### After
-
-```twig
-<div 
-    data-off-canvas-menu="true" {# <<< Now matches options attr #}
-    data-off-canvas-menu-options='{ ... }'
->
-</div>
-```
-
-_The options attribute is automatically generated using the camelCase JavaScript plugin name._
-
-## Full list of selectors
-
-| old                             | new                              |
-|:--------------------------------|:---------------------------------|
-| `data-search-form`              | `data-search-widget`             |
-| `data-offcanvas-cart`           | `data-off-canvas-cart`           |
-| `data-collapse-footer`          | `data-collapse-footer-columns`   |
-| `data-offcanvas-menu`           | `data-off-canvas-menu`           |
-| `data-offcanvas-account-menu`   | `data-account-menu`              |
-| `data-offcanvas-tabs`           | `data-off-canvas-tabs`           |
-| `data-offcanvas-filter`         | `data-off-canvas-filter`         |
-| `data-offcanvas-filter-content` | `data-off-canvas-filter-content` |
 If you are relying on these associations:
  `order.stateMachineState`
  `order_transaction.stateMachineState`
@@ -1106,7 +1229,7 @@ Since v6.6.0.0, `ContextTokenResponse` class won't return the contextToken value
 ## Changed `HttpCache`, `Entity` and `NoStore` configurations for routes
 
 The Route-level configurations for `HttpCache`, `Entity` and `NoStore` where changed from custom annotations to `@Route` defaults.
-The reasons for those changes are outlined in this [ADR](../../adr/api/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
+The reasons for those changes are outlined in this [ADR](/adr/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
 Now we also change the handling for the last three annotations to be consistent and to allow the removal of the abandoned `sensio/framework-extra-bundle`.
 
 This means the `@HttpCache`, `@Entity`, `@NoStore` annotations are deprecated and have no effect anymore, the configuration no needs to be done as `defaults` in the `@Route` annotation.
@@ -1888,7 +2011,7 @@ This was needed to be able to link the asset in the Storefront as the theme asse
 To improve the performance of `theme:compile` and to reduce the confusion of the usage of assets we copy the files only to `theme/[id]`.
 
 To use the updated asset package,
-replace your current `{{ asset('logo.png', '@ThemeName') }}` with `{{ asset('logo.png', 'theme'') }}`
+replace your current `{{ asset('logo.png', '@ThemeName') }}` with `{{ asset('logo.png', 'theme') }}`
 
 ## Moved and changed the `ThemeCompilerEnrichScssVariablesEvent`
 We moved the event `ThemeCompilerEnrichScssVariablesEvent` from `\Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to `\Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent`.
@@ -2032,7 +2155,7 @@ Additionally, the default implementation for `\Shopware\Storefront\Theme\Abstrac
 Obsolete compiled theme files are now deleted with a delay, whenever a new theme compilation created new files.
 The delay time can be configured in the `shopware.yaml` file with the new `storefront.theme.file_delete_delay` option, by default it is set to 900 seconds (15 min), if the old theme files should be deleted immediately you can set the value to 0.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Selector to open an ajax modal
 The JavaScript plugin `AjaxModal` is able to open a Bootstrap modal and fetching content via ajax.

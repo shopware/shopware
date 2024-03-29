@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { Route } from 'vue-router';
+import type { RouteLocationNamedRaw } from 'vue-router';
 import type { Address } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-address.html.twig';
 import './sw-address.scss';
@@ -9,8 +9,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Component to render a postal address
  * @status ready
  * @example-type static
@@ -81,7 +80,7 @@ Component.register('sw-address', {
         },
 
         editLink: {
-            type: Object as PropType<Route | null>,
+            type: Object as PropType<RouteLocationNamedRaw | null>,
             required: false,
             default: null,
         },

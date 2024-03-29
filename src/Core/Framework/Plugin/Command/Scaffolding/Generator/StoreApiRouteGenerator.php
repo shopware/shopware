@@ -32,7 +32,7 @@ class StoreApiRouteGenerator implements ScaffoldingGenerator
 
     private string $routesXmlEntry = <<<'EOL'
 
-        <import resource="../../Core/**/*Route.php" type="annotation" />
+        <import resource="../../Core/**/*Route.php" type="attribute" />
 
     EOL;
 

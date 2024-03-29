@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -12,9 +14,8 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Service\ShopConfigurator
  */
+#[CoversClass(ShopConfigurator::class)]
 class ShopConfiguratorTest extends TestCase
 {
     private ShopConfigurator $shopConfigurator;
@@ -158,9 +159,8 @@ class ShopConfiguratorTest extends TestCase
      * @param array<string, string> $expectedStateTranslations
      * @param array<string, string> $expectedMissingTranslations
      * @param callable(string, array<string, string>): void $insertCallback
-     *
-     * @dataProvider countryStateTranslationsProvider
      */
+    #[DataProvider('countryStateTranslationsProvider')]
     public function testSetDefaultLanguageShouldAddMissingCountryStatesTranslations(
         array $expectedStateTranslations,
         array $expectedMissingTranslations,

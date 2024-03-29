@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElImageGallery from 'src/module/sw-cms/elements/image-gallery/component';
-
-Shopware.Component.register('sw-cms-el-image-gallery', swCmsElImageGallery);
 
 const sliderItemsConfigMock = [
     {
@@ -34,26 +31,31 @@ const sliderItemsDataMock = [
 ];
 
 async function createWrapper(propsOverride, dataOverride) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-image-gallery'), {
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'image-gallery': {} };
-                },
-                getPropertyByMappingPath: () => {
-                    return {};
+    return mount(await wrapTestComponent('sw-cms-el-image-gallery', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'image-gallery': {} };
+                    },
+                    getPropertyByMappingPath: () => {
+                        return {};
+                    },
                 },
             },
+            stubs: {
+                'sw-cms-el-image-slider': true,
+                'sw-media-list-selection-item-v2': true,
+                'sw-icon': true,
+            },
         },
-        stubs: {
-            'sw-cms-el-image-slider': true,
-            'sw-media-list-selection-item-v2': true,
-            'sw-icon': true,
-        },
-        propsData: {
+        props: {
             element: {
                 config: {},
                 data: {},
@@ -161,10 +163,8 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
         const imagePlaceHolders = wrapper.findAll('.sw-cms-el-image-gallery__item-placeholder');
         const mediaSelection = wrapper.findAll('sw-media-list-selection-item-v2-stub');
 
-        expect(imagePlaceHolders.exists()).toBeTruthy();
         expect(imagePlaceHolders).toHaveLength(3);
-
-        expect(mediaSelection.exists()).toBeFalsy();
+        expect(mediaSelection).toHaveLength(0);
     });
 
     it('should media items if there are slider items value', async () => {
@@ -184,13 +184,12 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
                 },
             },
         });
+        await flushPromises();
 
         const imagePlaceHolders = wrapper.findAll('.sw-cms-el-image-gallery__item-placeholder');
         const mediaSelection = wrapper.findAll('sw-media-list-selection-item-v2-stub');
 
-        expect(imagePlaceHolders.exists()).toBeFalsy();
-
-        expect(mediaSelection.exists()).toBeTruthy();
+        expect(imagePlaceHolders).toHaveLength(0);
         expect(mediaSelection).toHaveLength(2);
     });
 });

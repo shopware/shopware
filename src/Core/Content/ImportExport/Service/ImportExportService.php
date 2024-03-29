@@ -10,25 +10,33 @@ use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal We might break this in v6.2
  *
- * @phpstan-type Config array{mapping?: ?array<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
+ * @phpstan-type Config array{mapping?: list<array{key: string, mappedKey: string}>|array<Mapping>|null, updateBy?: array<string, mixed>|null, parameters?: array<string, mixed>|null}
  */
 #[Package('services-settings')]
 class ImportExportService
 {
+    /**
+     * @param EntityRepository<ImportExportLogCollection> $logRepository
+     * @param EntityRepository<UserCollection> $userRepository
+     * @param EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository
+     */
     public function __construct(
         private readonly EntityRepository $logRepository,
         private readonly EntityRepository $userRepository,
@@ -39,6 +47,7 @@ class ImportExportService
 
     /**
      * @param Config $config
+     * @param ImportExportLogEntity::ACTIVITY_* $activity
      */
     public function prepareExport(
         Context $context,
@@ -51,7 +60,9 @@ class ImportExportService
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
 
-        if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
+        if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)
+            && $activity !== ImportExportLogEntity::ACTIVITY_INVALID_RECORDS_EXPORT
+        ) {
             throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
         }
 
@@ -165,19 +176,18 @@ class ImportExportService
         $criteria->addAssociation('profile');
         $criteria->addAssociation('file');
         $criteria->addAssociation('invalidRecordsLog.file');
-        /** @var ImportExportLogCollection $result */
-        $result = $this->logRepository->search($criteria, $context)->getEntities();
 
-        return $result->get($logId);
+        return $this->logRepository->search($criteria, $context)->getEntities()->get($logId);
     }
 
     private function findProfile(Context $context, string $profileId): ImportExportProfileEntity
     {
         $profile = $this->profileRepository
             ->search(new Criteria([$profileId]), $context)
+            ->getEntities()
             ->first();
 
-        if ($profile instanceof ImportExportProfileEntity) {
+        if ($profile !== null) {
             return $profile;
         }
 
@@ -224,7 +234,10 @@ class ImportExportService
 
     private function findUser(Context $context, string $userId): UserEntity
     {
-        return $this->userRepository->search(new Criteria([$userId]), $context)->first();
+        $user = $this->userRepository->search(new Criteria([$userId]), $context)->getEntities()->first();
+        \assert($user !== null);
+
+        return $user;
     }
 
     /**

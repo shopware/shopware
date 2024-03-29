@@ -50,6 +50,8 @@ export default {
             'vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'icons-multicolor-file-thumbnail-xls',
             'vnd.ms-powerpoint': 'icons-multicolor-file-thumbnail-ppt',
             'vnd.openxmlformats-officedocument.presentationml.presentation': 'icons-multicolor-file-thumbnail-ppt',
+            glb: 'icons-multicolor-file-thumbnail-glb',
+            'octet-stream': 'icons-multicolor-file-thumbnail-glb',
         },
         video: {
             'x-msvideo': 'icons-multicolor-file-thumbnail-avi',
@@ -64,6 +66,9 @@ export default {
             gif: 'icons-multicolor-file-thumbnail-gif',
             jpeg: 'icons-multicolor-file-thumbnail-jpg',
             'svg+xml': 'icons-multicolor-file-thumbnail-svg',
+        },
+        model: {
+            'gltf-binary': 'icons-multicolor-file-thumbnail-glb',
         },
     },
 
@@ -182,11 +187,7 @@ export default {
                 return true;
             }
 
-            if (this.$options.playableAudioFormats.includes(this.mimeType)) {
-                return true;
-            }
-
-            return false;
+            return this.$options.playableAudioFormats.includes(this.mimeType);
         },
 
         isIcon() {
@@ -227,11 +228,11 @@ export default {
                 return this.trueSource.href;
             }
 
-            if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                return this.trueSource.url;
+            if (this.isRelativePath) {
+                return this.trueSource;
             }
 
-            return `${this.trueSource.url}?${Shopware.Utils.createId()}`;
+            return this.trueSource.url;
         },
 
         isUrl() {
@@ -240,6 +241,10 @@ export default {
 
         isFile() {
             return this.trueSource instanceof File;
+        },
+
+        isRelativePath() {
+            return typeof this.trueSource === 'string';
         },
 
         alt() {
@@ -276,13 +281,7 @@ export default {
 
             const sources = [];
             this.trueSource.thumbnails.forEach((thumbnail) => {
-                let url;
-
-                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                    url = thumbnail.url;
-                } else {
-                    url = `${thumbnail.url}?${Shopware.Utils.createId()}`;
-                }
+                const url = thumbnail.url;
 
                 const encoded = encodeURI(url);
                 sources.push(`${encoded} ${thumbnail.width}w`);
@@ -322,13 +321,16 @@ export default {
                 return;
             }
 
-            if (typeof this.source === 'string') {
+            if (typeof this.source !== 'string') {
+                this.trueSource = this.source[0] ?? this.source;
+
+                return;
+            }
+
+            try {
                 this.trueSource = await this.mediaRepository.get(this.source, Context.api);
-            } else {
+            } catch {
                 this.trueSource = this.source;
-                if (this.source[0]) {
-                    this.trueSource = this.source[0];
-                }
             }
         },
 

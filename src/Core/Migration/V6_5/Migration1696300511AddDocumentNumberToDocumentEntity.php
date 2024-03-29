@@ -31,12 +31,4 @@ class Migration1696300511AddDocumentNumberToDocumentEntity extends MigrationStep
 
         $connection->executeStatement('CREATE INDEX `idx.document.document_number` ON `document` (`document_number`)');
     }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

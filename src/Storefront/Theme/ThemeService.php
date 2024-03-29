@@ -8,11 +8,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
+use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -418,7 +418,7 @@ class ThemeService implements ResetInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<int, string>
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {
@@ -428,6 +428,12 @@ class ThemeService implements ResetInterface
             && !empty($mainTheme->getBaseConfig()['configInheritance'])
         ) {
             return $mainTheme->getBaseConfig()['configInheritance'];
+        }
+
+        if ($mainTheme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
+            return [
+                '@' . StorefrontPluginRegistry::BASE_THEME_NAME,
+            ];
         }
 
         return [];
@@ -584,7 +590,7 @@ class ThemeService implements ResetInterface
 
         $translations = $theme->getLabels() ?: [];
 
-        if ($theme->getParentThemeId()) {
+        if ($theme->getTechnicalName() !== StorefrontPluginRegistry::BASE_THEME_NAME) {
             $criteria = new Criteria();
             $criteria->setTitle('theme-service::load-translations');
 
@@ -618,14 +624,9 @@ class ThemeService implements ResetInterface
         return false;
     }
 
-    /**
-     * @experimental stableVersion:v6.6.0 feature:ASYNC_THEME_COMPILATION
-     *
-     *  The way to toggle async compilation is experimental. It may be changed in the future without announcement.
-     */
     private function isAsyncCompilation(Context $context): bool
     {
-        if (!Feature::isActive('ASYNC_THEME_COMPILATION')) {
+        if ($this->configLoader instanceof StaticFileConfigLoader) {
             return false;
         }
 

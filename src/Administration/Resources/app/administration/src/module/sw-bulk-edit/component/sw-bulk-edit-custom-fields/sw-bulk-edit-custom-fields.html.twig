@@ -3,14 +3,9 @@
 <div class="sw-custom-field-set-renderer-card-form-renderer">
     <template
         v-for="customField in set.customFields"
-        {% if VUE3 %}
         :key="customField.id"
-        {% endif %}
     >
         <sw-container
-            {% if VUE2 %}
-            :key="customField.id"
-            {% endif %}
             columns="240px 1fr"
             gap="32px"
         >
@@ -19,11 +14,7 @@
             <sw-checkbox-field
                 class="sw-bulk-edit-custom-fields__change"
                 :label="$tc('sw-bulk-edit.product.customFields.changeLabel', 0, {name: getInlineSnippet(customField.config.label)})"
-                {% if VUE3 %}
                 @update:value="toggleItemCheck($event, customField)"
-                {% else %}
-                @change="toggleItemCheck($event, customField)"
-                {% endif %}
             />
             {% endblock %}
 
@@ -31,22 +22,13 @@
             {% block sw_custom_field_set_renderer_card_form_renderer_custom_field %}
             <sw-inherit-wrapper
                 v-if="entity && customField.config"
-                {% if VUE3 %}
                 v-model:value="entity.customFields[customField.name]"
-                {% else %}
-                v-model="entity.customFields[customField.name]"
-                {% endif %}
                 v-bind="getInheritWrapperBind(customField)"
                 :class="'sw-form-field-renderer-field__' + customField.name"
                 :has-parent="hasParent"
                 :required="customField.config.validation === 'required'"
                 :inherited-value="getInheritedCustomField(customField.name)"
-                @input="updateCustomField(customField)"
-                {% if VUE3 %}
                 @update:value="updateCustomField(customField)"
-                {% else %}
-                @change="updateCustomField(customField)"
-                {% endif %}
             >
                 <template #content="props">
                     <sw-form-field-renderer
@@ -55,8 +37,7 @@
                         :class="'sw-form-field-renderer-input-field__' + customField.name"
                         :disabled="disabled || props.isInherited"
                         :value="props.currentValue"
-                        @input="props.updateCurrentValue"
-                        @change="props.updateCurrentValue"
+                        @update:value="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>

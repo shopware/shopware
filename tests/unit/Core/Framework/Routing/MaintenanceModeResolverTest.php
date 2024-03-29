@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
@@ -10,9 +11,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Routing\MaintenanceModeResolver
  */
+#[CoversClass(MaintenanceModeResolver::class)]
 class MaintenanceModeResolverTest extends TestCase
 {
     public function testIsClientAllowedTriggersEventAndReturnsFalseForDisallowedClient(): void

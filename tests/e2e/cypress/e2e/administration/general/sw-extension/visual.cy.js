@@ -12,7 +12,7 @@ describe('Extension:  Visual tests', { tags: ['VUE3'] }, () => {
             });
     });
 
-    it('@visual: check appearance of my extension overview', { tags: ['pa-merchant-services'] }, () => {
+    it('@visual: check appearance of my extension overview', { tags: ['quarantined', 'pa-services-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,
             method: 'GET',

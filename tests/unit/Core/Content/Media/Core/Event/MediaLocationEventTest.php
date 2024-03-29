@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\MediaLocationEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Event\MediaLocationEvent
  */
+#[CoversClass(MediaLocationEvent::class)]
 class MediaLocationEventTest extends TestCase
 {
     public function testGetIterator(): void

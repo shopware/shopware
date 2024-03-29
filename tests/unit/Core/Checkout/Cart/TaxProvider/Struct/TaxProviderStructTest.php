@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -11,9 +13,8 @@ use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult
  */
+#[CoversClass(TaxProviderResult::class)]
 class TaxProviderStructTest extends TestCase
 {
     public function testEmpty(): void
@@ -29,9 +30,8 @@ class TaxProviderStructTest extends TestCase
     /**
      * @param array<string, CalculatedTaxCollection>|null $lineItemTaxes
      * @param array<string, CalculatedTaxCollection>|null $deliveryTaxes
-     *
-     * @dataProvider structDataProvider
      */
+    #[DataProvider('structDataProvider')]
     public function testDirty(
         ?array $lineItemTaxes,
         ?array $deliveryTaxes,

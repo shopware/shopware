@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CurrencyRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
@@ -14,9 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator
  */
+#[CoversClass(MigrationQueryGenerator::class)]
 class MigrationQueryGeneratorTest extends TestCase
 {
     private SchemaBuilder&MockObject $schemaBuilder;

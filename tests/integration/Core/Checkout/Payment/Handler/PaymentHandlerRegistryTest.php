@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\Handler;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
@@ -55,10 +56,9 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @dataProvider paymentMethodDataProvider
-     *
      * @param class-string<PaymentHandlerInterface> $handlerClass
      */
+    #[DataProvider('paymentMethodDataProvider')]
     public function testGetHandler(string $handlerName, string $handlerClass): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
@@ -68,9 +68,8 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
-     *
-     * @dataProvider paymentMethodDataProvider
      */
+    #[DataProvider('paymentMethodDataProvider')]
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
@@ -85,9 +84,8 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
-     *
-     * @dataProvider paymentMethodDataProvider
      */
+    #[DataProvider('paymentMethodDataProvider')]
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
@@ -102,9 +100,8 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
-     *
-     * @dataProvider paymentMethodDataProvider
      */
+    #[DataProvider('paymentMethodDataProvider')]
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
@@ -119,9 +116,8 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
-     *
-     * @dataProvider paymentMethodDataProvider
      */
+    #[DataProvider('paymentMethodDataProvider')]
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
@@ -135,11 +131,10 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @dataProvider appPaymentMethodUrlProvider
-     *
      * @param array<string, mixed> $appPaymentData
      * @param class-string<object> $expectedHandler
      */
+    #[DataProvider('appPaymentMethodUrlProvider')]
     public function testAppResolve(array $appPaymentData, string $expectedHandler): void
     {
         $appPaymentData = \array_merge([

@@ -4,13 +4,10 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
@@ -18,21 +15,12 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater
  */
+#[CoversClass(IndexMappingUpdater::class)]
 class IndexMappingUpdaterTest extends TestCase
 {
     public function testUpdate(): void
     {
-        $language = new LanguageEntity();
-        $language->setId(Uuid::randomHex());
-
-        $languageProvider = $this->createMock(ElasticsearchLanguageProvider::class);
-        $languageProvider
-            ->method('getLanguages')
-            ->willReturn(new LanguageCollection([$language]));
-
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $elasticsearchHelper->method('getIndexName')->willReturn('index');
 
@@ -64,7 +52,6 @@ class IndexMappingUpdaterTest extends TestCase
         $updater = new IndexMappingUpdater(
             $registry,
             $elasticsearchHelper,
-            $languageProvider,
             $client,
             $indexMappingProvider
         );

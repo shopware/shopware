@@ -24,7 +24,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variant_modal_body_label_search %}
             <sw-simple-search-field
-                v-model="searchTerm"
+                v-model:value="searchTerm"
                 class="sw-product-variant-modal__search"
                 size="small"
                 variant="form"
@@ -218,7 +218,7 @@
                         disabled
                     />
                     <sw-price-preview
-                        :price="item.price ? item.price : []"
+                        :value="item.price ? item.price : []"
                         :default-price="productEntity.price[0]"
                         :tax-rate="productEntity.tax"
                         :currency="currency"
@@ -288,11 +288,7 @@
             {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.name"
-                {% else %}
-                v-model="item.name"
-                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />
@@ -359,7 +355,7 @@
                 />
 
                 <sw-price-field
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="productEntity.price[0]"
                     :tax-rate="productEntity.tax"
                     :label="false"
@@ -378,7 +374,7 @@
                 />
 
                 <sw-price-preview
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="productEntity.price[0]"
                     :tax-rate="productEntity.tax"
                     :currency="currency"
@@ -395,11 +391,7 @@
             {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.stock"
-                {% else %}
-                v-model="item.stock"
-                {% endif %}
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
@@ -423,11 +415,7 @@
             {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
             <template v-if="isInlineEdit">
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="item.active"
-                    {% else %}
-                    v-model="item.active"
-                    {% endif %}
                     :disabled="item.active === null"
                 />
 
@@ -617,11 +605,7 @@
                 :process-success="isDeletionOver"
                 :is-loading="isDeleteButtonLoading"
                 @click="deleteVariants"
-                {% if VUE3 %}
                 @update:process-success="closeDeleteModal"
-                {% else %}
-                @process-finish="closeDeleteModal"
-                {% endif %}
             >
                 {{ $tc('global.default.delete') }}
             </sw-button-process>

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -15,9 +16,17 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
+use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
+use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
+use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -28,19 +37,22 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
-use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Product\ProductPageLoader
  */
+#[CoversClass(ProductPageLoader::class)]
 class ProductPageLoaderTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.7.0 - Only remove the deprecated parts, not the whole test!
+     */
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testItLoadsReviews(): void
     {
         $productId = Uuid::randomHex();
@@ -52,10 +64,19 @@ class ProductPageLoaderTest extends TestCase
 
         $page = $productPageLoader->load($request, $salesChannelContext);
 
-        /** @phpstan-ignore-next-line $slot */
-        $slot = $page->getCmsPage()->getSections()->first()->getBlocks()->first()->getSlots()->first()->getSlot();
+        $slot = $page->getCmsPage()?->getSections()?->first()?->getBlocks()?->first()?->getSlots()?->first()?->getSlot();
+        static::assertIsString($slot);
 
-        static::assertEquals($reviews, json_decode((string) $slot, true, 512, \JSON_THROW_ON_ERROR));
+        static::assertEquals($reviews, json_decode($slot, true, 512, \JSON_THROW_ON_ERROR));
+
+        /** @deprecated tag:v6.7.0 - Remove only everything below this line */
+        $reviewsDeprecated = $page->getReviews();
+        static::assertCount(1, $reviewsDeprecated);
+        $firstReview = $reviewsDeprecated->first();
+        static::assertInstanceOf(ProductReviewEntity::class, $firstReview);
+        static::assertSame('this product changed my life', $firstReview->getComment());
+        $crossSellingDeprecated = $page->getCrossSellings();
+        static::assertCount(0, $crossSellingDeprecated);
     }
 
     /**
@@ -67,6 +88,7 @@ class ProductPageLoaderTest extends TestCase
 
         // set cms page which later will be set by the subscriber
         $product->setCmsPage($this->getCmsPage($product));
+        $product->setProductNumber($productId);
 
         $criteria = (new Criteria())
             ->addAssociation('manufacturer.media')
@@ -84,9 +106,7 @@ class ProductPageLoaderTest extends TestCase
         return new ProductPageLoader(
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcherInterface::class),
-            $productDetailRouteMock,
-            $this->createMock(ProductReviewLoader::class),
-            $this->createMock(ProductCrossSellingRoute::class)
+            $productDetailRouteMock
         );
     }
 
@@ -129,20 +149,14 @@ class ProductPageLoaderTest extends TestCase
 
     private function getCmsPage(SalesChannelProductEntity $productEntity): CmsPageEntity
     {
-        $cmsPageEntity = new CmsPageEntity();
+        $reviewBlock = $this->getReviewBlock($productEntity);
+        $crossSellingBlock = $this->getCrossSellingBlock();
 
         $cmsSectionEntity = new CmsSectionEntity();
         $cmsSectionEntity->setId(Uuid::randomHex());
+        $cmsSectionEntity->setBlocks(new CmsBlockCollection([$reviewBlock, $crossSellingBlock]));
 
-        $cmsBlockEntity = new CmsBlockEntity();
-        $cmsBlockEntity->setId(Uuid::randomHex());
-
-        $cmsSlotEntity = new CmsSlotEntity();
-        $cmsSlotEntity->setId(Uuid::randomHex());
-        $cmsSlotEntity->setSlot(json_encode($productEntity->getTranslated(), \JSON_THROW_ON_ERROR));
-
-        $cmsBlockEntity->setSlots(new CmsSlotCollection([$cmsSlotEntity]));
-        $cmsSectionEntity->setBlocks(new CmsBlockCollection([$cmsBlockEntity]));
+        $cmsPageEntity = new CmsPageEntity();
         $cmsPageEntity->setSections(new CmsSectionCollection([$cmsSectionEntity]));
 
         return $cmsPageEntity;
@@ -165,5 +179,58 @@ class ProductPageLoaderTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function getProductReviewResult(): ProductReviewResult
+    {
+        $review = new ProductReviewEntity();
+        $review->setId(Uuid::randomHex());
+        $review->setTitle('myReviewTitle');
+        $review->setComment('this product changed my life');
+
+        $productReviewResult = new ProductReviewResult(
+            ProductReviewDefinition::ENTITY_NAME,
+            1,
+            new ProductReviewCollection([$review]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+        $productReviewResult->setMatrix(new RatingMatrix([]));
+
+        return $productReviewResult;
+    }
+
+    private function getReviewBlock(SalesChannelProductEntity $productEntity): CmsBlockEntity
+    {
+        $data = new ProductDescriptionReviewsStruct();
+        $data->setReviews($this->getProductReviewResult());
+
+        $reviewSlot = new CmsSlotEntity();
+        $reviewSlot->setId(Uuid::randomHex());
+        $reviewSlot->setSlot(json_encode($productEntity->getTranslated(), \JSON_THROW_ON_ERROR));
+        $reviewSlot->setData($data);
+
+        $reviewBlock = new CmsBlockEntity();
+        $reviewBlock->setId(Uuid::randomHex());
+        $reviewBlock->setType(ProductDescriptionReviewsCmsElementResolver::TYPE);
+        $reviewBlock->setSlots(new CmsSlotCollection([$reviewSlot]));
+
+        return $reviewBlock;
+    }
+
+    private function getCrossSellingBlock(): CmsBlockEntity
+    {
+        $crossSellingSlot = new CmsSlotEntity();
+        $crossSellingSlot->setId(Uuid::randomHex());
+        $crossSellingSlot->setSlot('');
+        $crossSellingSlot->setData(new CrossSellingStruct());
+
+        $crossSellingBlock = new CmsBlockEntity();
+        $crossSellingBlock->setId(Uuid::randomHex());
+        $crossSellingBlock->setType(CrossSellingCmsElementResolver::TYPE);
+        $crossSellingBlock->setSlots(new CmsSlotCollection([$crossSellingSlot]));
+
+        return $crossSellingBlock;
     }
 }

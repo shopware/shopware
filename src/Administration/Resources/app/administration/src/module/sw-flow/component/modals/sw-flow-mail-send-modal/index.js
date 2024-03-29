@@ -354,7 +354,7 @@ export default {
                 isNew: true,
             });
 
-            this.$nextTick(() => {
+            this.$nextTick().then(() => {
                 this.$refs.recipientsGrid.currentInlineEditId = newId;
                 this.$refs.recipientsGrid.enableInlineEdit();
             });

@@ -52,11 +52,6 @@
             <tag name="shopware.filesystem.factory"/>
         </service>
 
-        <service id="League\Flysystem\PathPrefixing\PathPrefixedAdapter">
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument>media</argument>
-        </service>
-
         <service id="console.command.assets_install" class="Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>

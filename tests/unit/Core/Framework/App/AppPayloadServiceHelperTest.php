@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -22,9 +23,8 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\AppPayloadServiceHelper
  */
+#[CoversClass(AppPayloadServiceHelper::class)]
 class AppPayloadServiceHelperTest extends TestCase
 {
     private IdsCollection $ids;

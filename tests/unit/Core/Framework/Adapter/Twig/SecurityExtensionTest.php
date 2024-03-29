@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Twig\Environment;
@@ -9,14 +11,11 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\SecurityExtension
  */
+#[CoversClass(SecurityExtension::class)]
 class SecurityExtensionTest extends TestCase
 {
-    /**
-     * @dataProvider notAllowedTemplates
-     */
+    #[DataProvider('notAllowedTemplates')]
     public function testNotAllowedTemplates(string $template): void
     {
         // Depending on the twig version it might throw a RuntimeError or a TypeError,
@@ -133,6 +132,26 @@ class SecurityExtensionTest extends TestCase
         static::assertSame(
             '123',
             $this->runTwig('{{ test|sort|join }}', [], ['test' => ['2', '3', '1']])
+        );
+    }
+
+    public function testAcceptsNull(): void
+    {
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|map(v => (v ~ "-test"))|join }}', [], ['test' => null])
+        );
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|reduce((a, b) => a + b)|join }}', [], ['test' => null])
+        );
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|filter(v => v == "a")|join }}', [], ['test' => null])
+        );
+        static::assertSame(
+            '',
+            $this->runTwig('{{ test|sort|join }}', [], ['test' => null])
         );
     }
 

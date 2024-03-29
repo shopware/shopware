@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,13 +21,11 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemDimensionLengthRule::class)]
+#[Group('rules')]
 class LineItemDimensionLengthRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -49,9 +50,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         float $amount,
@@ -113,9 +112,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
         yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         float $amount,
@@ -155,9 +152,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         float $amount,
@@ -265,6 +260,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         static::assertInstanceOf(NotBlank::class, $result['operator'][0]);
         static::assertInstanceOf(Choice::class, $result['operator'][1]);
+        static::assertIsArray($result['operator'][1]->choices);
         static::assertContains('empty', $result['operator'][1]->choices);
     }
 
@@ -276,7 +272,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
         $expectedOperatorSet = array_merge(RuleConfig::OPERATOR_SET_NUMBER, [Rule::OPERATOR_EMPTY]);
 
         static::assertSame($expectedOperatorSet, $result->getData()['operatorSet']['operators']);
-        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields'][0]['config']['unit']);
+        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
     private function createLineItemWithLength(?float $length): LineItem

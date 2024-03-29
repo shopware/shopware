@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -77,7 +77,7 @@ class EntityWriter implements EntityWriterInterface
 
             $definition = $this->registry->getByEntityName($operation->getEntity());
 
-            $this->validateWriteInput($operation->getPayload());
+            WriteInputValidator::validate($operation->getPayload());
 
             if ($operation->getAction() === SyncOperation::ACTION_DELETE) {
                 $deletes[] = $this->factory->resolveDelete($definition, $operation->getPayload());
@@ -107,7 +107,7 @@ class EntityWriter implements EntityWriterInterface
 
         $context->getExceptions()->tryToThrow();
 
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $context);
+        $this->gateway->execute($commandQueue->getCommandsInOrder($this->registry), $context);
 
         $result = $this->factory->build($commandQueue);
 
@@ -140,23 +140,22 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @throws IncompletePrimaryKeyException
      * @throws RestrictDeleteViolationException
      */
-    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult
+    public function delete(EntityDefinition $definition, array $rawData, WriteContext $writeContext): WriteResult
     {
-        $this->validateWriteInput($ids);
+        WriteInputValidator::validate($rawData);
 
         $parents = [];
         if (!$writeContext->hasState('merge-scope')) {
-            $parents = $this->factory->resolveDelete($definition, $ids);
+            $parents = $this->factory->resolveDelete($definition, $rawData);
         }
 
         $commandQueue = new WriteCommandQueue();
-        $notFound = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
+        $notFound = $this->extractDeleteCommands($definition, $rawData, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
+        $this->gateway->execute($commandQueue->getCommandsInOrder($this->registry), $writeContext);
 
         $result = $this->factory->build($commandQueue);
 
@@ -172,7 +171,7 @@ class EntityWriter implements EntityWriterInterface
      */
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
     {
-        $this->validateWriteInput($rawData);
+        WriteInputValidator::validate($rawData);
 
         if (!$rawData) {
             return [];
@@ -200,7 +199,7 @@ class EntityWriter implements EntityWriterInterface
 
         $writeContext->getExceptions()->tryToThrow();
 
-        $ordered = $commandQueue->getCommandsInOrder();
+        $ordered = $commandQueue->getCommandsInOrder($this->registry);
 
         $this->gateway->execute($ordered, $writeContext);
 
@@ -212,20 +211,6 @@ class EntityWriter implements EntityWriterInterface
         );
 
         return $this->factory->addParentResults($result, $parents);
-    }
-
-    /**
-     * @param array<mixed> $data
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateWriteInput(array $data): void
-    {
-        $valid = array_is_list($data) || $data === [];
-
-        if (!$valid) {
-            throw new \InvalidArgumentException('Expected input to be non associative array.');
-        }
     }
 
     /**
@@ -261,7 +246,13 @@ class EntityWriter implements EntityWriterInterface
 
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
-                $queue->add($affectedDefinition, new UpdateCommand($affectedDefinition, [], $primary, $existence, ''));
+                $command = new UpdateCommand($affectedDefinition, [], $primary, $existence, '');
+
+                $queue->add(
+                    $affectedDefinition->getEntityName(),
+                    WriteCommandQueue::hashedPrimary($this->registry, $command),
+                    $command
+                );
             }
         }
     }
@@ -288,7 +279,18 @@ class EntityWriter implements EntityWriterInterface
 
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
-                $queue->add($affectedDefinition, new CascadeDeleteCommand($affectedDefinition, $primary, $existence));
+                $command = new CascadeDeleteCommand($affectedDefinition, $primary, $existence);
+
+                $identifier = WriteCommandQueue::hashedPrimary(
+                    $this->registry,
+                    $command
+                );
+
+                $queue->add(
+                    $affectedDefinition->getEntityName(),
+                    $identifier,
+                    $command
+                );
             }
         }
     }
@@ -331,7 +333,15 @@ class EntityWriter implements EntityWriterInterface
                     $payload[$versionField] = null;
                 }
 
-                $queue->add($affectedDefinition, new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, '', $isEnforced));
+                $command = new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, '', $isEnforced);
+
+                $identifier = WriteCommandQueue::hashedPrimary($this->registry, $command);
+
+                $queue->add(
+                    $affectedDefinition->getEntityName(),
+                    $identifier,
+                    $command
+                );
             }
         }
     }
@@ -373,15 +383,7 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
-                $fieldKeys = $fields
-                    ->filter(
-                        fn (Field $field) => !$field instanceof VersionField && !$field instanceof ReferenceVersionField
-                    )
-                    ->map(
-                        fn (Field $field) => $field->getPropertyName()
-                    );
-
-                throw new IncompletePrimaryKeyException($fieldKeys);
+                throw DataAbstractionLayerException::inconsistentPrimaryKey($definition->getEntityName(), $property);
             }
 
             $resolved[] = $mapped;
@@ -432,7 +434,15 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if ($existence->exists()) {
-                $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
+                $command = new DeleteCommand($definition, $mappedBytes, $existence);
+
+                $identifier = WriteCommandQueue::hashedPrimary($this->registry, $command);
+
+                $commandQueue->add(
+                    $definition->getEntityName(),
+                    $identifier,
+                    $command
+                );
 
                 continue;
             }

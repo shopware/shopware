@@ -1,4 +1,4 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { Module } from 'vuex';
 import type { AxiosResponse } from 'axios';
 import type {
@@ -69,7 +69,7 @@ const SwOrderStore: Module<SwOrderState, VuexRootState> = {
                 },
             } as Entity<'shipping_method'>,
             currency: {
-                shortName: 'EUR',
+                isoCode: 'EUR',
                 symbol: '€',
                 totalRounding: {
                     decimals: 2,

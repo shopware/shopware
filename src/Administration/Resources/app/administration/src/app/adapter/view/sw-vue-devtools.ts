@@ -10,15 +10,23 @@ import { setupDevtoolsPlugin } from '@vue/devtools-api';
 import type { App } from '@vue/devtools-api/lib/esm/api/app';
 import type { DevtoolsPluginApi } from '@vue/devtools-api/lib/esm/api/api';
 
-interface Component {
-    $children: Component[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    $options: any,
-    $el: HTMLElement,
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export interface DevtoolComponent {
+    $el?: HTMLElement & {
+        DEVTOOL_EVENT_LISTENER?: () => void;
+    };
+    $options?: {
+        extensionApiDevtoolInformation?: {
+            property: string;
+            method: string;
+            positionId: (currentComponent: DevtoolComponent) => string;
+            view: (currentComponent: DevtoolComponent) => string;
+            entity: (currentComponent: DevtoolComponent) => string;
+        };
+    };
 }
 
 // variables which store general values
-let extensionComponentCollection: Component[] = [];
 let highlightedElements: HTMLElement[] = [];
 
 const POSITION_INSPECTOR_ID = 'sw-admin-extension-position-inspector';
@@ -27,7 +35,7 @@ const CLICKABLE_CLASS = 'sw-devtool-element-clickable';
 const DATASET_ID_PREFIX = 'sw-extension-api-dataset__';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function setupShopwareDevtools(app: App): void {
     setupDevtoolsPlugin({
@@ -86,7 +94,7 @@ export default function setupShopwareDevtools(app: App): void {
                     action: (): void => {
                         unhighlightElements();
 
-                        extensionComponentCollection.forEach((component) => {
+                        window._sw_extension_component_collection.forEach((component) => {
                             makeElementClickable(component, api);
                         });
                     },
@@ -101,32 +109,27 @@ export default function setupShopwareDevtools(app: App): void {
             }
 
             payload.rootNodes = [];
-            extensionComponentCollection = [];
 
-            componentIterator(payload.app as Component, (component) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (component.$options.extensionApiDevtoolInformation) {
-                    const { property, positionId, view, entity } = getExtensionInformation(component);
+            window._sw_extension_component_collection.forEach((component) => {
+                const { property, positionId, view, entity } = getExtensionInformation(component);
 
-                    // create new root node if none exists
-                    const hasMatchingNode = payload.rootNodes.some(n => n.id === property);
-                    if (!hasMatchingNode) {
-                        payload.rootNodes.push({
-                            id: property,
-                            label: property,
-                            children: [],
-                        });
-                    }
-
-                    const rootNode = payload.rootNodes.find(n => n.id === property);
-
-                    // @ts-expect-error
-                    rootNode.children?.push({
-                        id: `${property}_${positionId}`,
-                        label: positionId === 'unknown' ? `${entity}-${view}` : positionId,
+                // create new root node if none exists
+                const hasMatchingNode = payload.rootNodes.some(n => n.id === property);
+                if (!hasMatchingNode) {
+                    payload.rootNodes.push({
+                        id: property,
+                        label: property,
+                        children: [],
                     });
-                    extensionComponentCollection.push(component);
                 }
+
+                const rootNode = payload.rootNodes.find(n => n.id === property);
+
+                // @ts-expect-error
+                rootNode.children?.push({
+                    id: `${property}_${positionId}`,
+                    label: positionId === 'unknown' ? `${entity}-${view}` : positionId,
+                });
             });
 
             const publishedDatasets = Shopware.ExtensionAPI.getPublishedDataSets();
@@ -180,7 +183,7 @@ export default function setupShopwareDevtools(app: App): void {
                 return;
             }
 
-            const matchingComponent = extensionComponentCollection.find((component) => {
+            const matchingComponent = window._sw_extension_component_collection.find((component) => {
                 const { nodeId } = getExtensionInformation(component);
 
                 return nodeId === payload.nodeId;
@@ -191,7 +194,7 @@ export default function setupShopwareDevtools(app: App): void {
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-            const devtoolInformation = matchingComponent.$options.extensionApiDevtoolInformation;
+            const devtoolInformation = matchingComponent?.$options?.extensionApiDevtoolInformation;
 
             // show information about selected node
             payload.state = {
@@ -199,7 +202,7 @@ export default function setupShopwareDevtools(app: App): void {
             };
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation.hasOwnProperty('positionId') && devtoolInformation.positionId(matchingComponent)) {
+            if (devtoolInformation?.positionId?.(matchingComponent)) {
                 payload.state.General.push({
                     key: 'PositionId',
                     // eslint-disable-next-line max-len
@@ -209,7 +212,7 @@ export default function setupShopwareDevtools(app: App): void {
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation.hasOwnProperty('view') && devtoolInformation.view(matchingComponent)) {
+            if (devtoolInformation?.view?.(matchingComponent)) {
                 payload.state.General.push({
                     key: 'View',
                     // eslint-disable-next-line max-len
@@ -219,7 +222,7 @@ export default function setupShopwareDevtools(app: App): void {
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation.hasOwnProperty('entity') && devtoolInformation.entity(matchingComponent)) {
+            if (devtoolInformation?.entity?.(matchingComponent)) {
                 payload.state.General.push({
                     key: 'Entity',
                     // eslint-disable-next-line max-len
@@ -229,7 +232,7 @@ export default function setupShopwareDevtools(app: App): void {
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation.property) {
+            if (devtoolInformation?.property) {
                 payload.state.General.push({
                     key: 'Property',
                     // eslint-disable-next-line max-len
@@ -239,12 +242,12 @@ export default function setupShopwareDevtools(app: App): void {
             }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (devtoolInformation.method) {
+            if (devtoolInformation?.method) {
                 payload.state.General.push({
                     key: 'Method',
                     // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                    value: devtoolInformation.method,
+                    value: devtoolInformation?.method,
                 });
             }
 
@@ -254,35 +257,32 @@ export default function setupShopwareDevtools(app: App): void {
     });
 }
 
-function componentIterator(component: Component, callbackMethod: (component: Component) => void): void {
-    callbackMethod(component);
-
-    component.$children.forEach(childComponent => {
-        componentIterator(childComponent, callbackMethod);
-    });
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function highlightElement(component: Component): void {
+function highlightElement(component: DevtoolComponent): void {
     // Highlight new element
-    component.$el.classList.add(HIGHLIGHT_CLASS);
-    highlightedElements.push(component.$el);
+    if (component.$el) {
+        component.$el.classList.add(HIGHLIGHT_CLASS);
+        highlightedElements.push(component.$el);
+    } else {
+        // eslint-disable-next-line no-console
+        console.log('Could not highlight element', component);
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function makeElementClickable(component: Component, api: DevtoolsPluginApi<any>): void {
+function makeElementClickable(component: DevtoolComponent, api: DevtoolsPluginApi<any>): void {
     highlightElement(component);
-    component.$el.classList.add(CLICKABLE_CLASS);
-    // @ts-expect-error
-    component.$el.DEVTOOL_EVENT_LISTENER = (): void => {
-        const { nodeId } = getExtensionInformation(component);
+    if (component.$el) {
+        component.$el?.classList.add(CLICKABLE_CLASS);
+        component.$el.DEVTOOL_EVENT_LISTENER = (): void => {
+            const { nodeId } = getExtensionInformation(component);
 
-        api.selectInspectorNode(POSITION_INSPECTOR_ID, nodeId);
-    };
+            api.selectInspectorNode(POSITION_INSPECTOR_ID, nodeId);
+        };
 
-    // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    component.$el.addEventListener('click', component.$el.DEVTOOL_EVENT_LISTENER);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        component.$el.addEventListener('click', component.$el.DEVTOOL_EVENT_LISTENER);
+    }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -302,7 +302,7 @@ function unhighlightElements():void {
     highlightedElements = [];
 }
 
-function getExtensionInformation(component: Component): {
+function getExtensionInformation(component: DevtoolComponent): {
     nodeId: string,
     positionId: string,
     property: string,
@@ -312,11 +312,11 @@ function getExtensionInformation(component: Component): {
 } {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-    const devtoolInformation = component.$options.extensionApiDevtoolInformation;
+    const devtoolInformation = component.$options?.extensionApiDevtoolInformation;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const property = devtoolInformation.property as string ?? 'unknown';
+    const property = devtoolInformation?.property as string ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const method = devtoolInformation.method as string ?? 'unknown';
+    const method = devtoolInformation?.method as string ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const positionId = devtoolInformation?.positionId?.(component) as string ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access

@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -83,7 +82,7 @@ class PreparedPaymentService
 
             $preparedTransactionStruct = $this->paymentTransactionStructFactory->prepared($transaction, $order);
             $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
-        } catch (PaymentProcessException $e) {
+        } catch (PaymentException $e) {
             $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
 
             throw $e;

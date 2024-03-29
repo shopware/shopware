@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
@@ -10,7 +12,6 @@ use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Exception\RedirectionException;
@@ -19,13 +20,13 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\EntityDispatcher
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(EntityDispatcher::class)]
 class EntityDispatcherTest extends TestCase
 {
     private readonly ClockInterface $clock;
@@ -39,25 +40,27 @@ class EntityDispatcherTest extends TestCase
     {
         $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
             $headers = array_values($options['headers']);
-            static::assertContains('Shopware-Shop-Id: shop-id', array_values($headers));
+            static::assertContains('Shopware-Shop-Id: shop-id', $headers);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->method('getShopId')
-            ->willReturn('shop-id');
-
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $shopIdProvider,
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::DELETE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsContentEncodingHeader(): void
@@ -65,21 +68,27 @@ class EntityDispatcherTest extends TestCase
         $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
             $headers = array_values($options['headers']);
 
-            static::assertContains('Content-Encoding: gzip', array_values($headers));
+            static::assertContains('Content-Encoding: gzip', $headers);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
-            'prod'
+            'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::DELETE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsShopIdToPayload(): void
@@ -90,25 +99,27 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('shop_id', $payload);
-            static::assertEquals('shop-id', $payload['shop_id']);
+            static::assertSame('shop-id', $payload['shop_id']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->method('getShopId')
-            ->willReturn('shop-id');
-
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $shopIdProvider,
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::DELETE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsContentTypeHeader(): void
@@ -116,21 +127,27 @@ class EntityDispatcherTest extends TestCase
         $client = new MockHttpClient(function ($method, $url, $options): MockResponse {
             $headers = array_values($options['headers']);
 
-            static::assertContains('Content-Type: application/json', array_values($headers));
+            static::assertContains('Content-Type: application/json', $headers);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
-            'prod'
+            'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::DELETE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsEntitiesToPayload(): void
@@ -143,31 +160,37 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
 
-            static::assertEquals(Request::METHOD_POST, $method);
+            static::assertSame(Request::METHOD_POST, $method);
             static::assertStringEndsWith('/v1/entities', $url);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+            static::assertSame(Operation::CREATE->value, $payload['operation']);
 
             static::assertArrayHasKey('entity', $payload);
-            static::assertEquals('product', $payload['entity']);
+            static::assertSame('product', $payload['entity']);
 
             static::assertArrayHasKey('entities', $payload);
-            static::assertEquals($entities, $payload['entities']);
+            static::assertSame($entities, $payload['entities']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', $entities, Operation::CREATE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            $entities,
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsOperationToPayload(): void
@@ -177,25 +200,31 @@ class EntityDispatcherTest extends TestCase
             static::assertIsString($body);
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
-            static::assertEquals(Request::METHOD_POST, $method);
+            static::assertSame(Request::METHOD_POST, $method);
             static::assertStringEndsWith('/v1/entities', $url);
 
             static::assertArrayHasKey('operation', $payload);
-            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+            static::assertSame(Operation::CREATE->value, $payload['operation']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsShopwareVersionToPayload(): void
@@ -206,25 +235,27 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('shopware_version', $payload);
-            static::assertEquals('6.5.3.0', $payload['shopware_version']);
+            static::assertSame('6.5.3.0', $payload['shopware_version']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
-        $instanceService = $this->createMock(InstanceService::class);
-        $instanceService->method('getShopwareVersion')
-            ->willReturn('6.5.3.0');
-
-        $httpClient = new EntityDispatcher(
+        $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $instanceService,
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $httpClient->dispatch('product', [], Operation::CREATE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsEnvironmentToPayload(): void
@@ -235,21 +266,27 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('environment', $payload);
-            static::assertEquals('prod', $payload['environment']);
+            static::assertSame('prod', $payload['environment']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, new \DateTimeImmutable());
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            'shop-id',
+        );
     }
 
     public function testAddsRunDateToPayload(): void
@@ -262,21 +299,27 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('run_date', $payload);
-            static::assertEquals($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $payload['run_date']);
+            static::assertSame($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $payload['run_date']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
     public function testAddsDispatchDateToPayload(): void
@@ -287,23 +330,29 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('dispatch_date', $payload);
-            static::assertEquals($this->clock->now()->format(\DateTimeInterface::ATOM), $payload['dispatch_date']);
+            static::assertSame($this->clock->now()->format(\DateTimeInterface::ATOM), $payload['dispatch_date']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
     public function testAddsLicenseHostToPayload(): void
@@ -314,23 +363,29 @@ class EntityDispatcherTest extends TestCase
 
             $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('license_host', $payload);
-            static::assertEquals('license-host', $payload['license_host']);
+            static::assertSame('license-host', $payload['license_host']);
 
             return new MockResponse('', ['http_code' => 200]);
         });
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(['core.store.licenseHost' => 'license-host']),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
     public function testAddsBatchIdToPayload(): void
@@ -348,16 +403,22 @@ class EntityDispatcherTest extends TestCase
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(['core.store.licenseHost' => 'license-host']),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
     public function testItThrowsExceptionsWhichMightBeRecoverable(): void
@@ -368,22 +429,26 @@ class EntityDispatcherTest extends TestCase
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
         static::expectException(RedirectionException::class);
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
-    /**
-     * @dataProvider recoverableResponseCodesDataProvider
-     */
+    #[DataProvider('recoverableResponseCodesDataProvider')]
     public function testItThrowsRecoverableServerException(int $responseCode): void
     {
         $client = new MockHttpClient(function () use ($responseCode): MockResponse {
@@ -392,22 +457,26 @@ class EntityDispatcherTest extends TestCase
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
         static::expectException(ServerException::class);
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
-    /**
-     * @dataProvider unrecoverableResponseCodesDataProvider
-     */
+    #[DataProvider('unrecoverableResponseCodesDataProvider')]
     public function testItThrowsUnrecoverableMessageHandlingException(int $responseCode): void
     {
         $client = new MockHttpClient(function () use ($responseCode): MockResponse {
@@ -416,17 +485,73 @@ class EntityDispatcherTest extends TestCase
 
         $entityDispatcher = new EntityDispatcher(
             $client,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(InstanceService::class),
+            new InstanceService('6.5.3.0', null),
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+        $entityDispatcher->dispatch(
+            'product',
+            [['id' => 'product-id']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
+    }
+
+    public function testDispatchDoesNotSendRequestInDevEnvironment(): void
+    {
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->expects(static::never())->method('request');
+
+        $entityDispatcher = new EntityDispatcher(
+            $client,
+            $this->createMock(InstanceService::class),
+            new StaticSystemConfigService(),
+            $this->clock,
+            'dev',
+            false,
+        );
+
+        $runDate = new \DateTimeImmutable();
+
+        $entityDispatcher->dispatch(
+            'product',
+            [['field' => 'value']],
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
+    }
+
+    public function testDispatchSkipsIfNoEntitiesAreGiven(): void
+    {
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->expects(static::never())->method('request');
+
+        $entityDispatcher = new EntityDispatcher(
+            $client,
+            $this->createMock(InstanceService::class),
+            new StaticSystemConfigService(),
+            $this->clock,
+            'prod',
+            true,
+        );
+
+        $runDate = new \DateTimeImmutable();
+
+        $entityDispatcher->dispatch(
+            'product',
+            [], // no entities
+            Operation::CREATE,
+            $runDate,
+            'shop-id',
+        );
     }
 
     /**

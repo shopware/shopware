@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -50,6 +51,38 @@ class SalesChannelRepository
      * @return EntitySearchResult<TEntityCollection>
      */
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
+    {
+        if (!$criteria->getTitle()) {
+            return $this->_search($criteria, $salesChannelContext);
+        }
+
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $salesChannelContext), 'saleschannel-repository');
+    }
+
+    public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
+    {
+        if (!$criteria->getTitle()) {
+            return $this->_aggregate($criteria, $salesChannelContext);
+        }
+
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $salesChannelContext), 'saleschannel-repository');
+    }
+
+    public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
+    {
+        if (!$criteria->getTitle()) {
+            return $this->_searchIds($criteria, $salesChannelContext);
+        }
+
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_searchIds($criteria, $salesChannelContext), 'saleschannel-repository');
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     *
+     * @return EntitySearchResult<TEntityCollection>
+     */
+    private function _search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
         $criteria = clone $criteria;
 
@@ -107,7 +140,7 @@ class SalesChannelRepository
         return $result;
     }
 
-    public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
+    private function _aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
     {
         $criteria = clone $criteria;
 
@@ -121,7 +154,7 @@ class SalesChannelRepository
         return $result;
     }
 
-    public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
+    private function _searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
         $criteria = clone $criteria;
 

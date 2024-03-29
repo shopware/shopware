@@ -1,0 +1,13 @@
+.sw-cms-el-preview-html {
+    .sw-code-editor {
+        .sw-field {
+            .sw-code-editor__editor {
+                height: 112px;
+
+                .ace_gutter {
+                    z-index: 0;
+                }
+            }
+        }
+    }
+}

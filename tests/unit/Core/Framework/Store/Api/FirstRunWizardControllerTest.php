@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Api;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
@@ -32,10 +33,9 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Api\FirstRunWizardController
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
+#[CoversClass(FirstRunWizardController::class)]
 class FirstRunWizardControllerTest extends TestCase
 {
     private FirstRunWizardService&MockObject $firstRunWizardService;

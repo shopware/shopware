@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
@@ -15,17 +17,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Rule\SalesChannelRule
  */
 #[Package('buyers-experience')]
+#[CoversClass(SalesChannelRule::class)]
 class SalesChannelRuleTest extends TestCase
 {
     /**
-     * @dataProvider provideTestData
-     *
      * @param list<string> $salesChannelIds
      */
+    #[DataProvider('provideTestData')]
     public function testMatchesWithCorrectSalesChannel(string $operator, string $currentSalesChannel, ?array $salesChannelIds, bool $expected): void
     {
         $ruleScope = $this->createRuleScope($currentSalesChannel);
@@ -89,7 +89,7 @@ class SalesChannelRuleTest extends TestCase
 
     public function testProvidesConstraints(): void
     {
-        $salesChannelRule = new SalesChannelRule(RUle::OPERATOR_EQ, []);
+        $salesChannelRule = new SalesChannelRule(Rule::OPERATOR_EQ, []);
         $constraints = $salesChannelRule->getConstraints();
 
         static::assertArrayHasKey('salesChannelIds', $constraints);

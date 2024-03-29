@@ -16,10 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
@@ -68,10 +67,6 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $url = new Url();
 
         foreach ($categories as $category) {
-            if (!isset($seoUrls[$category['id']])) {
-                continue;
-            }
-
             $lastMod = $category['updated_at'] ?: $category['created_at'];
 
             $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -81,7 +76,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$category['id']])) {
                 $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category->getId()], UrlGeneratorInterface::ABSOLUTE_PATH));
+                $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

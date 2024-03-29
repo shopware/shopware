@@ -24,11 +24,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_analytics_fields_tracking_id %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="salesChannel.analytics.trackingId"
-            {% else %}
-            v-model="salesChannel.analytics.trackingId"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
             :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
             name="trackingId"
@@ -46,11 +42,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_active %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="salesChannel.analytics.active"
-                {% else %}
-                v-model="salesChannel.analytics.active"
-                {% endif %}
                 :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
                 name="analyticsActive"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -60,11 +52,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_track_orders %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="salesChannel.analytics.trackOrders"
-                {% else %}
-                v-model="salesChannel.analytics.trackOrders"
-                {% endif %}
                 :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
                 name="trackOrders"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -74,11 +62,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_analytics_fields_anonymize_ip %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="salesChannel.analytics.anonymizeIp"
-                {% else %}
-                v-model="salesChannel.analytics.anonymizeIp"
-                {% endif %}
                 :label="$tc('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
                 name="anonymizeIp"
                 :disabled="!acl.can('sales_channel.editor')"

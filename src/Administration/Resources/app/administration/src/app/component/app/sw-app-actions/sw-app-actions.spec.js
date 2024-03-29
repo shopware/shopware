@@ -2,12 +2,10 @@
  * @package admin
  */
 
-import { config, createLocalVue, mount } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import { config, mount } from '@vue/test-utils';
 import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
-import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
+import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action.fixtures';
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-button';
@@ -25,54 +23,52 @@ describe('sw-app-actions', () => {
 
     async function createWrapper(router, resultData = actionResultData) {
         // delete global $router and $routes mocks
-        delete config.mocks.$router;
-        delete config.mocks.$route;
-
-        const localVue = createLocalVue();
-        localVue.directive('popover', {});
-        localVue.use(VueRouter);
-        localVue.use(Vuex);
+        delete config.global.mocks.$router;
+        delete config.global.mocks.$route;
 
         return mount(await Shopware.Component.build('sw-app-actions'), {
-            localVue,
-            stubs,
-
-            router,
-            provide: {
-                appActionButtonService: {
-                    runAction: jest.fn((actionButtonId) => {
-                        if (actionButtonId) {
-                            return Promise.resolve(resultData);
-                        }
-
-                        return Promise.resolve([]);
-                    }),
-                    getActionButtonsPerView(entity, view) {
-                        if (!entity || !view) {
-                            throw new InvalidActionButtonParameterError('error');
-                        }
-
-                        if (entity === 'product' && view === 'detail') {
-                            return Promise.resolve(actionButtonData);
-                        }
-
-                        if (entity === 'product' && view === 'list') {
-                            return Promise.resolve([]);
-                        }
-
-                        return Promise.reject(new Error('error occured'));
-                    },
+            global: {
+                stubs,
+                directives: {
+                    popover: {},
                 },
+                plugins: [router],
+                provide: {
+                    appActionButtonService: {
+                        runAction: jest.fn((actionButtonId) => {
+                            if (actionButtonId) {
+                                return Promise.resolve(resultData);
+                            }
 
-                extensionSdkService: {},
-
-                repositoryFactory: {
-                    create: () => ({
-                        search: jest.fn(() => {
                             return Promise.resolve([]);
                         }),
-                        create: () => ({}),
-                    }),
+                        getActionButtonsPerView(entity, view) {
+                            if (!entity || !view) {
+                                throw new InvalidActionButtonParameterError('error');
+                            }
+
+                            if (entity === 'product' && view === 'detail') {
+                                return Promise.resolve(actionButtonData);
+                            }
+
+                            if (entity === 'product' && view === 'list') {
+                                return Promise.resolve([]);
+                            }
+
+                            return Promise.reject(new Error('error occured'));
+                        },
+                    },
+
+                    extensionSdkService: {},
+
+                    repositoryFactory: {
+                        create: () => ({
+                            search: jest.fn(() => {
+                                return Promise.resolve([]);
+                            }),
+                            create: () => ({}),
+                        }),
+                    },
                 },
             },
         });
@@ -99,16 +95,7 @@ describe('sw-app-actions', () => {
     });
 
     beforeEach(async () => {
-        Shopware.Application.view.deleteReactive = () => {};
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
-        document.location.href = 'http://localhost/';
-    });
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-            wrapper = null;
-        }
     });
 
     it('should be a Vue.js component', async () => {

@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElProductDescriptionReviews from 'src/module/sw-cms/elements/product-description-reviews/component';
-
-Shopware.Component.register('sw-cms-el-product-description-reviews', swCmsElProductDescriptionReviews);
 
 const productMock = {
     name: 'Awesome Product',
@@ -13,18 +10,22 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-product-description-reviews'), {
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'product-description-reviews': {} };
+    return mount(await wrapTestComponent('sw-cms-el-product-description-reviews', {
+        sync: true,
+    }), {
+        global: {
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'product-description-reviews': {} };
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             element: {
                 config: {},
                 data: {},

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,12 +12,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 trait RequestStackTestBehaviour
 {
     /**
-     * @before
-     *
-     * @after
-     *
      * @return array<Request>
      */
+    #[Before]
+    #[After]
     public function clearRequestStack(): array
     {
         $stack = $this->getContainer()
@@ -32,9 +32,7 @@ trait RequestStackTestBehaviour
         return $requests;
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function resetRequestContext(): void
     {
         $router = $this->getContainer()

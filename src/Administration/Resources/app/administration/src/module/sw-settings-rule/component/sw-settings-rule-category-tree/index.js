@@ -28,22 +28,20 @@ export default {
         hideHeadline: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
+            default: false,
         },
         hideSearch: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
+            default: false,
         },
     },
 
     data() {
         return {
             categories: [],
+            isComponentReady: false,
+            isFetching: false,
         };
     },
 
@@ -84,10 +82,6 @@ export default {
             this.$emit('on-selection', checkedItems);
         },
 
-        hasItemAssociation(item) {
-            return item[this.association]?.length > 0 || item.extensions[this.association]?.length > 0;
-        },
-
         getTreeItems(parentId = null, term = null, withTermFilter = false) {
             this.isFetching = true;
 
@@ -98,11 +92,7 @@ export default {
                     return false;
                 }
 
-                if (filter.type === 'contains' && filter.field === 'name') {
-                    return false;
-                }
-
-                return true;
+                return !(filter.type === 'contains' && filter.field === 'name');
             });
 
             if (term && withTermFilter) {

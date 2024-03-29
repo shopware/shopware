@@ -18,11 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestTransformer implements RequestTransformerInterface
 {
     /**
-     * @deprecated tag:v6.6.0 - Will be removed
-     */
-    final public const REQUEST_TRANSFORMER_CACHE_KEY = CachedDomainLoader::CACHE_KEY;
-
-    /**
      * Virtual path of the "domain"
      *
      * @example
@@ -91,7 +86,7 @@ class RequestTransformer implements RequestTransformerInterface
     /**
      * @internal
      *
-     * @param list<string> $registeredApiPrefixes
+     * @param array<string> $registeredApiPrefixes
      */
     public function __construct(
         private readonly RequestTransformerInterface $decorated,
@@ -243,13 +238,13 @@ class RequestTransformer implements RequestTransformerInterface
         $pathInfo = '/' . trim($pathInfo, '/') . '/';
 
         foreach ($this->registeredApiPrefixes as $apiPrefix) {
-            if (mb_strpos($pathInfo, '/' . $apiPrefix . '/') === 0) {
+            if (str_starts_with($pathInfo, '/' . $apiPrefix . '/')) {
                 return false;
             }
         }
 
         foreach ($this->whitelist as $prefix) {
-            if (mb_strpos($pathInfo, $prefix) === 0) {
+            if (str_starts_with($pathInfo, $prefix)) {
                 return false;
             }
         }
@@ -280,7 +275,7 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, fn ($baseUrl) => mb_strpos($requestUrl, (string) $baseUrl) === 0, \ARRAY_FILTER_USE_KEY);
+        $domains = array_filter($domains, fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
 
         if (empty($domains)) {
             return null;
@@ -289,13 +284,11 @@ class RequestTransformer implements RequestTransformerInterface
         // determine most matching shop base url
         $lastBaseUrl = '';
         $bestMatch = current($domains);
-        /** @var string $baseUrl */
         foreach ($domains as $baseUrl => $urlConfig) {
             if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
                 $bestMatch = $urlConfig;
+                $lastBaseUrl = $baseUrl;
             }
-
-            $lastBaseUrl = $baseUrl;
         }
 
         $bestMatch['url'] = rtrim($bestMatch['url'], '/');

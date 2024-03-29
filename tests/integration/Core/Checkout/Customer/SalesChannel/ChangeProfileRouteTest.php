@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -25,10 +27,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class ChangeProfileRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -349,12 +350,11 @@ class ChangeProfileRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderVatIds
-     *
-     * @param array<string, boolean> $constraint
+     * @param array<string, bool> $constraint
      * @param array<string|null>|null $vatIds
      * @param array<string>|null $expectedVatIds
      */
+    #[DataProvider('dataProviderVatIds')]
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
     {
         if (isset($constraint['required']) && $constraint['required']) {

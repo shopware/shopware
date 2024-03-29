@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
@@ -9,28 +10,30 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs
  */
+#[CoversClass(AdminUiXmlSchema::class)]
+#[CoversClass(AdminUi::class)]
+#[CoversClass(Card::class)]
+#[CoversClass(CardField::class)]
+#[CoversClass(Column::class)]
+#[CoversClass(Columns::class)]
+#[CoversClass(Detail::class)]
+#[CoversClass(Entity::class)]
+#[CoversClass(Listing::class)]
+#[CoversClass(Tab::class)]
+#[CoversClass(Tabs::class)]
 class AdminUiXmlSchemaTest extends TestCase
 {
     public function testPublicConstants(): void
@@ -197,10 +200,7 @@ class AdminUiXmlSchemaTest extends TestCase
      */
     private function getEntities(AdminUiXmlSchema $adminUiXmlSchema): array
     {
-        $adminUi = $adminUiXmlSchema->getAdminUi();
-        static::assertInstanceOf(AdminUi::class, $adminUi);
-
-        return $adminUi->getEntities();
+        return $adminUiXmlSchema->getAdminUi()->getEntities();
     }
 
     /**

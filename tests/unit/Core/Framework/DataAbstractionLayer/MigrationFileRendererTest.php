@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer
  */
+#[CoversClass(MigrationFileRenderer::class)]
 class MigrationFileRendererTest extends TestCase
 {
     public function testRender(): void

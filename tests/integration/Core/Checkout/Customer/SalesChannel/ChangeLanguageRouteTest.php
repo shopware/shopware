@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -14,10 +15,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class ChangeLanguageRouteTest extends TestCase
 {
     use CustomerTestTrait;

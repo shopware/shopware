@@ -46,7 +46,36 @@ class ApiException extends HttpException
     public const API_INVALID_ACCESS_KEY_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY';
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
 
+    public const API_INVALID_SYNC_RESOLVERS = 'FRAMEWORK__API_INVALID_SYNC_RESOLVERS';
     public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
+    public const API_SYNC_RESOLVER_FIELD_NOT_FOUND = 'FRAMEWORK__API_SYNC_RESOLVER_FIELD_NOT_FOUND';
+    public const API_INVALID_ASSOCIATION_FIELD = 'FRAMEWORK__API_INVALID_ASSOCIATION';
+
+    /**
+     * @param array<array{pointer: string, entity: string}> $exceptions
+     */
+    public static function canNotResolveForeignKeysException(array $exceptions): self
+    {
+        $message = [];
+        $parameters = [];
+
+        foreach ($exceptions as $i => $exception) {
+            $message[] = sprintf(
+                'Can not resolve foreign key at position %s. Reference field: %s',
+                $exception['pointer'],
+                $exception['entity']
+            );
+            $parameters['pointer-' . $i] = $exception['pointer'];
+            $parameters['field-' . $i] = $exception['entity'];
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_SYNC_RESOLVERS,
+            implode("\n", $message),
+            $parameters
+        );
+    }
 
     public static function invalidSyncCriteriaException(string $operationKey): self
     {
@@ -104,6 +133,16 @@ class ApiException extends HttpException
             Response::HTTP_NOT_FOUND,
             $exception->getErrorCode(),
             $exception->getMessage(),
+        );
+    }
+
+    public static function pathIsNoAssociationField(string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_ASSOCIATION_FIELD,
+            'Field "%s" is not a valid association field.',
+            ['path' => $path]
         );
     }
 
@@ -295,6 +334,16 @@ class ApiException extends HttpException
             Response::HTTP_SERVICE_UNAVAILABLE,
             self::API_SALES_CHANNEL_MAINTENANCE_MODE,
             'The sales channel is in maintenance mode.',
+        );
+    }
+
+    public static function canNotResolveResolverField(string $entity, string $fieldName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_SYNC_RESOLVER_FIELD_NOT_FOUND,
+            'Can not resolve entity field name {{ entity }}.{{ field }} for sync operation resolver',
+            ['entity' => $entity, 'field' => $fieldName]
         );
     }
 }

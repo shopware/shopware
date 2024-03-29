@@ -1,5 +1,5 @@
 /*
- * @package business-ops
+ * @package services-settings
  */
 
 import template from './sw-product-stream-field-select.html.twig';

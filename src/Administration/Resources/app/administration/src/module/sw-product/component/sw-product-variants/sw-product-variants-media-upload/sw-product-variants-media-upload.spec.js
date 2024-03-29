@@ -2,63 +2,16 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
-import swProductVariantsMediaUpload from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';
-import 'src/app/component/context-menu/sw-context-menu-item';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-Shopware.Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', swProductVariantsMediaUpload);
-Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload', () => {
     let wrapper;
     const listEntity = [];
 
     beforeEach(async () => {
-        const localVue = createLocalVue();
-        localVue.directive('droppable', {});
-
-        wrapper = shallowMount(await Shopware.Component.build('sw-product-variants-media-upload'), {
-            localVue,
-            stubs: {
-                'sw-context-button': true,
-                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-media-url-form': true,
-                'sw-media-preview-v2': true,
-                'sw-upload-listener': true,
-            },
-            mocks: {
-                $t: v => v,
-                $tc: v => v,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            create: () => {
-                                return Promise.resolve();
-                            },
-                            search: () => {
-                                return Promise.resolve();
-                            },
-                        };
-                    },
-                },
-                mediaDefaultFolderService: {
-                    getDefaultFolderId: () => {
-                        return Promise.resolve('id');
-                    },
-                },
-                configService: {},
-                mediaService: {
-                    removeByTag: () => null,
-                    removeListener: () => null,
-                },
-            },
-            propsData: {
+        wrapper = mount(await wrapTestComponent('sw-product-variants-media-upload', { sync: true }), {
+            props: {
                 uploadTag: 'upload-tag',
                 source: {
                     media: new EntityCollection(
@@ -81,6 +34,47 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                         listEntity.length,
                         null,
                     ),
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-context-button': {
+                        template: '<div class="sw-context-button"><slot></slot></div>',
+                    },
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-icon': true,
+                    'sw-button': true,
+                    'sw-media-url-form': true,
+                    'sw-media-preview-v2': true,
+                    'sw-upload-listener': true,
+                },
+                mocks: {
+                    $t: v => v,
+                    $tc: v => v,
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                create: () => {
+                                    return Promise.resolve();
+                                },
+                                search: () => {
+                                    return Promise.resolve();
+                                },
+                            };
+                        },
+                    },
+                    mediaDefaultFolderService: {
+                        getDefaultFolderId: () => {
+                            return Promise.resolve('id');
+                        },
+                    },
+                    configService: {},
+                    mediaService: {
+                        removeByTag: () => null,
+                        removeListener: () => null,
+                    },
                 },
             },
         });
@@ -197,16 +191,19 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             },
         });
 
+        await flushPromises();
+
         const cover = wrapper.find('.sw-product-variants-media-upload__preview-cover sw-media-preview-v2-stub');
 
         expect(cover.attributes().source).toBe('media2');
 
         const images = wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image');
         const media = images.at(0);
-        const button = media.findAll('sw-context-button-stub .sw-context-menu-item').at(0);
+        const button = media.findAll('.sw-context-button .sw-context-menu-item').at(0);
 
         await button.trigger('click');
-        expect(cover.attributes().source).toBe('mediaId1');
+
+        expect(cover.attributes().source).toBe('media1');
     });
 
     it('should remove media correctly.', async () => {
@@ -248,14 +245,17 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             },
         });
 
+        await flushPromises();
+
         const images = wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image');
         expect(images).toHaveLength(2);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeTruthy();
 
         const media = images.at(1);
-        const button = media.findAll('sw-context-button-stub .sw-context-menu-item').at(2);
+        const button = media.findAll('.sw-context-button .sw-context-menu-item').at(2);
 
         await button.trigger('click');
+
         expect(wrapper
             .findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image')).toHaveLength(1);
         expect(wrapper.find('sw-media-preview-v2-stub[source="mediaId2"]').exists()).toBeFalsy();

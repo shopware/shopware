@@ -11,12 +11,13 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
+use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -49,6 +50,10 @@ class ExtensionStoreActionsController extends AbstractController
         $file = $request->files->get('file');
         if (!$file) {
             throw RoutingException::missingRequestParameter('file');
+        }
+
+        if ($file->getPathname() === '') {
+            throw StoreException::couldNotUploadExtensionCorrectly();
         }
 
         if ($file->getMimeType() !== 'application/zip') {

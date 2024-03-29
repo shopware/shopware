@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -20,13 +23,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemCreationDateRule::class)]
+#[Group('rules')]
 class LineItemCreationDateRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -103,9 +104,8 @@ class LineItemCreationDateRuleTest extends TestCase
     /**
      * This test verifies that our rule works correctly
      * with all the different operators and values.
-     *
-     * @dataProvider getMatchValues
      */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(bool $expected, string $itemCreated, string $ruleDate, string $operator): void
     {
         $lineItem = $this->createLineItemWithCreatedDate($itemCreated);
@@ -168,9 +168,7 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testMultipleLineItemsInCartRuleScope(
         string $ruleCreationDate,
         string $lineItemCreationDate1,
@@ -194,9 +192,7 @@ class LineItemCreationDateRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testMultipleLineItemsInCartRuleScopeNested(
         string $ruleCreationDate,
         string $lineItemCreationDate1,

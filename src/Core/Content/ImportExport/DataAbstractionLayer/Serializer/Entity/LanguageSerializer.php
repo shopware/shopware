@@ -17,6 +17,9 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('core')]
 class LanguageSerializer extends EntitySerializer implements ResetInterface
 {
+    /**
+     * @var array<string, array{id: string, locale: array{id: string}}|null>
+     */
     private array $cacheLanguages = [];
 
     /**
@@ -26,11 +29,6 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
     {
     }
 
-    /**
-     * @param array|\Traversable $entity
-     *
-     * @return array|\Traversable
-     */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
         $deserialized = parent::deserialize($config, $definition, $entity);
@@ -64,6 +62,9 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
         $this->cacheLanguages = [];
     }
 
+    /**
+     * @return array{id: string, locale: array{id: string}}|null
+     */
     private function getLanguageSerialized(string $code): ?array
     {
         if (\array_key_exists($code, $this->cacheLanguages)) {

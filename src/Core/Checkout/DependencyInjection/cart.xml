@@ -37,7 +37,8 @@
 
         <service id="Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument>%shopware.cart.expire_days%</argument>
             <tag name="messenger.message_handler"/>
         </service>
@@ -237,7 +238,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
-            <argument type="service" id="country.repository"/>
+            <argument type="service" id="sales_channel_country.repository"/>
             <tag name="shopware.cart.validator"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -289,6 +290,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\Order\Api\OrderRecalculationController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\RecalculationService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\OrderAddressService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

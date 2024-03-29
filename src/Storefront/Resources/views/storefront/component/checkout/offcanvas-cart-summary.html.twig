@@ -4,13 +4,13 @@
             {% block component_offcanvas_summary_total %}
                 {% block component_offcanvas_summary_total_label %}
                     <dt class="col-7 summary-label summary-total">
-                        {{ "checkout.subtotalAmount"|trans|sw_sanitize }}
+                        {{ 'checkout.subtotalAmount'|trans|sw_sanitize }}
                     </dt>
                 {% endblock %}
 
                 {% block component_offcanvas_summary_total_value %}
                     <dd class="col-5 summary-value summary-total">
-                        <strong>{{ page.cart.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</strong>
+                        <strong>{{ page.cart.price.positionPrice|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
                     </dd>
                 {% endblock %}
             {% endblock %}
@@ -21,7 +21,7 @@
                 {% block component_offcanvas_summary_content_info %}
                     <div class="row offcanvas-shipping-info">
                         <span class="col-7 shipping-label shipping-cost">
-                            <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+                            <strong>{{ 'checkout.summaryShipping'|trans|sw_sanitize }}</strong>
                             {% if loop.first %}
                                 <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
                                     ({{ activeShipping.shippingMethod.translated.name }})
@@ -30,7 +30,7 @@
                         </span>
 
                         <span class="col-5 pb-2 shipping-value shipping-cost">
-                            <strong>{{ activeShipping.shippingCosts.totalPrice < 0 ? '-' : '+' }} {{ activeShipping.shippingCosts.totalPrice|abs|currency }}{{ "general.star"|trans|sw_sanitize }}</strong>
+                            <strong>{{ activeShipping.shippingCosts.totalPrice < 0 ? '-' : '+' }} {{ activeShipping.shippingCosts.totalPrice|abs|currency }}{{ 'general.star'|trans|sw_sanitize }}</strong>
                         </span>
                     </div>
                 {% endblock %}
@@ -51,7 +51,7 @@
                             {% block component_offcanvas_summary_content_shipping_select %}
 
                                 <select class="form-select mt-2 col-12" name="shippingMethodId">
-                                    <option disabled>{{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}</option>
+                                    <option disabled>{{ 'checkout.confirmChangeShipping'|trans|sw_sanitize }}</option>
 
                                     {% for shippingMethod in page.shippingMethods %}
                                         <option
@@ -73,11 +73,11 @@
     {% block component_offcanvas_summary_tax_info %}
         <p class="offcanvas-cart-tax">
             <small>
-                {{ "general.star"|trans|sw_sanitize }}
-                {% if page.cart.price.taxStatus == "gross" %}
-                    {{ "general.grossTaxInformation"|trans|sw_sanitize }}
+                {{ 'general.star'|trans|sw_sanitize }}
+                {% if page.cart.price.taxStatus == 'gross' %}
+                    {{ 'general.grossTaxInformation'|trans|sw_sanitize }}
                 {% else %}
-                    {{ "general.netTaxInformation"|trans|sw_sanitize }}
+                    {{ 'general.netTaxInformation'|trans|sw_sanitize }}
                 {% endif %}
             </small>
         </p>

@@ -127,6 +127,7 @@
         <component
             :is="modalNameFromLogEntry"
             v-if="displayedLog !== null"
+            class="sw-settings-logging-list__custom-content"
             :log-entry="displayedLog"
             @close="closeInfoModal"
         />

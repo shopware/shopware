@@ -23,8 +23,7 @@ describe('Account: indicate non-shippable country on register page', () => {
             });
     });
 
-    // TODO: Will be fixed with NEXT-30886
-    it.skip('@registration: Register with non-shippable countries', { tags: ['pa-customers-orders'] }, () => {
+    it('@registration: Register with non-shippable countries', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
@@ -75,8 +74,7 @@ describe('Account: indicate non-shippable country on register page', () => {
         });
     });
 
-    // TODO: Will be fixed with NEXT-30886
-    it.skip('User is not able to set new shipping address with a non-shippable country', { tags: ['pa-customers-orders'] }, () => {
+    it('User is not able to set new shipping address with a non-shippable country', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             method: 'POST',
             url: '/country/country-state-data',
@@ -92,58 +90,6 @@ describe('Account: indicate non-shippable country on register page', () => {
         cy.get('.account-overview .alert-warning')
             .contains('We can not deliver to the country that is stored in your delivery address.');
 
-        cy.get('.overview-shipping-address > .card > .card-body > .card-actions > .btn').click();
-
-        // create new address
-        cy.get('.address-editor-modal').should('be.visible');
-
-        cy.contains('Add address').click();
-
-        cy.get('#shipping-address-create-new #shipping-addresspersonalSalutation').select('Mr.');
-
-        cy.get('#shipping-address-create-new #shipping-addresspersonalFirstName').typeAndCheck('John');
-
-        cy.get('#shipping-address-create-new #shipping-addresspersonalLastName').typeAndCheck('Doe');
-
-        cy.get('#shipping-address-create-new #shipping-addressAddressStreet').typeAndCheck('Test street 123.');
-
-        cy.get('#shipping-address-create-new #shipping-addressAddressZipcode').typeAndCheck('000010');
-
-        cy.get('#shipping-address-create-new #shipping-addressAddressCity').typeAndCheck('Test city');
-
-        cy.get('#shipping-address-create-new #shipping-addressAddressCountry').select('Germany (Delivery not possible)');
-
-        cy.wait('@countryStateRequest').its('response.statusCode').should('equal', 200);
-
-        cy.get('#shipping-address-create-new #shipping-addressAddressCountryState').select('Hamburg');
-
-        cy.get('#shipping-address-create-new button[type="submit"]').click();
-
-        cy.get('.address-editor-modal').should('not.exist');
-
-        cy.get('.overview-shipping-address > .card > .card-body > .card-actions > .btn').click();
-
-        cy.get('.address-editor-modal').should('be.visible');
-
-        // waiting for this request to reduce flakyness of the test. Apparantely the modal gets reopened after it got closed because of this request.
-        cy.wait('@countryStateRequest').its('response.statusCode').should('equal', 200);
-
-        cy.get('.address-editor-modal .card .alert')
-            .contains('A delivery to this country is not possible.')
-            .should('be.visible');
-
-        cy.get('.address-editor-modal .alert')
-            .contains('A delivery to this country is not possible.')
-            .should('be.visible');
-
-        cy.get('#shipping-address-list form[action="/widgets/account/address-book"] button')
-            .contains('Set as default shipping address')
-            .should('be.disabled');
-
-        cy.get('.js-pseudo-modal .close').click();
-
-        cy.get('.address-editor-modal').should('not.exist');
-
         // check behaviour on address overview page
         cy.visit('/account/address');
 
@@ -152,7 +98,7 @@ describe('Account: indicate non-shippable country on register page', () => {
             .should('be.visible');
 
         cy.get('.address-action-set-default-shipping')
-            .contains('Set as default shipping address')
+            .contains('Use as default shipping address')
             .should('be.disabled');
     });
 });

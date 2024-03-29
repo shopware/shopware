@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -37,7 +37,7 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -80,10 +80,12 @@ class AccountOrderController extends StorefrontController
     #[Route(path: '/account/order/cancel', name: 'frontend.account.order.cancel', methods: ['POST'])]
     public function cancelOrder(Request $request, SalesChannelContext $context): Response
     {
-        $cancelOrderRequest = new Request();
-        $cancelOrderRequest->request->set('orderId', $request->get('orderId'));
-        $cancelOrderRequest->request->set('transition', 'cancel');
+        $cancelOrderRequestData = [
+            'orderId' => $request->get('orderId'),
+            'transition' => 'cancel',
+        ];
 
+        $cancelOrderRequest = $request->duplicate(null, $cancelOrderRequestData);
         $event = new CancelOrderRouteRequestEvent($request, $cancelOrderRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
@@ -259,20 +261,21 @@ class AccountOrderController extends StorefrontController
 
         $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
-        $setPaymentRequest = new Request();
-        $setPaymentRequest->request->set('orderId', $orderId);
-        $setPaymentRequest->request->add($request->request->all());
+        $setPaymentRequestData = array_merge($request->request->all(), ['orderId' => $orderId]);
+        $setPaymentRequest = $request->duplicate(null, $setPaymentRequestData);
 
         $setPaymentOrderRouteRequestEvent = new SetPaymentOrderRouteRequestEvent($request, $setPaymentRequest, $context);
         $this->eventDispatcher->dispatch($setPaymentOrderRouteRequestEvent);
 
         $this->setPaymentOrderRoute->setPayment($setPaymentOrderRouteRequestEvent->getStoreApiRequest(), $context);
 
-        $handlePaymentRequest = new Request();
-        $handlePaymentRequest->request->set('orderId', $orderId);
-        $handlePaymentRequest->request->set('finishUrl', $finishUrl);
-        $handlePaymentRequest->request->set('errorUrl', $errorUrl);
-        $handlePaymentRequest->request->add($request->request->all());
+        $handlePaymentRequestData = array_merge($request->request->all(), [
+            'orderId' => $orderId,
+            'finishUrl' => $finishUrl,
+            'errorUrl' => $errorUrl,
+        ]);
+
+        $handlePaymentRequest = $request->duplicate(null, $handlePaymentRequestData);
 
         $handlePaymentMethodRouteRequestEvent = new HandlePaymentMethodRouteRequestEvent($request, $handlePaymentRequest, $context);
         $this->eventDispatcher->dispatch($handlePaymentMethodRouteRequestEvent);
@@ -283,7 +286,7 @@ class AccountOrderController extends StorefrontController
                 $context
             );
             $response = $routeResponse->getRedirectResponse();
-        } catch (PaymentProcessException) {
+        } catch (PaymentException) {
             return $this->forwardToRoute(
                 'frontend.checkout.finish.page',
                 ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true]

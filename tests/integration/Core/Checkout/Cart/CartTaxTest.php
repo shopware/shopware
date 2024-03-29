@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -69,10 +70,9 @@ class CartTaxTest extends TestCase
     }
 
     /**
-     * @dataProvider dataTestHandlingTaxFreeInStorefront
-     *
      * @param array<string> $vatIds
      */
+    #[DataProvider('dataTestHandlingTaxFreeInStorefront')]
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyEuro(
         string $testCase,
         float $currencyTaxFreeFrom,
@@ -151,10 +151,9 @@ class CartTaxTest extends TestCase
     }
 
     /**
-     * @dataProvider dataTestHandlingTaxFreeInStorefront
-     *
      * @param array<string> $vatIds
      */
+    #[DataProvider('dataTestHandlingTaxFreeInStorefront')]
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyCHF(
         string $testCase,
         float $currencyTaxFreeFrom,
@@ -234,9 +233,7 @@ class CartTaxTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD
-     */
+    #[DataProvider('dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD')]
     public function testHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(
         string $testCase,
         bool $countryTaxFree,

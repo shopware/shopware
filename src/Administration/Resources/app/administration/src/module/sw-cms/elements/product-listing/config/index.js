@@ -50,7 +50,7 @@ export default {
         productSortingsCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Criteria.equalsAny('key', [...Object.keys(this.productSortingsConfigValue)]));
+            criteria.addFilter(Criteria.equalsAny('id', [...Object.keys(this.productSortingsConfigValue)]));
             criteria.addSorting(Criteria.sort('priority', 'desc'));
 
             return criteria;
@@ -182,7 +182,7 @@ export default {
             if (Object.keys(this.defaultSorting).length === 0) {
                 this.element.config.defaultSorting.value = '';
             } else {
-                this.element.config.defaultSorting.value = this.defaultSorting.key;
+                this.element.config.defaultSorting.value = this.defaultSorting.id;
             }
         },
     },
@@ -219,8 +219,8 @@ export default {
         },
 
         updateValuesFromConfig(productSortings) {
-            Object.entries(this.productSortingsConfigValue).forEach(([key, value]) => {
-                const matchingProductSorting = productSortings.find(productSorting => productSorting.key === key);
+            Object.entries(this.productSortingsConfigValue).forEach(([id, value]) => {
+                const matchingProductSorting = productSortings.find(productSorting => productSorting.id === id);
 
                 if (!matchingProductSorting) {
                     return;
@@ -240,18 +240,18 @@ export default {
             const object = {};
 
             this.productSortings.forEach(currentProductSorting => {
-                object[currentProductSorting.key] = currentProductSorting.priority;
+                object[currentProductSorting.id] = currentProductSorting.priority;
             });
 
             return object;
         },
 
         initDefaultSorting() {
-            const defaultSortingKey = this.element.config.defaultSorting.value;
-            if (defaultSortingKey !== '') {
+            const defaultSortingId = this.element.config.defaultSorting.value;
+            if (defaultSortingId !== '') {
                 const criteria = new Criteria(1, 25);
 
-                criteria.addFilter(Criteria.equals('key', defaultSortingKey));
+                criteria.addFilter(Criteria.equals('id', defaultSortingId));
 
                 this.productSortingRepository.search(criteria)
                     .then(response => {
@@ -311,7 +311,7 @@ export default {
         },
 
         isDefaultSorting(productSorting) {
-            return this.defaultSorting.key === productSorting.key;
+            return this.defaultSorting.id === productSorting.id;
         },
 
         isActiveFilter(item) {

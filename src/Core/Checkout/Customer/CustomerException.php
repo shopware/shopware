@@ -4,33 +4,31 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
-use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
-use Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException;
-use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
-use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
 {
+    /**
+     * @deprecated tag:v6.7.0 - Constant CUSTOMER_IS_INACTIVE will be removed as it is unused
+     */
+    public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
+
     public const CUSTOMERS_NOT_FOUND = 'CHECKOUT__CUSTOMERS_NOT_FOUND';
     public const CUSTOMER_NOT_FOUND = 'CHECKOUT__CUSTOMER_NOT_FOUND';
     public const CUSTOMER_GROUP_NOT_FOUND = 'CHECKOUT__CUSTOMER_GROUP_NOT_FOUND';
@@ -52,7 +50,6 @@ class CustomerException extends HttpException
     public const WISHLIST_NOT_FOUND = 'CHECKOUT__WISHLIST_NOT_FOUND';
     public const COUNTRY_NOT_FOUND = 'CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND';
     public const DUPLICATE_WISHLIST_PRODUCT = 'CHECKOUT__DUPLICATE_WISHLIST_PRODUCT';
-    public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
     public const LEGACY_PASSWORD_ENCODER_NOT_FOUND = 'CHECKOUT__LEGACY_PASSWORD_ENCODER_NOT_FOUND';
     public const NO_HASH_PROVIDED = 'CHECKOUT__NO_HASH_PROVIDED';
     public const WISHLIST_PRODUCT_NOT_FOUND = 'CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND';
@@ -148,10 +145,6 @@ class CustomerException extends HttpException
 
     public static function countryNotFound(string $countryId): HttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CountryNotFoundException($countryId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_NOT_FOUND,
@@ -167,10 +160,6 @@ class CustomerException extends HttpException
 
     public static function cannotDeleteActiveAddress(string $id): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CannotDeleteActiveAddressException($id);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOMER_ADDRESS_IS_ACTIVE,
@@ -191,10 +180,6 @@ class CustomerException extends HttpException
 
     public static function customerGroupRegistrationConfigurationNotFound(string $customerGroupId): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CustomerGroupRegistrationConfigurationNotFound($customerGroupId);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CUSTOMER_GROUP_REGISTRATION_NOT_FOUND,
@@ -225,10 +210,6 @@ class CustomerException extends HttpException
 
     public static function customerWishlistNotActivated(): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CustomerWishlistNotActivatedException();
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::WISHLIST_IS_NOT_ACTIVATED,
@@ -248,10 +229,6 @@ class CustomerException extends HttpException
 
     public static function legacyPasswordEncoderNotFound(string $encoder): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new LegacyPasswordEncoderNotFoundException($encoder);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::LEGACY_PASSWORD_ENCODER_NOT_FOUND,
@@ -262,10 +239,6 @@ class CustomerException extends HttpException
 
     public static function noHashProvided(): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new NoHashProvidedException();
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::NO_HASH_PROVIDED,
@@ -275,10 +248,6 @@ class CustomerException extends HttpException
 
     public static function wishlistProductNotFound(string $productId): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new WishlistProductNotFoundException($productId);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::WISHLIST_PRODUCT_NOT_FOUND,
@@ -287,18 +256,26 @@ class CustomerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as it is unused
+     */
     public static function inactiveCustomer(string $id): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InactiveCustomerException($id);
-        }
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method "CustomerException::inactiveCustomer" will be removed as it is unused.');
 
         return self::customerOptinNotCompleted($id);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Parameter $message will be removed as it is unused
+     */
     public static function customerOptinNotCompleted(string $id, ?string $message = null): CustomerOptinNotCompletedException
     {
-        return new CustomerOptinNotCompletedException($id, $message);
+        if ($message !== null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $message is unused and will be removed.');
+        }
+
+        return new CustomerOptinNotCompletedException($id);
     }
 
     public static function customerAuthThrottledException(int $waitTime, ?\Throwable $e = null): CustomerAuthThrottledException
@@ -316,5 +293,10 @@ class CustomerException extends HttpException
             self::CUSTOMER_GUEST_AUTH_INVALID,
             'Guest account is not allowed to login'
         );
+    }
+
+    public static function passwordPoliciesUpdated(): PasswordPoliciesUpdatedException
+    {
+        return new PasswordPoliciesUpdatedException();
     }
 }

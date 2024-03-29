@@ -183,12 +183,12 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.price.DEFAULT.net',
             'product.price.DEFAULT.gross',
             'product.productNumber',
+            'product.stock',
             'product.tax.id',
             'product.tax.taxRate',
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
-            'product.stock',
             'translations.DEFAULT.name',
         ]);
     });
@@ -258,7 +258,6 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.shippingMethod.taxType',
             'salesChannel.shippingMethod.deliveryTime.id',
             'salesChannel.shippingMethod.translations.DEFAULT.name',
-            'salesChannel.shippingMethod.availabilityRule.id',
             'salesChannel.country.id',
             'salesChannel.country.translations.DEFAULT.name',
             'salesChannel.country.translations.DEFAULT.addressFormat',
@@ -278,9 +277,9 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'price.DEFAULT.net',
             'price.DEFAULT.gross',
             'productNumber',
+            'stock',
             'tax.id',
             'translations.DEFAULT.name',
-            'stock',
         ]);
     });
 
@@ -292,12 +291,12 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'price.DEFAULT.net',
             'price.DEFAULT.gross',
             'productNumber',
+            'stock',
             'tax.id',
             'tax.taxRate',
             'tax.name',
             'tax.position',
             'translations.DEFAULT.name',
-            'stock',
         ]);
     });
 
@@ -343,12 +342,12 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'product.price.DEFAULT.net',
             'product.price.DEFAULT.gross',
             'product.productNumber',
+            'product.stock',
             'product.tax.id',
             'product.tax.taxRate',
             'product.tax.name',
             'product.tax.position',
             'product.translations.DEFAULT.name',
-            'product.stock',
             'option.id',
             'option.group.id',
             'option.group.displayType',

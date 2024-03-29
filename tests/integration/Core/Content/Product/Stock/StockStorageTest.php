@@ -3,6 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
@@ -10,18 +13,22 @@ use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\Stock\StockStorage;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -35,12 +42,10 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\StockStorage
- *
- * @group slow
  */
 #[Package('inventory')]
+#[CoversClass(StockStorage::class)]
+#[Group('slow')]
 class StockStorageTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -63,9 +68,6 @@ class StockStorageTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('STOCK_HANDLING', $this);
-
-        parent::setUp();
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->orderLineItemRepository = $this->getContainer()->get('order_line_item.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
@@ -170,6 +172,121 @@ class StockStorageTest extends TestCase
         static::assertTrue($product->getIsCloseout());
         static::assertFalse($product->getAvailable());
         $this->assertStock(0, $product);
+    }
+
+    public static function triggerProductNoLongerAvailableEventOnCreateProvider(): \Generator
+    {
+        yield 'Closeout, no stock' => [0, true, 0];
+        yield 'Closeout, with stock' => [1, true, 1];
+        yield 'None closeout, no stock' => [0, false, 1];
+        yield 'None closeout, stock' => [1, false, 1];
+    }
+
+    #[DataProvider('triggerProductNoLongerAvailableEventOnCreateProvider')]
+    public function testTriggerProductNoLongerAvailableEventOnCreate(int $stock, bool $closeout, int $triggered): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::exactly($triggered))->method('__invoke');
+
+        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(10)
+            ->stock($stock)
+            ->closeout($closeout)
+            ->build();
+
+        $this->productRepository->create([$product], $context);
+    }
+
+    public static function eventTriggeredOnAlterProvider(): \Generator
+    {
+        yield 'Closeout, not stock, after 0, not triggered' => [
+            'stock' => 0,
+            'closeout' => true,
+            'after' => 0,
+            'triggered' => 0,
+        ];
+
+        yield 'Closeout, not stock, after 1, triggered' => [
+            'stock' => 0,
+            'closeout' => true,
+            'after' => 1,
+            'triggered' => 1,
+        ];
+
+        yield 'Closeout, stock, after 0, triggered' => [
+            'stock' => 1,
+            'closeout' => true,
+            'after' => 0,
+            'triggered' => 1,
+        ];
+
+        yield 'Closeout, stock, after 1, not triggered' => [
+            'stock' => 1,
+            'closeout' => true,
+            'after' => 1,
+            'triggered' => 0,
+        ];
+
+        // changing stock of closeout products should never trigger the event
+        yield 'None closeout, not stock, after 0, not triggered' => [
+            'stock' => 0,
+            'closeout' => false,
+            'after' => 0,
+            'triggered' => 0,
+        ];
+
+        yield 'None closeout, not stock, after 1, not triggered' => [
+            'stock' => 0,
+            'closeout' => false,
+            'after' => 1,
+            'triggered' => 0,
+        ];
+
+        yield 'None closeout, stock, after 0, not triggered' => [
+            'stock' => 1,
+            'closeout' => false,
+            'after' => 0,
+            'triggered' => 0,
+        ];
+
+        yield 'None closeout, stock, after 1, not triggered' => [
+            'stock' => 1,
+            'closeout' => false,
+            'after' => 1,
+            'triggered' => 0,
+        ];
+    }
+
+    #[DataProvider('eventTriggeredOnAlterProvider')]
+    public function testEventTriggeredOnAlter(int $stock, bool $closeout, int $after, int $triggered): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(10)
+            ->stock($stock)
+            ->closeout($closeout)
+            ->build();
+
+        $this->productRepository->create([$product], $context);
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+
+        $listener->expects(static::exactly($triggered))->method('__invoke');
+        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
+
+        $this->productRepository->update([['id' => $product['id'], 'stock' => $after]], $context);
     }
 
     public function testStockAfterOrderProduct(): void

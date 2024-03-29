@@ -28,10 +28,6 @@ export default {
     data() {
         return {
             customer: null,
-            /**
-             * @deprecated tag:v6.6.0 - salesChannels Will be removed due to unused
-             * */
-            salesChannels: null,
             isLoading: false,
             customerNumberPreview: '',
         };

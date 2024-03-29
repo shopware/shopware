@@ -1,5 +1,15 @@
-{% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
-{% set paginationConfig = { page: currentPage }|json_encode %}
+{# @deprecated tag:v6.7.0 - variable `currentPage` will be removed #}
+{% if not feature('v6.7.0.0') %}
+    {% set currentPage = searchResult.page %}
+{% endif %}
+
+{# @deprecated tag:v6.7.0 - variable `paginationConfig` will not be json encoded #}
+{% if feature('v6.7.0.0') %}
+    {% set paginationConfig = { page: searchResult.page } %}
+{% else %}
+    {% set paginationConfig = { page: searchResult.page }|json_encode %}
+{% endif %}
+
 
 {% if disableEmptyFilter is not defined %}
     {% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
@@ -19,12 +29,14 @@
 {% block product_listing %}
     <div class="cms-element-product-listing-wrapper"
          data-listing-pagination="true"
+        {% if feature('v6.7.0.0') %}
+         data-listing-pagination-options="{{ paginationConfig|json_encode }}"
+        {% else %}
          {# ludtwig-ignore html-string-quotation #}
          data-listing-pagination-options='{{ paginationConfig }}'
+        {% endif %}
          data-listing="true"
-         {# ludtwig-ignore html-string-quotation #}
-         data-listing-options='{{ listingPagination|json_encode }}'>
-
+         data-listing-options="{{ listingPagination|json_encode }}">
         {% block element_product_listing_wrapper_content %}
             <div class="cms-element-product-listing">
                 {% if searchResult.total > 0 %}
@@ -32,10 +44,15 @@
                         <div class="cms-element-product-listing-actions row justify-content-between">
                             <div class="col-md-auto">
                                 {% block element_product_listing_pagination_nav_top %}
-                                    {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                        entities: searchResult,
-                                        criteria: searchResult.criteria
-                                    } %}
+                                    {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
+                                    {% if feature('v6.7.0.0') %}
+                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: searchResult} %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                            entities: searchResult,
+                                            criteria: searchResult.criteria
+                                        } %}
+                                    {% endif %}
                                 {% endblock %}
                             </div>
 
@@ -59,8 +76,8 @@
                                     <div class="cms-listing-col {{ listingColumns }}">
                                         {% block element_product_listing_box %}
                                             {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                'layout': boxLayout,
-                                                'displayMode': displayMode
+                                                layout: boxLayout,
+                                                displayMode: displayMode
                                             } %}
                                         {% endblock %}
                                     </div>
@@ -83,11 +100,19 @@
 
                 {% if searchResult.total > searchResult.limit %}
                     {% block element_product_listing_pagination_nav_bottom %}
-                        {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                            entities: searchResult,
-                            criteria: searchResult.criteria,
-                            paginationLocation: 'bottom',
-                        } %}
+                        {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
+                        {% if feature('v6.7.0.0') %}
+                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                entities: searchResult,
+                                paginationLocation: 'bottom',
+                            } %}
+                        {% else %}
+                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                entities: searchResult,
+                                criteria: searchResult.criteria,
+                                paginationLocation: 'bottom',
+                            } %}
+                        {% endif %}
                     {% endblock %}
                 {% endif %}
             </div>

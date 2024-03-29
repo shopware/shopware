@@ -37,10 +37,6 @@
             @filter-update="updateFilter"
             @filter-reset="resetFilter"
         >
-            {# @deprecated tag:v6.6.0 - will be removed #}ss
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_multi_select_filter_content_variant_label %}{% endblock %}
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_filter_content_path_label %}
             <template
@@ -58,10 +54,6 @@
                 />
             </template>
             {% endblock %}
-
-            {# @deprecated tag:v6.6.0 - will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_multi_select_filter_content_variant_result_item %}{% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_multi_select_filter_content_path_result_item %}

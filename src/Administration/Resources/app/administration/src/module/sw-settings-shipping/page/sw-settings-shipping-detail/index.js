@@ -161,9 +161,7 @@ export default {
 
         shippingMethodId() {
             // We must reset the page if the user clicks his browsers back button and navigates back to create
-            if (this.shippingMethodId === null) {
-                this.createdComponent();
-            }
+            this.createdComponent();
         },
     },
 
@@ -211,6 +209,10 @@ export default {
         },
 
         loadEntityData() {
+            if (!this.shippingMethodId) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.shippingMethodRepository.get(
@@ -244,20 +246,6 @@ export default {
         },
 
         onSave() {
-            /**
-             * @deprecated tag:v6.7.0 - Can be removed: technical names are now required
-             */
-            if (!this.shippingMethod.technicalName) {
-                return Shopware.State.dispatch('error/addApiError', {
-                    expression: `shipping_method.${this.shippingMethod.id}.technicalName`,
-                    error: new Shopware.Classes.ShopwareError(
-                        {
-                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                        },
-                    ),
-                });
-            }
-
             this.filterIncompletePrices();
 
             this.isSaveSuccessful = false;

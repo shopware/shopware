@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,15 +24,18 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
+        LoggerInterface $logger,
         private readonly EntityRepository $newsletterRecipientRepository
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void
     {
+        $context = Context::createCLIContext();
+
         $criteria = $this->getExpiredNewsletterRecipientCriteria();
-        $emailRecipient = $this->newsletterRecipientRepository->searchIds($criteria, Context::createDefaultContext());
+        $emailRecipient = $this->newsletterRecipientRepository->searchIds($criteria, $context);
 
         if (empty($emailRecipient->getIds())) {
             return;
@@ -39,7 +43,7 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 
         $emailRecipientIds = array_map(fn ($id) => ['id' => $id], $emailRecipient->getIds());
 
-        $this->newsletterRecipientRepository->delete($emailRecipientIds, Context::createDefaultContext());
+        $this->newsletterRecipientRepository->delete($emailRecipientIds, $context);
     }
 
     private function getExpiredNewsletterRecipientCriteria(): Criteria

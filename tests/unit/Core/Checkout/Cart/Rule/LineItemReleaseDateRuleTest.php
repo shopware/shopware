@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,13 +21,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemReleaseDateRule::class)]
+#[Group('rules')]
 class LineItemReleaseDateRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -105,9 +106,8 @@ class LineItemReleaseDateRuleTest extends TestCase
     /**
      * This test verifies that our rule works correctly
      * with all the different operators and values.
-     *
-     * @dataProvider getMatchValues
      */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(bool $expected, ?string $itemReleased, ?string $ruleDate, string $operator): void
     {
         $this->rule->assign(['lineItemReleaseDate' => $ruleDate, 'operator' => $operator]);
@@ -161,9 +161,7 @@ class LineItemReleaseDateRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testMultipleLineItemsInCartRuleScope(
         string $ruleReleaseDate,
         string $lineItemReleaseDate1,
@@ -189,9 +187,7 @@ class LineItemReleaseDateRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testMultipleLineItemsInCartRuleScopeNested(
         string $ruleReleaseDate,
         string $lineItemReleaseDate1,

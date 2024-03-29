@@ -4,7 +4,6 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
@@ -29,13 +28,6 @@ class StateMachineHistoryEntity extends Entity
      * @var string
      */
     protected $entityName;
-
-    /**
-     * @decrecated tag:v6.6.0 - Will be removed. Use the dedicated properties 'referencedId' and 'referencedVersionId'
-     *
-     * @var array{id: string, version_id: string}
-     */
-    protected $entityId;
 
     /**
      * @var string
@@ -120,36 +112,6 @@ class StateMachineHistoryEntity extends Entity
     public function setEntityName(string $entityName): void
     {
         $this->entityName = $entityName;
-    }
-
-    /**
-     * @decrecated tag:v6.6.0 - Will be removed. Use the dedicated properties 'referencedId' and 'referencedVersionId'
-     *
-     * @return array{id: string, version_id: string}
-     */
-    public function getEntityId(): array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            'Will be removed. Use the dedicated properties \'referencedId\' and \'referencedVersionId\'',
-        );
-
-        return $this->entityId;
-    }
-
-    /**
-     * @decrecated tag:v6.6.0 - Will be removed. Use the dedicated properties 'referencedId' and 'referencedVersionId'
-     *
-     * @param array{id: string, version_id: string} $entityId
-     */
-    public function setEntityId(array $entityId): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            'Will be removed. Use the dedicated properties \'referencedId\' and \'referencedVersionId\'',
-        );
-
-        $this->entityId = $entityId;
     }
 
     public function getReferencedId(): string

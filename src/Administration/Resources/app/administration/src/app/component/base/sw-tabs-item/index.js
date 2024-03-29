@@ -161,29 +161,22 @@ Component.register('sw-tabs-item', {
             this.$nextTick().then(() => {
                 /**
                  * Prevent endless loop with checking if the route exists. Because a router-link with a
-                 * non existing route has always the class 'router-link-active'
+                 * non-existing route has always the class 'router-link-active'
                  */
                 let resolvedRoute;
-                if (this.feature.isActive('VUE3')) {
-                    try {
-                        resolvedRoute = this.$router.resolve(this.route);
-                    } catch {
-                        return;
-                    }
 
-                    if (resolvedRoute === undefined) {
-                        return;
-                    }
-                } else {
+                try {
                     resolvedRoute = this.$router.resolve(this.route);
+                } catch {
+                    return;
+                }
+
+                if (resolvedRoute === undefined) {
+                    return;
                 }
 
                 let routeExists = false;
-                if (Shopware.Service('feature').isActive('VUE3')) {
-                    routeExists = resolvedRoute.matched.length > 0;
-                } else {
-                    routeExists = resolvedRoute.resolved.matched.length > 0;
-                }
+                routeExists = resolvedRoute.matched.length > 0;
 
                 if (!routeExists) {
                     return;

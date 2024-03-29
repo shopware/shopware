@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status deprecated
  * @example-type code-only
  * @component-example
@@ -17,12 +16,9 @@ const { Component } = Shopware;
 Component.register('sw-tagged-field', {
     template,
 
-    inject: ['feature'],
+    emits: ['update:value'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
+    inject: ['feature'],
 
     props: {
         value: {
@@ -78,23 +74,14 @@ Component.register('sw-tagged-field', {
                 return;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.value.slice(0, this.value.length - 1));
-
-                return;
-            }
-
-            this.$emit('change', this.value.slice(0, this.value.length - 1));
+            this.$emit('update:value', this.value.slice(0, this.value.length - 1));
         },
 
         dismissTag(index) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.value.filter((item, itemIndex) => itemIndex !== index));
-
-                return;
-            }
-
-            this.$emit('change', this.value.filter((item, itemIndex) => itemIndex !== index));
+            this.$emit(
+                'update:value',
+                this.value.filter((item, itemIndex) => itemIndex !== index),
+            );
         },
 
         performAddTag(event) {
@@ -106,14 +93,7 @@ Component.register('sw-tagged-field', {
                 return;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', [...this.value, this.newTagName]);
-                this.newTagName = '';
-
-                return;
-            }
-
-            this.$emit('change', [...this.value, this.newTagName]);
+            this.$emit('update:value', [...this.value, this.newTagName]);
             this.newTagName = '';
         },
 

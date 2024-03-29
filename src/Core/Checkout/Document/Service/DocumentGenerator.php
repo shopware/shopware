@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -18,7 +17,6 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
@@ -26,7 +24,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -67,11 +64,7 @@ class DocumentGenerator
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
         if (!$document instanceof DocumentEntity) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw DocumentException::documentNotFound($documentId);
-            }
-
-            throw new InvalidDocumentException($documentId);
+            throw DocumentException::documentNotFound($documentId);
         }
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $context);
@@ -110,11 +103,7 @@ class DocumentGenerator
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
 
         if (!\array_key_exists($operation->getOrderId(), $rendered->getSuccess())) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw DocumentException::generationError();
-            }
-
-            throw new InvalidOrderException($operation->getOrderId());
+            throw DocumentException::generationError();
         }
 
         $document = $rendered->getSuccess()[$operation->getOrderId()];
@@ -217,14 +206,13 @@ class DocumentGenerator
 
         $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
 
-        $this->connection->executeStatement(
-            'UPDATE `document` SET `updated_at` = :now, `document_media_file_id` = :mediaId WHERE `id` = :id',
+        $this->documentRepository->update([
             [
-                'id' => Uuid::fromHexToBytes($documentId),
-                'mediaId' => Uuid::fromHexToBytes($mediaId),
+                'id' => $documentId,
+                'documentMediaFileId' => $mediaId,
                 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
-        );
+        ], $context);
 
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }

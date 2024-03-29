@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ShippingStreetRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -159,9 +160,7 @@ class ShippingStreetRuleTest extends TestCase
         static::assertEquals(new Type('string'), $streetName[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $shippingStreet, bool $noAddress = false): void
     {
         $streetName = 'kyln123';

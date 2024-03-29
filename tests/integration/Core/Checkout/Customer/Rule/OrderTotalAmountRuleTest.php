@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -29,7 +30,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class OrderTotalAmountRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -146,7 +147,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $rule = new OrderTotalAmountRule();
         $rule->assign(['amount' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
+        $result = $rule->match($this->createMock(RuleScope::class));
 
         static::assertFalse($result);
     }
@@ -271,9 +272,7 @@ class OrderTotalAmountRuleTest extends TestCase
         static::assertSame(0, (int) $result->first()->getOrderTotalAmount());
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, ?float $orderAmount, float $ruleOrderAmount, bool $noCustomer = false): void
     {
         $rule = new OrderTotalAmountRule();

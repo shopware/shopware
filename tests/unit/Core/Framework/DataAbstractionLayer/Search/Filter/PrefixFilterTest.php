@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter
  */
+#[CoversClass(PrefixFilter::class)]
 class PrefixFilterTest extends TestCase
 {
     public function testEncode(): void

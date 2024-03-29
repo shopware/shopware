@@ -17,6 +17,7 @@
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowDispatcher.inner"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -34,6 +35,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider" />
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="tagged_iterator" tag="flow.action" index-by="key" />
         </service>
 
@@ -94,7 +96,6 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <tag name="flow.action" priority="400" key="action.set.order.state" />
         </service>
@@ -236,67 +237,11 @@
             <tag name="flow.storer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ReviewFormDataStorer">
-            <tag name="flow.storer"/>
-        </service>
-
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer">
             <tag name="flow.storer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContentsStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContextTokenStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\EmailStorer">
-            <tag name="flow.storer"/>
-        </service>
-
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\NameStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\RecipientsStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ShopNameStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\SubjectStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\TemplateDataStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MediaUploadedStorer">
             <tag name="flow.storer"/>
         </service>
 
@@ -337,6 +282,10 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderDocumentTypeSentRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

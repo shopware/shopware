@@ -3,20 +3,21 @@
 namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\UnableToReadFile;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -24,20 +25,22 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Controller\AdministrationController
  */
 #[Package('checkout')]
+#[CoversClass(AdministrationController::class)]
 class AdministrationControllerTest extends TestCase
 {
     private AdministrationController $administrationController;
+
+    private PrefixFilesystem&MockObject $fileSystemOperatorMock;
 
     private Context $context;
 
@@ -48,11 +51,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testCheckCustomerEmailValidThrowErrorWithNullEmailParameter(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(RoutingException::class);
-        } else {
-            $this->expectException(MissingRequestParameterException::class);
-        }
+        $this->expectException(RoutingException::class);
 
         $this->createInstance();
         $request = new Request();
@@ -87,11 +86,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testCheckCustomerEmailValidWithBoundSalesChannelIdInvalid(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(RoutingException::class);
-        } else {
-            $this->expectException(InvalidRequestParameterException::class);
-        }
+        $this->expectException(RoutingException::class);
 
         $this->createInstance(new CustomerCollection(), true);
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => true]);
@@ -138,6 +133,60 @@ class AdministrationControllerTest extends TestCase
         $this->administrationController->checkCustomerEmailValid($request, $this->context);
     }
 
+    public function testPluginIndexReturnsNotFoundResponse(): void
+    {
+        $this->createInstance();
+
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('read')
+            ->with('bundles/foo/administration/index.html')
+            ->willThrowException(new UnableToReadFile());
+        $response = $this->administrationController->pluginIndex('foo');
+
+        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertEquals('Plugin index.html not found', $response->getContent());
+    }
+
+    public function testPluginIndexReturnsUnchangedFileIfNoReplaceableStringIsFound(): void
+    {
+        $this->createInstance();
+
+        $fileContent = '<html><head></head><body></body></html>';
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('read')
+            ->with('bundles/foo/administration/index.html')
+            ->willReturn($fileContent);
+        $response = $this->administrationController->pluginIndex('foo');
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertEquals($fileContent, $response->getContent());
+    }
+
+    public function testPluginIndex(): void
+    {
+        $this->createInstance();
+
+        $fileContent = '<html><head><base href="__$ASSET_BASE_PATH$__" /></head><body></body></html>';
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('read')
+            ->with('bundles/foo/administration/index.html')
+            ->willReturn($fileContent);
+
+        $this->fileSystemOperatorMock->expects(static::once())
+            ->method('publicUrl')
+            ->with('/')
+            ->willReturn('http://localhost/bundles/');
+
+        $response = $this->administrationController->pluginIndex('foo');
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringNotContainsString('__$ASSET_BASE_PATH$__', $content);
+        static::assertStringContainsString('http://localhost/bundles/', $content);
+    }
+
     private function mockSalesChannel(): SalesChannelEntity
     {
         $salesChannel = new SalesChannelEntity();
@@ -158,6 +207,7 @@ class AdministrationControllerTest extends TestCase
     private function createInstance(?CustomerCollection $collection = null, bool $isCustomerBoundToSalesChannel = false): void
     {
         $collection = $collection ?? new CustomerCollection();
+        $this->fileSystemOperatorMock = $this->createMock(PrefixFilesystem::class);
 
         $this->administrationController = new AdministrationController(
             $this->createMock(TemplateFinder::class),
@@ -175,7 +225,8 @@ class AdministrationControllerTest extends TestCase
             $this->createMock(ParameterBagInterface::class),
             new StaticSystemConfigService([
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
-            ])
+            ]),
+            $this->fileSystemOperatorMock,
         );
     }
 }

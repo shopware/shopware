@@ -123,9 +123,9 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
-     * @return list<array{id: string}>
+     * @return array<array{id: string}>
      */
     private function getTags(array $tags): array
     {
@@ -146,7 +146,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getIds(string $table): array
     {

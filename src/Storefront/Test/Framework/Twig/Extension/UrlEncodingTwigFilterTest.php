@@ -87,11 +87,6 @@ class UrlEncodingTwigFilterTest extends TestCase
         static::assertNull($filter->encodeMediaUrl($media));
     }
 
-    /**
-     * NEXT-21735
-     *
-     * @group quarantined
-     */
     public function testItEncodesTheUrl(): void
     {
         $filter = new UrlEncodingTwigFilter();
@@ -107,6 +102,7 @@ class UrlEncodingTwigFilterTest extends TestCase
         $media->setFileExtension('png');
         $media->setUploadedAt($uploadTime);
         $media->setFileName('(image with spaces and brackets)');
+        $media->setPath('(image with spaces and brackets).png');
 
         $urls = $urlGenerator->generate(['foo' => UrlParams::fromMedia($media)]);
 

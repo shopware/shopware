@@ -17,11 +17,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_information_name %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="landingPage.name"
-                {% else %}
-                v-model="landingPage.name"
-                {% endif %}
                 required
                 name="landingPageName"
                 validation="required"
@@ -35,11 +31,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_information_active %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="landingPage.active"
-                {% else %}
-                v-model="landingPage.active"
-                {% endif %}
                 class="sw-landing-page-detail-base__active"
                 name="landingPageActive"
                 :disabled="!acl.can('landing_page.editor')"
@@ -51,11 +43,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_landing_page_detail_base_seo_form_sales_channel %}
         <sw-entity-multi-select
-            {% if VUE3 %}
             v-model:entityCollection="landingPage.salesChannels"
-            {% else %}
-            v-model="landingPage.salesChannels"
-            {% endif %}
             required
             class="sw-landing-page-detail-base__sales_channel"
             entity-name="sales_channel"
@@ -70,11 +58,7 @@
         {% block sw_landing_page_detail_base_information_tags %}
         <sw-entity-tag-select
             v-if="landingPage && !isLoading"
-            {% if VUE3 %}
             v-model:entity-collection="landingPage.tags"
-            {% else %}
-            v-model="landingPage.tags"
-            {% endif %}
             class="sw-landing-page-detail-base__tags"
             :label="$tc('sw-landing-page.base.general.labelTags')"
             :placeholder="$tc('sw-landing-page.base.general.labelTagsPlaceholder')"
@@ -91,6 +75,12 @@
         :title="$tc('sw-landing-page.base.seo.title')"
         :is-loading="isLoading"
     >
+        <sw-alert
+            v-if="!isLayoutSet"
+            variant="warning"
+        >
+            {{ $tc('sw-landing-page.base.seo.notification.noLayoutAssigned') }}
+        </sw-alert>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_landing_page_detail_base_seo_form %}
@@ -99,11 +89,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_meta_title %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="landingPage.metaTitle"
-                {% else %}
-                v-model="landingPage.metaTitle"
-                {% endif %}
                 maxlength="255"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
@@ -115,11 +101,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_meta_description %}
             <sw-textarea-field
-                {% if VUE3 %}
                 v-model:value="landingPage.metaDescription"
-                {% else %}
-                v-model="landingPage.metaDescription"
-                {% endif %}
                 maxlength="255"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
@@ -131,11 +113,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_keywords %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="landingPage.keywords"
-                {% else %}
-                v-model="landingPage.keywords"
-                {% endif %}
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelKeywords')"
                 :placeholder="placeholder(landingPage, 'keywords', $tc('sw-landing-page.base.seo.placeholderKeywords'))"
@@ -145,11 +123,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_landing_page_detail_base_seo_form_url %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="landingPage.url"
-                {% else %}
-                v-model="landingPage.url"
-                {% endif %}
                 required
                 name="landingPageUrl"
                 :disabled="!acl.can('landing_page.editor')"

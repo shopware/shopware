@@ -2,12 +2,12 @@
  * @package admin
  */
 
-import 'src/app/component/base/sw-address';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-address'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-address', { sync: true }), {
+        attachTo: document.body,
+        props: {
             address: {
                 salutation: 'Mr',
                 title: 'Dr.',
@@ -27,13 +27,14 @@ async function createWrapper() {
                 },
             },
         },
-        stubs: {
-            'router-link': {
-                template: '<a class="router-link" href="#"><slot></slot></a>',
-                props: ['to'],
+        global: {
+            stubs: {
+                'router-link': {
+                    template: '<a class="router-link" href="#"><slot></slot></a>',
+                    props: ['to'],
+                },
             },
         },
-        attachTo: document.body,
     });
 }
 
@@ -46,26 +47,20 @@ describe('src/app/component/base/sw-address/index.ts', () => {
         await flushPromises;
     });
 
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
-        await flushPromises;
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render an address', async () => {
         await wrapper.setProps({
+            // eslint-disable-next-line max-len
             formattingAddress: 'Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br>',
         });
 
         const formattingAddress = wrapper.find('.sw-address__formatting');
 
         expect(formattingAddress).toBeTruthy();
+        // eslint-disable-next-line max-len
         expect(formattingAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
     });
 
@@ -85,6 +80,6 @@ describe('src/app/component/base/sw-address/index.ts', () => {
         });
 
         expect(wrapper.get('.sw-address-headline-link').text()).toBe('global.default.edit');
-        expect(wrapper.get('.sw-address-headline-link').props('to')).toEqual({ path: 'path/edit-address' });
+        expect(wrapper.getComponent('.sw-address-headline-link').props('to')).toEqual({ path: 'path/edit-address' });
     });
 });

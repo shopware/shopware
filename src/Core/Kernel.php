@@ -6,8 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
@@ -35,12 +33,9 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.6.9999999.9999999-dev';
 
-    /**
-     * @var Connection|null
-     */
-    protected static $connection;
+    protected static ?Connection $connection = null;
 
     /**
      * @var KernelPluginLoader
@@ -57,17 +52,10 @@ class Kernel extends HttpKernel
      */
     protected $shopwareVersionRevision;
 
-    /**
-     * @deprecated tag:v6.6.0 - Signature will change to `@var string`. Property will also be declared over __construct
-     *
-     * @var string|null
-     */
-    protected $projectDir;
-
     private bool $rebooting = false;
 
     /**
-     * @deprecated tag:v6.6.0 - reason:becomes-internal - Will become internal, use `KernelFactory::create`
+     * @internal
      *
      * {@inheritdoc}
      */
@@ -76,15 +64,10 @@ class Kernel extends HttpKernel
         bool $debug,
         KernelPluginLoader $pluginLoader,
         private string $cacheId,
-        // @deprecated tag:v6.6.0 - change signature to `string $version,`
-        ?string $version = self::SHOPWARE_FALLBACK_VERSION,
-        // @deprecated tag:v6.6.0 - change signature to `Connection $connection,`
-        ?Connection $connection = null,
-        // @deprecated tag:v6.6.0 - change signature to `protected string $projectDir`
-        ?string $projectDir = null
+        string $version,
+        Connection $connection,
+        protected string $projectDir
     ) {
-        $version = $version ?? self::SHOPWARE_FALLBACK_VERSION;
-
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
@@ -95,7 +78,6 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -121,41 +103,11 @@ class Kernel extends HttpKernel
 
     public function getProjectDir(): string
     {
-        // @deprecated tag:v6.6.0 - remove all code below and just return projectDir
-        if ($this->projectDir !== null) {
-            return $this->projectDir;
-        }
-
-        if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
-            return $this->projectDir = $dir;
-        }
-
-        $r = new \ReflectionObject($this);
-
-        $dir = (string) $r->getFileName();
-        if (!file_exists($dir)) {
-            throw FrameworkException::projectDirNotExists($dir);
-        }
-
-        $dir = $rootDir = \dirname($dir);
-        while (!file_exists($dir . '/vendor')) {
-            if ($dir === \dirname($dir)) {
-                return $this->projectDir = $rootDir;
-            }
-            $dir = \dirname($dir);
-        }
-        $this->projectDir = $dir;
-
         return $this->projectDir;
     }
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        // @deprecated tag:v6.6.0 - remove complete IF statement
-        if (!Feature::isActive('v6.6.0.0')) {
-            return parent::handle($request, $type, $catch);
-        }
-
         if (!$this->booted) {
             $this->boot();
         }
@@ -178,9 +130,9 @@ class Kernel extends HttpKernel
         }
 
         if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=3');
-            $_ENV['SHELL_VERBOSITY'] = 3;
-            $_SERVER['SHELL_VERBOSITY'] = 3;
+            putenv('SHELL_VERBOSITY=1');
+            $_ENV['SHELL_VERBOSITY'] = 1;
+            $_SERVER['SHELL_VERBOSITY'] = 1;
         }
 
         try {
@@ -237,7 +189,7 @@ class Kernel extends HttpKernel
     {
         return sprintf(
             '%s/var/cache/%s_h%s%s',
-            $this->getProjectDir(),
+            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
             $this->getEnvironment(),
             $this->getCacheHash(),
             EnvironmentHelper::getVariable('TEST_TOKEN') ?? ''
@@ -282,7 +234,6 @@ class Kernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('.container.dumper.inline_class_loader', $this->environment !== 'test');
         $container->setParameter('.container.dumper.inline_factories', $this->environment !== 'test');
 
         $confDir = $this->getProjectDir() . '/config';
@@ -366,7 +317,6 @@ class Kernel extends HttpKernel
             $this->cacheId,
             substr((string) $this->shopwareVersionRevision, 0, 8),
             substr($pluginHash, 0, 8),
-            EnvironmentHelper::getVariable('DATABASE_URL', ''),
         ], \JSON_THROW_ON_ERROR));
     }
 

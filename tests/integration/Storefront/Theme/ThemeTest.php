@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -782,7 +781,7 @@ class ThemeTest extends TestCase
         } catch (ThemeCompileException $e) {
             // ignore files not found exception
 
-            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "src/Storefront/Resources/app/storefront/dist/js/vendor-node.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
+            if ($e->getMessage() !== 'Unable to compile the theme "Shopware default theme". Files could not be resolved with error: Unable to compile the theme "Storefront". Unable to load file "src/Storefront/Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme? Try running ./bin/build-storefront.sh') {
                 throw $e;
             }
         }
@@ -811,11 +810,7 @@ class ThemeTest extends TestCase
     public function testThemeServiceUpdateWrongId(): void
     {
         $randomId = Uuid::randomHex();
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $randomId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $randomId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $randomId));
         $this->themeService->updateTheme($randomId, null, null, Context::createDefaultContext());
     }
 

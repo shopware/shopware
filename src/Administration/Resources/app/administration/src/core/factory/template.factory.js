@@ -259,10 +259,7 @@ function resolveTemplates() {
 
 function applyTemplateOverrides(name) {
     const item = normalizedTemplateRegistry.get(name);
-    const templateVars = {
-        VUE3: !!window._features_?.VUE3,
-        VUE2: !window._features_?.VUE3,
-    };
+    const templateVars = {};
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks

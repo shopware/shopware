@@ -9,6 +9,8 @@ use Composer\Repository\InstalledArrayRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryManager;
 use Composer\Semver\VersionParser;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
@@ -17,18 +19,16 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator
  */
+#[CoversClass(EnvironmentRequirementsValidator::class)]
 class EnvironmentRequirementsValidatorTest extends TestCase
 {
     /**
      * @param array<string, string> $composerOverrides
      * @param array<string, Link> $requires
      * @param SystemCheck[] $expectedChecks
-     *
-     * @dataProvider composerRequirementsProvider
      */
+    #[DataProvider('composerRequirementsProvider')]
     public function testValidateRequirements(?string $coreComposerName, array $composerOverrides, array $requires, array $expectedChecks): void
     {
         $systemEnvironment = new PlatformRepository([], $composerOverrides);

@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection
  */
+#[CoversClass(StubCollection::class)]
 class StubCollectionTest extends TestCase
 {
     public function testConstructor(): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -13,18 +15,15 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\Rule\Helper\CartRuleScopeCase;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemPropertyRule::class)]
 class LineItemPropertyRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
 
-    /**
-     * @dataProvider cartRuleScopeProvider
-     */
+    #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopes(CartRuleScopeCase $case): void
     {
         $cart = $this->createCart(new LineItemCollection($case->lineItems));
@@ -34,9 +33,7 @@ class LineItemPropertyRuleTest extends TestCase
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
 
-    /**
-     * @dataProvider cartRuleScopeProvider
-     */
+    #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopesNested(CartRuleScopeCase $case): void
     {
         $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));

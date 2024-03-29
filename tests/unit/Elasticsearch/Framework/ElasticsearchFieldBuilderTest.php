@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -16,15 +17,15 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder
  */
+#[CoversClass(ElasticsearchFieldBuilder::class)]
 class ElasticsearchFieldBuilderTest extends TestCase
 {
     public function testBuildTranslatedField(): void
     {
         $deLanguageId = Uuid::randomHex();
         $enLanguageId = Uuid::randomHex();
+        $enInheritedLanguageId = Uuid::randomHex();
 
         $languageLoader = new StaticLanguageLoader([
             $deLanguageId => [
@@ -36,6 +37,12 @@ class ElasticsearchFieldBuilderTest extends TestCase
                 'id' => $enLanguageId,
                 'parentId' => 'parentId',
                 'code' => 'en-GB',
+            ],
+            $enInheritedLanguageId => [
+                'id' => $enLanguageId,
+                'parentId' => 'parentId',
+                'code' => 'en-GB',
+                'parentCode' => 'en-GB',
             ],
         ]);
 
@@ -75,6 +82,18 @@ class ElasticsearchFieldBuilderTest extends TestCase
                     ],
                 ],
                 $enLanguageId => [
+                    'fields' => [
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_english_analyzer',
+                        ],
+                        'ngram' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_ngram_analyzer',
+                        ],
+                    ],
+                ],
+                $enInheritedLanguageId => [
                     'fields' => [
                         'search' => [
                             'type' => 'text',

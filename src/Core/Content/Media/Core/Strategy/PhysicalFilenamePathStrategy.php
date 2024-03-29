@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal Concrete implementation is not allowed to be decorated or extended. The implementation details can change
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class PhysicalFilenamePathStrategy extends AbstractMediaPathStrategy
 {
     public function name(): string
     {
-        return 'physical_file_name';
+        return 'physical_filename';
     }
 
     protected function value(MediaLocationStruct|ThumbnailLocationStruct $location): ?string

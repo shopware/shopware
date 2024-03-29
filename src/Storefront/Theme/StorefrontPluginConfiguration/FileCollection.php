@@ -11,6 +11,11 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('storefront')]
 class FileCollection extends Collection
 {
+    /**
+     * @param array<string> $files
+     *
+     * @return self
+     */
     public static function createFromArray(array $files)
     {
         $collection = new self();
@@ -21,22 +26,46 @@ class FileCollection extends Collection
         return $collection;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getFilepaths(): array
     {
         return $this->map(fn (File $element) => $element->getFilepath());
     }
 
+    /**
+     * @return array<string>
+     */
+    public function getPublicPaths(string $prefix): array
+    {
+        return array_values(array_filter($this->map(function (File $element) use ($prefix) {
+            if ($element->assetName === null) {
+                return null;
+            }
+
+            if (!str_ends_with($element->getFilepath(), $element->assetName . '/' . basename($element->getFilepath()))) {
+                return null;
+            }
+
+            return $prefix . '/' . $element->assetName . '/' . basename($element->getFilepath());
+        })));
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public function getResolveMappings(): array
     {
         $resolveMappings = [];
-        /** @var File $file */
+
         foreach ($this->elements as $file) {
             if (\count($file->getResolveMapping()) > 0) {
-                $resolveMappings = array_merge($resolveMappings, $file->getResolveMapping());
+                $resolveMappings[] = $file->getResolveMapping();
             }
         }
 
-        return $resolveMappings;
+        return array_merge(...$resolveMappings);
     }
 
     protected function getExpectedClass(): ?string

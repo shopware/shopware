@@ -152,7 +152,7 @@ export default {
                 },
             };
 
-            this.flowRepository.clone(item.id, Shopware.Context.api, behavior)
+            this.flowRepository.clone(item.id, behavior, Shopware.Context.api)
                 .then((response) => {
                     this.createNotificationSuccess({
                         message: this.$tc('sw-flow.flowNotification.messageDuplicateSuccess'),

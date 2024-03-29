@@ -7,14 +7,15 @@ use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
  */
-#[Package('merchant-services')]
-class ConsentReporter
+#[Package('data-services')]
+class ConsentReporter implements EventSubscriberInterface
 {
     public function __construct(
         private readonly HttpClientInterface $client,
@@ -22,11 +23,23 @@ class ConsentReporter
         private readonly SystemConfigService $systemConfigService,
         private readonly InstanceService $instanceService,
         private readonly string $appUrl,
+        private readonly bool $dispatchEnabled,
     ) {
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            ConsentStateChangedEvent::class => 'reportConsent',
+        ];
     }
 
     public function reportConsent(ConsentState $consentState): void
     {
+        if (!$this->dispatchEnabled) {
+            return;
+        }
+
         $payload = [
             'app_url' => $this->appUrl,
             'consent_state' => $consentState->value,

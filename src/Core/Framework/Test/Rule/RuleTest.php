@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Rule;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -57,9 +58,7 @@ class RuleTest extends TestCase
         return new CartRuleScope($this->createCart($lineItemCollection), $context);
     }
 
-    /**
-     * @depends testScope
-     */
+    #[Depends('testScope')]
     public function testRulesMatchWithEmptyOperator(CartRuleScope $scope): void
     {
         /** @var Rule $rule */
@@ -150,6 +149,7 @@ class RuleTest extends TestCase
                 continue;
             }
 
+            static::assertIsArray($choiceConstraint->choices);
             static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), sprintf(
                 'Constraints and config for operator differ in condition %s',
                 $rule->getName()
@@ -194,6 +194,7 @@ class RuleTest extends TestCase
                 continue;
             }
 
+            static::assertIsArray($choiceConstraint->choices);
             // skip if rule does not allow empty operator
             if (!\in_array(Rule::OPERATOR_EMPTY, $choiceConstraint->choices, true)) {
                 continue;

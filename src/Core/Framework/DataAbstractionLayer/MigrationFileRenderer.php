@@ -17,7 +17,8 @@ class MigrationFileRenderer
         string $namespace,
         string $className,
         string $timestamp,
-        array $queries
+        array $queries,
+        string $package = 'core'
     ): string {
         $formattedSql = $this->formatSqlQueries($queries);
 
@@ -29,8 +30,8 @@ class MigrationFileRenderer
         }
 
         return str_replace(
-            ['{Namespace}', '{ClassName}', '{Timestamp}', '{SqlQueries}'],
-            [$namespace, $className, $timestamp, $formattedSql],
+            ['{Namespace}', '{ClassName}', '{Timestamp}', '{SqlQueries}', '{Package}'],
+            [$namespace, $className, $timestamp, $formattedSql, $package],
             $stub
         );
     }

@@ -33,7 +33,7 @@ export default {
     },
     methods: {
         onInput(value) {
-            this.$emit('input', value);
+            this.$emit('update:value', value);
         },
     },
 };

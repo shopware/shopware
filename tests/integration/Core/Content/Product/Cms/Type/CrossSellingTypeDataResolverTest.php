@@ -43,7 +43,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     public function testType(): void
     {
-        static::assertSame('cross-selling', $this->crossSellingResolver->getType());
+        static::assertSame(CrossSellingCmsElementResolver::TYPE, $this->crossSellingResolver->getType());
     }
 
     public function testCollectWithEmptyConfig(): void
@@ -52,7 +52,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('cross-selling');
+        $slot->setType(CrossSellingCmsElementResolver::TYPE);
         $slot->setConfig([]);
         $slot->setFieldConfig(new FieldConfigCollection());
 
@@ -70,7 +70,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('cross-selling');
+        $slot->setType(CrossSellingCmsElementResolver::TYPE);
         $slot->setFieldConfig($fieldConfig);
 
         $criteriaCollection = $this->crossSellingResolver->collect($slot, $resolverContext);
@@ -86,7 +86,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('cross-selling');
+        $slot->setType(CrossSellingCmsElementResolver::TYPE);
         $slot->setFieldConfig(new FieldConfigCollection());
 
         $this->crossSellingResolver->enrich($slot, $resolverContext, $result);
@@ -115,7 +115,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('cross-selling');
+        $slot->setType(CrossSellingCmsElementResolver::TYPE);
         $slot->setFieldConfig($fieldConfig);
 
         $this->crossSellingResolver->enrich($slot, $resolverContext, $result);
@@ -134,7 +134,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('cross-selling');
+        $slot->setType(CrossSellingCmsElementResolver::TYPE);
         $slot->setFieldConfig($fieldConfig);
 
         $criteriaCollection = $this->crossSellingResolver->collect($slot, $resolverContext);

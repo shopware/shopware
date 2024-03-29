@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -30,7 +29,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('buyers-experience')]
@@ -158,9 +157,7 @@ class SeoActionController extends AbstractController
         }
 
         if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
-            if (Feature::isActive('v6.6.0.0')) {
-                return new Response('', Response::HTTP_NO_CONTENT);
-            }
+            return new Response('', Response::HTTP_NO_CONTENT);
         }
 
         $this->seoUrlPersister->updateSeoUrls(
@@ -217,9 +214,7 @@ class SeoActionController extends AbstractController
             }
 
             if ($salesChannelEntity->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
-                if (Feature::isActive('v6.6.0.0')) {
-                    continue;
-                }
+                continue;
             }
 
             $this->seoUrlPersister->updateSeoUrls(

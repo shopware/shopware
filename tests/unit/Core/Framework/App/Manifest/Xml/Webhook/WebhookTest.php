@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\Webhook;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook
  */
+#[CoversClass(Webhook::class)]
 class WebhookTest extends TestCase
 {
     public function testFromXml(): void

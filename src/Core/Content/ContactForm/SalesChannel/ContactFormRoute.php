@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -19,7 +23,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
@@ -76,6 +80,7 @@ class ContactFormRoute extends AbstractContactFormRoute
             $recipientStructs[$mail] = $mail;
         }
 
+        /** @var array<string, mixed> $recipientStructs */
         $event = new ContactFormEvent(
             $context->getContext(),
             $context->getSalesChannel()->getId(),
@@ -117,6 +122,7 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         $criteria = new Criteria([$navigationId]);
 
+        /** @var CategoryEntity|ProductEntity|LandingPageEntity $entity */
         $entity = match ($entityName) {
             ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->first(),
             LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->first(),
@@ -158,9 +164,16 @@ class ContactFormRoute extends AbstractContactFormRoute
         }
 
         $criteria = new Criteria([$slotId]);
-        $slot = $this->cmsSlotRepository->search($criteria, $context->getContext());
-        $mailConfigs['receivers'] = $slot->getEntities()->first()->getTranslated()['config']['mailReceiver']['value'];
-        $mailConfigs['message'] = $slot->getEntities()->first()->getTranslated()['config']['confirmationText']['value'];
+
+        /** @var CmsSlotEntity|null $slot */
+        $slot = $this->cmsSlotRepository->search($criteria, $context->getContext())->getEntities()->first();
+
+        if (!$slot) {
+            return $mailConfigs;
+        }
+
+        $mailConfigs['receivers'] = $slot->getTranslated()['config']['mailReceiver']['value'];
+        $mailConfigs['message'] = $slot->getTranslated()['config']['confirmationText']['value'];
 
         return $mailConfigs;
     }

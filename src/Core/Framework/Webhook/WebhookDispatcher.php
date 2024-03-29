@@ -37,7 +37,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ * @internal
  */
 #[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface
@@ -73,13 +73,12 @@ class WebhookDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
-            $context = Context::createDefaultContext();
-            if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
-                $context = $event->getContext();
-            }
+        $context = Context::createDefaultContext();
 
-            $this->callWebhooks($hookable, $context);
+        foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
+            $useEventContext = $event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent;
+
+            $this->callWebhooks($hookable, $useEventContext ? $event->getContext() : $context);
         }
 
         // always return the original event and never our wrapped events
@@ -210,7 +209,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         /** @var WebhookCollection $webhooks */
         $webhooks = $this->container->get('webhook.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 
-        return $this->webhooks = $webhooks;
+        return $this->webhooks = $webhooks->allowedForDispatching();
     }
 
     /**

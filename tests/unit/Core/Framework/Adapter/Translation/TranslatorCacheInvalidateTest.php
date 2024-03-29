@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Translation;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -19,9 +20,8 @@ use Shopware\Core\System\Snippet\SnippetEvents;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Translation\TranslatorCacheInvalidate
  */
+#[CoversClass(TranslatorCacheInvalidate::class)]
 class TranslatorCacheInvalidateTest extends TestCase
 {
     /**
@@ -94,7 +94,7 @@ class TranslatorCacheInvalidateTest extends TestCase
         $this->cacheInvalidator->expects(static::once())->method('invalidate')->with([
             'translation.catalog.' . $ids->get('snippetSet1'),
             'translation.catalog.' . $ids->get('snippetSet2'),
-        ], true);
+        ], false);
 
         $this->translatorCacheInvalidate->invalidate($event);
     }
@@ -129,7 +129,7 @@ class TranslatorCacheInvalidateTest extends TestCase
         $this->cacheInvalidator->expects(static::once())->method('invalidate')->with([
             'translation.catalog.' . $ids->get('snippetSet1'),
             'translation.catalog.' . $ids->get('snippetSet2'),
-        ], true);
+        ], false);
 
         $this->translatorCacheInvalidate->invalidate($event);
     }

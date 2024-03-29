@@ -9,6 +9,17 @@ const { Mixin } = Shopware;
 const { object, string: { kebabCase } } = Shopware.Utils;
 const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * Component which automatically renders all fields for a given system_config schema. It allows the user to edit these
+ * configuration values.
+ *
+ * N.B: This component handles the data completely independently, therefore you need to trigger the saving of
+ *      data manually with a $ref. Due to the fact that the data is stored inside this component, destroying
+ *      the component could lead to unsaved changes. One primary case for this could be if it will be used
+ *      inside tabs. Because if the user changes the tab content then this component gets destroyed and therefore
+ *      also the corresponding data.
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -82,6 +93,12 @@ export default {
                 this.emitConfig();
             },
             deep: true,
+        },
+
+        domain: {
+            handler() {
+                this.createdComponent();
+            },
         },
 
         isLoading(value) {

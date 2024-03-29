@@ -5,11 +5,11 @@
 
         <div class="col-lg-7 product-detail-media" data-cms-element-id="{{ element.id }}">
             {% block block_gallery_buybox_column_left_inner %}
-                {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing
                     with {
-                    'isProduct': config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped',
-                    'startIndexThumbnails': 1,
-                    'startIndexSlider': 1
+                    isProduct: config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped',
+                    startIndexThumbnails: 1,
+                    startIndexSlider: 1
                 } %}
             {% endblock %}
         </div>
@@ -20,7 +20,7 @@
 
         <div class="col-lg-5 product-detail-buy" data-cms-element-id="{{ element.id }}">
             {% block block_gallery_buybox_column_right_inner %}
-                {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing %}
+                {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
             {% endblock %}
         </div>
     {% endblock %}

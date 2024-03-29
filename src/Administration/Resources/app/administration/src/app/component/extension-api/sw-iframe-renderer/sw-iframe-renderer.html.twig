@@ -1,4 +1,4 @@
-<div>
+<div :class="classes">
     <template v-if="componentName">
         <component :is="componentName" />
     </template>
@@ -8,7 +8,6 @@
             v-if="signedIframeSrc"
             ref="iframe"
             :src="signedIframeSrc"
-            frameborder="0"
             :title="src"
             width="100%"
             :height="iFrameHeight"
@@ -19,7 +18,6 @@
         v-else
         ref="iframe"
         :src="iFrameSrc"
-        frameborder="0"
         :title="src"
         width="100%"
         :height="iFrameHeight"

@@ -5,44 +5,61 @@ Custom styling for an address modal which allows the user to create and edit add
 
 based on: https://getbootstrap.com/docs/5.2/components/modal
 */
-
 .address-editor-modal {
     .modal-dialog {
         @extend .modal-lg;
     }
 }
 
-.address-editor-select,
-.address-editor-edit,
-.address-editor-create {
-    cursor: pointer;
+@if feature('v6.7.0.0') {
+    .address-editor-modal {
+        .address-editor-actions .btn .icon {
+            vertical-align: top;
+            margin-top: 2px;
+        }
 
-    &:not(.collapsed) {
-        @extend .btn-primary;
+        .address:first-line {
+            font-weight: $font-weight-bold;
+        }
+
+        .address-editor-edit,
+        .address-editor-create {
+            cursor: pointer;
+        }
     }
-}
+} @else {
+    .address-editor-select,
+    .address-editor-edit,
+    .address-editor-create {
+        cursor: pointer;
 
-.address-editor-select {
-    margin-bottom: $spacer;
-}
-
-.address-editor-list-wrapper,
-.address-editor-create-address-wrapper {
-    padding-top: $spacer-lg;
-    padding-bottom: $spacer-lg;
-}
-
-.address-editor-card {
-    padding-top: $spacer-md;
-
-    &:not(:last-child) {
-        padding-bottom: $spacer-md;
-        border-bottom: 1px solid $border-color;
+        &:not(.collapsed) {
+            @extend .btn-primary;
+        }
     }
-}
 
-@include media-breakpoint-up(md) {
     .address-editor-select {
-        margin-bottom: 0;
+        margin-bottom: $spacer;
+    }
+
+    .address-editor-list-wrapper,
+    .address-editor-create-address-wrapper {
+        padding-top: $spacer-lg;
+        padding-bottom: $spacer-lg;
+    }
+
+    .address-editor-card {
+        padding-top: $spacer-md;
+
+        &:not(:last-child) {
+            padding-bottom: $spacer-md;
+            border-bottom: 1px solid $border-color;
+        }
+    }
+
+    @include media-breakpoint-up(md) {
+        .address-editor-select {
+            margin-bottom: 0;
+        }
     }
 }

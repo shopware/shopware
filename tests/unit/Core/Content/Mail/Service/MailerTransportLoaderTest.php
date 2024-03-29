@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
@@ -12,7 +14,7 @@ use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransport;
@@ -23,9 +25,8 @@ use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\MailerTransportLoader
  */
+#[CoversClass(MailerTransportLoader::class)]
 class MailerTransportLoaderTest extends TestCase
 {
     public function testUseSymfonyTransportDefault(): void
@@ -73,9 +74,7 @@ class MailerTransportLoaderTest extends TestCase
         static::assertInstanceOf(SendmailTransport::class, $decorated);
     }
 
-    /**
-     * @dataProvider providerSmtpEncryption
-     */
+    #[DataProvider('providerSmtpEncryption')]
     public function testLoaderWithSmtpConfig(?string $encryption): void
     {
         $transport = $this->getTransportFactory();

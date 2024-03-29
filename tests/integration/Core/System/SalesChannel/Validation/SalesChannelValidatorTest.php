@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\Validation;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -18,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,11 +30,10 @@ class SalesChannelValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inserts
-     * @param array<string> $valids
+     * @param array<int, array<string, mixed>> $valids
      * @param array<string> $invalids
-     *
-     * @dataProvider getInsertValidationProvider
      */
+    #[DataProvider('getInsertValidationProvider')]
     public function testInsertValidation(array $inserts, array $invalids = [], array $valids = []): void
     {
         $exception = null;
@@ -59,9 +59,7 @@ class SalesChannelValidatorTest extends TestCase
         if (!$invalids) {
             static::assertNull($exception);
 
-            $this->getSalesChannelRepository()->delete([
-                $valids,
-            ], Context::createDefaultContext());
+            $this->getSalesChannelRepository()->delete($valids, Context::createDefaultContext());
 
             return;
         }
@@ -74,9 +72,7 @@ class SalesChannelValidatorTest extends TestCase
             static::assertStringContainsString($expectedError, $message);
         }
 
-        $this->getSalesChannelRepository()->delete([
-            $valids,
-        ], Context::createDefaultContext());
+        $this->getSalesChannelRepository()->delete($valids, Context::createDefaultContext());
     }
 
     public static function getInsertValidationProvider(): \Generator
@@ -156,9 +152,8 @@ class SalesChannelValidatorTest extends TestCase
      * @param array<string, mixed> $updates
      * @param array<string> $invalids
      * @param array<string, mixed> $inserts
-     *
-     * @dataProvider getUpdateValidationProvider
      */
+    #[DataProvider('getUpdateValidationProvider')]
     public function testUpdateValidation(array $updates, array $invalids = [], array $inserts = []): void
     {
         $deLangId = $this->getDeDeLanguageId();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -17,9 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class AddWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;

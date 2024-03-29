@@ -1,9 +1,7 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
-import swCmsCreateWizard from './index';
-import swCmsStageSectionSelection from '../sw-cms-stage-section-selection';
+import { mount } from '@vue/test-utils';
 
 const expectedVisiblePageTypes = {
     page: {
@@ -43,34 +41,35 @@ const expectedVisiblePageTypes = {
     },
 };
 
-Shopware.Component.register('sw-cms-create-wizard', swCmsCreateWizard);
-Shopware.Component.register('sw-cms-stage-section-selection', swCmsStageSectionSelection);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-create-wizard'), {
-        stubs: {
-            'router-link': true,
-            'sw-icon': true,
-            'sw-cms-stage-section-selection': await Shopware.Component.build('sw-cms-stage-section-selection'),
-            'sw-single-select': true,
-            'sw-text-field': true,
-            'sw-button': true,
+    return mount(await wrapTestComponent('sw-cms-create-wizard', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'router-link': true,
+                'sw-icon': true,
+                'sw-cms-stage-section-selection': await wrapTestComponent('sw-cms-stage-section-selection'),
+                'sw-single-select': true,
+                'sw-text-field': true,
+                'sw-button': true,
+            },
+            provide: {
+                cmsPageTypeService: {
+                    getType: (name) => {
+                        return expectedVisiblePageTypes[name];
+                    },
+                    getVisibleTypes: () => {
+                        return Object.values(expectedVisiblePageTypes);
+                    },
+                },
+                customEntityDefinitionService: {
+                    getCmsAwareDefinitions: () => ['some-content-to-result-in-true'],
+                },
+            },
         },
-        propsData: {
+        props: {
             page: {},
-        },
-        provide: {
-            cmsPageTypeService: {
-                getType: (name) => {
-                    return expectedVisiblePageTypes[name];
-                },
-                getVisibleTypes: () => {
-                    return Object.values(expectedVisiblePageTypes);
-                },
-            },
-            customEntityDefinitionService: {
-                getCmsAwareDefinitions: () => ['some-content-to-result-in-true'],
-            },
         },
     });
 }
@@ -106,6 +105,7 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     it('should show the correct pageType selection for type "page"', async () => {
         const typePage = wrapper.find('.sw-cms-create-wizard__page-type-page');
         await typePage.trigger('click');
+        await flushPromises();
 
         const noSidebarSection = wrapper.find('.sw-cms-stage-section-selection__default');
         await noSidebarSection.trigger('click');
@@ -120,6 +120,7 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     it('should show the correct pageType selection for type "custom_entity_detail"', async () => {
         const typePage = wrapper.find('.sw-cms-create-wizard__page-type-custom-entity-detail');
         await typePage.trigger('click');
+        await flushPromises();
 
         const noSidebarSection = wrapper.find('.sw-cms-stage-section-selection__default');
         await noSidebarSection.trigger('click');

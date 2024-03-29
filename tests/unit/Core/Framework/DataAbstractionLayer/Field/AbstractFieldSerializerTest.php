@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -17,9 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer
  */
+#[CoversClass(AbstractFieldSerializer::class)]
 class AbstractFieldSerializerTest extends TestCase
 {
     public function testGetConstraintsOnlyCalledOnce(): void

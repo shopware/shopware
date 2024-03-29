@@ -2,18 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Rule\RuleCollection
  */
+#[Package('services-settings')]
+#[CoversClass(RuleCollection::class)]
 class RuleCollectionTest extends TestCase
 {
     public function testGetIdsByArea(): void

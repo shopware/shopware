@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -13,15 +15,11 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderCustomFieldRule
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(OrderCustomFieldRule::class)]
+#[Group('rules')]
 class OrderCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

@@ -2,20 +2,19 @@
 
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Snippet\SnippetException
  */
+#[CoversClass(SnippetException::class)]
 class SnippetExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
+    #[DataProvider('exceptionDataProvider')]
     public function testItThrowsException(SnippetException $exception, int $statusCode, string $errorCode, string $message): void
     {
         $exceptionWasThrown = false;

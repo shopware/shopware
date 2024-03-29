@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1675247112ChangeCountryNamingConvention;
@@ -10,9 +12,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1675247112ChangeCountryNamingConvention
  */
+#[CoversClass(Migration1675247112ChangeCountryNamingConvention::class)]
 class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
 {
     use MigrationTestTrait;
@@ -28,7 +29,7 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
-        $getDeLanguageSql = <<<SQL
+        $getDeLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -37,7 +38,7 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
 
         $deLanguageId = $this->connection->fetchOne($getDeLanguageSql);
 
-        $getEnLanguageSql = <<<SQL
+        $getEnLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -52,16 +53,14 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderForTestChangeCountryNamingConvention
-     */
+    #[DataProvider('dataProviderForTestChangeCountryNamingConvention')]
     public function testChangeCountryNamingConvention(string $language, string $expected): void
     {
         $migration = new Migration1675247112ChangeCountryNamingConvention();
 
         $migration->update($this->connection);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT country_translation.*
             FROM country
             JOIN country_translation ON country.id = country_translation.country_id

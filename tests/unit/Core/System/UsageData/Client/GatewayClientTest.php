@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Client;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
@@ -11,17 +12,15 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Client\GatewayClient
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(GatewayClient::class)]
 class GatewayClientTest extends TestCase
 {
     public function testGatewayAllowsPush(): void
     {
         $client = new MockHttpClient(function (): MockResponse {
-            $gatewayKillSwitchOff = json_encode(['killswitch' => false]);
-            static::assertIsString($gatewayKillSwitchOff);
+            $gatewayKillSwitchOff = json_encode(['killswitch' => false], \JSON_THROW_ON_ERROR);
 
             return new MockResponse($gatewayKillSwitchOff);
         });
@@ -29,6 +28,7 @@ class GatewayClientTest extends TestCase
         $gatewayClient = new GatewayClient(
             $client,
             $this->createMock(ShopIdProvider::class),
+            true
         );
 
         static::assertTrue($gatewayClient->isGatewayAllowsPush());
@@ -37,8 +37,7 @@ class GatewayClientTest extends TestCase
     public function testGatewayDoesNotAllowPush(): void
     {
         $client = new MockHttpClient(function (): MockResponse {
-            $gatewayKillSwitchOn = json_encode(['killswitch' => true]);
-            static::assertIsString($gatewayKillSwitchOn);
+            $gatewayKillSwitchOn = json_encode(['killswitch' => true], \JSON_THROW_ON_ERROR);
 
             return new MockResponse($gatewayKillSwitchOn);
         });
@@ -46,6 +45,24 @@ class GatewayClientTest extends TestCase
         $gatewayClient = new GatewayClient(
             $client,
             $this->createMock(ShopIdProvider::class),
+            true
+        );
+
+        static::assertFalse($gatewayClient->isGatewayAllowsPush());
+    }
+
+    public function testGatewayDoesNotAllowPushInDevEnvironment(): void
+    {
+        $client = new MockHttpClient(function (): MockResponse {
+            $gatewayKillSwitchOn = json_encode(['killswitch' => false], \JSON_THROW_ON_ERROR);
+
+            return new MockResponse($gatewayKillSwitchOn);
+        });
+
+        $gatewayClient = new GatewayClient(
+            $client,
+            $this->createMock(ShopIdProvider::class),
+            false
         );
 
         static::assertFalse($gatewayClient->isGatewayAllowsPush());

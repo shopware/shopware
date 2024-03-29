@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use Faker\Factory;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
@@ -14,16 +16,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(CustomerValidationFactory::class)]
 class CustomerValidationFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider getCreateTestData
-     */
+    #[DataProvider('getCreateTestData')]
     public function testCreate(
         DataValidationDefinition $profileDefinition,
         DataValidationDefinition $expected

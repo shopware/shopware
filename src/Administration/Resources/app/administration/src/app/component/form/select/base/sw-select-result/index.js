@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description Base component for select results.
  * @example-type code-only
@@ -81,27 +80,13 @@ Component.register('sw-select-result', {
 
     methods: {
         createdComponent() {
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
-                this.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
-
-                return;
-            }
-
-            this.$parent.$parent.$on('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+            this.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
         },
 
         destroyedComponent() {
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
-                this.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
-
-                return;
-            }
-
-            this.$parent.$parent.$off('active-item-change', this.checkIfActive);
-            this.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+            this.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
+            this.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
         },
 
         checkIfSelected(selectedItemIndex) {
@@ -117,13 +102,7 @@ Component.register('sw-select-result', {
                 return;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.$emit('item-select', this.item);
-
-                return;
-            }
-
-            this.$parent.$parent.$emit('item-select', this.item);
+            this.$parent.$parent.$parent.$emit('item-select', this.item);
         },
 
         onMouseEnter() {

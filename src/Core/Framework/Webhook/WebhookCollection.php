@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\App\Event\ManifestChangedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,6 +33,33 @@ class WebhookCollection extends EntityCollection
 
             return null;
         }));
+    }
+
+    /**
+     * @return WebhookCollection<WebhookEntity>
+     */
+    public function allowedForDispatching(): self
+    {
+        return $this->filter(static function (WebhookEntity $webhook): bool {
+            $app = $webhook->getApp();
+
+            // if the webhook is not app based, it is always active
+            if ($app === null) {
+                return true;
+            }
+
+            // if the app is active, the webhook can be used
+            if ($app->isActive()) {
+                return true;
+            }
+
+            // we still need to dispatch lifecycle relevant webhooks, like app update even when the app is not active
+            return \in_array(
+                $webhook->getEventName(),
+                ManifestChangedEvent::LIFECYCLE_EVENTS,
+                true
+            );
+        });
     }
 
     protected function getExpectedClass(): string

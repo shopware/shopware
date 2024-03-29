@@ -1,0 +1,196 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "OpenApi3": {
+                "description": "Returns information about the store API.",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "properties": {
+                                "openapi": {
+                                    "type": "string"
+                                },
+                                "info": {
+                                    "type": "object",
+                                    "properties": {
+                                        "title": {
+                                            "type": "string"
+                                        },
+                                        "summary": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "termsOfService": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        },
+                                        "contact": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "format": "uri"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email"
+                                                }
+                                            }
+                                        },
+                                        "license": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "identifier": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "format": "uri"
+                                                }
+                                            },
+                                            "required": [
+                                                "name"
+                                            ]
+                                        },
+                                        "version": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "title",
+                                        "version"
+                                    ]
+                                },
+                                "jsonSchemaDialect": {
+                                    "type": "string"
+                                },
+                                "webhooks": {
+                                    "type": "object"
+                                },
+                                "servers": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "url": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": ["url"]
+                                    }
+                                },
+                                "components": {
+                                    "type": "object",
+                                    "properties": {
+                                        "schemas": {
+                                            "type": "object"
+                                        },
+                                        "responses": {
+                                            "type": "object"
+                                        },
+                                        "parameters": {
+                                            "type": "object"
+                                        },
+                                        "examples": {
+                                            "type": "object"
+                                        },
+                                        "requestBodies": {
+                                            "type": "object"
+                                        },
+                                        "headers": {
+                                            "type": "object"
+                                        },
+                                        "securitySchemes": {
+                                            "type": "object"
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "callbacks": {
+                                            "type": "object"
+                                        },
+                                        "pathItems": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "security": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object"
+                                    }
+                                },
+                                "paths": {
+                                    "type": "object"
+                                },
+                                "tags": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "externalDocs": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "url": {
+                                                        "type": "string",
+                                                        "format": "uri"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "url"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "name"
+                                        ]
+                                    }
+                                },
+                                "externalDocs": {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "url": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        }
+                                    },
+                                    "required": [
+                                        "url"
+                                    ]
+                                }
+                            },
+                            "type": "object",
+                            "required": [
+                                "openapi",
+                                "info"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

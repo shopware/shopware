@@ -2,23 +2,25 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
 use Shopware\Core\System\UsageData\UsageDataException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\UsageDataException
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(UsageDataException::class)]
 class UsageDataExceptionTest extends TestCase
 {
     public function testMissingUserInContextSource(): void
@@ -162,6 +164,7 @@ class UsageDataExceptionTest extends TestCase
         static::assertEquals('Failed to load default allow list', $exception->getMessage());
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testShopIdChanged(): void
     {
         $exception = UsageDataException::shopIdChanged();
@@ -169,5 +172,13 @@ class UsageDataExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertEquals('SYSTEM__USAGE_DATA_SHOP_ID_CHANGED', $exception->getErrorCode());
         static::assertEquals('shopId changed', $exception->getMessage());
+    }
+
+    public function testShopIdChangedIsDeprecated(): void
+    {
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage(Feature::deprecatedMethodMessage(UsageDataException::class, 'shopIdChanged', '6.7.0.0'));
+
+        UsageDataException::shopIdChanged();
     }
 }

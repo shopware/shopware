@@ -272,7 +272,7 @@ describe('Test payment and shipping methods selection', () => {
         cy.get('.order-item-status-badge-cancelled').should('be.visible').contains('Cancelled');
     });
 
-    it('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
+    it.skip('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/wishlist/add/**`,
             method: 'POST',

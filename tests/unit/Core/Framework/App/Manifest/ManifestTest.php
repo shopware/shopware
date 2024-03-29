@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Manifest
  */
+#[CoversClass(Manifest::class)]
 class ManifestTest extends TestCase
 {
     public function testCreateFromXml(): void

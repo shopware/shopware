@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -10,7 +12,6 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -20,11 +21,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @group store-api
- *
  * @internal
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
     use CustomerTestTrait, OrderActionTrait {
@@ -57,9 +57,7 @@ class DocumentRouteTest extends TestCase
         $this->createOrder($this->customerId);
     }
 
-    /**
-     * @dataProvider documentDownloadRouteDataProvider
-     */
+    #[DataProvider('documentDownloadRouteDataProvider')]
     public function testDownload(bool $isGuest, ?bool $withValidDeepLinkCode, \Closure $assertionCallback): void
     {
         $token = $this->getLoggedInContextToken($isGuest ? $this->guestId : $this->customerId, $this->ids->get('sales-channel'));
@@ -113,18 +111,10 @@ class DocumentRouteTest extends TestCase
             true,
             false,
             function (Response $response): void {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-                } else {
-                    static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-                }
+                static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
                 $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
                 static::assertArrayHasKey('errors', $response);
-                if (!Feature::isActive('v6.6.0.0')) {
-                    static::assertSame('DOCUMENT__INVALID_DOCUMENT_ID', $response['errors'][0]['code']);
-                } else {
-                    static::assertSame('DOCUMENT__DOCUMENT_NOT_FOUND', $response['errors'][0]['code']);
-                }
+                static::assertSame('DOCUMENT__DOCUMENT_NOT_FOUND', $response['errors'][0]['code']);
             },
         ];
         yield 'guest without deep link code' => [
@@ -153,18 +143,10 @@ class DocumentRouteTest extends TestCase
             false,
             false,
             function (Response $response): void {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-                } else {
-                    static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-                }
+                static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
                 $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
                 static::assertArrayHasKey('errors', $response);
-                if (!Feature::isActive('v6.6.0.0')) {
-                    static::assertSame('DOCUMENT__INVALID_DOCUMENT_ID', $response['errors'][0]['code']);
-                } else {
-                    static::assertSame('DOCUMENT__DOCUMENT_NOT_FOUND', $response['errors'][0]['code']);
-                }
+                static::assertSame('DOCUMENT__DOCUMENT_NOT_FOUND', $response['errors'][0]['code']);
             },
         ];
         yield 'customer without deep link code' => [

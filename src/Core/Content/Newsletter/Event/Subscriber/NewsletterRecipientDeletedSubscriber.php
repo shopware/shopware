@@ -34,6 +34,7 @@ class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
     {
         $message = new NewsletterRecipientIndexingMessage($event->getIds(), null, $event->getContext());
         $message->setDeletedNewsletterRecipients(true);
+        $message->setIndexer('newsletter_recipient.indexer');
 
         $this->messageBus->dispatch($message);
     }

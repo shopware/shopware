@@ -1,4 +1,4 @@
-import type { Route } from 'vue-router';
+import type { RouteLocationNamedRaw } from 'vue-router';
 import type { Extension } from '../../service/extension-store-action.service';
 import template from './sw-extension-config.html.twig';
 import './sw-extension-config.scss';
@@ -8,7 +8,7 @@ const { Mixin } = Shopware;
 type ComponentData = {
     salesChannelId: string|null,
     extension: Extension|null,
-    fromLink: Route|null,
+    fromLink: RouteLocationNamedRaw|null,
 }
 
 /**
@@ -88,6 +88,10 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.shopwareExtensionService.updateExtensionData();
             }
 
+            this.refreshExtension();
+        },
+
+        refreshExtension(): void {
             this.extension = this.myExtensions.find((ext) => {
                 return ext.name === this.namespace;
             }) ?? null;

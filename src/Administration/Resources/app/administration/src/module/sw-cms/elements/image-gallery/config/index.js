@@ -22,8 +22,6 @@ export default {
         return {
             mediaModalIsOpen: false,
             initialFolderId: null,
-            /* @deprecated tag:v6.6.0 - Will be removed use entity instead. */
-            enitiy: this.element,
             entity: this.element,
             mediaItems: [],
             columnWidth: '100px',
@@ -178,6 +176,22 @@ export default {
                 sliderItems.source = 'static';
 
                 this.mediaItems = [];
+            }
+
+            // Check if mediaItem already exists in mediaItems
+            const mediaItemExists = this.mediaItems.find((item) => {
+                return item.id === mediaItem.id;
+            });
+
+            // Remove previous mediaItem if it already exists
+            if (mediaItemExists) {
+                this.mediaItems = this.mediaItems.filter((item) => {
+                    return item.id !== mediaItem.id;
+                });
+
+                sliderItems.value = sliderItems.value.filter((item) => {
+                    return item.mediaId !== mediaItem.id;
+                });
             }
 
             sliderItems.value.push({

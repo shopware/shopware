@@ -1,5 +1,5 @@
 /**
- * @package merchant-services
+ * @package data-services
  *
  * @private
  */

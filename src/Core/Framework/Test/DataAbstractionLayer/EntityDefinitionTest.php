@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition;
@@ -57,9 +58,7 @@ class EntityDefinitionTest extends TestCase
         static::assertSame('language_id', $languageIdField->getStorageName());
     }
 
-    /**
-     * @dataProvider provideTranslatedDefinitions
-     */
+    #[DataProvider('provideTranslatedDefinitions')]
     public function testTranslationsOnDefinitionsWithLanguageId(string $baseDefinitionClass, string $translationDefinitionClass): void
     {
         /** @var EntityDefinition $baseDefinition */
@@ -71,9 +70,7 @@ class EntityDefinitionTest extends TestCase
         static::assertInstanceOf(JsonField::class, $baseDefinition->getFields()->get('translated'));
     }
 
-    /**
-     * @dataProvider provideTranslatedDefinitions
-     */
+    #[DataProvider('provideTranslatedDefinitions')]
     public function testTranslationsOnDefinitionsWithLanguageIdInOtherOrder(string $baseDefinitionClass, string $translationDefinitionClass): void
     {
         /** @var EntityDefinition $baseDefinition */
@@ -85,9 +82,7 @@ class EntityDefinitionTest extends TestCase
         static::assertSame($translationDefinition, $baseDefinition->getTranslationDefinition());
     }
 
-    /**
-     * @dataProvider provideTranslatedDefinitions
-     */
+    #[DataProvider('provideTranslatedDefinitions')]
     public function testTranslationParentDefinition(string $baseDefinitionClass, string $translationDefinitionClass): void
     {
         /** @var EntityDefinition $baseDefinition */

@@ -1,26 +1,20 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionRemovalModal from 'src/module/sw-extension/component/sw-extension-removal-modal';
-
-Shopware.Component.register('sw-extension-removal-modal', swExtensionRemovalModal);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(propsData = {}) {
-    return shallowMount(await Shopware.Component.build('sw-extension-removal-modal'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-extension-removal-modal', { sync: true }), {
+        global: {
+            mocks: {
+                $t: (key, values) => {
+                    return key + JSON.stringify(Object.values(values));
+                },
+            },
+        },
+        props: {
             extensionName: 'Awesome extension',
             isLicensed: true,
             isLoading: false,
             ...propsData,
         },
-        mocks: {
-            $t: (key, values) => {
-                return key + JSON.stringify(Object.values(values));
-            },
-        },
-        stubs: {
-            'sw-modal': true,
-            'sw-button': true,
-        },
-        provide: {},
     });
 }
 
@@ -28,24 +22,9 @@ async function createWrapper(propsData = {}) {
  * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    beforeAll(() => {});
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the correct title', async () => {
+        const wrapper = await createWrapper();
+
         let title = wrapper.vm.title;
 
         // eslint-disable-next-line max-len
@@ -61,6 +40,8 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     });
 
     it('should show the correct alert text', async () => {
+        const wrapper = await createWrapper();
+
         let alert = wrapper.vm.alert;
 
         // eslint-disable-next-line max-len
@@ -76,6 +57,8 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     });
 
     it('should show the correct button label', async () => {
+        const wrapper = await createWrapper();
+
         let btnLabel = wrapper.vm.btnLabel;
 
         // eslint-disable-next-line max-len
@@ -91,34 +74,36 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
     });
 
     it('should emit the close event', async () => {
-        expect(wrapper.emitted()).toEqual({});
+        const wrapper = await createWrapper();
+
+        expect(wrapper.emitted()).not.toHaveProperty('modal-close');
 
         await wrapper.vm.emitClose();
 
-        expect(wrapper.emitted()).toEqual({
-            'modal-close': [[]],
-        });
+        expect(wrapper.emitted()).toHaveProperty('modal-close');
     });
 
     it('should not emit the close event when is loading', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             isLoading: true,
         });
 
-        expect(wrapper.emitted()).toEqual({});
+        expect(wrapper.emitted()).not.toHaveProperty('modal-close');
 
         await wrapper.vm.emitClose();
 
-        expect(wrapper.emitted()).toEqual({});
+        expect(wrapper.emitted()).not.toHaveProperty('modal-close');
     });
 
     it('should emit the remove extension event', async () => {
-        expect(wrapper.emitted()).toEqual({});
+        const wrapper = await createWrapper();
+
+        expect(wrapper.emitted()).not.toHaveProperty('remove-extension');
 
         await wrapper.vm.emitRemoval();
 
-        expect(wrapper.emitted()).toEqual({
-            'remove-extension': [[]],
-        });
+        expect(wrapper.emitted()).toHaveProperty('remove-extension');
     });
 });

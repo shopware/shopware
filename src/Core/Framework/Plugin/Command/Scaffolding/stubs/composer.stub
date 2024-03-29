@@ -1,11 +1,11 @@
 {
     "name": "{{ composerName }}",
-    "description": "Skeleton plugin",
+    "description": "{{ composerName }}",
     "type": "shopware-platform-plugin",
     "version": "1.0.0",
     "license": "MIT",
     "require": {
-        "shopware/core": "6.5.*"
+        "shopware/core": "~6.6.0"
     },
     "extra": {
         "shopware-plugin-class": "{{ namespace }}\\{{ className }}",

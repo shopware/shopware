@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ContactForm\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -13,10 +14,9 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ContactForm\Event\ContactFormEvent
  */
 #[Package('buyers-experience')]
+#[CoversClass(ContactFormEvent::class)]
 class ContactFormEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
@@ -24,7 +24,7 @@ class ContactFormEventTest extends TestCase
         $event = new ContactFormEvent(
             Context::createDefaultContext(),
             'sales-channel-id',
-            new MailRecipientStruct(['foo', 'bar']),
+            new MailRecipientStruct(['foo' => 'bar']),
             new DataBag(['foo' => 'bar', 'bar' => 'baz'])
         );
 

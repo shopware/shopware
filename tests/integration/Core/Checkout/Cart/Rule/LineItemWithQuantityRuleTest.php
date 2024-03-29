@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -27,7 +28,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemWithQuantityRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -255,9 +256,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    /**
-     * @dataProvider matchProvider
-     */
+    #[DataProvider('matchProvider')]
     public function testMatch(LineItem $lineItem, LineItemWithQuantityRule $rule, bool $shouldMatch): void
     {
         $cart = new Cart('test');

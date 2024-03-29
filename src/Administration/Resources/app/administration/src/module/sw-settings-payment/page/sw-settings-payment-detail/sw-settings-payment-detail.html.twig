@@ -32,11 +32,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('payment.editor')"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-payment.detail.buttonSave') }}
@@ -96,11 +92,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_name %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.name"
-                                {% else %}
-                                v-model="paymentMethod.name"
-                                {% endif %}
                                 name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
@@ -114,11 +106,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_technical_name %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.technicalName"
-                                {% else %}
-                                v-model="paymentMethod.technicalName"
-                                {% endif %}
                                 name="sw-field--paymentMethod-technicalName"
                                 class="sw-settings-payment-detail__field-technical-name"
                                 :required="feature.isActive('v6.7.0.0')"
@@ -127,17 +115,19 @@
                                 :placeholder="placeholder(paymentMethod, 'technicalName', $tc('sw-settings-payment.detail.placeholderTechnicalName'))"
                                 :error="paymentMethodTechnicalNameError"
                                 :help-text="$tc('sw-settings-payment.detail.helpTextTechnicalName')"
-                            />
+                                :class="!paymentMethod.technicalName ? 'has--warning' : ''"
+                            >
+                                {# @deprecated tag:v6.7.0 - Hint can be removed: with technical names now required, the hint is no longer needed. Also remove the snippet and dynamic class has--warning #}
+                                <template #hint>
+                                    <span v-if="!paymentMethod.technicalName">{{ $tc('sw-settings-payment.detail.hintTextTechnicalName') }}</span>
+                                </template>
+                            </sw-text-field>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_position %}
                             <sw-number-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.position"
-                                {% else %}
-                                v-model="paymentMethod.position"
-                                {% endif %}
                                 name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor')"
@@ -154,11 +144,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_base_content_field_description %}
                             <sw-textarea-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.description"
-                                {% else %}
-                                v-model="paymentMethod.description"
-                                {% endif %}
                                 name="sw-field--paymentMethod-description"
                                 :disabled="!acl.can('payment.editor')"
                                 :value="paymentMethod.description"
@@ -198,11 +184,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_active %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.active"
-                                {% else %}
-                                v-model="paymentMethod.active"
-                                {% endif %}
                                 name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
                                 :disabled="!acl.can('payment.editor')"
@@ -213,11 +195,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.afterOrderEnabled"
-                                {% else %}
-                                v-model="paymentMethod.afterOrderEnabled"
-                                {% endif %}
                                 name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
                                 :disabled="!acl.can('payment.editor')"
@@ -268,6 +246,72 @@
                         :sets="customFieldSets"
                     />
                 </sw-card>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_payment_detail_delete_payment_method %}
+                <sw-card
+                    v-if="!isNewPaymentMethod && acl.can('payment.deleter')"
+                    position-identifier="sw-settings-payment-detail-delete"
+                    class="sw-settings-payment-detail-delete"
+                    :title="$tc('sw-settings-payment.detail.delete.textHeadline')"
+                    :is-loading="isLoading"
+                >
+                    <sw-alert
+                        v-if="forbidDelete"
+                        variant="info">
+                        {{ $tc('sw-settings-payment.detail.delete.textAlert') }}
+                    </sw-alert>
+
+                    <div class="sw-settings-payment-detail-delete__container">
+                        <sw-button
+                            variant="ghost-danger"
+                            :disabled="forbidDelete || !acl.can('payment.deleter')"
+                            @click="showDeleteModal = true"
+                        >
+                            {{ $tc('sw-settings-payment.detail.delete.textButton') }}
+                        </sw-button>
+                    </div>
+                </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_payment_detail_delete_modal %}
+                <sw-modal
+                    v-if="showDeleteModal && acl.can('payment.deleter')"
+                    :title="$tc('global.default.warning')"
+                    variant="default"
+                    @modal-close="showDeleteModal = false">
+
+                    {% block sw_settings_payment_detail_delete_modal_info %}
+                    <div class="sw_theme_manager__confirm-delete-text">
+                        <p class="text-secondary">
+                            {{ $tc('sw-settings-payment.detail.delete.modal.textConfirmation') }}
+                        </p>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_payment_detail_delete_modal_footer %}
+                    <template #modal-footer>
+                        {% block sw_settings_payment_detail_reset_modal_cancel %}
+                        <sw-button
+                            size="small"
+                            @click="showDeleteModal = false">
+                            {{ $tc('sw-settings-payment.detail.delete.modal.buttonCancel') }}
+                        </sw-button>
+                        {% endblock %}
+
+                        {% block sw_settings_payment_detail_reset_modal_confirm %}
+                        <sw-button
+                            :disabled="deletionInProcess"
+                            variant="danger"
+                            size="small"
+                            @click="deletePaymentMethod">
+                            {{ $tc('sw-settings-payment.detail.delete.modal.buttonDelete') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </sw-modal>
                 {% endblock %}
             </template>
         </sw-card-view>

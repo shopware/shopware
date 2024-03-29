@@ -30,7 +30,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_delivery_metadata_shipping_costs %}
             <dt>{{ $tc('sw-order.detailDeliveries.labelShippingCosts') }}</dt>
-            <dd>{{ currencyFilter(order.shippingTotal, order.currency.shortName) }}</dd>
+            <dd>{{ currencyFilter(order.shippingTotal, order.currency.isoCode) }}</dd>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

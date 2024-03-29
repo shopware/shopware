@@ -825,15 +825,6 @@
     "createdAt",
     "updatedAt"
   ],
-  "product_search_keyword": [
-    "id",
-    "languageId",
-    "productId",
-    "keyword",
-    "ranking",
-    "createdAt",
-    "updatedAt"
-  ],
   "product_review": [
     "id",
     "productId",

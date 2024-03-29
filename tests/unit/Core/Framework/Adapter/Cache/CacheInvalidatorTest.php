@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -11,11 +14,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @group cache
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\CacheInvalidator
  */
+#[CoversClass(CacheInvalidator::class)]
+#[Group('cache')]
 class CacheInvalidatorTest extends TestCase
 {
     public function testInvalidateNothingShouldNotCall(): void
@@ -43,9 +44,7 @@ class CacheInvalidatorTest extends TestCase
         $invalidator->invalidate([]);
     }
 
-    /**
-     * @dataProvider dataProviderInvalidation
-     */
+    #[DataProvider('dataProviderInvalidation')]
     public function testInvalidation(bool $enableDelay, bool $directInvalidate, bool $backgroundInvalidate, bool $force): void
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);

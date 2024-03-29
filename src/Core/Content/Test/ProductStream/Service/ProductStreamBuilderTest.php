@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ProductStream\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -28,7 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ProductStreamBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -138,10 +139,9 @@ class ProductStreamBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider relativeTimeFiltersDataProvider
-     *
      * @param list<string> $releaseDates
      */
+    #[DataProvider('relativeTimeFiltersDataProvider')]
     public function testRelativeTimeFilters(string $type, string $operator, string $field, string $value, array $releaseDates, int $expected): void
     {
         $ids = new IdsCollection();

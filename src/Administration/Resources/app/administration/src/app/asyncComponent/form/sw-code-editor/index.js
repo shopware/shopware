@@ -9,8 +9,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description
  * Renders a code editor
@@ -204,7 +203,7 @@ export default {
             const value = this.editor.getValue();
 
             if (this.value !== value) {
-                this.$emit('input', value);
+                this.$emit('update:value', value);
             }
         },
 

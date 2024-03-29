@@ -28,5 +28,9 @@ class DevOps extends Bundle
         if ($environment === 'e2e') {
             $loader->load('services_e2e.xml');
         }
+
+        if ($environment === 'dev') {
+            $loader->load('services_dev.xml');
+        }
     }
 }

@@ -53,6 +53,9 @@ async function importComponent(componentName) {
  * @returns Promise<Component>
  */
 export default async function wrapTestComponent(componentName, config = {}) {
+    if (arguments.length > 2) {
+        throw new Error('wrapTestComponent expects only two arguments.');
+    }
     // Imports the component and handles registration and extensions
     await importComponent(componentName);
 

@@ -2,10 +2,8 @@
  * @package admin
  */
 
-import { config, shallowMount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import 'src/app/component/structure/sw-admin-menu';
-import 'src/app/component/structure/sw-admin-menu-item';
+import { mount } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import createMenuService from 'src/app/service/menu.service';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
@@ -17,58 +15,62 @@ const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
 async function createWrapper(options = {}) {
-    // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
-
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.use(VueRouter);
-
-    const adminMenuComponent = await Shopware.Component.build('sw-admin-menu');
-
-    return shallowMount(adminMenuComponent, {
-        localVue,
-        router: new VueRouter({ routes: Shopware.Module.getModuleRoutes(), route: { meta: { $module: { name: '' } } } }),
-        stubs: {
-            'sw-icon': true,
-            'sw-version': true,
-            'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
-            'sw-loader': true,
-            'sw-avatar': true,
-            'sw-shortcut-overview': true,
-        },
-        provide: {
-            menuService,
-            loginService: {
-                notifyOnLoginListener: () => {},
+    return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': true,
+                'sw-version': true,
+                'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
+                'sw-loader': true,
+                'sw-avatar': true,
+                'sw-shortcut-overview': true,
             },
-            userService: {
-                getUser: () => Promise.resolve({ data: { password: '' } }),
-            },
-            appModulesService: {
-                fetchAppModules: () => Promise.resolve([]),
-            },
-            acl: {
-                can: (privilege) => {
-                    return privilege !== 'shouldReturnFalse';
+            provide: {
+                menuService,
+                loginService: {
+                    notifyOnLoginListener: () => {},
+                },
+                userService: {
+                    getUser: () => Promise.resolve({ data: { password: '' } }),
+                },
+                appModulesService: {
+                    fetchAppModules: () => Promise.resolve([]),
+                },
+                acl: {
+                    can: (privilege) => {
+                        return privilege !== 'shouldReturnFalse';
+                    },
+                },
+                customEntityDefinitionService: {
+                    getMenuEntries: () => {
+                        const entityName = 'customEntityName';
+                        return [{
+                            id: `custom-entity/${entityName}`,
+                            label: `${entityName}.moduleTitle`,
+                            moduleType: 'plugin',
+                            path: 'sw.custom.entity.index',
+                            params: {
+                                entityName: entityName,
+                            },
+                            position: 100,
+                            parent: 'sw.second.top.level',
+                        }];
+                    },
                 },
             },
-            customEntityDefinitionService: {
-                getMenuEntries: () => {
-                    const entityName = 'customEntityName';
-                    return [{
-                        id: `custom-entity/${entityName}`,
-                        label: `${entityName}.moduleTitle`,
-                        moduleType: 'plugin',
-                        path: 'sw.custom.entity.index',
-                        params: {
-                            entityName: entityName,
+            mocks: {
+                $route: { meta: { $module: { name: '' } } },
+                $router: createRouter({
+                    routes: Shopware.Module.getModuleRoutes(),
+                    route: {
+                        meta: {
+                            $module: {
+                                name: '',
+                            },
                         },
-                        position: 100,
-                        parent: 'sw.second.top.level',
-                    }];
-                },
+                    },
+                    history: createWebHashHistory(),
+                }),
             },
         },
         ...options,
@@ -112,10 +114,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.State.commit('shopwareApps/setApps', []);
 
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
+        await flushPromises();
     });
 
     it('should be a Vue.js component', async () => {
@@ -232,35 +231,28 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should render correct admin menu entries', async () => {
-        const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
+        const topLevelEntries = wrapper.findAllComponents('.navigation-list-item__level-1');
 
         // expect two top level entries visible because sw-my-apps and second-module have no children nor a path
         expect(topLevelEntries).toHaveLength(2);
 
         const topLevelEntry = topLevelEntries.at(0);
-        expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
-            id: 'sw.second.top.level',
-        }));
+        expect(topLevelEntry.text()).toContain('second top level entry');
 
         const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
 
         expect(childMenuEntries).toHaveLength(4);
-        expect(childMenuEntries.wrappers.map((childMenuEntry) => {
-            return childMenuEntry.props('entry');
-        })).toEqual([
-            expect.objectContaining({
-                id: 'sw.second.level.first',
-            }),
-            expect.objectContaining({
-                id: 'sw.second.level.second',
-            }),
-            expect.objectContaining({
-                id: 'sw.second.level.last',
-            }),
-            expect.objectContaining({
-                id: 'custom-entity/customEntityName',
-            }),
-        ]);
+
+        const expectedTexts = [
+            'first child of second top level entry',
+            'second child of second top level entry',
+            'last child of second top level entry',
+            'customEntityName.moduleTitle',
+        ];
+
+        childMenuEntries.forEach((childMenuEntry, index) => {
+            expect(childMenuEntry.text()).toContain(expectedTexts[index]);
+        });
     });
 
     it('should render third level menu correctly', async () => {
@@ -296,60 +288,48 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(topLevelEntries).toHaveLength(2);
 
         const topLevelEntry = topLevelEntries.at(1);
-        expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
-            id: 'children.with.privilege',
-        }));
+        expect(topLevelEntry.text()).toContain('children menu entry');
 
         const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
 
         // Only one children should be shown, the other has acl privileges
         expect(childMenuEntries).toHaveLength(1);
-        expect(childMenuEntries.wrappers.map((childMenuEntry) => {
-            return childMenuEntry.props('entry');
-        })).toEqual([
-            expect.objectContaining({
-                id: 'children.with.privilege.second',
-            }),
-        ]);
+        expect(childMenuEntries.at(0).text()).toContain('Entry without privilege');
     });
 
     describe('app menu entries', () => {
         it('renders apps under there parent navigation entry', async () => {
             Shopware.State.commit('shopwareApps/setApps', testApps);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
             const childMenuEntries = topLevelEntries.at(1).findAll('.navigation-list-item__level-2');
 
-            expect(childMenuEntries.wrappers.map((menuEntry) => {
-                return menuEntry.props('entry');
-            })).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    id: 'app-testAppA-noPosition',
-                }),
-            ]));
+            const expectedTexts = [
+                'Module without position',
+                'first child of second top level entry',
+                'second child of second top level entry',
+                'last child of second top level entry',
+                'customEntityName.moduleTitle',
+            ];
+
+            childMenuEntries.forEach((childMenuEntry, index) => {
+                expect(childMenuEntry.text()).toContain(expectedTexts[index]);
+            });
         });
 
         it('renders app structure elements and their children', async () => {
             Shopware.State.commit('shopwareApps/setApps', testApps);
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
             const structureElement = topLevelEntries.at(0).get('.navigation-list-item__level-2');
 
-            expect(structureElement.props('entry')).toEqual(
-                expect.objectContaining({
-                    id: 'app-testAppB-structure',
-                }),
-            );
+            expect(structureElement.text()).toContain('Structure module');
 
             const appMenuEntry = structureElement.get('.navigation-list-item__level-3');
 
-            expect(appMenuEntry.props('entry')).toEqual(
-                expect.objectContaining({
-                    id: 'app-testAppB-default',
-                }),
-            );
+            expect(appMenuEntry.text()).toContain('Default module');
         });
     });
 
@@ -392,6 +372,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         wrapper = await createWrapper({
             attachTo: '#component',
         });
+        await flushPromises();
 
         const target = wrapper.find('.navigation-list-item__has-children');
 

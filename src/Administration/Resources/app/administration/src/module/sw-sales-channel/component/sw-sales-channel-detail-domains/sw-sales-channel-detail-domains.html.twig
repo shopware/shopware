@@ -54,7 +54,7 @@
             <template
                 #column-url="{ item }"
             >
-                {{ item.url|unicodeUri }}
+                {{ unicodeUriFilter(item.url) }}
             </template>
             {% endblock %}
 
@@ -132,32 +132,20 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_url %}
             <sw-url-field
-                {% if VUE3 %}
                 v-model:value="currentDomain.url"
-                {% else %}
-                v-model="currentDomain.url"
-                {% endif %}
                 type="text"
                 omit-url-hash
                 omit-url-search
                 :label="$tc('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
-                {% if VUE3 %}
                 @update:value="onInput"
-                {% else %}
-                @input="onInput"
-                {% endif %}
             />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_language %}
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="currentDomain.languageId"
-                {% else %}
-                v-model="currentDomain.languageId"
-                {% endif %}
                 class="sw-sales-channel-detail-domains__domain-language-select"
                 :options="salesChannel.languages"
                 label-property="name"
@@ -165,11 +153,7 @@
                 required
                 :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
                 show-clearable-button
-                {% if VUE3 %}
                 @update:value="onLanguageSelect"
-                {% else %}
-                @change="onLanguageSelect"
-                {% endif %}
             />
             {% endblock %}
         </sw-container>
@@ -181,11 +165,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_currency %}
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="currentDomain.currencyId"
-                {% else %}
-                v-model="currentDomain.currencyId"
-                {% endif %}
                 class="sw-sales-channel-detail-domains__domain-currency-select"
                 :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
                 required
@@ -193,22 +173,14 @@
                 :options="salesChannel.currencies"
                 label-property="name"
                 value-property="id"
-                {% if VUE3 %}
                 @update:value="onCurrencySelect"
-                {% else %}
-                @change="onCurrencySelect"
-                {% endif %}
             />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_domains_input_snippet_set %}
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="currentDomain.snippetSetId"
-                {% else %}
-                v-model="currentDomain.snippetSetId"
-                {% endif %}
                 entity="snippet_set"
                 :criteria="snippetSetCriteria"
                 :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
@@ -222,11 +194,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
-            {% if VUE3 %}
             v-model:value="currentDomain.hreflangUseOnlyLocale"
-            {% else %}
-            v-model="currentDomain.hreflangUseOnlyLocale"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.hreflang.domainSettings.label')"
             identification="hreflang"
             :options="hreflangLocalisationOptions"

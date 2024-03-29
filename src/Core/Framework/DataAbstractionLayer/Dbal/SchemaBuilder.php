@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
+use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -109,6 +112,9 @@ class SchemaBuilder
         VariantListingConfigField::class => Types::JSON,
         VersionDataPayloadField::class => Types::JSON,
         ManyToManyIdField::class => Types::JSON,
+        SlotConfigField::class => Types::JSON,
+        FlowTemplateConfigField::class => Types::JSON,
+        CheapestPriceField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,
@@ -231,7 +237,7 @@ class SchemaBuilder
             $options['notnull'] = true;
         }
 
-        if ($field instanceof Floatfield) {
+        if ($field instanceof FloatField) {
             $options['precision'] = 10;
             $options['scale'] = 2;
         }

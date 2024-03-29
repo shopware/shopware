@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Framework\Log\Package;
@@ -10,10 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\MailException
  */
 #[Package('services-settings')]
+#[CoversClass(MailException::class)]
 class MailExceptionTest extends TestCase
 {
     public function testItThrowsException(): void

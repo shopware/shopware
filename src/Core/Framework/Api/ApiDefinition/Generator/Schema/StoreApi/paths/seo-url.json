@@ -41,7 +41,8 @@
                                                     }
                                                 }
                                             },
-                                            "type": "object"
+                                            "type": "object",
+                                            "required": ["elements"]
                                         },
                                         {
                                             "$ref": "#/components/schemas/EntitySearchResult"

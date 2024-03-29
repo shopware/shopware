@@ -2,20 +2,19 @@
  * @package buyers-experience
  */
 import { mount } from '@vue/test-utils';
-import swMediaMediaItem from 'src/app/asyncComponent/media/sw-media-media-item';
-
-Shopware.Component.register('sw-media-media-item', swMediaMediaItem);
 
 async function createWrapper(mediaServiceFunctions = {}) {
-    return mount(await Shopware.Component.build('sw-media-media-item'), {
-        provide: {
-            mediaService: {
-                renameMedia: () => Promise.resolve(),
-                ...mediaServiceFunctions,
+    return mount(await wrapTestComponent('sw-media-media-item', { sync: true }), {
+        global: {
+            provide: {
+                mediaService: {
+                    renameMedia: () => Promise.resolve(),
+                    ...mediaServiceFunctions,
+                },
             },
-        },
-        stubs: {
-            'sw-media-base-item': true,
+            stubs: {
+                'sw-media-base-item': true,
+            },
         },
     });
 }
@@ -96,5 +95,44 @@ describe('components/media/sw-media-media-item', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-media-item.notification.renamingError.message',
         });
+    });
+
+    it('onBlur doesnt update the entity if the value did not change', async () => {
+        const wrapper = await createWrapper();
+        const item = {
+            fileName: 'Test.png',
+        };
+        const event = { target: { value: item.fileName } };
+
+        wrapper.vm.onChangeName = jest.fn();
+
+        wrapper.vm.onBlur(event, item, () => {});
+        expect(wrapper.vm.onChangeName).not.toHaveBeenCalled();
+    });
+
+    it('change handler is called if the folder name has changed on blur', async () => {
+        const wrapper = await createWrapper();
+        const item = {
+            fileName: 'Test.png',
+        };
+        const event = { target: { value: `${item.fileName} Test` } };
+
+        wrapper.vm.onChangeName = jest.fn();
+
+        wrapper.vm.onBlur(event, item, () => {});
+        expect(wrapper.vm.onChangeName).toHaveBeenCalled();
+    });
+
+    it('onChangeName rejects invalid names', async () => {
+        const wrapper = await createWrapper();
+        const item = {
+            fileName: 'Test.png',
+        };
+
+        wrapper.vm.rejectRenaming = jest.fn();
+
+        const emptyName = { target: { value: '' } };
+        wrapper.vm.onBlur(emptyName, item, () => {});
+        expect(wrapper.vm.rejectRenaming).toHaveBeenCalled();
     });
 });

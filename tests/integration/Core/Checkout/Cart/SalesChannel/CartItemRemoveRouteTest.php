@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -18,11 +19,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
- * @group cart
  */
 #[Package('checkout')]
+#[Group('store-api')]
+#[Group('cart')]
 class CartItemRemoveRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

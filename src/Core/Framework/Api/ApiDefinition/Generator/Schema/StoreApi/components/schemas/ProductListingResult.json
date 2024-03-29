@@ -7,7 +7,7 @@
             "ProductListingResult": {
                 "allOf": [
                     {
-                        "$ref": "#\/components\/schemas\/EntitySearchResult"
+                        "$ref": "#/components/schemas/EntitySearchResult"
                     },
                     {
                         "type": "object",
@@ -22,39 +22,88 @@
                                     "manufacturer": {
                                         "type": "array",
                                         "items": {
-                                            "type": "object"
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
                                         }
                                     },
                                     "price": {
                                         "type": "object",
                                         "properties": {
                                             "min": {
-                                                "type": "integer"
+                                                "type": "integer",
+                                                "default": 0
                                             },
                                             "max": {
-                                                "type": "integer"
+                                                "type": "integer",
+                                                "default": 0
                                             }
-                                        }
+                                        },
+                                        "required": ["min", "max"]
                                     },
                                     "rating": {
-                                        "type": "integer"
+                                        "type": "integer",
+                                        "nullable": true
                                     },
                                     "shipping-free": {
-                                        "type": "boolean"
+                                        "type": "boolean",
+                                        "default": false
                                     },
                                     "properties": {
                                         "type": "array",
                                         "items": {
-                                            "type": "object"
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
                                         }
+                                    },
+                                    "search": {
+                                        "type": "string"
                                     }
-                                }
+                                },
+                                "required": [
+                                    "manufacturer",
+                                    "navigationId",
+                                    "price",
+                                    "properties",
+                                    "rating",
+                                    "shipping-free"
+                                ]
                             },
                             "availableSortings": {
                                 "type": "array",
                                 "description": "Contains the available sorting. These can be used to show a sorting select-box in the product listing.",
                                 "items": {
-                                    "type": "object"
+                                    "type": "object",
+                                    "properties": {
+                                        "label": {
+                                            "type": "string"
+                                        },
+                                        "translated": {
+                                            "type": "object",
+                                            "properties": {
+                                                "label": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": ["label"]
+                                        },
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "priority": {
+                                            "type": "number"
+                                        },
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "enum": ["product_sorting"]
+                                        }
+                                    },
+                                    "required": [
+                                        "label",
+                                        "translated",
+                                        "key",
+                                        "priority",
+                                        "apiAlias"
+                                    ]
                                 }
                             },
                             "sorting": {
@@ -63,10 +112,24 @@
                             "elements": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#\/components\/schemas\/Product"
+                                    "$ref": "#/components/schemas/Product"
                                 }
+                            },
+                            "entity": {
+                                "type": "string",
+                                "enum": ["product"]
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["product_listing"]
                             }
-                        }
+                        },
+                        "required": [
+                            "elements",
+                            "availableSortings",
+                            "currentFilters",
+                            "apiAlias"
+                        ]
                     }
                 ]
             }

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -30,10 +32,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 
 /**
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[Group('rules')]
 class LineItemListPriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -59,9 +60,7 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         ?float $amount,
@@ -123,9 +122,7 @@ class LineItemListPriceRuleTest extends TestCase
         yield 'match / operator empty / without price' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         ?float $amount,
@@ -165,9 +162,7 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         ?float $amount,

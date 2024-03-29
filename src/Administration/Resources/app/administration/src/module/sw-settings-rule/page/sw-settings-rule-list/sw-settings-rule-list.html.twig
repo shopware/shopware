@@ -120,15 +120,10 @@
                 {% block sw_settings_rule_list_grid_column_assignments %}
                 <template
                     v-for="(propertyName, index) in assignmentProperties"
-                    {% if VUE3 %}
                     :key="index"
-                    {% endif %}
                     #[`column-${propertyName}`]="{ item }"
                 >
                     <span
-                        {% if VUE2 %}
-                        :key="index"
-                        {% endif %}
                         class="sw-data-grid__cell-value"
                     >
                         {{ getCounts(propertyName, item.id) }}

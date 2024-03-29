@@ -4,13 +4,12 @@ namespace Shopware\Core\Content\Media\Core\Strategy;
 
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\MediaException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal Factory is only used for DI container construction to find configured strategy
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class PathStrategyFactory
 {
     /**
@@ -18,7 +17,7 @@ class PathStrategyFactory
      *
      * @param AbstractMediaPathStrategy[] $strategies
      */
-    public function __construct(private readonly iterable $strategies, private readonly AbstractMediaPathStrategy $bc)
+    public function __construct(private readonly iterable $strategies)
     {
     }
 
@@ -38,10 +37,6 @@ class PathStrategyFactory
             }
         }
 
-        if (Feature::isActive('v6.6.0.0')) {
-            throw MediaException::strategyNotFound($strategyName);
-        }
-
-        return $this->bc;
+        throw MediaException::strategyNotFound($strategyName);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Command\RunSingleScheduledTaskCommand;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner;
@@ -9,9 +10,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\Command\RunSingleScheduledTaskCommand
  */
+#[CoversClass(RunSingleScheduledTaskCommand::class)]
 class RunSingleScheduledTaskCommandTest extends TestCase
 {
     public function testRunSingleTask(): void

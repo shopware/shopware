@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Framework\Event\IsFlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('services-settings')]
+#[IsFlowEventAware]
 interface ScalarValuesAware
 {
     public const STORE_VALUES = 'store_values';

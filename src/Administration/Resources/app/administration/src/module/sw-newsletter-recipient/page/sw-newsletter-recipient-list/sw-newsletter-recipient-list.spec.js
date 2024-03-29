@@ -1,17 +1,10 @@
 /**
  * @package buyers-experience
  */
-import { createLocalVue, mount } from '@vue/test-utils';
-import swNewsletterRecipientList from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list';
-
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/context-menu/sw-context-menu-item';
+import { mount } from '@vue/test-utils';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-
-Shopware.Component.register('sw-newsletter-recipient-list', swNewsletterRecipientList);
 
 function mockApiCall(type) {
     switch (type) {
@@ -83,30 +76,21 @@ class MockRepositoryFactory {
 }
 
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return mount(await Shopware.Component.build('sw-newsletter-recipient-list'), {
-        localVue,
-        data() {
-            return {
-                total: 1,
-                isLoading: false,
-            };
-        },
-        stubs: {
-            'sw-page': {
-                template: '<div><slot name="content"><slot name="grid"></slot></slot></div>',
-            },
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-empty-state': {
-                template: '<div class="sw-empty-state"></div>',
-            },
-            'sw-entity-listing': {
-                props: ['items', 'allowView', 'allowEdit', 'allowDelete', 'allowInlineEdit'],
-                template: `
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: '<div><slot name="content"><slot name="grid"></slot></slot></div>',
+                },
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>',
+                },
+                'sw-entity-listing': {
+                    props: ['items', 'allowView', 'allowEdit', 'allowDelete', 'allowInlineEdit'],
+                    template: `
                     <div>
                     <template v-for="item in items">
 
@@ -141,38 +125,33 @@ async function createWrapper(privileges = []) {
                         </slot>
                     </template>
                     </div>`,
-            },
-            'sw-container': true,
-            'sw-button': true,
-            'sw-loader': true,
-        },
-        provide: {
-            acl: {
-                can: key => (key ? privileges.includes(key) : true),
-            },
-            repositoryFactory: {
-                create: (type) => new MockRepositoryFactory(type),
-            },
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
                 },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
+                'sw-container': true,
+                'sw-button': true,
+                'sw-loader': true,
+            },
+            provide: {
+                repositoryFactory: {
+                    create: (type) => new MockRepositoryFactory(type),
+                },
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
                 },
             },
         },
     });
 }
 
-// todo: test inline edit, but how?
 describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
+    beforeEach(() => {
+        global.activeAclRoles = [];
     });
 
     it('should have no rights', async () => {
@@ -184,9 +163,11 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
+        global.activeAclRoles = [
             'newsletter_recipient.editor',
-        ]);
+        ];
+
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');
@@ -194,9 +175,11 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
+        global.activeAclRoles = [
             'newsletter_recipient.deleter',
-        ]);
+        ];
+
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).toContain('is--disabled');
@@ -204,10 +187,12 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be to edit and delete', async () => {
-        const wrapper = await createWrapper([
+        global.activeAclRoles = [
             'newsletter_recipient.editor',
             'newsletter_recipient.deleter',
-        ]);
+        ];
+
+        const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes()).not.toContain('is--disabled');

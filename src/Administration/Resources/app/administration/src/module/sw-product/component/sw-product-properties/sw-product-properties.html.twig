@@ -2,17 +2,13 @@
 {% block sw_product_properties %}
 <sw-inherit-wrapper
     v-if="properties"
-    {% if VUE3 %}
     v-model:value="product.properties"
-    {% else %}
-    v-model="product.properties"
-    {% endif %}
     class="sw-product-properties"
     :is-association="isAssociation"
     :disabled="disabled"
     :inherited-value="parentProduct.properties"
 >
-    <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+    <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_properties_card %}
         <sw-card
@@ -71,7 +67,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
-                                v-model="searchTerm"
+                                v-model:value="searchTerm"
                                 variant="form"
                                 size="small"
                                 :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
@@ -246,7 +242,7 @@
             :new-properties="newProperties"
             :properties-available="propertiesAvailable"
             @modal-cancel="onCancelAddPropertiesModal"
-            @modal-save="onSaveAddPropertiesModal"
+            @modal-save="onSaveAddPropertiesModal($event, updateCurrentValue)"
         />
         {% endblock %}
     </template>

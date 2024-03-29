@@ -168,11 +168,7 @@
                                                     </div>
 
                                                     <sw-entity-multi-select
-                                                        {% if VUE3 %}
                                                         v-model:entityCollection="theme.salesChannels"
-                                                        {% else %}
-                                                        v-model="theme.salesChannels"
-                                                        {% endif %}
                                                         class="sw-theme-manager-detail__saleschannels-select"
                                                         :label="$tc('sw-theme-manager.detail.salesChannel')"
                                                         :disabled="!acl.can('theme.editor')"
@@ -264,39 +260,22 @@
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
-                                                                            {% if VUE3 %}
                                                                             v-model:value="currentThemeConfig[fieldName].value"
-                                                                            {% else %}
-                                                                            v-model="currentThemeConfig[fieldName].value"
-                                                                            {% endif %}
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
-                                                                            {% if VUE3 %}
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
-                                                                            {% else %}
-                                                                            @input="handleInheritanceInput($event, fieldName)"
-                                                                            {% endif %}
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-select-field
-                                                                                    {% if VUE3 %}
                                                                                     v-model:value="currentValue"
-                                                                                    {% else %}
-                                                                                    v-model="currentValue"
-                                                                                    {% endif %}
                                                                                     :placeholder="field.placeholder"
                                                                                     :options="field.options"
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor')"
-                                                                                    {% if VUE3 %}
                                                                                     @update:value="updateCurrentValue"
-                                                                                    {% else %}
-                                                                                    @change="updateCurrentValue"
-                                                                                    @input="updateCurrentValue"
-                                                                                    {% endif %}
                                                                                 >
                                                                                 </sw-select-field>
                                                                             </template>
@@ -306,37 +285,20 @@
                                                                     <template v-else-if="field.type === 'url'">
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
-                                                                            {% if VUE3 %}
                                                                             v-model:value="currentThemeConfig[fieldName].value"
-                                                                            {% else %}
-                                                                            v-model="currentThemeConfig[fieldName].value"
-                                                                            {% endif %}
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
-                                                                            {% if VUE3 %}
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
-                                                                            {% else %}
-                                                                            @input="handleInheritanceInput($event, fieldName)"
-                                                                            {% endif %}
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-url-field
-                                                                                    {% if VUE3 %}
                                                                                     v-model:value="currentValue"
-                                                                                    {% else %}
-                                                                                    v-model="currentValue"
-                                                                                    {% endif %}
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor')"
-                                                                                    {% if VUE3 %}
                                                                                     @update:value="updateCurrentValue"
-                                                                                    {% else %}
-                                                                                    @change="updateCurrentValue"
-                                                                                    @input="updateCurrentValue"
-                                                                                    {% endif %}
                                                                                 >
                                                                                 </sw-url-field>
                                                                             </template>
@@ -352,21 +314,13 @@
 
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
-                                                                            {% if VUE3 %}
                                                                             v-model:value="currentThemeConfig[fieldName].value"
-                                                                            {% else %}
-                                                                            v-model="currentThemeConfig[fieldName].value"
-                                                                            {% endif %}
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
-                                                                            {% if VUE3 %}
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
-                                                                            {% else %}
-                                                                            @input="handleInheritanceInput($event, fieldName)"
-                                                                            {% endif %}
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited, removeInheritance }">
                                                                                 <sw-media-upload-v2
@@ -388,21 +342,13 @@
                                                                     <template v-else-if="mapSwFieldTypes(field.type)">
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
-                                                                            {% if VUE3 %}
                                                                             v-model:value="currentThemeConfig[fieldName].value"
-                                                                            {% else %}
-                                                                            v-model="currentThemeConfig[fieldName].value"
-                                                                            {% endif %}
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
-                                                                            {% if VUE3 %}
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
-                                                                            {% else %}
-                                                                            @input="handleInheritanceInput($event, fieldName)"
-                                                                            {% endif %}
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-colorpicker
@@ -410,12 +356,7 @@
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue"
-                                                                                    {% if VUE3 %}
                                                                                     @update:value="updateCurrentValue"
-                                                                                    {% else %}
-                                                                                    @change="updateCurrentValue"
-                                                                                    @input="updateCurrentValue"
-                                                                                    {% endif %}
                                                                                 />
 
                                                                                 <sw-text-field
@@ -423,12 +364,7 @@
                                                                                     :helpText="!field.helpText ? null : field.helpText"
                                                                                     :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
                                                                                     :value="currentValue | cssValue"
-                                                                                    {% if VUE3 %}
                                                                                     @update:value="updateCurrentValue"
-                                                                                    {% else %}
-                                                                                    @change="updateCurrentValue"
-                                                                                    @input="updateCurrentValue"
-                                                                                    {% endif %}
                                                                                 />
                                                                             </template>
                                                                         </sw-inherit-wrapper>
@@ -437,33 +373,20 @@
                                                                     <template v-else-if="themeConfig[fieldName].editable !== false">
                                                                         <sw-inherit-wrapper
                                                                             :class="'sw-field-id-' + fieldName"
-                                                                            {% if VUE3 %}
                                                                             v-model:value="currentThemeConfig[fieldName].value"
-                                                                            {% else %}
-                                                                            v-model="currentThemeConfig[fieldName].value"
-                                                                            {% endif %}
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
-                                                                            {% if VUE3 %}
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
-                                                                            {% else %}
-                                                                            @input="handleInheritanceInput($event, fieldName)"
-                                                                            {% endif %}
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-form-field-renderer
                                                                                     v-bind="getBind(field)"
                                                                                     :value="currentValue"
                                                                                     :disabled="isInherited || !acl.can('theme.editor')"
-                                                                                    {% if VUE3 %}
                                                                                     @update:value="updateCurrentValue"
-                                                                                    {% else %}
-                                                                                    @change="updateCurrentValue"
-                                                                                    @input="updateCurrentValue"
-                                                                                    {% endif %}
                                                                                 >
                                                                                 </sw-form-field-renderer>
                                                                             </template>
@@ -639,11 +562,7 @@
                         </div>
 
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="newThemeName"
-                            {% else %}
-                            v-model="newThemeName"
-                            {% endif %}
                             name="sw-field--duplicate-theme-name"
                             :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
                             :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
@@ -685,11 +604,7 @@
                         </div>
 
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="newThemeName"
-                            {% else %}
-                            v-model="newThemeName"
-                            {% endif %}
                             name="sw-field--rename-theme-name"
                             :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
                             :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"

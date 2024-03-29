@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -44,9 +45,8 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
      * @param array<string, mixed> $existedData
      * @param array<string, mixed> $updateData
      * @param array<string, mixed> $expectData
-     *
-     * @dataProvider createDataProvider
      */
+    #[DataProvider('createDataProvider')]
     public function testAddAffiliateAndCampaignCodeForCustomer(array $existedData, array $updateData, array $expectData): void
     {
         $email = 'thuy@gmail.com';

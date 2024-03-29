@@ -74,7 +74,7 @@ export default {
         onChange(value) {
             const name = this.name;
             const group = this.group;
-            this.$emit('change', { value, name, group });
+            this.$emit('update:value', { value, name, group });
         },
     },
 };

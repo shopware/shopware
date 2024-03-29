@@ -3,12 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
@@ -21,11 +22,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 /**
  * @internal
@@ -37,11 +36,14 @@ class AccountServiceEventTest extends TestCase
 
     private AccountService $accountService;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     private SalesChannelContext $salesChannelContext;
 
-    private LoginRoute $loginRoute;
+    private AbstractLoginRoute $loginRoute;
 
     private LogoutRoute $logoutRoute;
 
@@ -55,7 +57,6 @@ class AccountServiceEventTest extends TestCase
         $this->changePaymentMethodRoute = $this->getContainer()->get(ChangePaymentMethodRoute::class);
         $this->loginRoute = $this->getContainer()->get(LoginRoute::class);
 
-        /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
@@ -64,7 +65,6 @@ class AccountServiceEventTest extends TestCase
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGiven(): void
     {
-        /** @var TraceableEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -80,7 +80,7 @@ class AccountServiceEventTest extends TestCase
 
         try {
             $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-            $this->accountService->login('', $this->salesChannelContext);
+            $this->accountService->loginByCredentials('', 'shopware', $this->salesChannelContext);
         } catch (BadCredentialsException) {
             // nth
         }
@@ -91,7 +91,6 @@ class AccountServiceEventTest extends TestCase
 
     public function testLoginEventsDispatched(): void
     {
-        /** @var TraceableEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $eventsToTest = [
@@ -125,7 +124,7 @@ class AccountServiceEventTest extends TestCase
 
             $eventDidRun = false;
 
-            $this->accountService->login('info@example.com', $this->salesChannelContext);
+            $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
             /** @phpstan-ignore-next-line - $eventDidRun updated value on listener */
             static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
 
@@ -136,7 +135,6 @@ class AccountServiceEventTest extends TestCase
     public function testLogoutEventsDispatched(): void
     {
         $email = 'info@example.com';
-        /** @var TraceableEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -164,7 +162,6 @@ class AccountServiceEventTest extends TestCase
     public function testChangeDefaultPaymentMethod(): void
     {
         $email = 'info@example.com';
-        /** @var TraceableEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -172,11 +169,10 @@ class AccountServiceEventTest extends TestCase
         $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
         $this->addEventListener($dispatcher, CustomerChangedPaymentMethodEvent::class, $listenerClosure);
 
-        /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),
             $this->salesChannelContext->getContext()
-        )->first();
+        )->getEntities()->first();
 
         $this->salesChannelContext->assign(['customer' => $customer]);
 
@@ -199,7 +195,7 @@ class AccountServiceEventTest extends TestCase
      */
     private function getEmailListenerClosure(bool &$eventDidRun): callable
     {
-        return function (CustomerBeforeLoginEvent $event) use (&$eventDidRun): void {
+        return static function (CustomerBeforeLoginEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertSame('info@example.com', $event->getEmail());
         };
@@ -210,7 +206,7 @@ class AccountServiceEventTest extends TestCase
      */
     private function getCustomerListenerClosure(bool &$eventDidRun): callable
     {
-        return function (CustomerLoginEvent|CustomerLogoutEvent|CustomerChangedPaymentMethodEvent $event) use (&$eventDidRun): void {
+        return static function (CustomerLoginEvent|CustomerLogoutEvent|CustomerChangedPaymentMethodEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertSame('info@example.com', $event->getCustomer()->getEmail());
         };

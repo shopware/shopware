@@ -14,17 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
 class GenerateMediaTypesCommandTest extends TestCase
 {
-    use CommandTestBehaviour;
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
@@ -62,10 +59,8 @@ class GenerateMediaTypesCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->generateMediaTypesCommand, $input, $output);
+        $commandTester = new CommandTester($this->generateMediaTypesCommand);
+        $commandTester->execute([]);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
@@ -78,10 +73,8 @@ class GenerateMediaTypesCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('-b 1');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->generateMediaTypesCommand, $input, $output);
+        $commandTester = new CommandTester($this->generateMediaTypesCommand);
+        $commandTester->execute([]);
 
         $searchCriteria = new Criteria();
         $mediaResult = $this->mediaRepository->search($searchCriteria, $this->context);
@@ -96,10 +89,8 @@ class GenerateMediaTypesCommandTest extends TestCase
         $this->setFixtureContext($this->context);
         $this->getEmptyMedia();
 
-        $input = new StringInput('');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->generateMediaTypesCommand, $input, $output);
+        $commandTester = new CommandTester($this->generateMediaTypesCommand);
+        $commandTester->execute([]);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
@@ -115,10 +106,8 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->createValidMediaFiles();
 
-        $input = new StringInput('-b "test"');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->generateMediaTypesCommand, $input, $output);
+        $commandTester = new CommandTester($this->generateMediaTypesCommand);
+        $commandTester->execute(['-b' => 'test']);
     }
 
     protected function createValidMediaFiles(): void
@@ -147,21 +136,21 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r')
         );
 
         $filePath = $mediaJpg->getPath();
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
+            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r')
         );
 
         $filePath = $mediaPdf->getPath();
 
         $this->getPublicFilesystem()->writeStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
+            fopen(__DIR__ . '/../fixtures/small.pdf', 'r')
         );
     }
 

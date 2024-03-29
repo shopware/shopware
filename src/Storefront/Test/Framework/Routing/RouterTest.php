@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,9 +18,7 @@ class RouterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @dataProvider urlCases
-     */
+    #[DataProvider('urlCases')]
     public function testUrls(UrlCase $case): void
     {
         $request = new Request();
@@ -191,7 +190,7 @@ class UrlCase
     public $expected;
 
     /**
-     * @see \Symfony\Component\Routing\Generator\UrlGeneratorInterface
+     * @see UrlGeneratorInterface
      *
      * @var int
      */

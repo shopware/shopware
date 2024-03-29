@@ -45,6 +45,8 @@ export default {
             nextRoute: null,
             hasNewVersionId: false,
             hasOrderDeepEdit: false,
+            missingProductLineItems: [],
+            promotionsToDelete: [],
         };
     },
 
@@ -60,6 +62,7 @@ export default {
             'versionContext',
             'orderAddressIds',
             'editing',
+            'loading',
         ]),
 
         orderIdentifier() {
@@ -88,6 +91,10 @@ export default {
 
         orderRepository() {
             return this.repositoryFactory.create('order');
+        },
+
+        automaticPromotions() {
+            return this.order.lineItems.filter(item => item.type === 'promotion' && item.referencedId === null);
         },
 
         orderCriteria() {
@@ -134,6 +141,14 @@ export default {
 
             return criteria;
         },
+
+        convertedProductLineItems() {
+            return this.order?.lineItems?.filter((lineItem) => {
+                return lineItem.payload?.isConvertedProductLineItem
+                    && lineItem.type === 'custom'
+                    && !this.missingProductLineItems.includes(lineItem);
+            }) || [];
+        },
     },
 
     watch: {
@@ -150,7 +165,7 @@ export default {
         State.registerModule('swOrderDetail', swOrderDetailState);
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
 
         State.unregisterModule('swOrderDetail');
@@ -184,7 +199,6 @@ export default {
                 this.orderId ? [this.orderId] : [],
             );
 
-            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
             this.createNewVersionId();
         },
 
@@ -192,6 +206,7 @@ export default {
             if (this.hasNewVersionId) {
                 const oldVersionContext = this.versionContext;
                 State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+                this.hasNewVersionId = false;
 
                 // clean up recently created version
                 await this.orderRepository.deleteVersion(
@@ -226,38 +241,65 @@ export default {
         async onSaveEdits() {
             this.isLoading = true;
 
-            // change new order address
-            if (this.orderAddressIds?.length) {
-                await Promise.all([
-                    ...this.orderAddressIds
-                        .filter(ids => ids.orderAddressId !== ids.customerAddressId)
-                        .map(ids => this.changeOrderAddress(ids)),
-                ]).then(() => {
+            await this.handleOrderAddressUpdate(this.orderAddressIds);
+
+            if (this.promotionsToDelete.length > 0) {
+                this.order.lineItems = this.order.lineItems.filter(
+                    (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
+                );
+            }
+
+            await this.orderRepository.save(this.order, this.versionContext)
+                .then(() => {
+                    this.hasOrderDeepEdit = false;
+                    this.promotionsToDelete = [];
+                    return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
+                })
+                .then(() => this.createNewVersionId())
+                .then(() => {
+                    State.commit('swOrderDetail/setSavedSuccessful', true);
+                })
+                .catch((error) => {
+                    this.onError('error', error);
+                    this.isLoading = false;
+                });
+
+            this.$root.$emit('order-edit-save');
+        },
+
+        async handleOrderAddressUpdate(addressMappings) {
+            const mappings = [];
+
+            addressMappings.forEach((addressMapping) => {
+                // If they are the same means that the address has not changed, so skip it
+                if (addressMapping.customerAddressId === addressMapping.orderAddressId) {
+                    return;
+                }
+
+                const mapping = {
+                    customerAddressId: addressMapping.customerAddressId,
+                    type: addressMapping.type,
+                };
+
+                if (addressMapping.type === 'shipping') {
+                    mapping.deliveryId = this.order.deliveries[0].id;
+                }
+
+                mappings.push(mapping);
+            });
+
+            if (mappings.length === 0) {
+                return;
+            }
+
+            await this.updateOrderAddresses(mappings)
+                .then(() => {
                     State.commit('swOrderDetail/setOrderAddressIds', false);
                 }).catch((error) => {
                     this.createNotificationError({
                         message: error,
                     });
                 });
-            }
-
-            this.orderRepository.save(this.order, this.versionContext)
-                .then(() => {
-                    this.hasOrderDeepEdit = false;
-                    return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
-                }).catch((error) => {
-                    this.onError('error', error);
-                }).finally(() => {
-                    State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
-
-                    return this.createNewVersionId().then(() => {
-                        State.commit('swOrderDetail/setLoading', ['order', false]);
-                        State.commit('swOrderDetail/setSavedSuccessful', true);
-                        this.isLoading = false;
-                    });
-                });
-
-            this.$root.$emit('order-edit-save');
         },
 
         onCancelEditing() {
@@ -279,7 +321,6 @@ export default {
                 this.onError('error', error);
             }).finally(() => {
                 this.missingProductLineItems = [];
-                this.convertedProductLineItems = [];
 
                 return this.createNewVersionId().then(() => {
                     State.commit('swOrderDetail/setLoading', ['order', false]);
@@ -287,49 +328,52 @@ export default {
             });
         },
 
-        onSaveAndRecalculate() {
+        async onSaveAndRecalculate() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
+            this.isLoading = true;
 
-            return this.orderRepository.save(this.order, this.versionContext).then(() => {
-                return this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
-            }).then(() => {
-                return this.reloadEntityData();
-            }).catch((error) => {
+            this.order.lineItems = this.order.lineItems.filter((lineItem) => !this.automaticPromotions.includes(lineItem));
+            try {
+                await this.orderRepository.save(this.order, this.versionContext);
+                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
+                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.reloadEntityData();
+            } catch (error) {
                 this.onError('error', error);
-            })
-                .finally(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                    return Promise.resolve();
-                });
+            } finally {
+                this.isLoading = false;
+                Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
+            }
         },
 
-        onRecalculateAndReload() {
+        async onRecalculateAndReload() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
-
-            return this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {}).then(() => {
-                return this.reloadEntityData();
-            }).catch((error) => {
+            try {
+                this.promotionsToDelete = this.automaticPromotions.map(promotion => promotion.id);
+                await this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
+                await this.orderService.toggleAutomaticPromotions(this.orderId, this.versionContext.versionId, false);
+                await this.reloadEntityData();
+                this.order.lineItems = this.order.lineItems.filter(
+                    (lineItem) => !this.promotionsToDelete.includes(lineItem.id),
+                );
+            } catch (error) {
                 this.onError('error', error);
-            }).finally(() => {
+                this.promotionsToDelete = [];
+            } finally {
                 Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                return Promise.resolve();
-            });
+            }
         },
 
         onSaveAndReload() {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
-            return this.orderRepository.save(this.order, this.versionContext).then(() => {
-                return this.reloadEntityData();
-            }).catch((error) => {
-                this.onError('error', error);
-            }).finally(() => {
-                Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                return Promise.resolve();
-            });
+            return this.orderRepository.save(this.order, this.versionContext)
+                .then(() => this.reloadEntityData())
+                .catch((error) => {
+                    this.onError('error', error);
+                }).finally(() => {
+                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
+                });
         },
 
         onUpdateLoading(loadingValue) {
@@ -368,52 +412,42 @@ export default {
             });
         },
 
-        reloadEntityData() {
+        reloadEntityData(isSaved = true) {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
-            return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
-                if (this.$route.name !== 'sw.order.detail.documents') {
-                    this.hasOrderDeepEdit = true;
-                }
+            return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria)
+                .then((response) => {
+                    if (this.$route.name !== 'sw.order.detail.documents' && isSaved) {
+                        this.hasOrderDeepEdit = true;
+                    }
 
-                State.commit('swOrderDetail/setOrder', response);
-                State.commit('swOrderDetail/setLoading', ['order', false]);
-                this.isLoading = false;
-
-                return Promise.resolve();
-            }).catch(() => {
-                Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                return Promise.reject();
-            });
+                    State.commit('swOrderDetail/setOrder', response);
+                }).finally(() => {
+                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
+                    this.isLoading = false;
+                });
         },
 
         createNewVersionId() {
-            return this.orderRepository.createVersion(this.orderId, this.versionContext).then((newContext) => {
-                this.hasNewVersionId = true;
+            // Reset the current version context
+            State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+            this.hasNewVersionId = false;
 
-                State.commit('swOrderDetail/setVersionContext', newContext);
+            return this.orderRepository.createVersion(this.orderId, this.versionContext)
+                .then((newContext) => {
+                    this.hasNewVersionId = true;
 
-                this.orderRepository.get(this.orderId, newContext, this.orderCriteria).then((response) => {
-                    State.commit('swOrderDetail/setOrder', response);
-                    State.commit('swOrderDetail/setLoading', ['order', false]);
-                    this.isLoading = false;
+                    State.commit('swOrderDetail/setVersionContext', newContext);
 
-                    return Promise.resolve();
-                }).catch(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                    return Promise.reject();
-                });
-            });
+                    return this.reloadEntityData(false);
+                })
+                .then(() => this.convertMissingProductLineItems());
         },
 
-        changeOrderAddress(ids) {
-            const { orderAddressId, customerAddressId } = ids;
-
-            return this.orderService.changeOrderAddress(
-                orderAddressId,
-                customerAddressId,
+        updateOrderAddresses(mappings) {
+            return this.orderService.updateOrderAddresses(
+                this.orderId,
+                mappings,
                 {},
                 ApiService.getVersionHeader(this.order.versionId),
             );
@@ -421,6 +455,25 @@ export default {
 
         updateEditing(value) {
             State.commit('swOrderDetail/setEditing', value);
+        },
+
+        convertMissingProductLineItems() {
+            this.missingProductLineItems = this.order?.lineItems?.filter((lineItem) => {
+                return (lineItem.productId === null && lineItem.type === 'product');
+            }) || [];
+
+            if (this.missingProductLineItems.length === 0) {
+                return Promise.resolve();
+            }
+
+            this.missingProductLineItems.forEach((lineItem) => {
+                lineItem.type = 'custom';
+                lineItem.productId = null;
+                lineItem.referencedId = null;
+                lineItem.payload.isConvertedProductLineItem = true;
+            });
+
+            return this.orderRepository.save(this.order, this.versionContext);
         },
     },
 };

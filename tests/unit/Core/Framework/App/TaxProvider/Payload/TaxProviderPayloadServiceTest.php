@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -31,9 +32,8 @@ use Symfony\Component\Serializer\Serializer;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService
  */
+#[CoversClass(TaxProviderPayloadService::class)]
 class TaxProviderPayloadServiceTest extends TestCase
 {
     private IdsCollection $ids;

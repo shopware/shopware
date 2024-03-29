@@ -65,7 +65,11 @@ export default {
         },
 
         productMediaRepository() {
-            return this.repositoryFactory.create(this.productEntity.media.entity);
+            return this.repositoryFactory.create('product_media');
+        },
+
+        productConfigurationRepository() {
+            return this.repositoryFactory.create('product_configurator_setting');
         },
 
         currencyRepository() {
@@ -306,15 +310,42 @@ export default {
 
     methods: {
         createdComponent() {
-            this.fetchProductVariants();
-            this.fetchSystemCurrency();
-            this.loadGroups();
+            this.isLoading = true;
+
+            return Promise.all([
+                this.fetchProductMedias(),
+                this.fetchProductConfiguration(),
+                this.fetchProductVariants(),
+                this.fetchSystemCurrency(),
+                this.loadGroups(),
+            ]).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
+        fetchProductMedias() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('productId', this.productEntity.id));
+
+            return this.productMediaRepository.search(criteria).then(response => {
+                this.productEntity.media = response;
+            });
+        },
+
+        fetchProductConfiguration() {
+            const criteria = new Criteria();
+            criteria.addAssociation('option');
+            criteria.addFilter(Criteria.equals('productId', this.productEntity.id));
+
+            return this.productConfigurationRepository.search(criteria).then(response => {
+                this.productEntity.configuratorSettings = response;
+            });
         },
 
         fetchSystemCurrency() {
             const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
 
-            this.currencyRepository.get(systemCurrencyId).then(response => {
+            return this.currencyRepository.get(systemCurrencyId).then(response => {
                 this.currency = response;
             });
         },

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
@@ -71,10 +72,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder
  */
 #[Package('core')]
+#[CoversClass(SchemaBuilder::class)]
 class SchemaBuilderTest extends TestCase
 {
     private StaticDefinitionInstanceRegistry $registry;

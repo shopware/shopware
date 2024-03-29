@@ -28,6 +28,8 @@ export default {
             term: '',
             // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
             orderIcon: 'regular-shopping-bag',
+            sortBy: 'orderDateTime',
+            sortDirection: 'DESC',
         };
     },
 
@@ -55,6 +57,12 @@ export default {
         },
     },
 
+    watch: {
+        customer() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -62,6 +70,10 @@ export default {
     methods: {
         createdComponent() {
             this.isLoading = true;
+
+            if (this.orders?.criteria) {
+                this.orders.criteria = null;
+            }
 
             this.refreshList();
         },
@@ -102,6 +114,8 @@ export default {
             }
             criteria.addAssociation('stateMachineState')
                 .addAssociation('currency');
+
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             this.orderRepository.search(criteria).then((orders) => {
                 this.orders = orders;

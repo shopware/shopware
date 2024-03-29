@@ -2,17 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionIndividualCode;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
-use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity
  */
+#[CoversClass(PromotionIndividualCodeEntity::class)]
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**
@@ -20,9 +19,8 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * correctly built when setting the code as "redeemed".
      * We need this data as "soft" reference to the order,
      * line item and everything that might be important.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testRedeemedPayload(): void
     {
         $entity = new PromotionIndividualCodeEntity();
@@ -43,18 +41,11 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * an individual code as redeemed more than once.
      * We set our code redeemed twice and verify that we get
      * our expected exception.
-     *
-     * @group promotions
-     *
-     * @throws CodeAlreadyRedeemedException
      */
+    #[Group('promotions')]
     public function testAlreadyRedeemedThrowsException(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(PromotionException::class);
-        } else {
-            $this->expectException(CodeAlreadyRedeemedException::class);
-        }
+        $this->expectException(PromotionException::class);
 
         $entity = new PromotionIndividualCodeEntity();
         $entity->setCode('my-code-123');
@@ -67,11 +58,8 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * the exactly same data is used again.
      * This avoids any troubles when re-applying or re-saving
      * data in a workflow with multiple iterations.
-     *
-     * @group promotions
-     *
-     * @throws CodeAlreadyRedeemedException
      */
+    #[Group('promotions')]
     public function testAlreadyRedeemedIsOkWithSameData(): void
     {
         $entity = new PromotionIndividualCodeEntity();

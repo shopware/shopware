@@ -3,6 +3,10 @@
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheTagsEvent;
 use Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute;
@@ -22,10 +26,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedCategoryRouteTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -43,9 +46,7 @@ class CachedCategoryRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         KernelLifecycleManager::getKernel()
@@ -54,9 +55,7 @@ class CachedCategoryRouteTest extends TestCase
             ->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         KernelLifecycleManager::getKernel()
@@ -65,9 +64,7 @@ class CachedCategoryRouteTest extends TestCase
             ->rollBack();
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(IdsCollection $ids, \Closure $after, int $calls): void
     {
         if (!$ids->has('navigation')) {

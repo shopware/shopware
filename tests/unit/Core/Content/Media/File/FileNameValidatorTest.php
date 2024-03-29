@@ -2,15 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\MediaException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\File\FileNameValidator
  */
+#[CoversClass(FileNameValidator::class)]
 class FileNameValidatorTest extends TestCase
 {
     private const MAX_FILE_NAME_LENGTH = 255;
@@ -116,9 +118,7 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName('file without extension.');
     }
 
-    /**
-     * @dataProvider restrictedCharacters
-     */
+    #[DataProvider('restrictedCharacters')]
     public function testValidateFileNameThrowsIfRestrictedCharacterIsPresent(string $input): void
     {
         $this->expectException(MediaException::class);
@@ -128,9 +128,7 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName($input);
     }
 
-    /**
-     * @dataProvider ntfsInternals
-     */
+    #[DataProvider('ntfsInternals')]
     public function testValidateFileNameThrowsIfFileNameIsNtfsInternal(string $input): void
     {
         $this->expectException(MediaException::class);
@@ -140,9 +138,7 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName($input);
     }
 
-    /**
-     * @dataProvider controlCharacters
-     */
+    #[DataProvider('controlCharacters')]
     public function testValidateFileNameThrowsExceptionIfControlCharacterIsPresent(string $input): void
     {
         $this->expectException(MediaException::class);
@@ -177,9 +173,20 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName($name);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    public function testFilenameContainFunkyWhiteSpace(): void
+    {
+        $filename = 'pexels-jan-kopÅiva-3354648.jpg';
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(
+            "Provided filename \"$filename\" is not permitted: Filename must not contain funky whitespace"
+        );
+
+        $validator = new FileNameValidator();
+        $validator->validateFileName($filename);
+    }
+
+    #[DoesNotPerformAssertions]
     public function testValidateFileNameDoesNothingIfFileNameHasValidLength(): void
     {
         $name = str_repeat('a', self::MAX_FILE_NAME_LENGTH);

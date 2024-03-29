@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,13 +21,11 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemInCategoryRule::class)]
+#[Group('rules')]
 class LineItemInCategoryRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -50,11 +51,10 @@ class LineItemInCategoryRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getLineItemScopeTestData
-     *
      * @param array<string> $categoryIds
      * @param array<string> $lineItemCategoryIds
      */
+    #[DataProvider('getLineItemScopeTestData')]
     public function testIfMatchesCorrectWithLineItemScope(
         array $categoryIds,
         string $operator,
@@ -84,11 +84,10 @@ class LineItemInCategoryRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartRuleScopeTestData
-     *
      * @param array<string> $categoryIds
      * @param array<string> $lineItemCategoryIds
      */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         array $categoryIds,
         string $operator,
@@ -116,11 +115,10 @@ class LineItemInCategoryRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartRuleScopeTestData
-     *
      * @param array<string> $categoryIds
      * @param array<string> $lineItemCategoryIds
      */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $categoryIds,
         string $operator,

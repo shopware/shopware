@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
@@ -16,10 +17,9 @@ use Twig\Environment;
 /**
  * @package checkout
  *
- * @covers \Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer
- *
  * @internal
  */
+#[CoversClass(DocumentTemplateRenderer::class)]
 class DocumentTemplateRendererTest extends TestCase
 {
     private static bool $rendererParameterEventCalled = false;

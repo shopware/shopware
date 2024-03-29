@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
@@ -46,9 +47,8 @@ class ProductStreamUpdaterTest extends TestCase
 
     /**
      * @param array<int, array<string, array<string, int>|string>> $filters
-     *
-     * @dataProvider filterProvider
      */
+    #[DataProvider('filterProvider')]
     public function testIndexingDoesUpdateMappingsAndManyToManyIdField(array $filters): void
     {
         $streamId = Uuid::randomHex();

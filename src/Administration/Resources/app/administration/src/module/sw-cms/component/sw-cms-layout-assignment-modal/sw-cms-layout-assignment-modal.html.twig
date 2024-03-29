@@ -113,11 +113,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_landing_page_select_field %}
                 <sw-entity-multi-select
-                    {% if VUE3 %}
                     v-model:entityCollection="page.landingPages"
-                    {% else %}
-                    v-model="page.landingPages"
-                    {% endif %}
                     class="sw-cms-layout-assignment-modal__landing-page-select"
                     :label="$tc('global.entities.landing_page')"
                     :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
@@ -151,11 +147,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="shopPageSalesChannelId"
-                    {% else %}
-                    v-model="shopPageSalesChannelId"
-                    {% endif %}
                     class="sw-cms-layout-assignment-modal__sales-channel-select"
                     entity="sales_channel"
                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
@@ -163,22 +155,14 @@
                     :reset-option="$tc('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
                     :help-text="$tc('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="onInputSalesChannelSelect"
-                    {% else %}
-                    @change="onInputSalesChannelSelect"
-                    {% endif %}
                 />
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_layout_assignment_modal_shop_pages_select_field %}
                 <sw-inherit-wrapper
-                    {% if VUE3 %}
                     v-model:value="selectedShopPages[shopPageSalesChannelId]"
-                    {% else %}
-                    v-model="selectedShopPages[shopPageSalesChannelId]"
-                    {% endif %}
                     :inherited-value="selectedShopPages.null"
                     :has-parent="shopPageSalesChannelId !== null"
                     :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"
@@ -190,11 +174,7 @@
                             :disabled="props.isInherited"
                             :value="props.currentValue"
                             :map-inheritance="props"
-                            {% if VUE3 %}
                             @update:value="props.updateCurrentValue"
-                            {% else %}
-                            @change="props.updateCurrentValue"
-                            {% endif %}
                         />
                     </template>
                 </sw-inherit-wrapper>

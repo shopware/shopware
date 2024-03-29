@@ -107,6 +107,12 @@ class StockStorage extends AbstractStockStorage
             AND product.version_id = :version
         ';
 
+        $before = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), available FROM product WHERE id IN (:ids) AND product.version_id = :version',
+            ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
         RetryableQuery::retryable($this->connection, function () use ($sql, $context, $bytes): void {
             $this->connection->executeStatement(
                 $sql,
@@ -115,11 +121,18 @@ class StockStorage extends AbstractStockStorage
             );
         });
 
-        $updated = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM product WHERE available = 0 AND id IN (:ids) AND product.version_id = :version',
+        $after = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), available FROM product WHERE id IN (:ids) AND product.version_id = :version',
             ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
             ['ids' => ArrayParameterType::BINARY]
         );
+
+        $updated = [];
+        foreach ($before as $id => $available) {
+            if ($available !== $after[$id]) {
+                $updated[] = (string) $id;
+            }
+        }
 
         if (!empty($updated)) {
             $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($updated, $context));

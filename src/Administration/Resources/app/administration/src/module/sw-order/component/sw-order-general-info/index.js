@@ -95,11 +95,6 @@ export default {
             return criteria;
         },
 
-        summaryMainHeader() {
-            // eslint-disable-next-line max-len
-            return `${this.order.orderNumber} - ${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName} (${this.order.orderCustomer.email})`;
-        },
-
         orderRepository() {
             return this.repositoryFactory.create('order');
         },
@@ -156,6 +151,10 @@ export default {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
             }
+        },
+
+        'order.id'() {
+            this.createdComponent();
         },
     },
 

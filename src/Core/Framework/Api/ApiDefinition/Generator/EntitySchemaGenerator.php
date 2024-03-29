@@ -137,7 +137,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
      */
     private function parseField(EntityDefinition $definition, Field $field): array
     {
-        /** @var array<string, mixed> $flags */
         $flags = [];
         foreach ($field->getFlags() as $flag) {
             $flags = array_replace_recursive($flags, iterator_to_array($flag->parse()));

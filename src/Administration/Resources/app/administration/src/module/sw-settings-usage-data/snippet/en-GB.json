@@ -7,19 +7,17 @@
     }
   },
   "sw-usage-data-consent-banner": {
-    "headline": "Shaping the future of e-commerce",
-    "improvingDescription": "We are constantly improving the services we provide to you. To take the next step, we are analyzing your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success.",
-    "improvingDescriptionNotAccepted": "We are constantly improving the services we provide to you. To take the next step, we would like to analyze your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success.",
+    "headline": "Shaping the future of ecommerce",
+    "improvingDescription": "We are constantly improving the services we provide to you. To take the next step, we are analyzing your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success. This is the data we are collecting:",
+    "improvingDescriptionNotAccepted": "We are constantly improving the services we provide to you. To take the next step, we would like to analyze your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success. This is the data we will collect:",
     "fullDetailsDescription": "Full details of this agreement can be found at {link}. {fullDetailsDescriptionNotAccepted}",
-    "fullDetailsDescriptionNotAccepted": "You can always opt out of data sharing at any time. Join us in shaping the future of e-commerce by sharing your data with us!",
+    "fullDetailsDescriptionNotAccepted": "You can opt out of data sharing at any time.",
     "confirmAuthorization": "By clicking \"Agree\", you confirm that you are authorized to enter into this agreement on behalf of your company.",
     "privacyPolicy": "shopware.com/en/data-use-details",
     "privacyPolicyLink": "https://www.shopware.com/en/data-use-details/",
     "collectionInformation": {
-      "title": "Data we are collecting:",
-      "titleNotAccepted": "Data we will collect:",
       "orderData": "Order data",
-      "usageData": "Data sharing",
+      "usageData": "Usage data",
       "diagnosticData": "Diagnostic data",
       "storeData": "Store data",
       "helpText": {

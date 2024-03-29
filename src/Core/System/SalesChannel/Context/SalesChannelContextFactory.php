@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -41,7 +41,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $addressRepository,
         private readonly EntityRepository $paymentMethodRepository,
-        private readonly TaxDetector $taxDetector,
+        private readonly AbstractTaxDetector $taxDetector,
         private readonly iterable $taxRuleTypeFilter,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,

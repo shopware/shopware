@@ -1,0 +1,94 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CalculatedPrice": {
+                "type": "object",
+                "description": "Represents a product along with detailed information required to display a variant selection.",
+                "properties": {
+                    "unitPrice": {
+                        "type": "number"
+                    },
+                    "quantity": {
+                        "type": "number"
+                    },
+                    "totalPrice": {
+                        "type": "number"
+                    },
+                    "calculatedTaxes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "apiAlias": {
+                                    "type": "string",
+                                    "enum": ["cart_tax_calculated"]
+                                },
+                                "tax": {
+                                    "type": "number"
+                                },
+                                "taxRate": {
+                                    "type": "number"
+                                },
+                                "price": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["apiAlias", "tax", "taxRate", "price"]
+                        }
+                    },
+                    "referencePrice": {
+                        "oneOf": [
+                            { "$ref": "#/components/schemas/ReferencePrice" }
+                        ],
+                        "nullable": true
+                    },
+                    "listPrice": {
+                        "oneOf": [{ "$ref": "#/components/schemas/ListPrice" }],
+                        "nullable": true
+                    },
+                    "regulationPrice": {
+                        "type": "object",
+                        "properties": {
+                            "price": {
+                                "type": "number"
+                            },
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["cart_regulation_price"]
+                            }
+                        },
+                        "nullable": true
+                    },
+                    "hasRange": {
+                        "type": "boolean"
+                    },
+                    "variantId": {
+                        "type": "string",
+                        "format": "^[0-9a-f]{32}$",
+                        "nullable": true
+                    },
+
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["calculated_price"]
+                    }
+                },
+
+                "required": [
+                    "apiAlias",
+                    "hasRange",
+                    "regulationPrice",
+                    "listPrice",
+                    "referencePrice",
+                    "calculatedTaxes",
+                    "totalPrice",
+                    "quantity",
+                    "unitPrice"
+                ]
+            }
+        }
+    }
+}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -44,10 +46,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class GrantDownloadAccessActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -95,9 +96,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
     /**
      * @param array<int, string[]> $productDownloads
-     *
-     * @dataProvider orderCaseProvider
      */
+    #[DataProvider('orderCaseProvider')]
     public function testFlowActionRunsOnEnterState(array $productDownloads): void
     {
         $orderId = $this->placeOrder($productDownloads);
@@ -136,9 +136,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
     /**
      * @param array<int, string[]> $productDownloads
-     *
-     * @dataProvider orderCaseProvider
      */
+    #[DataProvider('orderCaseProvider')]
     public function testFlowActionRunsOnOrderPlaced(array $productDownloads): void
     {
         $this->cloneDefaultFlow();
@@ -249,14 +248,14 @@ class GrantDownloadAccessActionTest extends TestCase
         $lineItems = $order->getLineItems();
         static::assertNotNull($lineItems);
         $lineItems->sortByPosition();
-        static::assertEquals(\count($productDownloads), $lineItems->count());
+        static::assertCount(\count($productDownloads), $lineItems);
         static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
 
         foreach ($productDownloads as $key => $downloadFiles) {
             $lineItem = $lineItems->getAt($key);
             static::assertNotNull($lineItem);
             static::assertNotNull($lineItem->getDownloads());
-            static::assertEquals(\count($downloadFiles), $lineItem->getDownloads()->count());
+            static::assertCount(\count($downloadFiles), $lineItem->getDownloads());
             foreach ($lineItem->getDownloads() as $download) {
                 static::assertFalse($download->isAccessGranted());
 
@@ -276,9 +275,9 @@ class GrantDownloadAccessActionTest extends TestCase
         if (\in_array([], $productDownloads, true)) {
             static::assertNotNull($order->getLineItems());
             static::assertTrue($order->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
-            static::assertEquals(1, $order->getDeliveries()->count());
+            static::assertCount(1, $order->getDeliveries());
         } else {
-            static::assertEquals(0, $order->getDeliveries()->count());
+            static::assertCount(0, $order->getDeliveries());
         }
 
         return $orderId;
@@ -298,14 +297,14 @@ class GrantDownloadAccessActionTest extends TestCase
         $lineItems = $order->getLineItems();
         static::assertNotNull($lineItems);
         $lineItems->sortByPosition();
-        static::assertEquals(\count($productDownloads), $lineItems->count());
+        static::assertCount(\count($productDownloads), $lineItems);
         static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
 
         foreach ($productDownloads as $key => $downloadFiles) {
             $lineItem = $lineItems->getAt($key);
             static::assertNotNull($lineItem);
             static::assertNotNull($lineItem->getDownloads());
-            static::assertEquals(\count($downloadFiles), $lineItem->getDownloads()->count());
+            static::assertCount(\count($downloadFiles), $lineItem->getDownloads());
             foreach ($lineItem->getDownloads() as $download) {
                 static::assertTrue($download->isAccessGranted());
                 static::assertNotNull($download->getMedia());
@@ -316,7 +315,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 ob_start();
                 $response->send();
                 $content = ob_get_clean();
-                static::assertEquals($download->getMedia()->getId(), $content);
+                static::assertSame($download->getMedia()->getId(), $content);
             }
         }
     }
@@ -336,7 +335,7 @@ class GrantDownloadAccessActionTest extends TestCase
         foreach ($productDownloads as $key => $files) {
             static::assertNotNull($lineItems->getAt($key));
             static::assertNotNull($lineItems->getAt($key)->getDownloads());
-            static::assertEquals(\count($files), $lineItems->getAt($key)->getDownloads()->count());
+            static::assertCount(\count($files), $lineItems->getAt($key)->getDownloads());
             foreach ($lineItems->getAt($key)->getDownloads() as $download) {
                 static::assertTrue($download->isAccessGranted());
             }
@@ -398,6 +397,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $media = $download['media'];
                 $mediaFile = $this->fileFetcher->fetchBlob($media['id'], $media['fileExtension'], '');
                 $this->fileSaver->persistFileToMedia($mediaFile, $media['fileName'], $media['id'], $context);
+                $this->fileFetcher->cleanUpTempFile($mediaFile);
             }
         });
 

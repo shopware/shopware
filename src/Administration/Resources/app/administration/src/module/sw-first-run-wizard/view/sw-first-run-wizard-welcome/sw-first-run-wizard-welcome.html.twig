@@ -51,11 +51,7 @@
             {{ $tc('sw-first-run-wizard.welcome.switchLanguageMessage', {}, { pluginName: latestTouchedPlugin.name }) }}
         </p>
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="user.localeId"
-            {% else %}
-            v-model="user.localeId"
-            {% endif %}
             class="sw-profile__language"
             :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
         >
@@ -69,11 +65,7 @@
             </option>
         </sw-select-field>
         <sw-password-field
-            {% if VUE3 %}
             v-model:value="user.pw"
-            {% else %}
-            v-model="user.pw"
-            {% endif %}
             type="password"
             :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
             :copy-able="false"

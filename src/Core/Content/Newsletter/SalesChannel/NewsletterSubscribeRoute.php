@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -28,7 +27,7 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -110,10 +109,6 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             try {
                 $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
             } catch (RateLimitExceededException $e) {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    throw $e;
-                }
-
                 throw NewsletterException::newsletterThrottled($e->getWaitTime());
             }
         }
@@ -167,10 +162,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:visibility-change - will be private in v6.6.0
-     */
-    public function isNewsletterDoi(SalesChannelContext $context): ?bool
+    private function isNewsletterDoi(SalesChannelContext $context): bool
     {
         if ($context->getCustomerId() === null) {
             return $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $context->getSalesChannelId());

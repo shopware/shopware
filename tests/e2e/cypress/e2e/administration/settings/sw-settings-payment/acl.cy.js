@@ -89,6 +89,7 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-settings-payment-detail__field-name').should('be.visible');
         cy.get('#sw-field--paymentMethod-description').type('My description');
         cy.get('#sw-field--paymentMethod-position').clearTypeAndCheck('0');
+        cy.get('.sw-settings-payment-detail-delete').should('not.exist');
 
         // Verify updated payment method
         cy.get('.sw-payment-detail__save-action').should('not.be.disabled');
@@ -141,5 +142,39 @@ describe('Payment: Test ACL privileges', () => {
         cy.get(page.elements.smartBarBack).click();
 
         cy.contains('.sw-card__title', '1 Coleur');
+    });
+
+    it('@settings: can delete payment', { tags: ['pa-checkout', 'VUE3'] }, () => {
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/payment-method/*`,
+            method: 'PATCH',
+        }).as('savePayment');
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'payment',
+                role: 'editor',
+            }, {
+                key: 'payment',
+                role: 'deleter',
+            },
+        ]).then(() => {
+            cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
+
+        // open settings-payment
+        cy.get('.sw-card__title')
+            .contains('CredStick')
+            .closest('.sw-card')
+            .contains('Edit detail')
+            .click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-settings-payment-detail-delete').should('be.visible');
     });
 });

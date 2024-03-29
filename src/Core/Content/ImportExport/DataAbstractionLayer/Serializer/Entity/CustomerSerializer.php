@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -12,24 +10,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('core')]
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
     /**
-     * @var array<string>|null[]
+     * @var array<string, string|null>
      */
     private array $cacheCustomerGroups = [];
 
     /**
-     * @var array<string>|null[]
+     * @var array<string, string|null>
      */
     private array $cachePaymentMethods = [];
 
     /**
-     * @var array<string>|null[]
+     * @var array<string, string|null>
      */
     private array $cacheSalesChannels = [];
 
@@ -43,11 +40,6 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     ) {
     }
 
-    /**
-     * @param array|\Traversable $entity
-     *
-     * @return array|\Traversable
-     */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
         $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
@@ -56,9 +48,11 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
+        $context = Context::createDefaultContext();
+
         if (!isset($deserialized['groupId']) && isset($entity['group'])) {
             $name = $entity['group']['translations']['DEFAULT']['name'] ?? null;
-            $id = $entity['group']['id'] ?? $this->getCustomerGroupId($name);
+            $id = $entity['group']['id'] ?? $this->getCustomerGroupId($name, $context);
 
             if ($id) {
                 $deserialized['groupId'] = $id;
@@ -68,7 +62,7 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
         if (!isset($deserialized['defaultPaymentMethodId']) && isset($entity['defaultPaymentMethod'])) {
             $name = $entity['defaultPaymentMethod']['translations']['DEFAULT']['name'] ?? null;
-            $id = $entity['defaultPaymentMethod']['id'] ?? $this->getDefaultPaymentMethodId($name);
+            $id = $entity['defaultPaymentMethod']['id'] ?? $this->getDefaultPaymentMethodId($name, $context);
 
             if ($id) {
                 $deserialized['defaultPaymentMethodId'] = $id;
@@ -78,7 +72,7 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
         if (!isset($deserialized['salesChannelId']) && isset($entity['salesChannel'])) {
             $name = $entity['salesChannel']['translations']['DEFAULT']['name'] ?? null;
-            $id = $entity['salesChannel']['id'] ?? $this->getSalesChannelId($name);
+            $id = $entity['salesChannel']['id'] ?? $this->getSalesChannelId($name, $context);
 
             if ($id) {
                 $deserialized['salesChannelId'] = $id;
@@ -101,7 +95,7 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
         $this->cacheSalesChannels = [];
     }
 
-    private function getCustomerGroupId(?string $name): ?string
+    private function getCustomerGroupId(?string $name, Context $context): ?string
     {
         if (!$name) {
             return null;
@@ -113,17 +107,15 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
-        $group = $this->customerGroupRepository->search($criteria, Context::createDefaultContext())->first();
-
-        $this->cacheCustomerGroups[$name] = null;
-        if ($group instanceof CustomerGroupEntity) {
-            $this->cacheCustomerGroups[$name] = $group->getId();
-        }
+        $this->cacheCustomerGroups[$name] = $this->customerGroupRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId();
 
         return $this->cacheCustomerGroups[$name];
     }
 
-    private function getDefaultPaymentMethodId(?string $name): ?string
+    private function getDefaultPaymentMethodId(?string $name, Context $context): ?string
     {
         if (!$name) {
             return null;
@@ -135,17 +127,16 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->cachePaymentMethods[$name] = null;
-        if ($paymentMethod instanceof PaymentMethodEntity) {
-            $this->cachePaymentMethods[$name] = $paymentMethod->getId();
-        }
+        $this->cachePaymentMethods[$name] = $this->paymentMethodRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId();
 
         return $this->cachePaymentMethods[$name];
     }
 
-    private function getSalesChannelId(?string $name): ?string
+    private function getSalesChannelId(?string $name, Context $context): ?string
     {
         if (!$name) {
             return null;
@@ -157,12 +148,11 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
-        $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->cacheSalesChannels[$name] = null;
-        if ($salesChannel instanceof SalesChannelEntity) {
-            $this->cacheSalesChannels[$name] = $salesChannel->getId();
-        }
+        $this->cacheSalesChannels[$name] = $this->salesChannelRepository->searchIds(
+            $criteria,
+            $context
+        )->firstId();
 
         return $this->cacheSalesChannels[$name];
     }

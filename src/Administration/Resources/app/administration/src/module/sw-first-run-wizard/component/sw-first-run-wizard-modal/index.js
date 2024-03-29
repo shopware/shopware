@@ -3,9 +3,8 @@ import './sw-first-run-wizard-modal.scss';
 
 /**
  * @package services-settings
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -45,7 +44,12 @@ export default {
                     navigationIndex: 3,
                 },
                 'mailer.smtp': {
-                    name: 'sw.first.run.wizard.index.mailer.setup',
+                    name: 'sw.first.run.wizard.index.mailer.smtp',
+                    variant: 'large',
+                    navigationIndex: 3,
+                },
+                'mailer.local': {
+                    name: 'sw.first.run.wizard.index.mailer.local',
                     variant: 'large',
                     navigationIndex: 3,
                 },

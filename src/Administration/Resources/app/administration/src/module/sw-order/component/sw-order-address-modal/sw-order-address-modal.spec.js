@@ -1,35 +1,31 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swOrderAddressModal from 'src/module/sw-order/component/sw-order-address-modal';
+import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
-Shopware.Component.register('sw-order-address-modal', swOrderAddressModal);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-order-address-modal'), {
-        localVue,
-        stubs: {
-            'sw-modal': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([{ addresses: [] }]);
-                    },
-                    save: () => {
-                        return Promise.resolve();
-                    },
-                }),
+    return mount(await wrapTestComponent('sw-order-address-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-modal': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([{ addresses: [] }]);
+                        },
+                        save: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
             },
         },
-        propsData: {
+        props: {
             address: {},
             countries: [],
             order: {
@@ -47,10 +43,6 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -83,11 +75,5 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         expect(wrapper.vm.getCustomerInfo).not.toHaveBeenCalled();
 
         wrapper.vm.getCustomerInfo.mockRestore();
-    });
-
-    it('should return filters from filter registry', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm.salutationFilter).toEqual(expect.any(Function));
     });
 });

@@ -5,19 +5,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { Route } from 'vue-router';
-import type VueRouter from 'vue-router';
-// Import explicitly global types from admin-extension-sdk
-import '@shopware-ag/admin-extension-sdk';
+import type { Router } from 'vue-router';
+// Import explicitly global types from meteor-admin-sdk
+import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
 import type { ExtensionComponentSectionsState } from 'src/app/state/extension-component-sections.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
-import type { ModuleTypes } from 'src/core/factory/module.factory';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
-import type { default as VueType } from 'vue';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
@@ -30,6 +27,12 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
+import type { App } from 'vue';
+import type { I18n } from 'vue-i18n';
+import type { Slots } from '@vue/runtime-core';
+import type { Store, mapActions, mapGetters, mapMutations, mapState } from 'vuex';
+import type * as mapErrors from 'src/app/service/map-errors.service';
+import type JsonApiParserService from 'src/core/service/jsonapi-parser.service';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -83,6 +86,9 @@ import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
 import type { UsageDataModuleState } from './app/state/usage-data.store';
+import type { FileValidationService } from './app/service/file-validation.service';
+import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
+import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 
 // trick to make it an "external module" to support global type extension
 
@@ -135,15 +141,34 @@ declare global {
     type $TSDangerUnknownObject = {[key: string|symbol]: unknown};
 
     /**
+     * Mark some properties as required
+     */
+    type Require<T, K extends keyof T> = T&{[P in K]-?: T[P]};
+
+    /**
+     * Mark some properties as optional
+     */
+    type Optional<T, K extends keyof T> = T&{[P in K]?: T[P]};
+
+    /**
+     * Mark some properties as optional
+     */
+    type Remove<T, K extends keyof T> = T&{[P in K]?: never};
+
+    /**
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
+
+    interface CustomShopwareProperties {}
+
     interface Window {
         Shopware: ShopwareClass;
         _features_: {
             [featureName: string]: boolean
         };
         processingInactivityLogout?: boolean;
+        _sw_extension_component_collection: DevtoolComponent[];
     }
 
     const _features_: {
@@ -162,7 +187,7 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService,
         cmsPageTypeService: CmsPageTypeService,
         acl: AclService,
-        jsonApiParserService: $TSFixMe,
+        jsonApiParserService: typeof JsonApiParserService,
         validationService: $TSFixMe,
         entityValidationService: EntityValidationService,
         timezoneService: $TSFixMe,
@@ -208,6 +233,7 @@ declare global {
         usageDataService: UsageDataApiService,
         configService: ConfigApiService,
         importExport: ImportExportService,
+        fileValidationService: FileValidationService,
     }
 
     interface MixinContainer {
@@ -222,7 +248,6 @@ declare global {
         placeholder: typeof PlaceholderMixin,
         listing: typeof ListingMixin,
         'cart-notification': typeof CartNotificationMixin,
-        // @ts-expect-error
         'sw-extension-error': typeof SwExtensionErrorMixin,
         'cms-element': typeof CmsElementMixin,
         'generic-condition': typeof GenericConditionMixin,
@@ -271,6 +296,17 @@ declare global {
         [key: string]: ((...args: any[]) => any)|undefined,
     }
 
+    interface ComponentHelper {
+        mapState: typeof mapState,
+        mapMutations: typeof mapMutations,
+        mapGetters: typeof mapGetters,
+        mapActions: typeof mapActions,
+        mapPropertyErrors: typeof mapErrors.mapPropertyErrors,
+        mapSystemConfigErrors: typeof mapErrors.mapSystemConfigErrors,
+        mapCollectionPropertyErrors: typeof mapErrors.mapCollectionPropertyErrors,
+        mapPageErrors: typeof mapErrors.mapPageErrors,
+    }
+
     /**
      * Define global state for the Vuex store
      */
@@ -299,6 +335,7 @@ declare global {
         shopwareApps: ShopwareAppsState,
         sdkLocation: SdkLocationState,
         usageData: UsageDataModuleState
+        adminHelpCenter: AdminHelpCenterState,
     }
 
     /**
@@ -356,41 +393,42 @@ declare module 'bottlejs' { // Use the same module name as the import string
 }
 
 /**
- * Extend the vue-router route information
+ * @deprecated tag:v6.7.0 - will be removed when Vue compat gets removed
  */
-declare module 'vue-router' {
-    interface RouteConfig {
-        name: string,
-        coreRoute: boolean,
-        type: ModuleTypes,
-        flag: string,
-        isChildren: boolean,
-        routeKey: string,
-        children: RouteConfig[],
-        path: string,
-        meta: {
-            parentPath?: string,
-        }
-    }
+interface LegacyPublicProperties {
+    /* eslint-disable @typescript-eslint/ban-types */
+    $set(target: object, key: string, value: any): void;
+    $delete(target: object, key: string): void;
+    $mount(el?: string | Element): this;
+    $destroy(): void;
+    $scopedSlots: Slots;
+    $on(event: string | string[], fn: Function): this;
+    $once(event: string, fn: Function): this;
+    $off(event?: string | string[], fn?: Function): this;
+    $children: LegacyPublicProperties[];
+    $listeners: Record<string, Function | Function[]>;
+    /* eslint-enable @typescript-eslint/ban-types */
 }
 
-/**
- * Extend this context of vue components with service container types (from inject)
- * and plugins
- */
-declare module 'vue/types/vue' {
-    interface Vue extends ServiceContainer {
-        $createTitle: (identifier?: string|null) => string,
-        $router: VueRouter,
-        $route: Route,
-    }
+interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
+    $createTitle: (identifier?: string | null) => string,
+    $router: Router,
+    $store: Store<VuexRootState>,
+    // $route: SwRouteLocationNormalizedLoaded,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    $tc: I18n<{}, {}, {}, string, true>['global']['tc'],
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    $t: I18n<{}, {}, {}, string, true>['global']['t'],
 }
 
-declare module 'vue/types/options' {
-    interface ComponentOptions<V extends VueType> {
+declare module 'vue' {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface ComponentCustomProperties extends CustomProperties {}
+
+    interface ComponentCustomOptions {
         shortcuts?: {
             [key: string]: string | {
-                active: boolean | ((this: V) => boolean),
+                active: boolean | ((this: App) => boolean),
                 method: string
             }
         },
@@ -403,9 +441,14 @@ declare module 'vue/types/options' {
         }
     }
 
-    interface PropOptions<T=any> {
-        validValues?: T[]
+    interface PropOptions {
+        validValues?: any[]
     }
+}
+
+declare module '@vue/runtime-core' {
+    // eslint-disable-next-line @typescript-eslint/no-shadow,@typescript-eslint/no-empty-interface
+    interface App extends CustomProperties {}
 }
 
 declare module 'axios' {

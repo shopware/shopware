@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter
  */
+#[CoversClass(SuffixFilter::class)]
 class SuffixFilterTest extends TestCase
 {
     public function testEncode(): void

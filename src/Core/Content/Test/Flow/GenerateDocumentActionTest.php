@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -76,9 +77,7 @@ class GenerateDocumentActionTest extends TestCase
         $this->logger = $this->getContainer()->get('logger');
     }
 
-    /**
-     * @dataProvider genDocumentProvider
-     */
+    #[DataProvider('genDocumentProvider')]
     public function testGenerateDocument(string $documentType, string $documentRangerType, bool $autoGenInvoiceDoc = false, bool $multipleDoc = false): void
     {
         $context = Context::createDefaultContext();
@@ -137,9 +136,7 @@ class GenerateDocumentActionTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider genErrorDocumentProvider
-     */
+    #[DataProvider('genErrorDocumentProvider')]
     public function testGenerateDocumentError(string $documentType, string $documentRangerType): void
     {
         $context = Context::createDefaultContext();

@@ -18,15 +18,15 @@
             {{ $tc('sw-settings-cache.general.mainMenuItemGeneral') }}
             {% endblock %}
         </h2>
-        {% endblock %}
-    </template>
     {% endblock %}
+    </template>
+{% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_cache_content %}
+{% block sw_settings_cache_content %}
     <template #content>
         <sw-card-view>
-            <template v-if="isLoading">
+            <template v-if="componentIsBuilding">
                 <sw-skeleton />
                 <sw-skeleton />
             </template>
@@ -64,10 +64,10 @@
                                 <p>{{ environmentValue }}</p>
                                 {% endblock %}
                             </div>
-                            {% endblock %}
+                        {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_http_cache %}
+                        {% block sw_settings_cache_content_toolbar_http_cache %}
                             <div>
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -82,10 +82,10 @@
                                 <p>{{ httpCacheValue }}</p>
                                 {% endblock %}
                             </div>
-                            {% endblock %}
+                        {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_toolbar_cache_adapter %}
+                        {% block sw_settings_cache_content_toolbar_cache_adapter %}
                             <div>
 
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -100,7 +100,7 @@
                                 <p>{{ cacheAdapterValue }}</p>
                                 {% endblock %}
                             </div>
-                            {% endblock %}
+                        {% endblock %}
                         </sw-container>
                     </sw-card-section>
                 </template>
@@ -135,11 +135,7 @@
                             variant="ghost"
                             :is-loading="processes.normalClearCache"
                             :process-success="processSuccess.normalClearCache"
-                            {% if VUE3 %}
                             @update:process-success="resetButtons"
-                            {% else %}
-                            @process-finish="resetButtons"
-                            {% endif %}
                             @click="clearCache"
                         >
                             {{ $tc('sw-settings-cache.section.clearCachesButton') }}
@@ -147,165 +143,128 @@
                         {% endblock %}
                     </sw-container>
                 </sw-card-section>
-                {% endblock %}
+            {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_cache_content_clear_and_warm_up_cache_row %}
-                <sw-card-section divider="bottom">
-                    <sw-container
-                        align="center"
-                        columns="1fr auto"
-                        gap="20px"
-                    >
-                        <div>
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_clear_and_warm_up_cache_row_heading %}
-                            <p class="sw-settings-cache__card-section-heading">
-                                {{ $tc('sw-settings-cache.section.clearAndWarmUpHeadline') }}
-                            </p>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_clear_and_warm_up_cache_row_text %}
-                            <p>{{ $tc('sw-settings-cache.section.clearAndWarmUpText') }}</p>
-                            {% endblock %}
-                        </div>
-
-                        {# @deprecated tag:v6.6.0 - Will be removed #}
+            {% block sw_settings_cache_content_indexes_row %}
+                <sw-card-section class="sw-settings-cache__card-indexes">
+                    <sw-container>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_clear_and_warm_up_cache_row_button %}
+                        {% block sw_settings_cache_content_indexes_row_heading %}
+                        <p class="sw-settings-cache__card-section-heading">
+                            {{ $tc('sw-settings-cache.section.indexesHeadline') }}
+                        </p>
+                        {% endblock %}
 
-                        <sw-button-process
-                            variant="ghost"
-                            :is-loading="processes.clearAndWarmUpCache"
-                            :process-success="processSuccess.clearAndWarmUpCache"
-                            {% if VUE3 %}
-                            @update:process-success="resetButtons"
-                            {% else %}
-                            @process-finish="resetButtons"
-                            {% endif %}
-                            @click="clearAndWarmUpCache"
-                        >
-                            {{ $tc('sw-settings-cache.section.clearAndWarmUpButton') }}
-                        </sw-button-process>
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_settings_cache_content_indexes_row_text %}
+                        <p>{{ $tc('sw-settings-cache.section.indexesText') }}</p>
                         {% endblock %}
                     </sw-container>
-                </sw-card-section>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_cache_content_indexes_row %}
-                <sw-card-section>
                     <sw-container
-                        align="center"
-                        columns="1fr auto"
-                        gap="20px"
+                        columns="2fr 3fr 1fr"
+                        gap="10px"
+                        justify="end"
+                        align="end"
                     >
-                        <div>
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_indexes_row_heading %}
-                            <p class="sw-settings-cache__card-section-heading">
-                                {{ $tc('sw-settings-cache.section.indexesHeadline') }}
-                            </p>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_indexes_row_text %}
-                            <p>{{ $tc('sw-settings-cache.section.indexesText') }}</p>
-                            {% endblock %}
-                        </div>
+                        <sw-select-field
+                            v-model:value="indexingMethod"
+                            name="indexingMethod"
+                            class="sw-settings-cache__skip-indexers-select"
+                            :label="$tc('sw-settings-cache.section.indexingModeLabel')"
+                            :disabled="processes.updateIndexes"
+                        >
+                            <option value="skip">
+                                {{ $tc('sw-settings-cache.section.indexingModeOptionSkipLabel') }}
+                            </option>
+                            <option value="only">
+                                {{ $tc('sw-settings-cache.section.indexingModeOptionOnlyLabel') }}
+                            </option>
+                        </sw-select-field>
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_indexes_row_button %}
+                    {% block sw_settings_cache_content_indexes_row_skip_select %}
+                        <sw-select-base
+                            class="sw-settings-cache__indexers-select"
+                            :label="indexingMethod === 'skip' ? $tc('sw-settings-cache.section.indexesSkipSelectLabel') : $tc('sw-settings-cache.section.indexesOnlySelectLabel')"
+                            :disabled="processes.updateIndexes"
+                        >
+                            <template #sw-select-selection>
+                                <sw-label
+                                    v-for="(selection, index) in indexerSelection"
+                                    :key="index"
+                                    @dismiss="changeSelection(false, selection)"
+                                >
+                                    {{ selection }}
+                                </sw-label>
+                                <sw-label
+                                    ghost
+                                    class="sw-settings-cache__indexers-placeholder"
+                                >
+                                    {{ indexingMethod === 'skip' ? $tc('sw-settings-cache.section.indexesSkipSelectPlaceholder') : $tc('sw-settings-cache.section.indexesOnlySelectPlaceholder') }}
+                                </sw-label>
+                            </template>
+                            <template #results-list>
+                                <sw-select-result-list :options="[indexers]">
+                                    <template #result-item="{ item, index }">
+                                        <ul
+                                            class="sw-settings-cache__indexers-list"
+                                            @click.stop
+                                        >
+                                            <li
+                                                v-for="(updaters, indexer) in item"
+                                                :key="indexer"
+                                            >
+                                                <sw-checkbox-field
+                                                    class="sw-settings-cache__indexers-entry"
+                                                    :value="indexerSelection.includes(indexer)"
+                                                    :label="indexer"
+                                                    :name="indexer"
+                                                    size="small"
+                                                    @update:value="changeSelection($event, indexer)"
+                                                />
+                                                <ul>
+                                                    <li
+                                                        v-for="(updater, index) in updaters"
+                                                        :key="index"
+                                                    >
+                                                        <sw-checkbox-field
+                                                            class="sw-settings-cache__indexers-entry"
+                                                            :value="indexerSelection.includes(updater) || indexerSelection.includes(indexer)"
+                                                            :label="updater"
+                                                            :name="updater"
+                                                            size="small"
+                                                            :disabled="indexerSelection.includes(indexer)"
+                                                            @click.prevent
+                                                            @update:value="changeSelection($event, updater)"
+                                                        />
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </template>
+                                </sw-select-result-list>
+                            </template>
+                        </sw-select-base>
+                    {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_settings_cache_content_indexes_row_button %}
                         <sw-button-process
+                            name="updateIndexesButton"
+                            class="sw-button--large"
                             variant="ghost"
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
-                            {% if VUE3 %}
                             @update:process-success="resetButtons"
-                            {% else %}
-                            @process-finish="resetButtons"
-                            {% endif %}
                             @click="updateIndexes"
                         >
                             {{ $tc('sw-settings-cache.section.indexesButton') }}
                         </sw-button-process>
-                        {% endblock %}
-                    </sw-container>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_settings_cache_content_indexes_row_skip_select %}
-                    <sw-select-base
-                        class="sw-settings-cache__indexers-select"
-                        :disabled="processes.updateIndexes"
-                    >
-                        <template #sw-select-selection>
-                            <sw-label
-                                v-for="(selection, index) in skip"
-                                :key="index"
-                                @dismiss="changeSkip(false, selection)"
-                            >
-                                {{ selection }}
-                            </sw-label>
-                            <sw-label
-                                ghost
-                                class="sw-settings-cache__indexers-placeholder"
-                            >
-                                {{ $tc('sw-settings-cache.section.indexesSkipSelectPlaceholder') }}
-                            </sw-label>
-                        </template>
-                        <template #results-list>
-                            <sw-select-result-list :options="[indexers]">
-                                <template #result-item="{ item, index }">
-                                    <ul
-                                        class="sw-settings-cache__indexers-list"
-                                        @click.stop
-                                    >
-                                        <li
-                                            v-for="(updaters, indexer) in item"
-                                            :key="indexer"
-                                        >
-                                            <sw-checkbox-field
-                                                class="sw-settings-cache__indexers-entry"
-                                                :value="skip.includes(indexer)"
-                                                :label="indexer"
-                                                size="small"
-                                                {% if VUE3 %}
-                                                @update:value="changeSkip($event, indexer)"
-                                                {% else %}
-                                                @change="changeSkip($event, indexer)"
-                                                {% endif %}
-                                            />
-                                            <ul>
-                                                <li
-                                                    v-for="(updater, index) in updaters"
-                                                    :key="index"
-                                                >
-                                                    <sw-checkbox-field
-                                                        class="sw-settings-cache__indexers-entry"
-                                                        :value="skip.includes(updater) || skip.includes(indexer)"
-                                                        :label="updater"
-                                                        size="small"
-                                                        :disabled="skip.includes(indexer)"
-                                                        @click.prevent
-                                                        {% if VUE3 %}
-                                                        @update:value="changeSkip($event, updater)"
-                                                        {% else %}
-                                                        @change="changeSkip($event, updater)"
-                                                        {% endif %}
-                                                    />
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </template>
-                            </sw-select-result-list>
-                        </template>
-                    </sw-select-base>
                     {% endblock %}
+                    </sw-container>
                 </sw-card-section>
-                {% endblock %}
+        {% endblock %}
             </sw-card>
         </sw-card-view>
     </template>

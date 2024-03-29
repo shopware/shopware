@@ -4,11 +4,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_time_range_field_from_time %}
     <sw-datepicker
-        {% if VUE3 %}
         v-model:value="fromTime"
-        {% else %}
-        v-model="fromTime"
-        {% endif %}
+        name="sw-field--fromTime"
         size="medium"
         date-type="time"
         required
@@ -20,11 +17,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_time_range_field_to_time %}
     <sw-datepicker
-        {% if VUE3 %}
         v-model:value="toTime"
-        {% else %}
-        v-model="toTime"
-        {% endif %}
+        name="sw-field--toTime"
         size="medium"
         date-type="time"
         required

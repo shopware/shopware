@@ -17,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CartTaxDisplayRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -127,12 +128,11 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartScopeTestData
-     *
      * @param array<string> $categoryIdsProductA
      * @param array<string> $categoryIdsProductB
      * @param array<string> $categoryIds
      */
+    #[DataProvider('getCartScopeTestData')]
     public function testIfMatchesAllCorrectWithLineItemScope(
         array $categoryIdsProductA,
         array $categoryIdsProductB,
@@ -180,13 +180,12 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartScopeTestMinimumShouldMatchData
-     *
      * @param array<string> $categoryIdsProductA
      * @param array<string> $categoryIdsProductB
      * @param array<string> $categoryIdsProductC
      * @param array<string> $categoryIds
      */
+    #[DataProvider('getCartScopeTestMinimumShouldMatchData')]
     public function testIfMatchesMinimumCorrectWithLineItemScope(
         array $categoryIdsProductA,
         array $categoryIdsProductB,

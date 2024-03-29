@@ -35,6 +35,9 @@
             </template>
 
         </sw-alert>
+
+        {% block sw_extension_my_extensions_list_empty_state %}
+
         <sw-meteor-card
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
@@ -66,6 +69,8 @@
             </sw-button>
         </sw-meteor-card>
 
+        {% endblock %}
+
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
                 <sw-extension-my-extensions-listing-controls
@@ -93,15 +98,10 @@
                 <template v-else>
                     <template
                         v-for="entry in extensionListPaginated"
-                        {% if VUE3 %}
                         :key="entry.name"
-                        {% endif %}
                     >
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
-                            {% if VUE2 %}
-                            :key="entry.name"
-                            {% endif %}
                             :extension="entry"
                             @update-list="updateList"
                         />

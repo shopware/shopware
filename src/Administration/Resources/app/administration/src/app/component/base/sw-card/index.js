@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description A card is a flexible and extensible content container.
  * @status ready
  * @example-type dynamic
@@ -18,7 +17,7 @@ const { Component } = Shopware;
  */
 Component.register('sw-card', {
     template,
-    inheritAttrs: !window._features_.VUE3,
+    inheritAttrs: false,
 
     inject: ['feature'],
 
@@ -58,6 +57,11 @@ Component.register('sw-card', {
             required: false,
             default: false,
         },
+        contentPadding: {
+            type: Boolean,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
     },
 
     computed: {
@@ -75,6 +79,12 @@ Component.register('sw-card', {
         hasAvatar() {
             return !!this.$slots.avatar || !!this.$scopedSlots.avatar;
         },
+
+        cardContentClasses() {
+            return {
+                'no--padding': !this.contentPadding,
+            };
+        },
     },
 
     compatConfig: {
@@ -83,7 +93,7 @@ Component.register('sw-card', {
 
     methods: {
         cardClasses() {
-            const classes = {
+            return {
                 'sw-card--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
                 'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
                 'sw-card--hero': !!this.hero,
@@ -94,35 +104,6 @@ Component.register('sw-card', {
                 'has--toolbar': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
                 'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
-
-            // With Vue 3 there is no sw-ignore-class
-            if (this.feature.isActive('VUE3')) {
-                return classes;
-            }
-
-            if (!this.$refs.swIgnoreClass) {
-                this.$nextTick(() => {
-                    this.$forceUpdate();
-                });
-
-                return classes;
-            }
-
-            const staticClasses = (this.$refs.swIgnoreClass?.$el?._prevClass ?? '').split(' ');
-
-            // add attrs classes to main card
-            staticClasses.forEach((className) => {
-                this.$set(classes, className, true);
-            });
-
-            // remove classes from ignore class
-            this.$nextTick(() => {
-                if (this.$refs.swIgnoreClass?.$el?.className) {
-                    this.$refs.swIgnoreClass.$el.className = '';
-                }
-            });
-
-            return classes;
         },
     },
 });

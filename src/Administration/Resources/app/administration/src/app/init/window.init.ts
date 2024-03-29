@@ -4,10 +4,10 @@
 
 /* Is covered by E2E tests */
 /* istanbul ignore file */
-import type VueRouter from 'vue-router';
+import type { Router } from 'vue-router';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeWindow(): void {
     // Handle incoming window requests from the ExtensionAPI
@@ -29,7 +29,7 @@ export default function initializeWindow(): void {
         path,
         replace,
     }) => {
-        const $router = Shopware.Application.view?.root?.$router as unknown as VueRouter;
+        const $router = Shopware.Application.view?.router as unknown as Router;
 
         if (!$router) {
             return;
@@ -38,7 +38,7 @@ export default function initializeWindow(): void {
         void $router.push({
             name: name && name.length > 0 ? name : undefined,
             params,
-            path: path && path.length > 0 ? path : undefined,
+            path: path && path.length > 0 ? path : '',
             replace: replace ?? false,
         });
     });

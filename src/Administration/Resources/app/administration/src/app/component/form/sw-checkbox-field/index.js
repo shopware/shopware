@@ -7,8 +7,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Boolean input field based on checkbox.
  * @status ready
  * @example-type static
@@ -19,6 +18,8 @@ Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
 
+    emits: ['update:value'],
+
     inject: ['feature'],
 
     mixins: [
@@ -26,12 +27,13 @@ Component.register('sw-checkbox-field', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
+        id: {
+            type: String,
+            required: false,
+            default: () => utils.createId(),
+        },
+
         disabled: {
             type: Boolean,
             required: false,
@@ -96,7 +98,6 @@ Component.register('sw-checkbox-field', {
     data() {
         return {
             currentValue: this.value,
-            id: utils.createId(),
         };
     },
 
@@ -159,13 +160,7 @@ Component.register('sw-checkbox-field', {
 
     methods: {
         onChange(changeEvent) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', changeEvent.target.checked);
-
-                return;
-            }
-
-            this.$emit('change', changeEvent.target.checked);
+            this.$emit('update:value', changeEvent.target.checked);
         },
     },
 });

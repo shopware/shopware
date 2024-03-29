@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 
 /**
  * @internal We might break this in v6.2
@@ -67,33 +68,8 @@ class SupportedFeaturesService
 
     public function getUploadFileSizeLimit(): int
     {
-        $twoGiB = 2 * 1024 * 1024 * 1024;
-        $values = [
-            self::toBytes((string) \ini_get('upload_max_filesize')),
-            self::toBytes((string) \ini_get('post_max_size')),
-            $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
-        ];
+        $twoGiB = 2 * 1024 * 1024 * 1024; // 2 GiB as fallback, because file size is stored in MySQL INT column
 
-        $limits = array_filter($values, static fn (int $value) => $value > 0);
-
-        return min($limits);
-    }
-
-    private static function toBytes(string $value): int
-    {
-        if (is_numeric($value)) {
-            return (int) $value;
-        }
-        $length = mb_strlen($value);
-        $qty = (int) mb_substr($value, 0, $length - 1);
-        $unit = mb_strtolower(mb_substr($value, $length - 1));
-        match ($unit) {
-            'k' => $qty *= 1024,
-            'm' => $qty *= 1048576,
-            'g' => $qty *= 1073741824,
-            default => $qty,
-        };
-
-        return $qty;
+        return MemorySizeCalculator::getMaxUploadSize($twoGiB);
     }
 }

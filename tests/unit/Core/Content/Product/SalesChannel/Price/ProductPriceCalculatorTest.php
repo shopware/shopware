@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
@@ -36,9 +38,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator
  */
+#[CoversClass(ProductPriceCalculator::class)]
 class ProductPriceCalculatorTest extends TestCase
 {
     private ProductPriceCalculator $calculator;
@@ -57,9 +58,7 @@ class ProductPriceCalculatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider priceWillBeCalculated
-     */
+    #[DataProvider('priceWillBeCalculated')]
     public function testPriceWillBeCalculated(Entity $entity, ?PriceAssertion $expected): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -68,7 +67,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         $this->calculator->calculate([$entity], $context);
 
-        if (!$expected instanceof \Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price\PriceAssertion) {
+        if (!$expected instanceof PriceAssertion) {
             static::assertNull($entity->get('calculatedPrice'));
 
             return;
@@ -85,9 +84,7 @@ class ProductPriceCalculatorTest extends TestCase
         static::assertEquals($expected->listPrice, $price->getListPrice()?->getPrice());
     }
 
-    /**
-     * @dataProvider taxStateWillBeUsedProvider
-     */
+    #[DataProvider('taxStateWillBeUsedProvider')]
     public function testTaxStateWillBeUsed(Entity $product, string $state, float $expected): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -235,10 +232,9 @@ class ProductPriceCalculatorTest extends TestCase
     }
 
     /**
-     * @dataProvider advancedPricesWillBeCalculatedProvider
-     *
      * @param array<int, float> $expected
      */
+    #[DataProvider('advancedPricesWillBeCalculatedProvider')]
     public function testAdvancedPricesWillBeCalculated(Entity $product, array $expected): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -331,9 +327,7 @@ class ProductPriceCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider cheapestPriceWillBeCalculatedProvider
-     */
+    #[DataProvider('cheapestPriceWillBeCalculatedProvider')]
     public function testCheapestPriceWillBeCalculated(Entity $entity, ?PriceAssertion $expected): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -342,7 +336,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         $this->calculator->calculate([$entity], $context);
 
-        if (!$expected instanceof \Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price\PriceAssertion) {
+        if (!$expected instanceof PriceAssertion) {
             static::assertNull($entity->get('calculatedCheapestPrice'));
 
             return;

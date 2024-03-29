@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Exception;
 use League\Flysystem\Filesystem;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -23,7 +24,6 @@ use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
@@ -49,9 +49,8 @@ use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeCompiler
  */
+#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -73,7 +72,7 @@ class ThemeCompilerTest extends TestCase
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
         // Avoid filesystem operations
-        $mockFilesystem = $this->createMock(FileSystem::class);
+        $mockFilesystem = $this->createMock(Filesystem::class);
 
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
 
@@ -383,21 +382,6 @@ PHP_EOL;
         static::assertEquals($expected, $actual);
     }
 
-    public function testConcanatedScriptsEventPassThrough(): void
-    {
-        $subscriber = new MockThemeCompilerConcatenatedSubscriber();
-
-        $scripts = 'console.log(\'foo\');';
-
-        $event = new ThemeCompilerConcatenatedScriptsEvent($scripts, $this->mockSalesChannelId);
-        $subscriber->onGetConcatenatedScripts($event);
-        $actual = $event->getConcatenatedScripts();
-
-        $expected = $scripts . MockThemeCompilerConcatenatedSubscriber::SCRIPTS_CONCAT;
-
-        static::assertEquals($expected, $actual);
-    }
-
     public function testDBException(): void
     {
         $configService = $this->getConfigurationServiceDbException(
@@ -413,7 +397,7 @@ PHP_EOL;
         );
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $stderr = fopen('php://stderr', 'wb');
+        $stderr = fopen('php://stderr', 'w');
 
         $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
     }

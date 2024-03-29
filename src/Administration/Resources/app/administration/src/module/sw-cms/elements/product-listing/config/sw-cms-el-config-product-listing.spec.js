@@ -2,26 +2,23 @@
  * @package buyers-experience
  */
 import Vue from 'vue';
-import { shallowMount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data/entity-collection.data';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigProductListing from 'src/module/sw-cms/elements/product-listing/config';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-
-Shopware.Component.register('sw-cms-el-config-product-listing', swCmsElConfigProductListing);
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const productSortingRepositoryMock = {
-    search: jest.fn(() => {
+    search() {
         return Promise.resolve(
-            new EntityCollection('', '', Shopware.Context.api, null, [{}], 1),
+            new EntityCollection(
+                '',
+                '',
+                Shopware.Context.api,
+                null,
+                [{}],
+                1,
+            ),
         );
-    }),
+    },
     route: '/product_sorting',
     schema: {
         entity: 'product_sorting',
@@ -62,41 +59,50 @@ const repositoryMockFactory = (entity) => {
 };
 
 
-async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing'), {
-        stubs: {
-            'sw-cms-el-config-product-listing-config-sorting-grid': true,
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-            'sw-simple-search-field': true,
-            'sw-entity-multi-select': true,
-            'sw-select-field': true,
-            'sw-switch-field': true,
-            'sw-pagination': true,
-            'sw-container': true,
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-alert': true,
-            'sw-empty-state': true,
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-icon': true,
-            'sw-help-text': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsElementRegistry: () => {
-                    return [];
+async function createWrapper(activeTab = 'sorting') {
+    return mount(await wrapTestComponent('sw-cms-el-config-product-listing', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-cms-el-config-product-listing-config-sorting-grid': true,
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-entity-single-select': true,
+                'sw-simple-search-field': true,
+                'sw-entity-multi-select': true,
+                'sw-select-field': true,
+                'sw-switch-field': true,
+                'sw-pagination': true,
+                'sw-container': true,
+                'sw-tabs-item': true,
+                'sw-alert': true,
+                'sw-empty-state': true,
+                'sw-tabs': {
+                    data() {
+                        return { active: activeTab };
+                    },
+                    template: `
+                        <div>
+                            <slot></slot>
+                            <slot name="content" v-bind="{ active }"></slot>
+                        </div>
+                    `,
                 },
             },
-            repositoryFactory: {
-                create: (entity) => repositoryMockFactory(entity),
-            },
+            provide: {
+                cmsService: {
+                    getCmsElementRegistry: () => {
+                        return [];
+                    },
+                },
+                repositoryFactory: {
+                    create: (entity) => repositoryMockFactory(entity),
+                },
 
+            },
         },
-        propsData: Vue.observable({
+        props: Vue.observable({
             defaultConfig: {},
             element: {
                 config: {
@@ -129,10 +135,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/product-listing/config', () => {
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
@@ -141,21 +143,19 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain tab items content, sorting and filter', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('.sw-cms-el-config-product-listing__tab-content').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-cms-el-config-product-listing__tab-filter').exists()).toBeTruthy();
+        expect(wrapper.find('sw-tabs-item-stub[name="content"]').exists()).toBeTruthy();
+        expect(wrapper.find('sw-tabs-item-stub[name="sorting"]').exists()).toBeTruthy();
+        expect(wrapper.find('sw-tabs-item-stub[name="filter"]').exists()).toBeTruthy();
     });
 
     it('should contain content for sorting when defaultSorting is deactivated', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').trigger('click');
-
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
         const useDefaultSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
-        const defaultSortingIdSelect = wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select');
+        const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
         const cmsElConfigProductListingConfigSortingGrid = wrapper
             .find('sw-cms-el-config-product-listing-config-sorting-grid-stub');
@@ -170,23 +170,15 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should contain only some content for sorting when defaultSorting is activated', async () => {
         const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            element: {
-                config: {
-                    useCustomSorting: {
-                        value: false,
-                    },
-                },
-            },
-        });
+        wrapper.vm.element.config.useCustomSorting.value = false;
 
-        await wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').trigger('click');
+        await wrapper.vm.$nextTick();
 
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
         const useDefaultSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
-        const defaultSortingIdSelect = wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select');
+        const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
         const cmsElConfigProductListingConfigSortingGrid = wrapper
             .find('sw-cms-el-config-product-listing-config-sorting-grid-stub');
@@ -206,10 +198,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.setData({
             productSortings: [
                 {
+                    id: 'foo_id',
                     key: 'foo',
                     priority: 2,
                 },
                 {
+                    id: 'bar_id',
                     key: 'bar',
                     priority: 5,
                 },
@@ -217,26 +211,9 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
-            foo: 2,
-            bar: 5,
+            foo_id: 2,
+            bar_id: 5,
         });
-    });
-
-    it('should automatically clear defaultSorting if defaultSorting is null', async () => {
-        productSortingRepositoryMock.search.mockImplementationOnce(() => {
-            return Promise.resolve(
-                new EntityCollection('', '', Shopware.Context.api, null, [], 0),
-            );
-        });
-
-        const wrapper = await createWrapper();
-
-        expect(productSortingRepositoryMock.search).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.defaultSorting).toStrictEqual({});
-
-        await wrapper.find('.sw-cms-el-config-product-listing__tab-sorting').trigger('click');
-        expect(wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select').exists()).toBe(true);
-        expect(wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select input').element.value).toBe('');
     });
 
     it('should update the productSortings priority with the values from the config', async () => {
@@ -278,10 +255,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         const before = [
             {
+                id: 'foo_id',
                 key: 'foo',
                 priority: 2,
             },
             {
+                id: 'bar_id',
                 key: 'bar',
                 priority: 5,
             },
@@ -294,15 +273,14 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const after = wrapper.vm.transformProductSortings();
 
         expect(after).toStrictEqual({
-            bar: 5,
-            foo: 2,
+            bar_id: 5,
+            foo_id: 2,
         });
     });
 
     it('should contain content for filter setting', async () => {
         const wrapper = await createWrapper('filter');
-
-        await wrapper.find('.sw-cms-el-config-product-listing__tab-filter').trigger('click');
+        await flushPromises();
 
         const showFilterManufacturerSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelFilterByManufacturer"]');
@@ -321,9 +299,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
     it('should show use-filter-properties-option when properties available', async () => {
         const wrapper = await createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // calculate showPropertySelection
+
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        await wrapper.find('.sw-cms-el-config-product-listing__tab-filter').trigger('click');
+        await wrapper.vm.$nextTick(); // re-render view
 
         const showUseFilterByPropertiesSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]');
@@ -340,10 +321,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should sort properties by status', async () => {
         const wrapper = await createWrapper('filter');
 
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
         // enable filterByProperties otherwise any property is active
-        await wrapper.setData({
-            filterByProperties: true,
-        });
+        wrapper.vm.filterByProperties = true;
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
@@ -352,17 +333,11 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
 
-        await wrapper.setData({
-            element: {
-                config: {
-                    // eslint-disable-next-line inclusive-language/use-inclusive-words
-                    propertyWhitelist: {
-                        value: ['x02'],
-                    },
-                },
-            },
-        });
-        await wrapper.vm.loadFilterableProperties();
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
+        wrapper.vm.element.config.propertyWhitelist.value = ['x02']; // activate Property_group 'baz'
+        wrapper.vm.loadFilterableProperties();
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
 
         const expectedOrderWhenPropertyBazIsActive = ['baz', 'bar', 'foo'];
         const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map(item => item.name);
@@ -373,39 +348,48 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should filter properties by term', async () => {
         const wrapper = await createWrapper('filter');
 
+        await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises();
+
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
-        await wrapper.setData({
-            filterPropertiesTerm: 'bar',
-        });
-        await wrapper.vm.onFilterProperties();
+        wrapper.vm.filterPropertiesTerm = 'bar';
+        wrapper.vm.onFilterProperties();
+        await wrapper.vm.$nextTick(); // fetch filtered list
+        await flushPromises();
 
         const expectedToDisplayFilteredProperties = ['bar'];
         const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
 
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
+        await wrapper.vm.$nextTick(); // await template re-render
+        await flushPromises();
+
         const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
-        expect(emptyStateElement.element).not.toBeTruthy();
+        expect(emptyStateElement.exists()).toBe(false);
     });
 
     it('should show an empty-state when filtered properties have no result', async () => {
         const wrapper = await createWrapper('filter');
 
+        await wrapper.vm.$nextTick(); // fetch property_group call
+
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
-        await wrapper.setData({
-            filterPropertiesTerm: 'notinlist',
-        });
-        await wrapper.vm.onFilterProperties();
+        wrapper.vm.filterPropertiesTerm = 'notinlist';
+        wrapper.vm.onFilterProperties();
+        await wrapper.vm.$nextTick(); // fetch filtered list
 
         const expectedToDisplayFilteredProperties = [];
         const displayedFilteredProperties = wrapper.vm.properties.map(item => item.name);
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
+
+        await wrapper.vm.$nextTick(); // await template re-render
 
         const emptyStateElement = wrapper.findComponent({ name: 'sw-empty-state-stub' });
         expect(emptyStateElement).toBeTruthy();
@@ -414,6 +398,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should toggle property filters', async () => {
         /* eslint-disable inclusive-language/use-inclusive-words */
         const wrapper = await createWrapper('filter');
+
+        await wrapper.vm.$nextTick(); // fetch property_group call
 
         const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map(item => item.name);

@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Database\MigrationCollectionFactory;
 use Shopware\Core\TestBootstrapper;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Database\MigrationCollectionFactory
  */
+#[CoversClass(MigrationCollectionFactory::class)]
 class MigrationCollectionFactoryTest extends TestCase
 {
     public function testGetMigrationCollectionLoader(): void

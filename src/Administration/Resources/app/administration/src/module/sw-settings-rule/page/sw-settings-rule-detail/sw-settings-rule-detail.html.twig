@@ -21,6 +21,7 @@
         {% block sw_settings_rule_detail_actions_cancel %}
         <sw-button
             v-tooltip.bottom="tooltipCancel"
+            class="sw-settings-rule-detail__cancel-action"
             :disabled="isLoading"
             @click="onCancel"
         >
@@ -40,11 +41,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_actions_save %}
             <sw-button-process
-                {% if VUE3 %}
                 v-model:processSuccess="isSaveSuccessful"
-                {% else %}
-                v-model="isSaveSuccessful"
-                {% endif %}
                 v-tooltip.bottom="tooltipSave"
                 class="sw-settings-rule-detail__save-action"
                 :is-loading="isLoading"
@@ -144,7 +141,6 @@
             </template>
 
             <template v-else-if="rule !== null">
-            {% if VUE3 %}
                 <router-view
                     v-slot="{ Component }"
                     :key="$route.path"
@@ -162,20 +158,6 @@
                         @tree-finished-loading="setTreeFinishedLoading"
                     />
                 </router-view>
-            {% else %}
-                <router-view
-                    :key="$route.path"
-                    :rule="rule"
-                    :conditions="conditions"
-                    :condition-repository="conditionRepository"
-                    :is-loading="isLoading"
-                    :detail-page-loading="isLoading"
-                    :rule-name-error="ruleNameError"
-                    :rule-priority-error="rulePriorityError"
-                    @conditions-changed="conditionsChanged"
-                    @tree-finished-loading="setTreeFinishedLoading"
-                />
-            {% endif %}
             </template>
             {% endblock %}
         </sw-card-view>

@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Provides a wrapper to create a wizard modal. The wizard pages are placed in the default slot of the
  * component. Dot navigation as well as the navigation buttons are dynamically within the wizard itself.
  * Please use `sw-wizard-page` for the different wizard pages. When a more sophisticated wizard page is necessary,
@@ -105,12 +104,7 @@ Component.register('sw-wizard', {
             this.pages.push(component);
             this.$emit('pages-updated', this.pages, component, 'add');
 
-            if (this.feature.isActive('VUE3')) {
-                // The timing in Vue3 is different. So mounted happens now before
-                // the child components are mounted. So we need to change
-                // the page after each new page addition
-                this.changePage(this.currentlyActivePage);
-            }
+            this.changePage(this.currentlyActivePage);
         },
 
         removePage(component) {

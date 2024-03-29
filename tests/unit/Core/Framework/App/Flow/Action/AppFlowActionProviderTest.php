@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -19,9 +20,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider
  */
+#[CoversClass(AppFlowActionProvider::class)]
 class AppFlowActionProviderTest extends TestCase
 {
     public function testGetWebhookPayloadAndHeaders(): void

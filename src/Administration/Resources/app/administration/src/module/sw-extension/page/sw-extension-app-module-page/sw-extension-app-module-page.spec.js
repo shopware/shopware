@@ -1,33 +1,14 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/app/component/structure/sw-page';
-import SwExtensionsAppModulePage from 'src/module/sw-extension/page/sw-extension-app-module-page';
-import SwExtensionsAppModuleErrorPage from 'src/module/sw-extension/component/sw-extension-app-module-error-page';
+import { mount } from '@vue/test-utils';
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
 
-Shopware.Component.register('sw-extension-app-module-page', SwExtensionsAppModulePage);
-Shopware.Component.register('sw-extension-my-apps-error-page', SwExtensionsAppModuleErrorPage);
-
-/**
- * @package services-settings
- */
-describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
-    beforeEach(() => {
-        Shopware.State.get('session').currentLocale = 'en-GB';
-        Shopware.State.commit('shopwareApps/setApps', testApps);
-    });
-
-    async function createWrapper(propsData) {
-        const localVue = createLocalVue();
-        localVue.filter('asset', value => value);
-
-        // @ts-ignore
-        return shallowMount(await Shopware.Component.build('sw-extension-app-module-page'), {
-            localVue,
-            propsData,
+async function createWrapper(props) {
+    // @ts-ignore
+    return mount(await wrapTestComponent('sw-extension-app-module-page', { sync: true }), {
+        global: {
             stubs: {
-                'sw-extension-app-module-error-page': await Shopware.Component.build('sw-extension-my-apps-error-page'),
-                'sw-page': await Shopware.Component.build('sw-page'),
+                'sw-extension-app-module-error-page': await wrapTestComponent('sw-extension-app-module-error-page', { sync: true }),
+                'sw-page': await wrapTestComponent('sw-page', { sync: true }),
                 'sw-notification-center': true,
                 'sw-help-center': true,
                 'sw-search-bar': true,
@@ -44,8 +25,19 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
                     },
                 },
             },
-        });
-    }
+        },
+        props,
+    });
+}
+
+/**
+ * @package services-settings
+ */
+describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
+    beforeEach(() => {
+        Shopware.State.get('session').currentLocale = 'en-GB';
+        Shopware.State.commit('shopwareApps/setApps', testApps);
+    });
 
     it('sets the correct heading and source with a regular module', async () => {
         const wrapper = await createWrapper({

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -10,10 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
-use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Store\StoreException;
@@ -27,9 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class ExtensionLifecycleServiceTest extends TestCase
 {
     use ExtensionBehaviour;
@@ -87,34 +83,13 @@ class ExtensionLifecycleServiceTest extends TestCase
         static::assertFalse($testApp->isActive());
     }
 
-    public function testUninstallWithInvalidNameWithoutMajorFlag(): void
+    public function testUninstallWithInvalidNameWithout(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
         $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
     }
 
-    public function testUninstallWithInvalidNameWithMajorFlag(): void
+    public function testInstallAppNotExisting(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "notExisting"');
-        $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
-    }
-
-    public function testInstallAppNotExistingWithoutMajorFlag(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->expectException(ExtensionInstallException::class);
-        $this->lifecycleService->install('app', 'notExisting', $this->context);
-    }
-
-    public function testInstallAppNotExistingWithMajorFlagActivated(): void
-    {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $this->expectException(StoreException::class);
         $this->expectExceptionMessage('Cannot find app by name notExisting');
         $this->lifecycleService->install('app', 'notExisting', $this->context);
@@ -168,36 +143,15 @@ class ExtensionLifecycleServiceTest extends TestCase
         static::assertFalse($testApp->isActive());
     }
 
-    public function testUpdateExtensionNotExistingWithoutMajorFlag(): void
+    public function testUpdateExtensionNotExisting(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->expectException(ExtensionInstallException::class);
-        $this->lifecycleService->update('app', 'foo', false, $this->context);
-    }
-
-    public function testUpdateExtensionNotExistingWithMajorFlag(): void
-    {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Cannot find extension');
         $this->lifecycleService->update('app', 'foo', false, $this->context);
     }
 
-    public function testUpdateExtensionNotInstalledWithoutMajorFlag(): void
+    public function testUpdateExtensionNotInstalled(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
-        $this->expectException(ExtensionNotFoundException::class);
-        $this->lifecycleService->update('app', 'TestApp', false, $this->context);
-    }
-
-    public function testUpdateExtensionNotInstalledWithMajorFlag(): void
-    {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
         $this->expectException(StoreException::class);
         $this->expectExceptionMessage('Could not find extension with technical name "TestApp"');
@@ -253,11 +207,7 @@ class ExtensionLifecycleServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(StoreException::class);
-        } else {
-            $this->expectException(ExtensionThemeStillInUseException::class);
-        }
+        $this->expectException(StoreException::class);
         $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
@@ -301,11 +251,7 @@ class ExtensionLifecycleServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(StoreException::class);
-        } else {
-            $this->expectException(ExtensionThemeStillInUseException::class);
-        }
+        $this->expectException(StoreException::class);
         $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
         $this->expectExceptionMessage(sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));

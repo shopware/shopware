@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Delivery;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator;
@@ -20,11 +21,10 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Delivery\DeliveryValidator
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(DeliveryValidator::class)]
 class DeliveryValidatorTest extends TestCase
 {
     private const SHIPPING_METHOD_AVAILABILITY_RULE_ID = 'shipping-method-availability-rule-id';
@@ -45,9 +45,6 @@ class DeliveryValidatorTest extends TestCase
 
     public function testValidateDeliveryShippingMethodWithNoAvailabilityRuleShallBeValid(): void
     {
-        /** @deprecated - remove markTestSkipped to test that shipping methods with availability_rule_id = null are valid. For this test, the return type in ShippingMethodEntity::getAvailabilityRuleId has to be adjusted before. */
-        static::markTestSkipped('This has to be enabled in 6.6.0.0. The test should ensure that a shipping method with availability_rule_id = null is valid');
-
         $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
         $cart->setDeliveries(new DeliveryCollection([$this->generateDeliveryDummy(null)]));

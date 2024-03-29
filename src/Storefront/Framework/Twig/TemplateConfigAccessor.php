@@ -46,9 +46,9 @@ class TemplateConfigAccessor
     /**
      * @return array<int, string> $items
      */
-    public function scripts(SalesChannelContext $context, ?string $themeId): array
+    public function scripts(): array
     {
-        return $this->themeScripts->getThemeScripts($context, $themeId);
+        return $this->themeScripts->getThemeScripts();
     }
 
     /**

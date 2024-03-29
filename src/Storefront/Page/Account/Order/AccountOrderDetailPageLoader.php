@@ -57,14 +57,17 @@ class AccountOrderDetailPageLoader
         $criteria
             ->addAssociation('lineItems')
             ->addAssociation('orderCustomer')
+            ->addAssociation('stateMachineState')
             ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('lineItems.cover');
 
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $salesChannelContext, $criteria);
         $this->eventDispatcher->dispatch($event);

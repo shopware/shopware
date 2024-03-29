@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductVariationBuilder;
@@ -15,16 +17,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\ProductVariationBuilder
  */
+#[CoversClass(ProductVariationBuilder::class)]
 class ProductVariationBuilderTest extends TestCase
 {
     /**
-     * @dataProvider buildingProvider
-     *
      * @param array<array<string, string>> $expected
      */
+    #[DataProvider('buildingProvider')]
     public function testBuilding(Entity $product, array $expected): void
     {
         $builder = new ProductVariationBuilder();

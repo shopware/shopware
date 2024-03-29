@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
@@ -45,9 +46,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         static::assertCount(1, $event->getPayloads());
     }
 
-    /**
-     * @dataProvider templateUpdateDataProvider
-     */
+    #[DataProvider('templateUpdateDataProvider')]
     public function testUpdate(string $id, array $template): void
     {
         $context = Context::createDefaultContext();

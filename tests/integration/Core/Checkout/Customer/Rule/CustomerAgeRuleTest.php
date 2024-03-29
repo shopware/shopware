@@ -2,10 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -13,14 +16,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule
  */
+#[Package('services-settings')]
+#[CoversClass(CustomerAgeRule::class)]
+#[Group('rules')]
 class CustomerAgeRuleTest extends TestCase
 {
     use IntegrationTestBehaviour;

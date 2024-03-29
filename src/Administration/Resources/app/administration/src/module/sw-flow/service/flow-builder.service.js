@@ -189,7 +189,7 @@ export default function flowBuilderService() {
         const entries = Object.entries(config);
 
         entries.forEach(([key, value]) => {
-            if (window._features_.vue3 && !$labelSnippet.hasOwnProperty(key)) {
+            if (!$labelSnippet.hasOwnProperty(key)) {
                 return;
             }
 

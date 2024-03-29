@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -18,7 +21,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -28,14 +33,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartShippingCostRule
  */
+#[Package('services-settings')]
+#[CoversClass(CartShippingCostRule::class)]
+#[Group('rules')]
 class CartShippingCostRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -47,9 +49,7 @@ class CartShippingCostRuleTest extends TestCase
         $this->rule = new CartShippingCostRule();
     }
 
-    /**
-     * @dataProvider getRuleTestData
-     */
+    #[DataProvider('getRuleTestData')]
     public function testIfMatchesCorrectWithShippingCosts(
         CartShippingCostRule $rule,
         CalculatedPrice $calculatedPrice,
@@ -71,7 +71,7 @@ class CartShippingCostRuleTest extends TestCase
     }
 
     /**
-     * @return iterable <string, array{CartShippingCostRule, CalculatedPrice, boolean}>
+     * @return iterable <string, array{CartShippingCostRule, CalculatedPrice, bool}>
      */
     public static function getRuleTestData(): iterable
     {
@@ -199,10 +199,12 @@ class CartShippingCostRuleTest extends TestCase
         $config = (new CartShippingCostRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'cartShippingCost' => [
                     'name' => 'cartShippingCost',
                     'type' => 'float',
-                    'config' => [],
+                    'config' => [
+                        'digits' => RuleConfig::DEFAULT_DIGITS,
+                    ],
                 ],
             ],
             'operatorSet' => [

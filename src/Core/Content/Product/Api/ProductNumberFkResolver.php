@@ -47,7 +47,9 @@ class ProductNumberFkResolver extends AbstractFkResolver
         );
 
         foreach ($map as $reference) {
-            $reference->resolved = $hash[$reference->value];
+            if (isset($hash[$reference->value])) {
+                $reference->resolved = $hash[$reference->value];
+            }
         }
 
         return $map;

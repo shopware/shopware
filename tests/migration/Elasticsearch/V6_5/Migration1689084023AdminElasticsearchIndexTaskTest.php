@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Elasticsearch\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchIndexTask;
@@ -11,9 +12,8 @@ use Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchI
  * @package core
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchIndexTask
  */
+#[CoversClass(Migration1689084023AdminElasticsearchIndexTask::class)]
 class Migration1689084023AdminElasticsearchIndexTaskTest extends TestCase
 {
     private Connection $connection;

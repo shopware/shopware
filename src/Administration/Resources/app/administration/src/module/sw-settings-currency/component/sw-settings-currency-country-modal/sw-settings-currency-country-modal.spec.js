@@ -1,36 +1,30 @@
-/**
- * @package buyers-experience
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsCurrencyCountryModal from 'src/module/sw-settings-currency/component/sw-settings-currency-country-modal';
-
-Shopware.Component.register('sw-settings-currency-country-modal', swSettingsCurrencyCountryModal);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-currency-country-modal'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-currency-country-modal', {
+        sync: true,
+    }), {
+        props: {
             currencyCountryRounding: {
                 currencyId: 'currencyId1',
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        searchIds: () => Promise.resolve([]),
-                    };
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            searchIds: () => Promise.resolve([]),
+                        };
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-modal': true,
-            'sw-entity-single-select': true,
-            'sw-settings-price-rounding': true,
-            'sw-button': true,
+            stubs: {
+                'sw-modal': true,
+                'sw-entity-single-select': true,
+                'sw-settings-price-rounding': true,
+                'sw-button': true,
+            },
         },
     });
 }

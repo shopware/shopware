@@ -3,8 +3,11 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -41,19 +44,17 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Context\BaseContextFactory
  */
 #[Package('buyers-experience')]
+#[CoversClass(BaseContextFactory::class)]
 class BaseContextFactoryTest extends TestCase
 {
     /**
-     * @dataProvider factoryCreationDataProvider
-     *
      * @param array<string, mixed> $options
      * @param array<string, array<mixed>> $entitySearchResult
      * @param false|array<string, mixed> $fetchDataResult
      */
+    #[DataProvider('factoryCreationDataProvider')]
     public function testCreate(
         array $options,
         false|array $fetchDataResult,
@@ -76,6 +77,7 @@ class BaseContextFactoryTest extends TestCase
         $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
 
         $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
         $connection->expects(static::once())->method('fetchAssociative')->willReturn($fetchDataResult);
 
         if ($fetchDataResult === false) {

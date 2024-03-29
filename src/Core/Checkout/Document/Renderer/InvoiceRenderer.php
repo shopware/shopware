@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -91,6 +94,10 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $config->merge([
                         'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
                         'documentNumber' => $number,
+                        'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                            $config->jsonSerialize(),
+                            $order,
+                        ),
                         'custom' => [
                             'invoiceNumber' => $number,
                         ],
@@ -106,8 +113,14 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                         continue;
                     }
 
+                    /** @var LanguageEntity|null $language */
+                    $language = $order->getLanguage();
+                    if ($language === null) {
+                        throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                    }
+
                     /** @var LocaleEntity $locale */
-                    $locale = $order->getLanguage()->getLocale();
+                    $locale = $language->getLocale();
 
                     $html = $this->documentTemplateRenderer->render(
                         $template,
@@ -154,5 +167,35 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
             $order->getSalesChannelId(),
             $operation->isPreview()
         );
+    }
+
+    /**
+     * @param  array<string, mixed> $config
+     */
+    private function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
+    {
+        if (empty($config['displayAdditionalNoteDelivery']) || empty($config['deliveryCountries'])) {
+            return false;
+        }
+
+        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
+        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return false;
+        }
+
+        $orderDelivery = $order->getDeliveries()?->first();
+        if (!$orderDelivery) {
+            return false;
+        }
+
+        $shippingAddress = $orderDelivery->getShippingOrderAddress();
+        $country = $shippingAddress?->getCountry();
+        if ($country === null) {
+            return false;
+        }
+
+        $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
+
+        return $isCompanyTaxFree && \in_array($country->getId(), $config['deliveryCountries'], true);
     }
 }

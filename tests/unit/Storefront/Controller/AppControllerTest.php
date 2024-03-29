@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
@@ -11,9 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\AppController
  */
+#[CoversClass(AppController::class)]
 class AppControllerTest extends TestCase
 {
     public function testGenerate(): void

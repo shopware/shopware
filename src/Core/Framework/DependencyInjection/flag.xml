@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Framework\Feature\FeatureFlagRegistry" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="event_dispatcher" />
+            <argument>%shopware.feature.flags%</argument>
+            <argument>%shopware.feature_toggle.enable%</argument>
+        </service>
+
+    </services>
+</container>

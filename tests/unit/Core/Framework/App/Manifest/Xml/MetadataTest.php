@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata
  */
+#[CoversClass(Metadata::class)]
 class MetadataTest extends TestCase
 {
     public function testFromXml(): void

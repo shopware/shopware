@@ -8,13 +8,13 @@
                 {% block sw_product_variants_configurator_selection_search_field %}
                 <sw-simple-search-field
                     ref="searchField"
-                    v-model="searchTerm"
+                    v-model:value="searchTerm"
                     size="small"
                     variant="form"
                     class="sw-property-search__search-field sw-product-variants-configurator-selection-search__search-field"
                     :placeholder="$tc('sw-property-search.placeholderSearch')"
                     @focus="onFocusSearch"
-                    @input="onSearchOptions"
+                    @update:value="onSearchOptions"
                 />
                 {% endblock %}
             </slot>

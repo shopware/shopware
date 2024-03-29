@@ -33,7 +33,7 @@ class DomainLoader extends AbstractDomainLoader
     {
         $query = $this->connection->createQueryBuilder();
 
-        $query->select([
+        $query->select(
             'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') `key`',
             'CONCAT(TRIM(TRAILING \'/\' FROM domain.url), \'/\') url',
             'LOWER(HEX(domain.id)) id',
@@ -48,7 +48,7 @@ class DomainLoader extends AbstractDomainLoader
             'snippet_set.iso as locale',
             'theme.technical_name as themeName',
             'parentTheme.technical_name as parentThemeName',
-        ]);
+        );
 
         $query->from('sales_channel');
         $query->innerJoin('sales_channel', 'sales_channel_domain', 'domain', 'domain.sales_channel_id = sales_channel.id');

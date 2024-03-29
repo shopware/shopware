@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Shipping\ShippingException;
@@ -11,10 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\TechnicalNameExceptionHandler
  */
 #[Package('checkout')]
+#[CoversClass(TechnicalNameExceptionHandler::class)]
 class TechnicalNameExceptionHandlerTest extends TestCase
 {
     public function testPriority(): void

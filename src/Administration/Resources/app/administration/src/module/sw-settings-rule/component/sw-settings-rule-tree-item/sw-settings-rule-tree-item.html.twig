@@ -12,11 +12,7 @@
         :disabled="hasItemAssociation(item)"
         :ghost-value="checkedGhost"
         :value="checked || hasItemAssociation(item)"
-        {% if VUE3 %}
         @update:value="toggleItemCheck($event, item)"
-        {% else %}
-        @change="toggleItemCheck($event, item)"
-        {% endif %}
     />
 </div>
 {% endblock %}
@@ -42,6 +38,7 @@
     :display-checkbox="displayCheckbox"
     :disable-context-menu="disableContextMenu"
     :get-is-highlighted="getIsHighlighted"
+    :hide-action="true"
     @check-item="emitCheckedItem"
 >
     <template

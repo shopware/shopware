@@ -129,9 +129,7 @@
             {% block sw_order_line_items_grid_grid_columns_label_inline_edit %}
             <sw-order-product-select
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 name="sw-field--item-label"
-                {% endif %}
                 :sales-channel-id="salesChannelId"
                 :tax-status="taxStatus"
                 :item="item"
@@ -141,7 +139,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_label_link %}
             <div
-                v-else-if="!isInlineEdit && isProductItem(item)"
+                v-else-if="!isInlineEdit && (isProductItem(item) || isContainerItem(item))"
                 class="sw-order-line-items-grid__item-product"
             >
 
@@ -221,29 +219,19 @@
             {% block sw_order_line_items_grid_grid_columns_unit_price_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
-                {% if VUE3 %}
                 v-model:value="item.priceDefinition.price"
-                {% else %}
-                v-model="item.priceDefinition.price"
-                {% endif %}
-                {% if VUE3 %}
                 name="sw-field--item-priceDefinition-price"
-                {% endif %}
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
                 :digits="order.itemRounding.decimals"
-                {% if VUE3 %}
                 @update:value="checkItemPrice($event, item)"
-                {% else %}
-                @change="checkItemPrice($event, item)"
-                {% endif %}
             />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
-            <span v-else>{{ currencyFilter(item.unitPrice, order.currency.shortName, order.itemRounding.decimals) }}</span>
+            <span v-else>{{ currencyFilter(item.unitPrice, order.currency.isoCode, order.itemRounding.decimals) }}</span>
             {% endblock %}
 
         </template>
@@ -256,7 +244,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_total_price_content %}
             <span>
-                {{ currencyFilter(item.totalPrice, order.currency.shortName, order.itemRounding.decimals) }}
+                {{ currencyFilter(item.totalPrice, order.currency.isoCode, order.itemRounding.decimals) }}
             </span>
             {% endblock %}
 
@@ -271,23 +259,13 @@
             {% block sw_order_line_items_grid_grid_columns_quantity_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !isCreditItem(item.id)"
-                {% if VUE3 %}
                 v-model:value="item.quantity"
-                {% else %}
-                v-model="item.quantity"
-                {% endif %}
-                {% if VUE3 %}
                 name="sw-field--item-quantity"
-                {% endif %}
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
-                {% if VUE3 %}
                 @update:value="updateItemQuantity(item)"
-                {% else %}
-                @change="updateItemQuantity(item)"
-                {% endif %}
             />
             {% endblock %}
 
@@ -311,14 +289,8 @@
             <sw-number-field
                 v-if="isInlineEdit && showTaxRulesInlineEdit(item)"
                 key="order-line-item-tax-edit-default"
-                {% if VUE3 %}
                 v-model:value="item.priceDefinition.taxRules[0].taxRate"
-                {% else %}
-                v-model="item.priceDefinition.taxRules[0].taxRate"
-                {% endif %}
-                {% if VUE3 %}
                 name="sw-field--item-priceDefinition-taxRules[0]-taxRate"
-                {% endif %}
                 size="small"
                 placeholder="0"
             />

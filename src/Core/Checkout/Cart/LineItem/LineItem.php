@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
@@ -26,6 +25,8 @@ class LineItem extends Struct
     final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
     final public const DISCOUNT_LINE_ITEM = 'discount';
     final public const CONTAINER_LINE_ITEM = 'container';
+
+    final public const IDENTIFIER_MAX_LENGTH = 100;
 
     /**
      * @var array<mixed>
@@ -98,6 +99,8 @@ class LineItem extends Struct
         protected ?string $referencedId = null,
         int $quantity = 1
     ) {
+        $this->validateIdentifier($id);
+
         $this->uniqueIdentifier = Uuid::randomHex();
         $this->children = new LineItemCollection();
 
@@ -238,13 +241,11 @@ class LineItem extends Struct
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protected will be added in v6.6.0
-     *
      * @param mixed|null $value
      *
      * @throws CartException
      */
-    public function setPayloadValue(string $key, $value/* , ?bool $protected = null */): self
+    public function setPayloadValue(string $key, $value, ?bool $protected = null): self
     {
         $protected = false;
         if (\func_num_args() === 3) {
@@ -265,19 +266,13 @@ class LineItem extends Struct
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
-     *
      * @param array<string, mixed> $payload
+     * @param array<string, bool> $protection
      *
      * @throws CartException
      */
-    public function setPayload(array $payload/* , array $protection = [] */): self
+    public function setPayload(array $payload, array $protection = []): self
     {
-        $protection = [];
-        if (\func_num_args() === 2) {
-            $protection = func_get_arg(1);
-        }
-
         foreach ($payload as $key => $value) {
             if (\is_string($key)) {
                 $this->setPayloadValue($key, $value);
@@ -302,23 +297,12 @@ class LineItem extends Struct
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
-     * @deprecated tag:v6.6.0 - reason:behavior-change - The method will replace recursively anymore but only on the first level
-     *
      * @param array<string, mixed> $payload
+     * @param array<string, bool> $protection
      */
-    public function replacePayload(array $payload/* , array $protection = [] */): self
+    public function replacePayload(array $payload, array $protection = []): self
     {
-        $protection = [];
-        if (\func_num_args() === 2) {
-            $protection = func_get_arg(1);
-        }
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->payload = \array_replace($this->payload, $payload);
-        } else {
-            $this->payload = \array_replace_recursive($this->payload, $payload);
-        }
+        $this->payload = \array_replace($this->payload, $payload);
 
         return $this->addPayloadProtection($protection);
     }
@@ -627,6 +611,17 @@ class LineItem extends Struct
         // A quantity of 1 for a child line item is allowed, if the parent line item is not stackable
         if ($this->isStackable()) {
             throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
+        }
+    }
+
+    private function validateIdentifier(string $identifier): void
+    {
+        if (\strlen($identifier) > self::IDENTIFIER_MAX_LENGTH) {
+            throw CartException::lineItemInvalid('Identifier is too long. Maximum length is ' . self::IDENTIFIER_MAX_LENGTH . ' characters.');
+        }
+
+        if (preg_match('/[^a-zA-Z0-9-_\.]/', $identifier)) {
+            throw CartException::lineItemInvalid('Identifier contains invalid characters. Only alphanumeric characters, dashes, underscores and dots are allowed.');
         }
     }
 }

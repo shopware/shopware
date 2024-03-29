@@ -1,11 +1,8 @@
 /**
- * @package sales-channel
+ * @package services-settings
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swMailHeaderFooterDetail from 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
-
-Shopware.Component.register('sw-mail-header-footer-detail', swMailHeaderFooterDetail);
+import { mount } from '@vue/test-utils';
 
 const mailHeaderFooterMock = {
     id: '123',
@@ -36,78 +33,67 @@ const repositoryMockFactory = () => {
 };
 
 const createWrapper = async (privileges = []) => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    return mount(await wrapTestComponent('sw-mail-header-footer-detail', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => repositoryMockFactory(),
+                },
+                mailService: {},
+                entityMappingService: {
+                    getEntityMapping: () => [],
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-    return shallowMount(await Shopware.Component.build('sw-mail-header-footer-detail'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => repositoryMockFactory(),
-            },
-            mailService: {},
-            entityMappingService: {
-                getEntityMapping: () => [],
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        mocks: {
-            $route: { params: { id: Shopware.Utils.createId() } },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            mocks: {
+                $route: { params: { id: Shopware.Utils.createId() } },
+            },
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
                     </div>`,
+                },
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-card': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-button-process': true,
+                'sw-language-info': true,
+                'sw-entity-multi-select': true,
+                'sw-textarea-field': true,
+                'sw-text-field': true,
+                'sw-code-editor': true,
+                'sw-button': true,
+                'sw-skeleton': true,
             },
-            'sw-card-view': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-card': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-button-process': true,
-            'sw-language-info': true,
-            'sw-entity-multi-select': true,
-            'sw-textarea-field': true,
-            'sw-text-field': true,
-            'sw-code-editor': true,
-            'sw-button': true,
-            'sw-skeleton': true,
         },
     });
 };
 
 describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
     let wrapper;
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
 
     it('all fields should be disabled without edit permission', async () => {
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         [
             wrapper.find('.sw-mail-header-footer-detail__save-action'),
-            wrapper.findAll('sw-field-stub'),
-            wrapper.findAll('sw-code-editor-stub'),
+            { wrappers: wrapper.findAll('sw-text-field-stub') },
+            { wrappers: wrapper.findAll('sw-textarea-field-stub') },
+            { wrappers: wrapper.findAll('sw-code-editor-stub') },
             wrapper.find('sw-entity-multi-select-stub'),
         ].forEach(element => {
             if (!Array.isArray(element.wrappers)) {
@@ -128,12 +114,13 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
 
     it('all fields should be enabled with edit permission', async () => {
         wrapper = await createWrapper(['mail_templates.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         [
             wrapper.find('.sw-mail-header-footer-detail__save-action'),
-            wrapper.findAll('sw-field-stub'),
-            wrapper.findAll('sw-code-editor-stub'),
+            { wrappers: wrapper.findAll('sw-text-field-stub') },
+            { wrappers: wrapper.findAll('sw-textarea-field-stub') },
+            { wrappers: wrapper.findAll('sw-code-editor-stub') },
             wrapper.find('sw-entity-multi-select-stub'),
         ].forEach(element => {
             if (!Array.isArray(element.wrappers)) {

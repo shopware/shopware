@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
@@ -12,24 +14,29 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor
  */
+#[CoversClass(SortingListingProcessor::class)]
 class SortingListingProcessorTest extends TestCase
 {
+    private string $barId;
+
+    private string $fooId;
+
+    private string $testId;
+
     /**
-     * @dataProvider prepareProvider
-     *
      * @param FieldSorting[] $expected
      */
-    public function testPrepare(string $sorting, bool $testWithDefaultSortings, array $expected): void
+    #[DataProvider('prepareProvider')]
+    public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
     {
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
@@ -37,7 +44,7 @@ class SortingListingProcessorTest extends TestCase
         );
 
         $processor->prepare(
-            new Request(['order' => $sorting, 'availableSortings' => $testWithDefaultSortings ? $this->buildAvailableSortings() : []]),
+            new Request(['order' => $sorting, 'availableSortings' => $testWithAvailableSortings ? $this->buildAvailableSortings() : []]),
             $criteria = new Criteria(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -45,10 +52,8 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $criteria->getSorting());
     }
 
-    /**
-     * @dataProvider processProvider
-     */
-    public function testProcess(string $requested, null|string $expected): void
+    #[DataProvider('processProvider')]
+    public function testProcess(string $requested, ?string $expected): void
     {
         $sortings = $this->buildSortings();
 
@@ -71,17 +76,13 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $result->getSorting());
     }
 
-    /**
-     * @dataProvider wrongSortingTypeProvider
-     */
+    #[DataProvider('wrongSortingTypeProvider')]
     public function testWrongSortingTypeThrowsException(mixed $requested): void
     {
         $this->expectException(ProductException::class);
 
         $processor = new SortingListingProcessor(
-            new StaticSystemConfigService([
-                'core.listing.defaultSorting' => 'foo',
-            ]),
+            new StaticSystemConfigService([]),
             new StaticEntityRepository([
                 $this->buildSortings(),
             ])
@@ -98,7 +99,7 @@ class SortingListingProcessorTest extends TestCase
     {
         yield 'Requested foo sorting will be accepted' => [
             'sorting' => 'foo',
-            'testWithDefaultSortings' => false,
+            'testWithAvailableSortings' => false,
             'expected' => [
                 new FieldSorting('id', FieldSorting::ASCENDING),
                 new FieldSorting('foo', FieldSorting::DESCENDING),
@@ -107,7 +108,7 @@ class SortingListingProcessorTest extends TestCase
 
         yield 'Requested foo sorting with available sortings will be accepted' => [
             'sorting' => 'foo',
-            'testWithDefaultSortings' => true,
+            'testWithAvailableSortings' => true,
             'expected' => [
                 new FieldSorting('id', FieldSorting::ASCENDING),
                 new FieldSorting('foo', FieldSorting::DESCENDING),
@@ -116,7 +117,7 @@ class SortingListingProcessorTest extends TestCase
 
         yield 'Requested bar sorting will be accepted' => [
             'sorting' => 'bar',
-            'testWithDefaultSortings' => false,
+            'testWithAvailableSortings' => false,
             'expected' => [
                 new FieldSorting('id', FieldSorting::ASCENDING),
                 new FieldSorting('bar', FieldSorting::DESCENDING),
@@ -125,22 +126,19 @@ class SortingListingProcessorTest extends TestCase
 
         yield 'Requested bar sorting with available sortings will be accepted' => [
             'sorting' => 'bar',
-            'testWithDefaultSortings' => true,
-            'expected' => [
-                new FieldSorting('id', FieldSorting::ASCENDING),
-                new FieldSorting('bar', FieldSorting::DESCENDING),
-            ],
-        ];
-
-        yield 'Requested unknown test sorting will be accepted' => [
-            'sorting' => 'test',
-            'testWithDefaultSortings' => false,
+            'testWithAvailableSortings' => true,
             'expected' => [],
         ];
 
-        yield 'Requested unknown test with available sortings sorting will be accepted' => [
+        yield 'Requested unknown sorting will be accepted' => [
             'sorting' => 'test',
-            'testWithDefaultSortings' => true,
+            'testWithAvailableSortings' => false,
+            'expected' => [],
+        ];
+
+        yield 'Requested unknown with available sortings sorting will be accepted' => [
+            'sorting' => 'test',
+            'testWithAvailableSortings' => true,
             'expected' => [],
         ];
     }
@@ -172,9 +170,12 @@ class SortingListingProcessorTest extends TestCase
 
     private function buildSortings(): ProductSortingCollection
     {
+        $this->fooId = Uuid::randomHex();
+        $this->barId = Uuid::randomHex();
+        $this->testId = Uuid::randomHex();
+
         $sortings = [
             (new ProductSortingEntity())->assign([
-                '_uniqueIdentifier' => 'foo',
                 'key' => 'foo',
                 'fields' => [
                     ['field' => 'foo', 'priority' => 1, 'order' => 'DESC'],
@@ -182,7 +183,6 @@ class SortingListingProcessorTest extends TestCase
                 ],
             ]),
             (new ProductSortingEntity())->assign([
-                '_uniqueIdentifier' => 'bar',
                 'key' => 'bar',
                 'fields' => [
                     ['field' => 'bar', 'priority' => 1, 'order' => 'DESC'],
@@ -191,9 +191,8 @@ class SortingListingProcessorTest extends TestCase
             ]),
         ];
 
-        foreach ($sortings as $sorting) {
-            $sorting->setId($sorting->getKey());
-        }
+        $sortings[0]->setId($this->fooId);
+        $sortings[1]->setId($this->barId);
 
         return new ProductSortingCollection($sortings);
     }
@@ -204,21 +203,14 @@ class SortingListingProcessorTest extends TestCase
     private function buildAvailableSortings(): array
     {
         $availableSortings = [
-            'foo' => (new ProductSortingEntity())->assign([
+            $this->fooId => (new ProductSortingEntity())->assign([
                 'key' => 'foo',
                 'fields' => [
                     ['field' => 'foo', 'priority' => 1, 'order' => 'DESC'],
                     ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
                 ],
             ]),
-            'bar' => (new ProductSortingEntity())->assign([
-                'key' => 'bar',
-                'fields' => [
-                    ['field' => 'bar', 'priority' => 1, 'order' => 'DESC'],
-                    ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
-                ],
-            ]),
-            'test' => (new ProductSortingEntity())->assign([
+            $this->testId => (new ProductSortingEntity())->assign([
                 'key' => 'test',
                 'fields' => [
                     ['field' => 'id', 'priority' => 2, 'order' => 'ASC'],
@@ -227,9 +219,7 @@ class SortingListingProcessorTest extends TestCase
             ]),
         ];
 
-        foreach ($availableSortings as $sorting) {
-            $sorting->setId($sorting->getKey());
-        }
+        $availableSortings[$this->fooId]->setId($this->fooId);
 
         return $availableSortings;
     }

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Cache;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -28,9 +30,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator
  */
+#[CoversClass(EntityCacheKeyGenerator::class)]
 class EntityCacheKeyGeneratorTest extends TestCase
 {
     public function testBuildCmsTag(): void
@@ -48,9 +49,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertSame('product-stream-foo', EntityCacheKeyGenerator::buildStreamTag('foo'));
     }
 
-    /**
-     * @dataProvider criteriaHashProvider
-     */
+    #[DataProvider('criteriaHashProvider')]
     public function testCriteriaHash(Criteria $criteria, string $hash): void
     {
         $generator = new EntityCacheKeyGenerator();
@@ -92,9 +91,7 @@ class EntityCacheKeyGeneratorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider contextHashProvider
-     */
+    #[DataProvider('contextHashProvider')]
     public function testContextHash(SalesChannelContext $compared): void
     {
         $generator = new EntityCacheKeyGenerator();

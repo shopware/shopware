@@ -2,25 +2,34 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\UsageData\Consent\ConsentStateChangedEvent;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Consent\ConsentReporter
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(ConsentReporter::class)]
 class ConsentReporterTest extends TestCase
 {
+    public function testSubscribedEvents(): void
+    {
+        static::assertEquals([
+            ConsentStateChangedEvent::class => 'reportConsent',
+        ], ConsentReporter::getSubscribedEvents());
+    }
+
     public function testReportConsentAddsShopIdHeader(): void
     {
         $httpClient = new MockHttpClient([
@@ -41,6 +50,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -66,6 +76,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -87,6 +98,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -112,6 +124,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $instanceService,
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -135,7 +148,27 @@ class ConsentReporterTest extends TestCase
             ]),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
+
+        $reporter->reportConsent(ConsentState::REQUESTED);
+    }
+
+    public function testReportConsentDoesNotSendRequestInDevEnvironment(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+
+        $reporter = new ConsentReporter(
+            $httpClient,
+            $this->createMock(ShopIdProvider::class),
+            new StaticSystemConfigService(),
+            $this->createMock(InstanceService::class),
+            'APP_URL',
+            false
+        );
+
+        $httpClient->expects(static::never())
+            ->method('request');
 
         $reporter->reportConsent(ConsentState::REQUESTED);
     }

@@ -8,8 +8,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type code-only
  * @component-example
@@ -28,11 +27,6 @@ Component.register('sw-many-to-many-assignment-card', {
         'repositoryFactory',
         'feature',
     ],
-
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
 
     props: {
         columns: {
@@ -286,13 +280,8 @@ Component.register('sw-many-to-many-assignment-card', {
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:entityCollection', newCollection);
+                this.$emit('update:entityCollection', newCollection);
 
-                    return;
-                }
-
-                this.$emit('change', newCollection);
                 return;
             }
 
@@ -310,13 +299,8 @@ Component.register('sw-many-to-many-assignment-card', {
                 this.selectedIds = newCollection.getIds();
                 this.gridData = newCollection;
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:entityCollection', newCollection);
+                this.$emit('update:entityCollection', newCollection);
 
-                    return Promise.resolve();
-                }
-
-                this.$emit('change', newCollection);
                 return Promise.resolve();
             }
 

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -29,11 +31,14 @@ class CheckoutFinishPageLoader
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly GenericPageLoaderInterface $genericLoader,
-        private readonly AbstractOrderRoute $orderRoute
+        private readonly AbstractOrderRoute $orderRoute,
+        private readonly ?AbstractTranslator $translator = null
     ) {
     }
 
@@ -49,10 +54,7 @@ class CheckoutFinishPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutFinishPage::createFrom($page);
-
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
+        $this->setMetaInformation($page);
 
         Profiler::trace('finish-page-order-loading', function () use ($page, $request, $salesChannelContext): void {
             $page->setOrder($this->getOrder($request, $salesChannelContext));
@@ -75,6 +77,29 @@ class CheckoutFinishPageLoader
         }
 
         return $page;
+    }
+
+    protected function setMetaInformation(CheckoutFinishPage $page): void
+    {
+        /**
+         * @deprecated tag:v6.7.0 - Remove condition in 6.7.
+         */
+        if ($page->getMetaInformation() !== null) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
+        /**
+         * @deprecated tag:v6.7.0 - Remove condition with body in 6.7.
+         */
+        if ($this->translator !== null && $page->getMetaInformation() === null) {
+            $page->setMetaInformation(new MetaInformation());
+        }
+
+        if ($this->translator !== null) {
+            $page->getMetaInformation()?->setMetaTitle(
+                $this->translator->trans('checkout.finishMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+            );
+        }
     }
 
     /**
@@ -115,7 +140,7 @@ class CheckoutFinishPageLoader
 
         try {
             $searchResult = $this->orderRoute
-                ->load(new Request(), $salesChannelContext, $criteria)
+                ->load($request->duplicate(), $salesChannelContext, $criteria)
                 ->getOrders();
         } catch (InvalidUuidException) {
             throw OrderException::orderNotFound($orderId);

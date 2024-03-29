@@ -18,14 +18,14 @@ jobs:
 
     steps:
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: node-cache
         with:
           path: src/Storefront/Resources/app/storefront/node_modules
@@ -36,13 +36,13 @@ jobs:
         run: npm --prefix src/Storefront/Resources/app/storefront ci --no-audit --prefer-offline
 
       - name: Cache ESLint
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: src/Storefront/Resources/app/storefront/node_modules/.eslintcache
           key: storefront-eslint-${{ runner.os }}
 
       - name: Cache Stylelint
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
           key: storefront-stylelint-${{ runner.os }}

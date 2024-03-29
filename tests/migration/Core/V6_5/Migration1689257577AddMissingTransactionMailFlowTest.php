@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -13,9 +14,8 @@ use Shopware\Core\Migration\V6_5\Migration1689257577AddMissingTransactionMailFlo
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1689257577AddMissingTransactionMailFlow
  */
+#[CoversClass(Migration1689257577AddMissingTransactionMailFlow::class)]
 class Migration1689257577AddMissingTransactionMailFlowTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

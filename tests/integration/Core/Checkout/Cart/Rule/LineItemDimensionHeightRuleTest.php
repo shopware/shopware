@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -21,10 +23,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 
 /**
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[Group('rules')]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -60,9 +61,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         float $height,
@@ -124,9 +123,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         float $height,
@@ -165,9 +162,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         float $height,

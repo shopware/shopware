@@ -86,7 +86,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         return $snippetSet;
     }
 
-    private function getSnippetSetId(?string $isoCode = 'en-GB'): string|null
+    private function getSnippetSetId(?string $isoCode = 'en-GB'): ?string
     {
         $isoCode = $isoCode ?: 'en-GB';
         $isoCode = str_replace('_', '-', $isoCode);
@@ -94,6 +94,6 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
             ->setLimit(1)
             ->addFilter(new EqualsFilter('iso', $isoCode));
 
-        return $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        return $this->snippetSetRepository->searchIds($criteria, Context::createCLIContext())->firstId();
     }
 }

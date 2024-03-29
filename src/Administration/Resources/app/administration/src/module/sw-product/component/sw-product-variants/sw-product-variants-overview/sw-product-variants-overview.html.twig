@@ -16,7 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 variant="form"
                 size="small"
                 @search-term-change="onSearch"
@@ -185,9 +185,7 @@
         {% block sw_product_variants_overview_data_grid_column_price %}
         <template
             v-for="currency in currencies"
-            {% if VUE3 %}
             :key="`switch-${currency.isoCode}`"
-            {% endif %}
             #[`column-price.${currency.id}.net`]="{ item, compact, isInlineEdit }"
         >
 
@@ -197,9 +195,6 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_inherit %}
                 <sw-inheritance-switch
-                    {% if VUE2 %}
-                    :key="`switch-${currency.isoCode}`"
-                    {% endif %}
                     :is-inherited="isPriceFieldInherited(item, currency)"
                     class="sw-product-detail-context-prices__inherited-icon"
                     @inheritance-restore="onInheritanceRestore(item, currency)"
@@ -210,10 +205,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_overview_data_grid_column_price_inline_edit_price_field %}
                 <sw-price-field
-                    {% if VUE2 %}
-                    :key="`price-field-${currency.isoCode}`"
-                    {% endif %}
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="getDefaultPriceForVariant(item, currency)"
                     :tax-rate="productTaxRate"
                     :label="false"
@@ -242,7 +234,7 @@
                 {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
                 <sw-price-preview
                     :key="`else-price-field-${currency.isoCode}`"
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="getDefaultPriceForVariant(item, currency)"
                     :tax-rate="productTaxRate"
                     :currency="currency"
@@ -263,11 +255,7 @@
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
             <sw-number-field
                 v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
-                {% if VUE3 %}
                 v-model:value="item.stock"
-                {% else %}
-                v-model="item.stock"
-                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -290,11 +278,7 @@
             {% block sw_product_variants_overview_data_grid_column_product_number_inline_edit %}
             <sw-text-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.productNumber"
-                {% else %}
-                v-model="item.productNumber"
-                {% endif %}
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -349,6 +333,7 @@
             />
 
             <sw-media-compact-upload-v2
+                v-if="productDownloadFolderId"
                 :upload-tag="item.productNumber"
                 :disabled="!isInlineEdit"
                 private-filesystem
@@ -359,7 +344,7 @@
                     helpText: $tc('sw-product.list.columnDownloadsTooltip')
                 }"
                 :source-multiselect="getDownloadsSource(item)"
-                default-folder="product_download"
+                :target-folder-id="productDownloadFolderId"
                 file-accept="*/*"
                 @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
             />
@@ -372,7 +357,7 @@
         >
             <template v-if="isInlineEdit">
                 <sw-data-grid-column-boolean
-                    v-model="item.active"
+                    v-model:value="item.active"
                     :is-inline-edit="isInlineEdit"
                     :disabled="isActiveFieldInherited(item)"
                 />
@@ -526,9 +511,7 @@
                 {% block sw_product_variants_overview_bulk_edit_modal_column_price %}
                 <template
                     v-for="currency in currencies"
-                    {% if VUE3 %}
                     :key="currency.id"
-                    {% endif %}
                     #[`column-price.${currency.id}.net`]="{ item }"
                 >
                     <sw-inheritance-switch
@@ -538,7 +521,7 @@
                     />
                     <sw-price-preview
                         :key="`else-price-field-${currency.isoCode}`"
-                        :price="item.price ? item.price : []"
+                        :value="item.price ? item.price : []"
                         :default-price="getDefaultPriceForVariant(item, currency)"
                         :tax-rate="productTaxRate"
                         :currency="currency"
@@ -572,6 +555,7 @@
                     />
 
                     <sw-media-compact-upload-v2
+                        v-if="productDownloadFolderId"
                         :upload-tag="item.productNumber"
                         :disabled="!isInlineEdit"
                         private-filesystem
@@ -582,7 +566,7 @@
                         }"
                         :add-files-on-multiselect="true"
                         :source-multiselect="getDownloadsSource(item)"
-                        default-folder="product_download"
+                        :target-folder-id="productDownloadFolderId"
                         file-accept="*/*"
                         @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
                     />

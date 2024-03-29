@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
@@ -10,9 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException
  */
+#[CoversClass(EntityRepositoryNotFoundException::class)]
 class EntityRepositoryNotFoundExceptionTest extends TestCase
 {
     public function testGetStatusCodeWillReturn400(): void

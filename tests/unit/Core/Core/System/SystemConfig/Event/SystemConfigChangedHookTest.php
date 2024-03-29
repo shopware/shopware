@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Core\System\SystemConfig\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
@@ -9,9 +11,8 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook
  */
+#[CoversClass(SystemConfigChangedHook::class)]
 class SystemConfigChangedHookTest extends TestCase
 {
     public function testName(): void
@@ -21,9 +22,8 @@ class SystemConfigChangedHookTest extends TestCase
 
     /**
      * @param array<string> $permissions
-     *
-     * @dataProvider getPermissionCases
      */
+    #[DataProvider('getPermissionCases')]
     public static function testPermissions(SystemConfigChangedHook $hook, array $permissions, bool $allowed): void
     {
         static::assertSame($allowed, $hook->isAllowed('app-id', new AclPrivilegeCollection($permissions)));

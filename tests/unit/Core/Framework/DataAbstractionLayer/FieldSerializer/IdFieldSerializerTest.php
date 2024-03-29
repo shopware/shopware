@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -23,17 +25,14 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer
- *
  * @internal
  */
 #[Package('core')]
+#[CoversClass(IdFieldSerializer::class)]
 class IdFieldSerializerTest extends TestCase
 {
-    /**
-     * @dataProvider valueProvider
-     */
-    public function testSerializer(Field $field, string|null $value, ?string $expected = null): void
+    #[DataProvider('valueProvider')]
+    public function testSerializer(Field $field, ?string $value, ?string $expected = null): void
     {
         $validator = $this->createMock(ValidatorInterface::class);
 

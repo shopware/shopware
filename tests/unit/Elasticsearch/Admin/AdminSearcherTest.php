@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -13,14 +14,14 @@ use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
+use Shopware\Elasticsearch\ElasticsearchException;
 
 /**
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\AdminSearcher
  */
+#[CoversClass(AdminSearcher::class)]
 class AdminSearcherTest extends TestCase
 {
     private Client&MockObject $client;
@@ -211,5 +212,17 @@ class AdminSearcherTest extends TestCase
         static::assertEquals(1, $data['product']['total']);
         static::assertEquals('product-listing', $data['product']['indexer']);
         static::assertEquals('sw-admin-product-listing', $data['product']['index']);
+    }
+
+    public function testSearchWithUndefinedIndexer(): void
+    {
+        $this->registry->method('getIndexer')->willThrowException(ElasticsearchException::indexingError(['Indexer for name test not found']));
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
+        $searcher = new AdminSearcher($this->client, $this->registry, $searchHelper);
+
+        $data = $searcher->search('elasticsearch', ['test'], Context::createDefaultContext());
+
+        static::assertEmpty($data);
     }
 }

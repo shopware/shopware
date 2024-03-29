@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -17,14 +19,11 @@ use Shopware\Core\Framework\Update\Struct\Version;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Services\ExtensionCompatibility
  */
+#[CoversClass(ExtensionCompatibility::class)]
 class ExtensionCompatibilityTest extends TestCase
 {
-    /**
-     * @dataProvider statusProvider
-     */
+    #[DataProvider('statusProvider')]
     public function testGetExtension(string $file, string $statusName, ?string $statusColor): void
     {
         $storeClient = $this->createMock(StoreClient::class);

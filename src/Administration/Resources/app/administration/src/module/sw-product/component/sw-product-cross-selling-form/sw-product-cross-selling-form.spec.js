@@ -1,12 +1,9 @@
 /**
  * @package inventory
  */
-import { shallowMount } from '@vue/test-utils';
-import swProductCrossSellingForm from 'src/module/sw-product/component/sw-product-cross-selling-form';
+import { mount } from '@vue/test-utils';
 
 const { State } = Shopware;
-
-Shopware.Component.register('sw-product-cross-selling-form', swProductCrossSellingForm);
 
 const productMock = {
     id: 'productId',
@@ -14,43 +11,45 @@ const productMock = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-product-cross-selling-form'), {
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-context-button': true,
-            'sw-text-field': true,
-            'sw-button': true,
-            'sw-context-menu-item': true,
-            'sw-switch-field': true,
-            'sw-select-field': true,
-            'sw-number-field': true,
-            'sw-entity-single-select': true,
-            'sw-icon': true,
-            'sw-product-cross-selling-assignment': true,
-            'sw-product-stream-modal-preview': true,
-            'sw-modal': true,
-            'sw-condition-tree': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-cross-selling-form', { sync: true }), {
+        props: {
             crossSelling: {},
             allowEdit: false,
         },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => {
-                            return Promise.resolve([]);
-                        },
-                        search: () => {
-                            return Promise.resolve([]);
-                        },
-                    };
-                },
+        global: {
+            stubs: {
+                'sw-card': true,
+                'sw-container': true,
+                'sw-context-button': true,
+                'sw-text-field': true,
+                'sw-button': true,
+                'sw-context-menu-item': true,
+                'sw-switch-field': true,
+                'sw-select-field': true,
+                'sw-number-field': true,
+                'sw-entity-single-select': true,
+                'sw-icon': true,
+                'sw-product-cross-selling-assignment': true,
+                'sw-product-stream-modal-preview': true,
+                'sw-modal': true,
+                'sw-condition-tree': true,
             },
-            productStreamConditionService: {
-                search: () => {},
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => {
+                                return Promise.resolve([]);
+                            },
+                            search: () => {
+                                return Promise.resolve([]);
+                            },
+                        };
+                    },
+                },
+                productStreamConditionService: {
+                    search: () => {},
+                },
             },
         },
     });

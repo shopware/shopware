@@ -6,8 +6,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description select input field.
  * @status ready
  * @example-type static
@@ -31,11 +30,6 @@ Component.register('sw-select-field', {
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         value: {
@@ -116,13 +110,7 @@ Component.register('sw-select-field', {
                 this.currentValue = null;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
-            }
-
-            this.$emit('change', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
     },
 });

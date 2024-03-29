@@ -6,11 +6,7 @@
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.forceStateInRegistration"
-                {% else %}
-                v-model="country.forceStateInRegistration"
-                {% endif %}
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -18,11 +14,7 @@
             />
 
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.postalCodeRequired"
-                {% else %}
-                v-model="country.postalCodeRequired"
-                {% endif %}
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -30,11 +22,7 @@
             />
 
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.checkPostalCodePattern"
-                {% else %}
-                v-model="country.checkPostalCodePattern"
-                {% endif %}
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor')"
@@ -44,11 +32,7 @@
 
             <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="country.checkAdvancedPostalCodePattern"
-                    {% else %}
-                    v-model="country.checkAdvancedPostalCodePattern"
-                    {% endif %}
                     class="sw-settings-country-address-handling__option-items"
                     :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern"
                     :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
@@ -56,11 +40,7 @@
                 />
 
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="country.advancedPostalCodePattern"
-                    {% else %}
-                    v-model="country.advancedPostalCodePattern"
-                    {% endif %}
                     class="sw-settings-country-address-handling__text-field"
                     :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
                     :disabled="!acl.can('country.editor')"
@@ -86,11 +66,7 @@
                     :line-position="index"
                     :get-label-property="getLabelProperty"
                     :total-lines="addressFormat.length"
-                    {% if VUE3 %}
                     @update:value="change"
-                    {% else %}
-                    @change="change"
-                    {% endif %}
                     @drop-end="onDropEnd"
                     @position-move="moveToNewPosition"
                     @add-new-line="addNewLineAt"
@@ -104,11 +80,7 @@
                 </div>
 
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customerId"
-                    {% else %}
-                    v-model="customerId"
-                    {% endif %}
                     class="sw-settings-country-address-handling__customer-select"
                     :label="$tc('sw-settings-country.detail.labelCustomer')"
                     :placeholder="$tc('sw-settings-country.detail.placeholderSelectCustomer')"
@@ -116,11 +88,7 @@
                     show-clearable-button
                     :criteria="customerCriteria"
                     :label-callback="customerLabel"
-                    {% if VUE3 %}
                     @update:value="onChangeCustomer"
-                    {% else %}
-                    @change="onChangeCustomer"
-                    {% endif %}
                 />
 
                 <sw-settings-country-preview-template :formatting-address="formattingAddress" />

@@ -320,7 +320,7 @@ export default {
                 },
             };
 
-            return this.tagRepository.clone(id, Shopware.Context.api, behavior).then(() => {
+            return this.tagRepository.clone(id, behavior, Shopware.Context.api).then(() => {
                 this.duplicateName = null;
                 this.getList();
             }).catch(() => {

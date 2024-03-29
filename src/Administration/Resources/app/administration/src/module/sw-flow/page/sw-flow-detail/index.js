@@ -260,6 +260,13 @@ export default {
             if (!tabName) return {};
 
             if (this.isNewFlow) {
+                if (this.$route.params.flowTemplateId) {
+                    return {
+                        name: `sw.flow.create.${tabName}`,
+                        params: { flowTemplateId: this.$route.params.flowTemplateId },
+                    };
+                }
+
                 return { name: `sw.flow.create.${tabName}` };
             }
 

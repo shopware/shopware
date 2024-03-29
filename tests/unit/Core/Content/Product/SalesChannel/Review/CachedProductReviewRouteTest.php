@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
@@ -23,10 +24,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute
  */
 #[Package('inventory')]
+#[CoversClass(CachedProductReviewRoute::class)]
 class CachedProductReviewRouteTest extends TestCase
 {
     private MockObject&AbstractProductReviewRoute $productReviewRoute;

@@ -5,15 +5,27 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
-// eslint-disable-next-line import/no-named-default
-import type { default as Vue, ComponentOptions } from 'vue';
 import type {
-    ThisTypedComponentOptionsWithRecordProps,
-    ThisTypedComponentOptionsWithArrayProps,
-// eslint-disable-next-line import/no-unresolved
-} from 'vue/types/options';
+    AllowedComponentProps,
+    ComponentCustomProps,
+    ComponentInjectOptions,
+    ComponentOptions,
+    ComponentOptionsMixin,
+    ComponentOptionsWithArrayProps,
+    ComponentOptionsWithObjectProps,
+    ComponentOptionsWithoutProps,
+    ComponentPropsOptions,
+    ComputedOptions,
+    DefineComponent,
+    EmitsOptions,
+    ExtractDefaultPropTypes,
+    ExtractPropTypes,
+    MethodOptions,
+    ObjectEmitsOptions,
+    SlotsType,
+    VNodeProps,
+} from 'vue';
 import { defineComponent } from 'vue';
-import type { ComponentOptionsMixin } from 'vue/types/v3-component-options';
 
 /**
  * This method is just for adding TypeScript support to component configuration and provides a this context.
@@ -42,15 +54,15 @@ export default {
     markComponentAsSync,
 };
 
-// @ts-expect-error
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V> {
+export interface ComponentConfig extends ComponentOptions {
     functional?: boolean,
-    extends?: ComponentConfig<V> | string,
+    extends?: ComponentConfig | string,
     _isOverride?: boolean,
     component?: Promise<ComponentConfig|boolean>,
     loading?: ComponentConfig,
     delay?: number,
+    name?: string,
 }
 
 /**
@@ -67,10 +79,10 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
 const overrideRegistry = new Map<string, AwaitedComponentConfig[]>();
 
 /**
- * Registry for globally registered helper functions like src/app/service/map-error.service.js
+ * Registry for globally registered helper functions like src/app/service/map-error.service.ts
  * @private
  */
-const componentHelper: { [helperName: string]: unknown } = {};
+const componentHelper: ComponentHelper = {} as ComponentHelper;
 
 /**
  * Contains all components which should be created as a async component
@@ -115,7 +127,7 @@ function getOverrideRegistry(): Map<string, AwaitedComponentConfig[]> {
  * Returns the map of component helper functions
  * @public
  */
-function getComponentHelper(): { [helperName: string]: unknown } {
+function getComponentHelper(): ComponentHelper {
     return componentHelper;
 }
 
@@ -124,7 +136,7 @@ function getComponentHelper(): { [helperName: string]: unknown } {
  */
 function _clearComponentHelper(): void {
     Object.keys(componentHelper).forEach((key) => {
-        delete componentHelper[key];
+        delete componentHelper[key as keyof ComponentHelper];
     });
 }
 
@@ -132,7 +144,7 @@ function _clearComponentHelper(): void {
  * Register a new component helper function
  * @public
  */
-function registerComponentHelper(name: string, helperFunction: unknown): boolean {
+function registerComponentHelper<T extends keyof ComponentHelper>(name: T, helperFunction: ComponentHelper[T]): boolean {
     if (!name || !name.length) {
         warn('ComponentFactory/ComponentHelper', 'A ComponentHelper always needs a name.', helperFunction);
         return false;
@@ -148,19 +160,389 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
     return true;
 }
 
+
+/* eslint-disable max-len,@typescript-eslint/ban-types,@typescript-eslint/no-explicit-any */
+type PublicProps = VNodeProps & AllowedComponentProps & ComponentCustomProps;
+
+type EmitsToProps<T extends EmitsOptions> = T extends string[]
+    ? {
+          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+          [K in string & `on${Capitalize<T[number]>}`]?: (
+              ...args: any[]
+          ) => any;
+      }
+    : T extends ObjectEmitsOptions
+    ? {
+          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+          [K in string &
+              `on${Capitalize<string & keyof T>}`]?: K extends `on${infer C}`
+              ? T[Uncapitalize<C>] extends null
+                  ? (...args: any[]) => any
+                  : (
+                        ...args: T[Uncapitalize<C>] extends (
+                            ...args: infer P
+                        ) => any
+                            ? P
+                            : never
+                    ) => any
+              : never;
+      }
+    : {};
+
+type ResolveProps<PropsOrPropOptions, E extends EmitsOptions> = Readonly<
+    PropsOrPropOptions extends ComponentPropsOptions
+        ? ExtractPropTypes<PropsOrPropOptions>
+        : PropsOrPropOptions
+> &
+    ({} extends E ? {} : EmitsToProps<E>);
+
 /**
  * Register a new component.
  * @public
  */
-/* eslint-disable max-len */
-// function overload to support all vue component object variations
-// @ts-expect-error
-function register<V extends Vue, Data, Methods, Computed, PropNames extends string, Setup, Mixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames, Setup, Mixin, Extends>): boolean | ComponentConfig;
-function register<V extends Vue, Data, Methods, Computed, PropNames extends string, Setup, Mixin extends ComponentOptionsMixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames, Setup, Mixin, Extends>>): boolean | ComponentConfig;
-function register<V extends Vue, Data, Methods, Computed, Props, Setup, Mixin extends ComponentOptionsMixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props, Setup, Mixin, Extends>): boolean | ComponentConfig;
-function register<V extends Vue, Data, Methods, Computed, Props, Setup, Mixin extends ComponentOptionsMixin, Extends extends ComponentOptionsMixin>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props, Setup, Mixin, Extends>>): boolean | ComponentConfig;
-function register(componentName: string, componentConfiguration: ComponentConfig<Vue> | (() => Promise<ComponentConfig<Vue>>)): boolean | (() => Promise<ComponentConfig|boolean>) {
-/* eslint-enable max-len */
+
+
+// Overload reference: https://github.com/vuejs/core/blob/1c525f75a3d17a6356d5f66765623c0ae7c0ebcc/packages/runtime-core/src/apiDefineComponent.ts#L92
+
+// overload 1: direct setup function
+// (uses user defined props interface)
+// ####################
+// ##### WARNING: #####
+// ####################
+// This first overload allows the usage
+// of the setup function which is
+// not supported by the Showpare extension
+// system yet.
+// ####################
+// function register<
+//     Props extends Record<string, any>,
+//     E extends EmitsOptions = {},
+//     EE extends string = string,
+//     S extends SlotsType = {}
+// >(
+//     componentName: string,
+//     setup: (
+//         props: Props,
+//         ctx: SetupContext<E, S>
+//     ) => RenderFunction | Promise<RenderFunction>,
+//     options?: Pick<ComponentOptions, "name" | "inheritAttrs"> & {
+//         props?: (keyof Props)[];
+//         emits?: E | EE[];
+//         slots?: S;
+//     }
+// ): (props: Props & EmitsToProps<E>) => any;
+// function register<
+//     Props extends Record<string, any>,
+//     E extends EmitsOptions = {},
+//     EE extends string = string,
+//     S extends SlotsType = {}
+// >(
+//     componentName: string,
+//     setup: (
+//         props: Props,
+//         ctx: SetupContext<E, S>
+//     ) => RenderFunction | Promise<RenderFunction>,
+//     options?: Pick<ComponentOptions, "name" | "inheritAttrs"> & {
+//         props?: ComponentObjectPropsOptions<Props>;
+//         emits?: E | EE[];
+//         slots?: S;
+//     }
+// ): (props: Props & EmitsToProps<E>) => any;
+
+// overload 2: object format with no props
+// (uses user defined props interface)
+// return type is for Vetur and TSX support
+function register<
+    Props = {},
+    RawBindings = {},
+    D = {},
+    C extends ComputedOptions = {},
+    M extends MethodOptions = {},
+    Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+    E extends EmitsOptions = {},
+    EE extends string = string,
+    S extends SlotsType = {},
+    I extends ComponentInjectOptions = {},
+    II extends string = string
+>(
+    componentName: string,
+    componentConfiguration: ComponentOptionsWithoutProps<
+        Props,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        I,
+        II,
+        S
+    >
+): DefineComponent<
+    Props,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    PublicProps,
+    ResolveProps<Props, E>,
+    ExtractDefaultPropTypes<Props>,
+    S
+>;
+
+// overload 2 (ASYNC): object format with no props
+// (uses user defined props interface)
+// return type is for Vetur and TSX support
+function register<
+    Props = {},
+    RawBindings = {},
+    D = {},
+    C extends ComputedOptions = {},
+    M extends MethodOptions = {},
+    Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+    E extends EmitsOptions = {},
+    EE extends string = string,
+    S extends SlotsType = {},
+    I extends ComponentInjectOptions = {},
+    II extends string = string
+>(
+    componentName: string,
+    componentConfiguration: () => Promise<ComponentOptionsWithoutProps<
+        Props,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        I,
+        II,
+        S
+    >>
+): DefineComponent<
+    Props,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    PublicProps,
+    ResolveProps<Props, E>,
+    ExtractDefaultPropTypes<Props>,
+    S
+>;
+
+// overload 3: object format with array props declaration
+// props inferred as { [key in PropNames]?: any }
+// return type is for Vetur and TSX support
+function register<
+    PropNames extends string,
+    RawBindings,
+    D,
+    C extends ComputedOptions = {},
+    M extends MethodOptions = {},
+    Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+    E extends EmitsOptions = {},
+    EE extends string = string,
+    S extends SlotsType = {},
+    I extends ComponentInjectOptions = {},
+    II extends string = string,
+    Props = Readonly<{ [key in PropNames]?: any }>
+>(
+    componentName: string,
+    componentConfiguration: ComponentOptionsWithArrayProps<
+        PropNames,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        I,
+        II,
+        S
+    >
+): DefineComponent<
+    Props,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    PublicProps,
+    ResolveProps<Props, E>,
+    ExtractDefaultPropTypes<Props>,
+    S
+>;
+
+// overload 3 (ASYNC): object format with array props declaration
+// props inferred as { [key in PropNames]?: any }
+// return type is for Vetur and TSX support
+function register<
+    PropNames extends string,
+    RawBindings,
+    D,
+    C extends ComputedOptions = {},
+    M extends MethodOptions = {},
+    Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+    E extends EmitsOptions = {},
+    EE extends string = string,
+    S extends SlotsType = {},
+    I extends ComponentInjectOptions = {},
+    II extends string = string,
+    Props = Readonly<{ [key in PropNames]?: any }>
+>(
+    componentName: string,
+    componentConfiguration: () => Promise<ComponentOptionsWithArrayProps<
+        PropNames,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        I,
+        II,
+        S
+    >>
+): DefineComponent<
+    Props,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    PublicProps,
+    ResolveProps<Props, E>,
+    ExtractDefaultPropTypes<Props>,
+    S
+>;
+
+// overload 4: object format with object props declaration
+// see `ExtractPropTypes` in ./componentProps.ts
+function register<
+    // the Readonly constraint allows TS to treat the type of { required: true }
+    // as constant instead of boolean.
+    PropsOptions extends Readonly<ComponentPropsOptions>,
+    RawBindings,
+    D,
+    C extends ComputedOptions = {},
+    M extends MethodOptions = {},
+    Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+    E extends EmitsOptions = {},
+    EE extends string = string,
+    S extends SlotsType = {},
+    I extends ComponentInjectOptions = {},
+    II extends string = string
+>(
+    componentName: string,
+    componentConfiguration: ComponentOptionsWithObjectProps<
+        PropsOptions,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        I,
+        II,
+        S
+    >
+): DefineComponent<
+    PropsOptions,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    PublicProps,
+    ResolveProps<PropsOptions, E>,
+    ExtractDefaultPropTypes<PropsOptions>,
+    S
+>;
+
+// overload 4 (ASYNC): object format with object props declaration
+// see `ExtractPropTypes` in ./componentProps.ts
+function register<
+    // the Readonly constraint allows TS to treat the type of { required: true }
+    // as constant instead of boolean.
+    PropsOptions extends Readonly<ComponentPropsOptions>,
+    RawBindings,
+    D,
+    C extends ComputedOptions = {},
+    M extends MethodOptions = {},
+    Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+    Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+    E extends EmitsOptions = {},
+    EE extends string = string,
+    S extends SlotsType = {},
+    I extends ComponentInjectOptions = {},
+    II extends string = string
+>(
+    componentName: string,
+    componentConfiguration: Promise<ComponentOptionsWithObjectProps<
+        PropsOptions,
+        RawBindings,
+        D,
+        C,
+        M,
+        Mixin,
+        Extends,
+        E,
+        EE,
+        I,
+        II,
+        S
+    >>
+): DefineComponent<
+    PropsOptions,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    PublicProps,
+    ResolveProps<PropsOptions, E>,
+    ExtractDefaultPropTypes<PropsOptions>,
+    S
+>;
+
+function register(componentName: string, componentConfiguration: unknown): unknown {
+/* eslint-enable max-len,@typescript-eslint/ban-types */
     if (!componentName || !componentName.length) {
         warn(
             'ComponentFactory',
@@ -179,19 +561,19 @@ function register(componentName: string, componentConfiguration: ComponentConfig
         return false;
     }
 
-    const configurationResolveMethod = async (): Promise<false | ComponentConfig<Vue>> => {
+    const configurationResolveMethod = async (): Promise<false | ComponentConfig> => {
         const awaitedConfig = typeof componentConfiguration === 'function'
             ? componentConfiguration
+            // @ts-expect-error - type is defined in overload
             : (): Promise<ComponentConfig> => Promise.resolve(componentConfiguration);
 
-        let awaitedConfigResult = await awaitedConfig();
+        let awaitedConfigResult = (await awaitedConfig()) as ComponentConfig;
 
         /**
          * Check if the resulted config is a ES module. Then we need to use the default
          * value of it.
          */
         if (awaitedConfigResult.hasOwnProperty('default')) {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             awaitedConfigResult = awaitedConfigResult.default;
         }
@@ -203,7 +585,7 @@ function register(componentName: string, componentConfiguration: ComponentConfig
             /**
              * Register the main template of the component.
              */
-            TemplateFactory.registerComponentTemplate(componentName, config.template);
+            TemplateFactory.registerComponentTemplate(componentName, config.template as string);
 
             /**
              * Delete the template string from the component config.
@@ -255,7 +637,6 @@ function extend(
          * value of it.
          */
         if (awaitedConfigResult.hasOwnProperty('default')) {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             awaitedConfigResult = awaitedConfigResult.default;
         }
@@ -266,7 +647,7 @@ function extend(
             /**
              * Register the main template of the component based on the extended component.
              */
-            TemplateFactory.extendComponentTemplate(componentName, extendComponentName, config.template);
+            TemplateFactory.extendComponentTemplate(componentName, extendComponentName, config.template as string);
 
             /**
              * Delete the template string from the component config.
@@ -314,7 +695,6 @@ function override(
          * value of it.
          */
         if (config.hasOwnProperty('default')) {
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             config = config.default;
         }
@@ -325,7 +705,7 @@ function override(
             /**
              * Register a template override for the existing component template.
              */
-            TemplateFactory.registerTemplateOverride(componentName, config.template, overrideIndex);
+            TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
 
             /**
              * Delete the template string from the component config.
@@ -442,6 +822,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
             : typeof config.extends !== 'string' && config?.extends?.name;
 
         // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         config.methods = { ...config.methods, ...addSuperBehaviour(inheritedFrom, superRegistry) };
     }
 
@@ -489,17 +870,17 @@ async function convertOverrides(awaitedOverrides: AwaitedComponentConfig[] | und
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment */
     // @ts-expect-error
     return overrides
-        // @ts-expect-error
         .reduceRight((acc, overrideComp) => {
+            // @ts-expect-error
             if (acc.length === 0) {
                 return [overrideComp];
             }
 
+            // @ts-expect-error
             const previous = acc.shift();
 
             Object.entries(overrideComp).forEach(([prop, values]) => {
                 // check if current property exists in previous override
-                // @ts-expect-error
                 if (previous && previous.hasOwnProperty(prop)) {
                     // if it exists iterate over the methods
                     // and hoist them if they don't exists in previous override
@@ -514,10 +895,8 @@ async function convertOverrides(awaitedOverrides: AwaitedComponentConfig[] | und
                     if (typeof values === 'object') {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         Object.entries(values).forEach(([methodName, methodFunction]) => {
-                            // @ts-expect-error
                             if (!previous[prop].hasOwnProperty(methodName)) {
                                 // move the function over
-                                // @ts-expect-error
                                 previous[prop][methodName] = methodFunction;
                                 // @ts-expect-error
                                 delete overrideComp[prop][methodName];
@@ -526,13 +905,14 @@ async function convertOverrides(awaitedOverrides: AwaitedComponentConfig[] | und
                     }
                 } else {
                     // move the property over
-                    // @ts-expect-error
                     previous[prop] = values;
                     // @ts-expect-error
                     delete overrideComp[prop];
                 }
             });
 
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return [...[overrideComp], previous, ...acc];
         }, []);
 
@@ -543,7 +923,7 @@ interface SuperRegistry {
     [name: string]: {
         [sName: string]: {
             parent: string,
-            func: (args: $TSFixMe[]) => $TSFixMe
+            func: ((args: $TSFixMe[]) => $TSFixMe) | null,
         }
     }
 }
@@ -554,7 +934,7 @@ interface SuperBehavior {
     _findInSuperRegister(name: string): SuperRegistry,
     _superRegistry(): SuperRegistry,
     _inheritedFrom(): string,
-    _virtualCallStack: { [name: string]: string }
+    _virtualCallStack: { [name: string]: string|undefined }
 }
 
 /**
@@ -573,7 +953,6 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
      * and resolve the call chain.
      */
     ['computed', 'methods'].forEach((methodOrComputed) => {
-        // @ts-expect-error
         const ConfigMethodOrComputed = config[methodOrComputed];
 
         if (!ConfigMethodOrComputed) {
@@ -587,7 +966,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
             // is computed getter/setter definition
             if (methodOrComputed === 'computed' && typeof method === 'object') {
                 Object.entries(method as object).forEach(([cmd, func]) => {
-                    const path = `${name}.${cmd}`;
+                    const path = `${String(name)}.${String(cmd)}`;
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
                 });
@@ -631,13 +1010,32 @@ function updateSuperRegistry(
  * Returns a superBehaviour object, which contains a super-like callstack.
  */
 function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry): SuperBehavior {
-    const superBehavior: SuperBehavior = {
+    return {
         $super(this: SuperBehavior, name, ...args) {
             this._initVirtualCallStack(name);
 
             const superStack = this._findInSuperRegister(name);
 
-            const superFuncObject = superStack[this._virtualCallStack[name]];
+            let superFuncObject = superStack[this._virtualCallStack[name]!];
+
+            /**
+             * Find the next matching function in the super call chain.
+             * This is necessary because the super call chain can be interrupted by empty overrides.
+             */
+            while (superFuncObject && typeof superFuncObject.func !== 'function') {
+                // @ts-expect-error
+                superFuncObject = superStack[superFuncObject.parent];
+            }
+
+            /**
+             * If there is no super function in the super call chain, then go to the next override.
+             */
+            if (!superFuncObject) {
+                this._virtualCallStack[name] = undefined;
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument
+                return this.$super(name, ...args);
+            }
 
             // @ts-expect-error
             this._virtualCallStack[name] = superFuncObject.parent;
@@ -667,8 +1065,6 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
             return inheritedFrom;
         },
     };
-
-    return superBehavior;
 }
 
 /**
@@ -717,12 +1113,10 @@ function resolveSuperCallChain(
 
     const resolvedParent = resolveSuperCallChain(extension, methodName, methodsOrComputed, overridePrefix);
 
-    const result = {
+    return {
         ...resolvedParent,
         ...parentBlock,
     };
-
-    return result;
 }
 
 /**
@@ -741,13 +1135,8 @@ function findMethodInChain(
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (extension[methodsOrComputed]?.[methodName]) {
-        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return extension[methodsOrComputed][methodName];
-    }
-
-    if (extension.extends) {
-        // @ts-expect-error
-        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
     }
 
     return null;
@@ -768,14 +1157,13 @@ function resolveGetterSetterChain(
         return findMethodInChain(extension.extends, methodName, methodsOrComputed);
     }
 
-    // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!extension[methodsOrComputed][methodName]) {
         // @ts-expect-error
         return findMethodInChain(extension.extends, methodName, methodsOrComputed);
     }
 
-    // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return extension[methodsOrComputed][methodName][cmd];
 }
 

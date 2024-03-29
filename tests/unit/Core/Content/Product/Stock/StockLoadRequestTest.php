@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\StockLoadRequest
  */
+#[CoversClass(StockLoadRequest::class)]
 class StockLoadRequestTest extends TestCase
 {
     public function testStockRequest(): void

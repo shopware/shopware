@@ -7,15 +7,9 @@
     <services>
         <service id="Shopware\Core\Content\Media\Core\Application\MediaUrlLoader">
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface" />
 
-            <!-- trigger "new" media path handling and url generation -->
             <tag name="kernel.event_listener" event="media.loaded" method="loaded" priority="20" />
             <tag name="kernel.event_listener" event="partial.media.loaded" method="loaded" priority="19" />
-
-            <!-- at least trigger  -->
-            <tag name="kernel.event_listener" event="media.loaded" method="legacyPath" priority="10" />
-            <tag name="kernel.event_listener" event="media.loaded" method="legacy" priority="0" />
         </service>
 
         <service class="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder" id="Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder">
@@ -38,7 +32,6 @@
 
         <service id="Shopware\Core\Content\Media\Core\Strategy\PathStrategyFactory">
             <argument type="tagged" tag="shopware.path.strategy"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Core\Strategy\BCStrategy"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy">
@@ -47,12 +40,6 @@
 
         <service id="Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy">
             <tag name="shopware.path.strategy" />
-        </service>
-
-        <service id="Shopware\Core\Content\Media\Core\Strategy\BCStrategy" public="true">
-            <argument type="service" id="media.repository"/>
-            <argument type="service" id="media_thumbnail.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Core\Strategy\PhysicalFilenamePathStrategy">
@@ -76,6 +63,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <tag name="shopware.entity_indexer"/>
         </service>
 
@@ -83,6 +71,23 @@
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\BanMediaUrl">
+            <argument type="service" id="shopware.media.reverse_proxy"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
+
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaPathChangedEvent" method="changed" />
+        </service>
+
+        <service id="shopware.media.reverse_proxy" alias="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy"/>
+
+        <service id="Shopware\Core\Content\Media\Infrastructure\Path\FastlyMediaReverseProxy">
+            <argument type="service" id="shopware.reverse_proxy.http_client"/>
+            <argument>%shopware.cdn.fastly.api_key%</argument>
+            <argument>%shopware.cdn.fastly.soft_purge%</argument>
+            <argument>%shopware.cdn.fastly.max_parallel_invalidations%</argument>
+            <argument type="service" id="logger"/>
         </service>
     </services>
 </container>

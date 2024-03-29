@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapHandleFactory implements SitemapHandleFactoryInterface
 {
     /**

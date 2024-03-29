@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class OrderCustomerCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCustomerIds(): array
     {

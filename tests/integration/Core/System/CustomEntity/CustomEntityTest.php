@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Schema\Schema;
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -89,9 +90,7 @@ class CustomEntityTest extends TestCase
         'email' => 'test@test.com',
     ];
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
     {
         $container = KernelLifecycleManager::bootKernel()->getContainer();
@@ -1031,7 +1030,7 @@ class CustomEntityTest extends TestCase
 
                 (new DAL\TranslationsAssociationField('custom_entity_blog_translation', 'custom_entity_blog_id', 'translations', 'id'))->addFlags(new Required()),
 
-                (new DAL\ManyToManyAssociationField('products', 'product', 'custom_entity_blog_products', 'custom_entity_blog_id', 'product_id', 'id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
+                (new ManyToManyAssociationField('products', 'product', 'custom_entity_blog_products', 'custom_entity_blog_id', 'product_id', 'id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
 
                 new DAL\OneToOneAssociationField('linkProductRestrict', 'link_product_restrict_id', 'id', 'product'),
                 (new DAL\ReferenceVersionField('product', 'link_product_restrict_version_id'))->addFlags(new Required()),
@@ -1039,34 +1038,34 @@ class CustomEntityTest extends TestCase
 
                 new DAL\OneToOneAssociationField('linkProductCascade', 'link_product_cascade_id', 'id', 'product'),
                 (new DAL\ReferenceVersionField('product', 'link_product_cascade_version_id'))->addFlags(new Required()),
-                new DAL\FkField('link_product_cascade_id', 'linkProductCascadeId', 'product', 'id'),
+                new FkField('link_product_cascade_id', 'linkProductCascadeId', 'product', 'id'),
 
                 new DAL\OneToOneAssociationField('linkProductSetNull', 'link_product_set_null_id', 'id', 'product'),
                 (new DAL\ReferenceVersionField('product', 'link_product_set_null_version_id'))->addFlags(new Required()),
-                new DAL\FkField('link_product_set_null_id', 'linkProductSetNullId', 'product', 'id'),
+                new FkField('link_product_set_null_id', 'linkProductSetNullId', 'product', 'id'),
 
-                new DAL\ManyToOneAssociationField('topSellerRestrict', 'top_seller_restrict_id', 'product', 'id'),
+                new ManyToOneAssociationField('topSellerRestrict', 'top_seller_restrict_id', 'product', 'id'),
                 (new DAL\ReferenceVersionField('product', 'top_seller_restrict_version_id'))->addFlags(new Required()),
-                new DAL\FkField('top_seller_restrict_id', 'topSellerRestrictId', 'product', 'id'),
+                new FkField('top_seller_restrict_id', 'topSellerRestrictId', 'product', 'id'),
 
-                new DAL\ManyToOneAssociationField('topSellerCascade', 'top_seller_cascade_id', 'product', 'id'),
+                new ManyToOneAssociationField('topSellerCascade', 'top_seller_cascade_id', 'product', 'id'),
                 (new DAL\ReferenceVersionField('product', 'top_seller_cascade_version_id'))->addFlags(new Required()),
-                (new DAL\FkField('top_seller_cascade_id', 'topSellerCascadeId', 'product', 'id'))->addFlags(new Required()),
+                (new FkField('top_seller_cascade_id', 'topSellerCascadeId', 'product', 'id'))->addFlags(new Required()),
 
-                new DAL\ManyToOneAssociationField('topSellerSetNull', 'top_seller_set_null_id', 'product', 'id'),
+                new ManyToOneAssociationField('topSellerSetNull', 'top_seller_set_null_id', 'product', 'id'),
                 (new DAL\ReferenceVersionField('product', 'top_seller_set_null_version_id'))->addFlags(new Required()),
-                new DAL\FkField('top_seller_set_null_id', 'topSellerSetNullId', 'product', 'id'),
+                new FkField('top_seller_set_null_id', 'topSellerSetNullId', 'product', 'id'),
 
-                (new DAL\OneToManyAssociationField('linksRestrict', 'category', 'custom_entity_blog_links_restrict_id', 'id'))->addFlags(new DAL\Flag\RestrictDelete()),
+                (new OneToManyAssociationField('linksRestrict', 'category', 'custom_entity_blog_links_restrict_id', 'id'))->addFlags(new DAL\Flag\RestrictDelete()),
 
-                (new DAL\OneToManyAssociationField('linksSetNull', 'category', 'custom_entity_blog_links_set_null_id', 'id'))->addFlags(new DAL\Flag\SetNullOnDelete()),
+                (new OneToManyAssociationField('linksSetNull', 'category', 'custom_entity_blog_links_set_null_id', 'id'))->addFlags(new DAL\Flag\SetNullOnDelete()),
 
-                (new DAL\OneToManyAssociationField('comments', 'ce_blog_comment', 'custom_entity_blog_comments_id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
+                (new OneToManyAssociationField('comments', 'ce_blog_comment', 'custom_entity_blog_comments_id', 'id'))->addFlags(new DAL\Flag\CascadeDelete()),
 
                 (new ManyToManyAssociationField('inheritedProducts', 'product', 'custom_entity_blog_inherited_products', 'custom_entity_blog_id', 'product_id', 'id', 'id'))->addFlags(new DAL\Flag\CascadeDelete(), new DAL\Flag\ReverseInherited('customEntityBlogInheritedProducts')),
 
                 new FkField('inherited_top_seller_id', 'inheritedTopSellerId', 'product', 'id'),
-                (new DAL\ManyToOneAssociationField('inheritedTopSeller', 'inherited_top_seller_id', 'product', 'id'))->addFlags(new DAL\Flag\ReverseInherited('customEntityBlogInheritedTopSeller')),
+                (new ManyToOneAssociationField('inheritedTopSeller', 'inherited_top_seller_id', 'product', 'id'))->addFlags(new DAL\Flag\ReverseInherited('customEntityBlogInheritedTopSeller')),
             ],
             'custom_entity_blog_translation' => [
                 (new FkField('custom_entity_blog_id', 'customEntityBlogId', 'custom_entity_blog'))->addFlags(new Required(), new PrimaryKey()),

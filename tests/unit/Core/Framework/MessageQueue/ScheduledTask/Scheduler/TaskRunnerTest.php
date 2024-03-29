@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
@@ -11,12 +12,12 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner
  */
+#[CoversClass(TaskRunner::class)]
 class TaskRunnerTest extends TestCase
 {
     public function testNonExistingTask(): void
@@ -76,7 +77,10 @@ class TestTask extends ScheduledTask
 
 /**
  * @internal
+ *
+ * @final
  */
+#[AsMessageHandler(handles: TestTask::class)]
 class TestTaskHandler extends ScheduledTaskHandler
 {
     public bool $called = false;
@@ -90,11 +94,6 @@ class TestTaskHandler extends ScheduledTaskHandler
         $this->run();
     }
 
-    public static function getHandledMessages(): iterable
-    {
-        yield TestTask::class;
-    }
-
     public function run(): void
     {
         $this->called = true;
@@ -103,7 +102,10 @@ class TestTaskHandler extends ScheduledTaskHandler
 
 /**
  * @internal
+ *
+ * @final
  */
+#[AsMessageHandler()]
 class TestTask2Handler extends ScheduledTaskHandler
 {
     public bool $called = false;
@@ -115,11 +117,6 @@ class TestTask2Handler extends ScheduledTaskHandler
     public function __invoke(ScheduledTask $task): void
     {
         $this->run();
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [];
     }
 
     public function run(): void

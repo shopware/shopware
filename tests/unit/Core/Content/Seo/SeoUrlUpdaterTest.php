@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -22,10 +23,9 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Seo\SeoUrlUpdater
  */
 #[Package('buyers-experience')]
+#[CoversClass(SeoUrlUpdater::class)]
 class SeoUrlUpdaterTest extends TestCase
 {
     /**

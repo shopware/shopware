@@ -35,11 +35,11 @@
         "monolog/monolog": "^3.3.1",
         "opensearch-project/opensearch-php": "^2.0",
         "shopware/core": "*",
-        "shyim/opensearch-php-dsl": "^1.0.1",
-        "symfony/http-foundation": "~6.3.0",
-        "symfony/messenger": "~6.3.0"
+        "shyim/opensearch-php-dsl": "^1.0.5",
+        "symfony/http-foundation": "~7.0.0",
+        "symfony/messenger": "~7.0.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6"
+        "phpunit/phpunit": "^10.4"
     }
 }

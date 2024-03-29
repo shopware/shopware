@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -19,9 +21,7 @@ trait DatabaseTransactionBehaviour
         self::$nextNestTransactionsWithSavepoints = false;
     }
 
-    /**
-     * @before
-     */
+    #[Before]
     public function startTransactionBefore(): void
     {
         self::assertNull(
@@ -38,12 +38,10 @@ trait DatabaseTransactionBehaviour
             ->get(Connection::class)
             ->beginTransaction();
 
-        static::$lastTestCase = $this->getName();
+        static::$lastTestCase = $this->nameWithDataSet();
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function stopTransactionAfter(): void
     {
         $connection = $this->getContainer()
@@ -62,7 +60,7 @@ trait DatabaseTransactionBehaviour
 
         self::$nextNestTransactionsWithSavepoints = true;
 
-        if (static::$lastTestCase === $this->getName()) {
+        if (static::$lastTestCase === $this->nameWithDataSet()) {
             static::$lastTestCase = null;
         }
     }

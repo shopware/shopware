@@ -111,23 +111,23 @@ class GetClassesPerAreaCommand extends Command
                 if ($unitDocument === null) {
                     return 1;
                 }
-                $coverage = $unitDocument->getElementsByTagName('coverage')->item(0);
-                if ($coverage === null) {
+                $source = $unitDocument->getElementsByTagName('source')->item(0);
+                if ($source === null) {
                     return 1;
                 }
-                $includeChildElement = $coverage->getElementsByTagName('include')->item(0);
+                $includeChildElement = $source->getElementsByTagName('include')->item(0);
                 if ($includeChildElement === null) {
                     return 1;
                 }
-                // Remove include from coverage to create our own includes
-                $coverage->removeChild($includeChildElement);
+                // Remove include from source to create our own includes
+                $source->removeChild($includeChildElement);
                 $includeElement = $unitFile->createElement('include');
 
                 foreach ($classToFile as $class => $file) {
                     $fileElement = $unitFile->createElement('file', $file);
                     $includeElement->appendChild($fileElement);
                 }
-                $coverage->appendChild($includeElement);
+                $source->appendChild($includeElement);
 
                 // Create phpunit file per area
                 file_put_contents("phpunit.$area.xml", $unitFile->saveXML());
@@ -145,13 +145,7 @@ class GetClassesPerAreaCommand extends Command
         $areas = [];
 
         foreach ($this->getShopwareClasses() as $class => $path) {
-            try {
-                $area = Package::getPackageName($class);
-            } catch (\Throwable $e) {
-                $areas['unknown'][$class] = $path;
-
-                continue;
-            }
+            $area = Package::getPackageName($class);
 
             if (!\is_string($area)) {
                 continue;

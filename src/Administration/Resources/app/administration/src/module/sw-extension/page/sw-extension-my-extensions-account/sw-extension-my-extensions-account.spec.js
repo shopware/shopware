@@ -1,7 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swExtensionMyExtensionsAccount from 'src/module/sw-extension/page/sw-extension-my-extensions-account';
-import 'src/app/component/meteor/sw-meteor-card';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
 const userInfo = {
@@ -10,67 +7,58 @@ const userInfo = {
     name: 'Max Muster',
 };
 
-Shopware.Component.register('sw-extension-my-extensions-account', swExtensionMyExtensionsAccount);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.filter('asset', key => key);
-
-    return shallowMount(await Shopware.Component.build('sw-extension-my-extensions-account'), {
-        localVue,
-        stubs: {
-            'sw-avatar': true,
-            'sw-loader': true,
-            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-text-field': {
-                props: ['value'],
-                template: `
-                    <input type="text" :value="value" @input="$emit('input', $event.target.value)" />
+    return mount(await wrapTestComponent('sw-extension-my-extensions-account', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-text-field': {
+                    props: ['value'],
+                    template: `
+                    <input type="text" :value="value" @input="$emit('update:value', $event.target.value)" />
                 `,
-            },
-            'sw-password-field': {
-                props: ['value'],
-                template: `
-<input type="password" :value="value" @input="$emit('input', $event.target.value)" />
+                },
+                'sw-password-field': {
+                    props: ['value'],
+                    template: `
+<input type="password" :value="value" @input="$emit('update:value', $event.target.value)" />
 `,
-            },
-            'sw-skeleton': true,
-        },
-        provide: {
-            shopwareExtensionService: {
-                checkLogin: () => {
-                    return Promise.resolve({
-                        userInfo,
-                    });
                 },
             },
-            systemConfigApiService: {
-                getValues: () => {
-                    return Promise.resolve({
-                        'core.store.apiUri': 'https://api.shopware.com',
-                        'core.store.licenseHost': 'sw6.test.shopware.in',
-                        'core.store.shopSecret': 'very.s3cret',
-                    });
+            provide: {
+                shopwareExtensionService: {
+                    checkLogin: () => {
+                        return Promise.resolve({
+                            userInfo,
+                        });
+                    },
                 },
-            },
-            storeService: {
-                login: (shopwareId, password) => {
-                    if (shopwareId !== 'max@muster.com') {
-                        return Promise.reject();
-                    }
-                    if (password !== 'v3ryS3cret') {
-                        return Promise.reject();
-                    }
-
-                    Shopware.State.get('shopwareExtensions').userInfo = userInfo;
-
-                    return Promise.resolve();
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve({
+                            'core.store.apiUri': 'https://api.shopware.com',
+                            'core.store.licenseHost': 'sw6.test.shopware.in',
+                            'core.store.shopSecret': 'very.s3cret',
+                        });
+                    },
                 },
-                logout: () => {
-                    Shopware.State.get('shopwareExtensions').userInfo = null;
+                storeService: {
+                    login: (shopwareId, password) => {
+                        if (shopwareId !== 'max@muster.com') {
+                            return Promise.reject();
+                        }
+                        if (password !== 'v3ryS3cret') {
+                            return Promise.reject();
+                        }
 
-                    return Promise.resolve();
+                        Shopware.State.get('shopwareExtensions').userInfo = userInfo;
+
+                        return Promise.resolve();
+                    },
+                    logout: () => {
+                        Shopware.State.get('shopwareExtensions').userInfo = null;
+
+                        return Promise.resolve();
+                    },
                 },
             },
         },
@@ -81,28 +69,17 @@ async function createWrapper() {
  * @package services-settings
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     beforeAll(async () => {
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
     });
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
-
         Shopware.State.get('shopwareExtensions').userInfo = null;
     });
 
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the login fields when not logged in', async () => {
+        const wrapper = await createWrapper();
+
         const shopwareIdField = wrapper.find('.sw-extension-my-extensions-account__shopware-id-field');
         const passwordField = wrapper.find('.sw-extension-my-extensions-account__password-field');
         const loginButton = wrapper.find('.sw-extension-my-extensions-account__login-button');
@@ -114,18 +91,23 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
     });
 
     it('should login when user clicks login', async () => {
+        const wrapper = await createWrapper();
+
         // check if login status is not visible
         let loginStatus = wrapper.find('.sw-extension-my-extensions-account__wrapper-content-login-status-id');
         expect(loginStatus.exists()).toBe(false);
 
         // get fields
-        const shopwareIdField = wrapper.find('.sw-extension-my-extensions-account__shopware-id-field');
-        const passwordField = wrapper.find('.sw-extension-my-extensions-account__password-field');
+        const shopwareIdField = wrapper.get('.sw-extension-my-extensions-account__shopware-id-field');
+        const passwordField = wrapper.get('.sw-extension-my-extensions-account__password-field');
         const loginButton = wrapper.find('.sw-extension-my-extensions-account__login-button');
 
         // enter credentials
         await shopwareIdField.setValue('max@muster.com');
         await passwordField.setValue('v3ryS3cret');
+
+        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // login
         await loginButton.trigger('click');
@@ -141,7 +123,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -155,7 +137,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 

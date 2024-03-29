@@ -42,11 +42,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('users_and_permissions.editor')"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -91,7 +87,6 @@
             </template>
 
             <template v-else>
-                {% if VUE3 %}
                 <router-view
                     v-slot="{ Component }"
                 >
@@ -101,12 +96,6 @@
                         :detailed-privileges="detailedPrivileges"
                     />
                 </router-view>
-                {% else %}
-                <router-view
-                    :role="role"
-                    :detailed-privileges="detailedPrivileges"
-                />
-                {% endif %}
             </template>
         </sw-card-view>
         {% endblock %}

@@ -4,45 +4,30 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Core\Application;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\MediaUrlLoader;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Application\MediaUrlLoader
  */
+#[CoversClass(MediaUrlLoader::class)]
 class MediaUrlLoaderTest extends TestCase
 {
     /**
-     * @dataProvider loadedProvider
-     *
      * @param array<string, string> $expected
      */
+    #[DataProvider('loadedProvider')]
     public function testLoad(IdsCollection $ids, PartialEntity $entity, array $expected): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-        $mock->expects(static::never())
-            ->method('getAbsoluteMediaUrl');
-
-        $mock->expects(static::never())
-            ->method('getRelativeMediaUrl');
-
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
-        $subscriber = new MediaUrlLoader(new MediaUrlGenerator($filesystem), $mock);
+        $subscriber = new MediaUrlLoader(new MediaUrlGenerator($filesystem));
 
         $subscriber->loaded([$entity]);
 
@@ -60,205 +45,6 @@ class MediaUrlLoaderTest extends TestCase
             static::assertArrayHasKey($id, $actual);
             static::assertEquals($value, $actual[$id]);
         }
-    }
-
-    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
-    public function testLegacy(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-
-        $mock->expects(static::once())
-            ->method('getAbsoluteMediaUrl')
-            ->willReturn('http://localhost:8000/foo/bar.png');
-
-        $mock->expects(static::once())
-            ->method('getAbsoluteThumbnailUrl')
-            ->willReturn('http://localhost:8000/foo/thumb.png');
-
-        $media = new MediaEntity();
-
-        $thumbnail = (new MediaThumbnailEntity())->assign([
-            'id' => 'thumbnail',
-            'width' => 100,
-            'height' => 100,
-        ]);
-
-        $media->assign([
-            'id' => 'media',
-            'mimeType' => 'image/png',
-            'fileExtension' => 'png',
-            'private' => false,
-            'fileName' => 'bar',
-            'thumbnails' => new MediaThumbnailCollection([
-                $thumbnail,
-            ]),
-        ]);
-
-        $new = $this->createMock(MediaUrlGenerator::class);
-
-        $subscriber = new MediaUrlLoader($new, $mock);
-
-        $subscriber->legacy([$media]);
-
-        static::assertEquals('http://localhost:8000/foo/bar.png', $media->getUrl());
-        static::assertEquals('http://localhost:8000/foo/thumb.png', $thumbnail->getUrl());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
-    public function testLegacyPath(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-
-        $mock->expects(static::once())
-            ->method('getRelativeMediaUrl')
-            ->willReturn('/foo/bar.png');
-
-        $mock->expects(static::once())
-            ->method('getRelativeThumbnailUrl')
-            ->willReturn('/foo/thumb.png');
-
-        $media = new MediaEntity();
-
-        $thumbnail = (new MediaThumbnailEntity())->assign([
-            'id' => 'thumbnail',
-            'width' => 100,
-            'height' => 100,
-        ]);
-
-        $media->assign([
-            'id' => 'media',
-            'mimeType' => 'image/png',
-            'fileExtension' => 'png',
-            'private' => false,
-            'fileName' => 'bar',
-            'thumbnails' => new MediaThumbnailCollection([
-                $thumbnail,
-            ]),
-        ]);
-
-        $new = $this->createMock(MediaUrlGenerator::class);
-
-        $subscriber = new MediaUrlLoader($new, $mock);
-
-        $subscriber->legacyPath([$media]);
-
-        static::assertEquals('/foo/bar.png', $media->getPath());
-        static::assertEquals('/foo/thumb.png', $thumbnail->getPath());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
-    public function testLegacyPathForPrivate(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-
-        $mock->expects(static::once())
-            ->method('getRelativeMediaUrl')
-            ->willReturn('/foo/bar.png');
-
-        $mock->expects(static::once())
-            ->method('getRelativeThumbnailUrl')
-            ->willReturn('/foo/thumb.png');
-
-        $media = new MediaEntity();
-
-        $thumbnail = (new MediaThumbnailEntity())->assign([
-            'id' => 'thumbnail',
-            'width' => 100,
-            'height' => 100,
-        ]);
-
-        $media->assign([
-            'id' => 'media',
-            'mimeType' => 'image/png',
-            'fileExtension' => 'png',
-            'private' => true,
-            'fileName' => 'bar',
-            'thumbnails' => new MediaThumbnailCollection([
-                $thumbnail,
-            ]),
-        ]);
-
-        $new = $this->createMock(MediaUrlGenerator::class);
-
-        $subscriber = new MediaUrlLoader($new, $mock);
-
-        $subscriber->legacyPath([$media]);
-
-        static::assertEquals('/foo/bar.png', $media->getPath());
-        static::assertEquals('/foo/thumb.png', $thumbnail->getPath());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
-    public function testLegacySkipped(): void
-    {
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-        $mock->expects(static::never())
-            ->method('getRelativeMediaUrl');
-
-        $media = new MediaEntity();
-        $media->assign([
-            'id' => 'media',
-            'path' => 'media/foo.png',
-        ]);
-
-        $new = $this->createMock(MediaUrlGenerator::class);
-
-        $subscriber = new MediaUrlLoader($new, $mock);
-        $subscriber->legacyPath([$media]);
-
-        static::assertEquals('media/foo.png', $media->getPath());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
-    public function testLegacyPathWithoutFileName(): void
-    {
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-        $mock->expects(static::never())
-            ->method('getRelativeMediaUrl');
-
-        $media = new MediaEntity();
-        $media->assign([
-            'id' => 'media',
-            'mimeType' => 'image/png',
-            'fileExtension' => 'png',
-            'path' => '',
-        ]);
-
-        $new = $this->createMock(MediaUrlGenerator::class);
-
-        $subscriber = new MediaUrlLoader($new, $mock);
-        $subscriber->legacyPath([$media]);
-
-        static::assertEmpty($media->getPath());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
-    public function testLegacyFunctionWithoutFilename(): void
-    {
-        $mock = $this->createMock(UrlGeneratorInterface::class);
-        $mock->expects(static::never())
-            ->method('getAbsoluteMediaUrl');
-
-        $media = new MediaEntity();
-        $media->assign([
-            'id' => 'media',
-            'mimeType' => 'image/png',
-            'fileExtension' => 'png',
-            'path' => '',
-        ]);
-
-        $new = $this->createMock(MediaUrlGenerator::class);
-
-        $subscriber = new MediaUrlLoader($new, $mock);
-        $subscriber->legacy([$media]);
-
-        static::assertEmpty($media->getUrl());
     }
 
     public static function loadedProvider(): \Generator

@@ -21,7 +21,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('inventory')]
@@ -43,6 +43,8 @@ class ExportController
     #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]
     public function index(Request $request): Response
     {
+        $context = Context::createDefaultContext();
+
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
@@ -51,11 +53,11 @@ class ExportController
             ->addAssociation('salesChannelDomain');
 
         /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->productExportRepository->search($criteria, Context::createDefaultContext())->first();
+        $productExport = $this->productExportRepository->search($criteria, $context)->first();
 
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
-            $this->logException(Context::createDefaultContext(), $exportNotFoundException, Level::Warning);
+            $this->logException($context, $exportNotFoundException, Level::Warning);
 
             throw $exportNotFoundException;
         }

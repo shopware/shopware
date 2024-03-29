@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -61,9 +62,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class VersioningTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -264,7 +264,7 @@ class VersioningTest extends TestCase
         }
 
         static::assertInstanceOf(DataAbstractionLayerException::class, $e);
-        static::assertEquals(DataAbstractionLayerException::VERSION_NOT_EXISTS, $e->getErrorCode());
+        static::assertSame(DataAbstractionLayerException::VERSION_NOT_EXISTS, $e->getErrorCode());
 
         $versions = $this->getContainer()
             ->get(Connection::class)
@@ -1811,7 +1811,7 @@ class VersioningTest extends TestCase
             ]
         );
         $context->setRuleIds(
-            [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId()]
+            [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId() ?? Uuid::randomHex()]
         );
 
         $cart = $this->createDemoCart($context);
@@ -2025,7 +2025,7 @@ class VersioningTest extends TestCase
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array<array<string, mixed>>
      */
     private function getCommits(string $entity, string $id, string $versionId): array
     {
@@ -2045,18 +2045,16 @@ class VersioningTest extends TestCase
             ]
         );
 
-        $data = array_map(function (array $row) {
+        return array_map(function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
             return $row;
         }, $data);
-
-        return $data;
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array<array<string, mixed>>
      */
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
@@ -2076,18 +2074,16 @@ class VersioningTest extends TestCase
             ]
         );
 
-        $data = array_map(function (array $row) {
+        return array_map(function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
             return $row;
         }, $data);
-
-        return $data;
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array<array<string, mixed>>
      */
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId, string $versionField = 'versionId'): array
     {
@@ -2107,14 +2103,12 @@ class VersioningTest extends TestCase
             ]
         );
 
-        $data = array_map(function (array $row) {
+        return array_map(function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
             return $row;
         }, $data);
-
-        return $data;
     }
 
     private function createPaymentMethod(string $ruleId): string

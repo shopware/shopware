@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -10,30 +11,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Api\ConsentController;
-use Shopware\Core\System\UsageData\Consent\ConsentReporter;
+use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\UsageDataException;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Api\ConsentController
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(ConsentController::class)]
 class ConsentControllerTest extends TestCase
 {
-    public function testGetConsentReturnsStateFromDetector(): void
+    public function testGetConsentReturnsStateFromService(): void
     {
         $consentService = $this->createMock(ConsentService::class);
         $consentService->method('isConsentAccepted')->willReturn(true);
-        $consentService->method('hasUserHiddenConsentBanner')->willReturn(true);
+
+        $bannerService = $this->createMock(BannerService::class);
+        $bannerService->method('hasUserHiddenConsentBanner')->willReturn(true);
 
         $controller = new ConsentController(
             $consentService,
+            $bannerService
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -51,6 +55,7 @@ class ConsentControllerTest extends TestCase
     {
         $controller = new ConsentController(
             $this->createMock(ConsentService::class),
+            $this->createMock(BannerService::class),
         );
 
         static::expectException(UsageDataException::class);
@@ -66,6 +71,7 @@ class ConsentControllerTest extends TestCase
     {
         $controller = new ConsentController(
             $this->createMock(ConsentService::class),
+            $this->createMock(BannerService::class),
         );
 
         static::expectException(UsageDataException::class);
@@ -78,6 +84,7 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
+            $this->createMock(BannerService::class),
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -94,6 +101,7 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
+            $this->createMock(BannerService::class),
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -106,12 +114,15 @@ class ConsentControllerTest extends TestCase
         $userId = Uuid::randomHex();
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
+        $bannerService = $this->createMock(BannerService::class);
+        $bannerService->expects(static::once())
             ->method('hideConsentBannerForUser')
             ->with($userId, $context);
 
-        $controller = new ConsentController($consentService);
+        $controller = new ConsentController(
+            $this->createMock(ConsentService::class),
+            $bannerService
+        );
         $response = $controller->hideConsentBanner($context);
 
         static::assertSame(204, $response->getStatusCode());
@@ -128,6 +139,7 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
+            $this->createMock(BannerService::class),
         );
 
         $controller->getConsent($context);
@@ -144,6 +156,7 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
+            $this->createMock(BannerService::class),
         );
 
         $controller->acceptConsent($context);
@@ -160,6 +173,7 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
+            $this->createMock(BannerService::class),
         );
 
         $controller->revokeConsent($context);
@@ -181,8 +195,7 @@ class ConsentControllerTest extends TestCase
         return new ConsentService(
             $this->getSystemConfigService(),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ConsentReporter::class),
+            new CollectingEventDispatcher(),
             new MockClock(),
         );
     }
@@ -190,7 +203,6 @@ class ConsentControllerTest extends TestCase
     private function getSystemConfigService(): StaticSystemConfigService
     {
         return new StaticSystemConfigService([
-            ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED => false,
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REQUESTED->value,
         ]);
     }

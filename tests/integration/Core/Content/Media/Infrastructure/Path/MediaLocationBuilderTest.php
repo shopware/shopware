@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\MediaLocationEvent;
 use Shopware\Core\Content\Media\Core\Event\ThumbnailLocationEvent;
@@ -19,12 +21,11 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder
- * @covers \Shopware\Core\Content\Media\Core\Event\MediaLocationEvent
- * @covers \Shopware\Core\Content\Media\Core\Params\MediaLocationStruct
- * @covers \Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct
  */
+#[CoversClass(SqlMediaLocationBuilder::class)]
+#[CoversClass(MediaLocationEvent::class)]
+#[CoversClass(MediaLocationStruct::class)]
+#[CoversClass(ThumbnailLocationStruct::class)]
 class MediaLocationBuilderTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -32,9 +33,8 @@ class MediaLocationBuilderTest extends TestCase
 
     /**
      * @param array<string, mixed> $storage
-     *
-     * @dataProvider buildMediaProvider
      */
+    #[DataProvider('buildMediaProvider')]
     public function testBuildMedia(array $storage, MediaLocationStruct $expected): void
     {
         $ids = new IdsCollection();
@@ -63,9 +63,8 @@ class MediaLocationBuilderTest extends TestCase
     /**
      * @param array<string, mixed> $media
      * @param array<string, mixed> $thumbnail
-     *
-     * @dataProvider buildThumbnailProvider
      */
+    #[DataProvider('buildThumbnailProvider')]
     public function testBuildThumbnails(array $media, array $thumbnail, ThumbnailLocationStruct $expected): void
     {
         $ids = new IdsCollection();

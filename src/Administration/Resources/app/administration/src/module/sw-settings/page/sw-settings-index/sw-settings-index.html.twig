@@ -79,17 +79,12 @@
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"
-                            {% if VUE3 %}
                             :key="settingsGroup"
-                            {% endif %}
                             :name="settingsGroup"
                         >
                             <div
                                 v-show="active === settingsGroup"
                                 :id="`sw-settings__content-grid-${settingsGroup}`"
-                                {% if VUE2 %}
-                                :key="settingsGroup"
-                                {% endif %}
                                 class="sw-settings__content-grid"
                             >
                                 <sw-settings-item

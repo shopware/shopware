@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -80,10 +79,7 @@ class ThemeCreateCommand extends Command
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront');
             $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js');
-            /** @deprecated tag:v6.6.0 - New default dist location, includes technical name as sub-folder */
-            if (Feature::isActive('v6.6.0.0')) {
-                $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName);
-            }
+            $this->createDirectory($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName);
         } catch (\RuntimeException $e) {
             $io->error($e->getMessage());
 
@@ -121,12 +117,7 @@ class ThemeCreateCommand extends Command
         touch($directory . '/src/Resources/app/storefront/src/assets/.gitkeep');
         touch($directory . '/src/Resources/app/storefront/src/scss/base.scss');
         touch($directory . '/src/Resources/app/storefront/src/main.js');
-        /** @deprecated tag:v6.6.0 - New default dist location, includes technical name as sub-folder */
-        if (Feature::isActive('v6.6.0.0')) {
-            touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '/' . $snakeCaseName . '.js');
-        } else {
-            touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '.js');
-        }
+        touch($directory . '/src/Resources/app/storefront/dist/storefront/js/' . $snakeCaseName . '/' . $snakeCaseName . '.js');
 
         return self::SUCCESS;
     }

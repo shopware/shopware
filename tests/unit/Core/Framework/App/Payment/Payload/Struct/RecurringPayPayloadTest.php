@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -11,11 +12,10 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Framework\App\Payment\Payload\Struct\RecurringPayPayload
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(RecurringPayPayload::class)]
 class RecurringPayPayloadTest extends TestCase
 {
     public function testPayload(): void

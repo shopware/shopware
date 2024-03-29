@@ -1,27 +1,51 @@
-.address-card-title {
-    margin-bottom: $spacer-lg;
-}
+@if feature('v6.7.0.0') {
+    .account-address {
+        .address-action-create .icon {
+            margin-top: 2px;
+            margin-right: $spacer-sm;
+        }
 
-.address-actions-defaults {
-    margin-bottom: $spacer-sm;
-}
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
 
-.address-list {
-    padding-top: $spacer-lg;
-}
+        .btn > .icon {
+            vertical-align: top;
+        }
+    }
+} @else {
+    .account-address {
+        .btn .icon > svg {
+            top: 0.25rem;
+        }
+    }
 
-.address-card {
-    margin-bottom: $spacer * 2.5;
-}
+    .address-card-title {
+        margin-bottom: $spacer-lg;
+    }
 
-.address-action-set-default {
-    line-height: $spacer-lg;
-}
+    .address-actions-defaults {
+        margin-top: $spacer-sm;
+    }
 
-.address-action-delete {
-    margin-left: $spacer-sm;
-}
+    .address-list {
+        padding-top: $spacer-lg;
+    }
 
-.address-action-create {
-    margin-bottom: $spacer-lg;
+    .address-card {
+        margin-bottom: $spacer * 2.5;
+    }
+
+    .address-action-set-default {
+        line-height: $spacer-lg;
+    }
+
+    .address-action-delete {
+        margin-left: $spacer-sm;
+    }
+
+    .address-action-create {
+        margin-bottom: $spacer-lg;
+    }
 }

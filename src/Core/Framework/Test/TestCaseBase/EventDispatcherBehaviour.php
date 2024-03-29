@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use PHPUnit\Framework\Attributes\After;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 trait EventDispatcherBehaviour
@@ -30,9 +31,7 @@ trait EventDispatcherBehaviour
         $dispatcher->addListener($eventName, $instance, $priority);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function resetEventDispatcher(): void
     {
         foreach ($this->registered as $item) {

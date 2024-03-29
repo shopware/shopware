@@ -20,6 +20,7 @@
         :upload-tag="product.id"
         :scroll-target="$parent.$el"
         :default-folder="product.getEntityName()"
+        :file-accept="fileAccept"
         @media-upload-sidebar-open="onOpenMedia"
     />
     {% endblock %}
@@ -38,6 +39,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_media_form_cover_image %}
                     <sw-media-preview-v2
+                        :key="cover ? cover.media?.url : product.cover.media?.url"
                         class="sw-product-media-form__cover-image"
                         :source="cover ? cover.mediaId : product.cover.mediaId"
                     />
@@ -66,6 +68,8 @@
                 v-draggable="{ dragGroup: 'product-media', data: mediaItem, onDragEnter: onMediaItemDragSort }"
                 v-droppable="{ dragGroup: 'product-media', data: mediaItem }"
                 :is-cover="isCover(mediaItem)"
+                :is-spatial="isSpatial(mediaItem)"
+                :is-ar-ready="isArReady(mediaItem)"
                 :is-placeholder="mediaItem.isPlaceholder"
                 :media-id="mediaItem.mediaId"
                 :show-cover-label="showCoverLabel"

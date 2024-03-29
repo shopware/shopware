@@ -1,14 +1,9 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swUsersPermissionsRoleDetail from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
-import 'src/app/component/base/sw-button-process';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AppAclService from 'src/app/service/app-acl.service';
-
-Shopware.Component.register('sw-users-permissions-role-detail', swUsersPermissionsRoleDetail);
 
 let privilegesService = new PrivilegesService();
 const appAclService = new AppAclService(
@@ -44,61 +39,67 @@ async function createWrapper(
 
     const $route = options.isNew ? { params: {} } : { params: { id: '12345789' } };
 
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-detail'), {
-        sync: false,
-        stubs: {
-            'sw-page': { template: `
+    return mount(await wrapTestComponent('sw-users-permissions-role-detail', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: `
 <div>
     <slot name="smart-bar-header"></slot>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>
-    ` },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-icon': true,
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-field': true,
-            'sw-users-permissions-permissions-grid': true,
-            'sw-users-permissions-additional-permissions': true,
-            'sw-verify-user-modal': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'router-view': true,
-            'sw-skeleton': true,
-            'sw-loader': true,
-        },
-        mocks: {
-            $route: $route,
-        },
-        propsData: {},
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return aclPrivileges.includes(identifier);
+    `,
                 },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-icon': true,
+                'sw-card-view': true,
+                'sw-card': true,
+                'sw-field': true,
+                'sw-users-permissions-permissions-grid': true,
+                'sw-users-permissions-additional-permissions': true,
+                'sw-verify-user-modal': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+                'router-view': true,
+                'sw-skeleton': true,
+                'sw-loader': true,
             },
-            loginService: {},
-            repositoryFactory: {
-                create: () => ({
+            mocks: {
+                $route: $route,
+            },
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return aclPrivileges.includes(identifier);
+                    },
+                },
+                loginService: {},
+                repositoryFactory: {
                     create: () => ({
-                        isNew: () => true,
-                        name: '',
+                        create: () => ({
+                            isNew: () => true,
+                            name: '',
+                        }),
+                        get: () => Promise.resolve({
+                            isNew: isNew,
+                            name: 'demoRole',
+                            privileges: privileges,
+                        }),
+                        save: jest.fn(() => Promise.resolve()),
                     }),
-                    get: () => Promise.resolve({
-                        isNew: isNew,
-                        name: 'demoRole',
-                        privileges: privileges,
-                    }),
-                    save: jest.fn(() => Promise.resolve()),
-                }),
+                },
+                userService: {},
+                privileges: privilegesService,
+                appAclService: appAclService,
             },
-            userService: {},
-            privileges: privilegesService,
-            appAclService: appAclService,
         },
     });
 }
@@ -108,10 +109,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     beforeEach(async () => {
         privilegesService = new PrivilegesService();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -580,13 +577,21 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         await wrapper.setData({
             isLoading: false,
         });
-
-        const title = wrapper.find('h2');
-        expect(title.text()).toBe('sw-users-permissions.roles.general.labelCreateNewRole');
-
-        wrapper.vm.role.name = 'Test';
         await flushPromises();
 
+        let title = wrapper.find('h2');
+        expect(title.text()).toBe('sw-users-permissions.roles.general.labelCreateNewRole');
+
+        await wrapper.setData({
+            role: {
+                ...wrapper.vm.role,
+                name: 'Test',
+            },
+        });
+
+        await flushPromises();
+
+        title = wrapper.find('h2');
         expect(title.text()).toBe('Test');
     });
 
@@ -599,7 +604,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         });
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
-        expect(saveButton.attributes().disabled).toBe('disabled');
+        expect(saveButton.attributes().disabled).toBeDefined();
     });
 
     it('should enable the button and fields when edit aclPrivileges exists', async () => {

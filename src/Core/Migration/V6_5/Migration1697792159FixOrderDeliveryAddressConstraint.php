@@ -46,14 +46,6 @@ class Migration1697792159FixOrderDeliveryAddressConstraint extends MigrationStep
         ');
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     private function keyExists(Connection $connection): bool
     {
         return $connection->executeQuery(

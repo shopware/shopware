@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -109,25 +108,10 @@ class StorableFlow extends Struct
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $args will be removed in v6.6.0.0
-     *
      * @param callable(StorableFlow): mixed $closure
      */
-    public function lazy(string $key, callable $closure/* , array $args = [] */): void
+    public function lazy(string $key, callable $closure): void
     {
-        if (\func_num_args() === 3) {
-            $args = func_get_arg(2);
-
-            Feature::triggerDeprecationOrThrow(
-                'v6.6.0.0',
-                sprintf('Parameter $args in %s::%s will be removed in v6.6.0.0', __CLASS__, __METHOD__)
-            );
-
-            $this->data[$key] = $closure($args);
-
-            return;
-        }
-
         $this->data[$key] = $closure;
     }
 

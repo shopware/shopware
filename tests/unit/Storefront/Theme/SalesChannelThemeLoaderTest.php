@@ -3,16 +3,18 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\SalesChannelThemeLoader
  */
+#[CoversClass(SalesChannelThemeLoader::class)]
+#[DisabledFeatures(['v6.7.0.0'])]
 class SalesChannelThemeLoaderTest extends TestCase
 {
     /**

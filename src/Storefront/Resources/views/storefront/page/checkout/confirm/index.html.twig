@@ -10,7 +10,7 @@
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
             <h1 class="confirm-main-header">
-                {{ "checkout.confirmHeader"|trans|sw_sanitize }}
+                {{ 'checkout.confirmHeader'|trans|sw_sanitize }}
             </h1>
         {% endblock %}
 
@@ -21,7 +21,7 @@
                     {% set fieldName = violation.propertyPath|trim('/', 'left') %}
 
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                        type: "danger",
+                        type: 'danger',
                         content: snippetName|trans({'%field%': fieldName})|sw_sanitize
                     } %}
                 {% endfor %}
@@ -34,18 +34,15 @@
                     <div class="card-body">
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
-                                {{ "checkout.confirmTermsHeader"|trans|sw_sanitize }}
+                                {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_notice %}
                             <p class="revocation-notice">
-                                {# @deprecated tag:v6.6.0 - Block page_checkout_confirm_revocation_notice_link is deprecated. Use outer block page_checkout_confirm_revocation_notice instead. #}
-                                {% block page_checkout_confirm_revocation_notice_link %}
-                                    {{ "checkout.confirmRevocationNotice"|trans({
-                                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') })
-                                    })|raw }}
-                                {% endblock %}
+                                {{ 'checkout.confirmRevocationNotice'|trans({
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') })
+                                })|raw }}
                             </p>
                         {% endblock %}
 
@@ -63,7 +60,7 @@
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
-                                        {{ "checkout.confirmTermsText"|trans({
+                                        {{ 'checkout.confirmTermsText'|trans({
                                             '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>
@@ -86,7 +83,7 @@
                                     {% block page_checkout_confirm_revocation_control_label %}
                                         <label for="revocation"
                                                class="checkout-confirm-revocation-label custom-control-label">
-                                            {{ "checkout.confirmRevocationTerms"|trans() }}
+                                            {{ 'checkout.confirmRevocationTerms'|trans() }}
                                         </label>
                                     {% endblock %}
                                 </div>
@@ -168,7 +165,7 @@
                     <div class="card-body">
                         {% block page_checkout_confirm_customer_comment_header %}
                             <div class="card-title">
-                                {{ "checkout.customerCommentHeader"|trans|sw_sanitize }}
+                                {{ 'checkout.customerCommentHeader'|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
@@ -176,13 +173,13 @@
                             <div class="checkout-customer-comment-control">
                                 {% block page_checkout_confirm_customer_comment_control_textfield_label %}
                                     <label class="form-label" for="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}">
-                                        {{ "checkout.customerCommentLabel"|trans|sw_sanitize }}
+                                        {{ 'checkout.customerCommentLabel'|trans|sw_sanitize }}
                                     </label>
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_customer_comment_control_textfield %}
                                     <textarea class="form-control"
-                                              placeholder="{{ "checkout.customerCommentPlaceholder"|trans|sw_sanitize }}"
+                                              placeholder="{{ 'checkout.customerCommentPlaceholder'|trans|sw_sanitize }}"
                                               id="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"
                                               form="confirmOrderForm"
                                               name="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"></textarea>
@@ -213,8 +210,7 @@
               data-form-preserver="true"
               data-form-submit-loader="true"
               data-form-add-history="true"
-              {# ludtwig-ignore html-string-quotation #}
-              data-form-add-history-options='{{ formAddHistoryOptions|json_encode }}'
+              data-form-add-history-options="{{ formAddHistoryOptions|json_encode }}"
               method="post">
             {% block page_checkout_confirm_form_submit %}
                 <div class="d-grid">
@@ -225,7 +221,7 @@
                             disabled
                         {% endif %}
                             type="submit">
-                        {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
+                        {{ 'checkout.confirmSubmit'|trans|sw_sanitize }}
                     </button>
                 </div>
             {% endblock %}

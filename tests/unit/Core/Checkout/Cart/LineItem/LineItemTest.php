@@ -2,19 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\LineItem
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItem::class)]
 class LineItemTest extends TestCase
 {
     /**
@@ -246,8 +246,6 @@ class LineItemTest extends TestCase
 
     public function testReplacePayloadNonRecursively(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $lineItem = new LineItem('abc', 'type', null, 5);
         $lineItem->setPayload([
             'test' => 5,
@@ -261,5 +259,67 @@ class LineItemTest extends TestCase
 
         static::assertSame(2, $lineItem->getPayloadValue('test'));
         static::assertSame(['a'], $lineItem->getPayloadValue('categoryIds'));
+    }
+
+    #[DataProvider('provideValidIdentifiers')]
+    public function testIdentifierValidationForValidIdentifiers(string $identifier): void
+    {
+        $lineItem = new LineItem($identifier, 'type');
+
+        static::assertEquals($identifier, $lineItem->getId());
+    }
+
+    /**
+     * @return iterable<array<string>>
+     */
+    public static function provideValidIdentifiers(): iterable
+    {
+        return [
+            [''],
+            ['test'],
+            ['a-'],
+            ['a_'],
+            ['a.'],
+            ['a-._'],
+            ['uuid'],
+            ['UUID'],
+            ['uuid-uuid_2'],
+            ['UUID-UUID_2'],
+            ['123'],
+            ['123.123'],
+            [str_repeat('a', 100)],
+        ];
+    }
+
+    #[DataProvider('provideInvalidIdentifiers')]
+    public function testIdentifierValidationForInvalidFormat(string $identifier): void
+    {
+        $this->expectException(CartException::class);
+        $this->expectExceptionMessage('Identifier contains invalid characters. Only alphanumeric characters, dashes, underscores and dots are allowed.');
+
+        new LineItem($identifier, 'type');
+    }
+
+    /**
+     * @return iterable<array<string>>
+     */
+    public static function provideInvalidIdentifiers(): iterable
+    {
+        return [
+            ['a-@'],
+            ['@!§$%&/()=?'],
+            [' '],
+            ['uuid test'],
+            ['123 uuid'],
+            ['a '],
+        ];
+    }
+
+    public function testIdentifierValidationForInvalidLength(): void
+    {
+        $this->expectException(CartException::class);
+        $this->expectExceptionMessage('Identifier is too long. Maximum length is 100 characters.');
+
+        new LineItem(str_repeat('a', 101), 'type');
     }
 }

@@ -1,7 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_rule_detail_assignments %}
 <div class="sw-settings-rule-detail-assignments">
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_detail_assignments_entity_cards %}
     <sw-card
@@ -60,7 +59,7 @@
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
                 :full-page="false"
-                @delete-items="onDeleteItems(entity, ...arguments)"
+                @delete-items="(event) => onDeleteItems(entity, event)"
             >
                 <template #link-column="{ item, column, renderColumn }">
                     <router-link
@@ -154,6 +153,7 @@
     {% block sw_settings_rule_detail_assignments_delete_modal %}
     <sw-modal
         v-if="deleteModal"
+        class="sw-settings-rule-detail-assignments__delete-modal"
         :title="$tc('sw-settings-rule.detail.titleModalDelete')"
         variant="small"
         @modal-close="onCloseDeleteModal"
@@ -173,6 +173,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
             <sw-button
+                class="sw-settings-rule-detail-assignments__delete-modal-cancel-button"
                 size="small"
                 @click="onCloseDeleteModal"
             >
@@ -185,6 +186,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
             <sw-button
+                class="sw-settings-rule-detail-assignments__delete-modal-delete-button"
                 size="small"
                 variant="danger"
                 @click="onDelete"

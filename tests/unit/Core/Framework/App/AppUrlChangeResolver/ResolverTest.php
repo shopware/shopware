@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\AppUrlChangeResolver;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrategy;
@@ -11,9 +12,8 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver
  */
+#[CoversClass(Resolver::class)]
 class ResolverTest extends TestCase
 {
     private MockObject&AbstractAppUrlChangeStrategy $firstStrategy;

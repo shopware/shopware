@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -13,9 +14,8 @@ use Shopware\Core\Migration\V6_6\Migration1691662140MigrateAvailableStock;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_6\Migration1691662140MigrateAvailableStock
  */
+#[CoversClass(Migration1691662140MigrateAvailableStock::class)]
 class Migration1691662140MigrateAvailableStockTest extends TestCase
 {
     private Connection $connection;

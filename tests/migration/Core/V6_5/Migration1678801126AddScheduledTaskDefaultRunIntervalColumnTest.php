@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -10,9 +11,8 @@ use Shopware\Core\Migration\V6_5\Migration1678801126AddScheduledTaskDefaultRunIn
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1678801126AddScheduledTaskDefaultRunIntervalColumn
  */
+#[CoversClass(Migration1678801126AddScheduledTaskDefaultRunIntervalColumn::class)]
 class Migration1678801126AddScheduledTaskDefaultRunIntervalColumnTest extends TestCase
 {
     private Connection $connection;

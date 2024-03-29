@@ -1,21 +1,19 @@
 import '<component-path>';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(/* TODO: add or remove options = {} */) {
-    // TODO: add or remove localVue
-    const localVue = createLocalVue();
-
     // TODO: adjust component name
-    return shallowMount(await Shopware.Component.build('sw-your-component-for-test'), {
-        // TODO: add or remove localVue
-        localVue,
-        stubs: {
-            // 'sw-missing-component-one': Shopware.Component.build('sw-missing-component-one'),
-        },
-        mocks: {
+    return mount(await wrapTestComponent('sw-your-component-for-test', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                // 'sw-missing-component-one': Shopware.Component.build('sw-missing-component-one'),
+            },
+            mocks: {
+            },
         },
         attachTo: document.body,
-
         // TODO: add or remove ...options,
     });
 }
@@ -31,7 +29,7 @@ describe('<component-path>', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();

@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreterInterface;
@@ -19,9 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter
  */
+#[CoversClass(ProductSearchTermInterpreter::class)]
 class ProductSearchTermInterpreterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -46,10 +47,9 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @dataProvider cases
-     *
      * @param list<string> $expected
      */
+    #[DataProvider('cases')]
     public function testMatching(string $term, array $expected): void
     {
         $context = Context::createDefaultContext();
@@ -73,10 +73,9 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @dataProvider casesWithTokenFilter
-     *
      * @param list<string> $expected
      */
+    #[DataProvider('casesWithTokenFilter')]
     public function testMatchingWithTokenFilter(string $term, array $expected): void
     {
         $context = Context::createDefaultContext();
@@ -89,10 +88,9 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @dataProvider caseWithFetchingTokenTerms
-     *
      * @param list<list<string>> $expected
      */
+    #[DataProvider('caseWithFetchingTokenTerms')]
     public function testMatchingTokenTerms(string $term, array $expected): void
     {
         $context = Context::createDefaultContext();
@@ -105,9 +103,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider caseWithMatchingBooleanCause
-     */
+    #[DataProvider('caseWithMatchingBooleanCause')]
     public function testMatchingBooleanClause(bool $andLogic, string $expected): void
     {
         $context = Context::createDefaultContext();
@@ -123,9 +119,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         static::assertEquals($expected, $booleanClause);
     }
 
-    /**
-     * @dataProvider caseWithMatchingSearchPatternTermLength
-     */
+    #[DataProvider('caseWithMatchingSearchPatternTermLength')]
     public function testMatchingSearchPatternTermLength(bool $andLogic, string $words): void
     {
         $context = Context::createDefaultContext();

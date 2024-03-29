@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -14,16 +15,15 @@ use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
- *
- * @covers \Shopware\Core\System\SystemConfig\Service\ConfigurationService
  */
 #[Package('system-settings')]
+#[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
     /**
@@ -106,6 +106,37 @@ class ConfigurationServiceTest extends TestCase
         static::assertEquals($expectedConfigWithoutValues, $actualConfig);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
+    }
+
+    public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
+    {
+        $_SERVER['FEATURE_NEXT_101'] = '0';
+        $_SERVER['FEATURE_NEXT_102'] = '0';
+        static::assertFalse(Feature::isActive('FEATURE_NEXT_101'));
+        static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
+
+        $config = $this->getAppConfig();
+
+        unset($config[0]['flag']); // make card not rely on feature flag (won't be removed)
+        $config[0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+
+        // create new card at position 0 and make it rely on feature flag (will be removed)
+        array_unshift($config, [
+            'title' => [
+                'en-GB' => 'Advanced configuration',
+                'de-DE' => 'Grundeinstellungen',
+            ],
+            'name' => null,
+            'elements' => [],
+            'flag' => 'FEATURE_NEXT_101',
+        ]);
+
+        $actualConfig = $this->getConfiguration($config);
+
+        static::assertTrue(array_is_list($actualConfig));
+        static::assertCount(1, $actualConfig);
+        static::assertTrue(array_is_list($actualConfig[0]['elements']));
+        static::assertCount(1, $actualConfig[0]['elements']);
     }
 
     public function testConfigurationNoFeatureFlag(): void

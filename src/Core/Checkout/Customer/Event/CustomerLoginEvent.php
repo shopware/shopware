@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
-use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
@@ -21,11 +20,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContextTokenAware is deprecated and will be removed in v6.6.0
- */
 #[Package('checkout')]
-class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware, ScalarValuesAware, FlowEventAware
+class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.login';
 

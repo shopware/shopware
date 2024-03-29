@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
     name: 'sitemap:generate',
     description: 'Generates sitemap files',
 )]
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapGenerateCommand extends Command
 {
     /**
@@ -64,7 +64,7 @@ class SitemapGenerateCommand extends Command
     {
         $salesChannelId = $input->getOption('salesChannelId');
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $criteria = $this->createCriteria($salesChannelId);
 

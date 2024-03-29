@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';
 import 'src/app/component/base/sw-highlight-text';
 import RecentlySearchService from 'src/app/service/recently-search.service';
@@ -50,37 +50,31 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     let spyRecentlySearchServiceAdd;
 
     async function createWrapper(props) {
-        const localVue = createLocalVue();
-
         swSearchBarItemComponent = await Shopware.Component.build('sw-search-bar-item');
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
+        jest.spyOn(swSearchBarItemComponent.methods, 'registerEvents').mockImplementation(() => {});
+        jest.spyOn(swSearchBarItemComponent.methods, 'removeEvents').mockImplementation(() => {});
         spyRecentlySearchServiceAdd = jest.spyOn(recentlySearchService, 'add');
 
-        return shallowMount(swSearchBarItemComponent, {
-            localVue,
-            stubs: {
-                'sw-icon': true,
-                'sw-highlight-text': true,
-                'sw-shortcut-overview-item': true,
-                'router-link': {
-                    template: '<div class="sw-router-link"><slot></slot></div>',
-                    props: ['to'],
+        return mount(swSearchBarItemComponent, {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                    'sw-highlight-text': true,
+                    'sw-shortcut-overview-item': true,
+                    'router-link': {
+                        template: '<div class="sw-router-link"><slot></slot></div>',
+                        props: ['to'],
+                    },
+                },
+                provide: {
+                    recentlySearchService,
+                    searchTypeService: {
+                        getTypes: () => searchTypeServiceTypes,
+                    },
                 },
             },
-            propsData: props,
-            provide: {
-                recentlySearchService,
-                searchTypeService: {
-                    getTypes: () => searchTypeServiceTypes,
-                },
-            },
-            computed: {
-                currentUser() {
-                    return {
-                        id: 'userId',
-                    };
-                },
-            },
+            props,
         });
     }
 
@@ -89,6 +83,12 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         recentlySearchService = new RecentlySearchService();
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
         spyRecentlySearchServiceAdd = jest.spyOn(recentlySearchService, 'add');
+    });
+
+    beforeEach(async () => {
+        Shopware.State.get('session').currentUser = {
+            id: 'userId',
+        };
     });
 
     it('should be a Vue.js component', async () => {
@@ -152,8 +152,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
             entityIconColor: '',
             entityIconName: '',
         });
-
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.productDisplayName).toBe('Product test (color: red | size: 39)');
     });

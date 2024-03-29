@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent
  */
+#[CoversClass(UpdateThumbnailPathEvent::class)]
 class UpdateThumbnailPathEventTest extends TestCase
 {
     public function testGetIterator(): void

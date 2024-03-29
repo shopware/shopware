@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Administration\Dashboard;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Dashboard\OrderAmountService;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -30,11 +31,10 @@ class OrderAmountServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider loadProvider
-     *
      * @param array<array<string, mixed>> $orders
      * @param array<array<string, mixed>> $expected
      */
+    #[DataProvider('loadProvider')]
     public function testLoad(array $orders, array $expected, string $since, bool $paid): void
     {
         $states = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(

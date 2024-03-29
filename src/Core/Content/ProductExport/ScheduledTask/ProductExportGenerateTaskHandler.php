@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,12 +29,13 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
+        LoggerInterface $logger,
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private readonly EntityRepository $salesChannelRepository,
         private readonly EntityRepository $productExportRepository,
         private readonly MessageBusInterface $messageBus
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void
@@ -75,7 +77,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
          * @var array<string>
          */
         return $this->salesChannelRepository
-            ->searchIds($criteria, Context::createDefaultContext())
+            ->searchIds($criteria, Context::createCLIContext())
             ->getIds();
     }
 

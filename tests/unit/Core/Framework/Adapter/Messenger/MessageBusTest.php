@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Messenger;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Messenger\MessageBus;
 use Shopware\Core\Framework\Log\Package;
@@ -15,19 +17,17 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Messenger\MessageBus
  */
 #[Package('core')]
+#[CoversClass(MessageBus::class)]
 class MessageBusTest extends TestCase
 {
     /**
-     * @dataProvider dispatchProvider
-     *
      * @param array<string, string|array<string>> $config
      * @param array<StampInterface> $providedStamps
      * @param array<StampInterface> $expectedStamps
      */
+    #[DataProvider('dispatchProvider')]
     public function testDispatch(object $message, array $config, array $providedStamps, array $expectedStamps): void
     {
         $bus = new MessageBus(new Collector(), $config);

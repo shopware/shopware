@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\CmsAware;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 
@@ -9,9 +10,8 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields
  */
+#[CoversClass(CmsAwareFields::class)]
 class CmsAwareFieldsTest extends TestCase
 {
     private const TEST_LOCALE = 'en-GB';

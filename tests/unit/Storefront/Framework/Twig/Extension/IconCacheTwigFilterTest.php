@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -10,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,22 +35,20 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter
- * @covers \Shopware\Storefront\Framework\Twig\IconExtension
  */
+#[CoversClass(IconCacheTwigFilter::class)]
+#[CoversClass(IconExtension::class)]
 class IconCacheTwigFilterTest extends TestCase
 {
     /**
      * NEXT-26125
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testStorefrontRenderIconCacheEnabled(): void
     {
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) (new \ReflectionClass(Storefront::class))->getFileName())),
+            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFilename(Storefront::class))),
         ]);
 
         $controller = new TestController();
@@ -77,14 +78,13 @@ class IconCacheTwigFilterTest extends TestCase
 
     /**
      * NEXT-26125
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testStorefrontRenderIconCacheDisabled(): void
     {
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) (new \ReflectionClass(Storefront::class))->getFileName())),
+            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFilename(Storefront::class))),
         ]);
 
         $controller = new TestController();
@@ -174,7 +174,7 @@ class IconCacheTwigFilterTest extends TestCase
         $twig->getExtension(NodeExtension::class)->getFinder();
 
         $twig->addExtension(new IconCacheTwigFilter());
-        $twig->addExtension(new IconExtension($templateFinder));
+        $twig->addExtension(new IconExtension());
 
         return $twig;
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\LineItem;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -12,11 +13,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemRule::class)]
 class LineItemRuleTest extends TestCase
 {
     public function testRuleMatch(): void

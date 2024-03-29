@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -13,7 +15,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -24,19 +25,15 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
-use Shopware\Core\Content\Media\Pathname\UrlGenerator;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -142,11 +139,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidOrderException::class);
-        } else {
-            $this->expectException(DocumentException::class);
-        }
+        $this->expectException(DocumentException::class);
 
         /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
@@ -238,9 +231,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
     }
 
-    /**
-     * @dataProvider uploadDataProvider
-     */
+    #[DataProvider('uploadDataProvider')]
     public function testUpload(bool $preGenerateDoc, Request $uploadFileRequest, bool $static = true, ?\Exception $expectedException = null): void
     {
         if ($expectedException instanceof \Exception) {
@@ -391,9 +382,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testCreateFileIsWrittenInFs(): void
     {
         /** @var FilesystemOperator $fileSystem */
@@ -412,12 +401,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        // Remove if branch and keep else branch in v6.6 release
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(InvalidDocumentException::class);
-        } else {
-            static::expectException(DocumentException::class);
-        }
+        static::expectException(DocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         $this->documentGenerator->readDocument($documentId, $this->context);
@@ -427,18 +411,11 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(InvalidDocumentException::class);
-        } else {
-            static::expectException(DocumentException::class);
-        }
+        static::expectException(DocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-
-        /** @var UrlGenerator $urlGenerator */
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
 
@@ -633,9 +610,10 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(2, $documents);
 
         $invoiceDoc = $documents->filter(function (DocumentEntity $doc) {
-            static::assertNotNull($doc->getDocumentType());
+            $type = $doc->getDocumentType();
+            static::assertNotNull($type);
 
-            return $doc->getDocumentType()->getTechnicalName() === InvoiceRenderer::TYPE;
+            return $type->getTechnicalName() === InvoiceRenderer::TYPE;
         })->first();
 
         static::assertNotNull($invoiceDoc);
@@ -644,9 +622,10 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame(FileTypes::PDF, $invoiceDoc->getFileType());
 
         $deliveryDoc = $documents->filter(function (DocumentEntity $doc) {
-            static::assertNotNull($doc->getDocumentType());
+            $type = $doc->getDocumentType();
+            static::assertNotNull($type);
 
-            return $doc->getDocumentType()->getTechnicalName() === InvoiceRenderer::TYPE;
+            return $type->getTechnicalName() === InvoiceRenderer::TYPE;
         })->first();
 
         static::assertNotNull($deliveryDoc);
@@ -756,7 +735,6 @@ class DocumentGeneratorTest extends TestCase
         $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertInstanceOf(StreamInterface::class, $media);
-        static::assertNotNull($media->getContents());
     }
 
     public function testReadStaticGeneratedDocument(): void
@@ -806,9 +784,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($media);
     }
 
-    /**
-     * @dataProvider readDocumentDataProvider
-     */
+    #[DataProvider('readDocumentDataProvider')]
     public function testReadDocument(bool $withMedia, bool $static): void
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);
@@ -848,7 +824,6 @@ class DocumentGeneratorTest extends TestCase
 
         if ($withMedia === false) {
             $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-            $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
             $mediaRepository = $this->getContainer()->get('media.repository');
             /** @var MediaEntity $media */
             $media = $mediaRepository->search(new Criteria([$documentMediaFileId]), $this->context)->get($documentMediaFileId);
@@ -893,6 +868,39 @@ class DocumentGeneratorTest extends TestCase
         $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
+    }
+
+    public function testGenerateAndKeepOrderVersionId(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId);
+
+        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($documentStruct);
+        static::assertTrue(Uuid::isValid($documentStruct->getId()));
+
+        $criteria = new Criteria([$documentStruct->getId()]);
+        $criteria->addAssociation('documentType');
+
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository
+            ->search($criteria, $this->context)
+            ->get($documentStruct->getId());
+
+        $versionContext = $this->context->createWithVersionId($document->getOrderVersionId());
+        static::assertSame($versionContext->getVersionId(), $document->getOrderVersionId());
+
+        // Update the document and keep the orderVersionId value intact
+        $this->documentRepository->upsert([[
+            'id' => $document->getId(),
+            'sent' => true,
+        ]], $versionContext);
+
+        /** @var DocumentEntity $document */
+        $document = $this->documentRepository
+            ->search($criteria, $this->context)
+            ->get($documentStruct->getId());
+
+        static::assertSame($versionContext->getVersionId(), $document->getOrderVersionId());
     }
 
     public static function readDocumentDataProvider(): \Generator

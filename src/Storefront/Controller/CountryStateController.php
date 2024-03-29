@@ -2,15 +2,17 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Pagelet\Country\CountrySateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -39,6 +41,11 @@ class CountryStateController extends StorefrontController
         $countryStateDataPagelet = $this->countryStateDataPageletLoader->load($countryId, $request, $context);
 
         $this->hook(new CountryStateDataPageletLoadedHook($countryStateDataPagelet, $context));
+
+        Feature::callSilentIfInactive(
+            'v6.7.0.0',
+            fn () => $this->hook(new CountrySateDataPageletLoadedHook($countryStateDataPagelet, $context))
+        );
 
         return new JsonResponse([
             'states' => $countryStateDataPagelet->getStates(),

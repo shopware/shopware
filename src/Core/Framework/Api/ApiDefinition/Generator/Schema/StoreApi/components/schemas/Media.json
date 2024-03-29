@@ -1,0 +1,41 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Media": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "media"
+                        ]
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "hasFile": {
+                        "type": "boolean"
+                    },
+                    "private": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "fileExtension",
+                    "fileName",
+                    "hasFile",
+                    "path",
+                    "private",
+                    "url"
+                ]
+            }
+        }
+    }
+}

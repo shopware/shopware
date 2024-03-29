@@ -1,6 +1,5 @@
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import type { MetaInfo } from 'vue-meta';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type Repository from '../../../../../core/data/repository.data';
 import type CriteriaType from '../../../../../core/data/criteria.data';
 import template from './sw-flow-list-flow-templates.html.twig';
@@ -55,7 +54,7 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    metaInfo(): MetaInfo {
+    metaInfo() {
         return {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             title: this.$createTitle(),
@@ -136,7 +135,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            this.flowTemplateRepository.search(this.flowTemplateCriteria)
+            void this.flowTemplateRepository.search(this.flowTemplateCriteria)
                 .then((data: EntityCollection<'flow_template'>) => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     this.total = data.total as number;

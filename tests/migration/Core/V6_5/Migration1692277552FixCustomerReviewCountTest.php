@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -19,9 +20,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1692277552FixCustomerReviewCount
  */
+#[CoversClass(Migration1692277552FixCustomerReviewCount::class)]
 class Migration1692277552FixCustomerReviewCountTest extends TestCase
 {
     use KernelTestBehaviour;

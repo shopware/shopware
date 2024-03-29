@@ -43,7 +43,7 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
 
     public function testType(): void
     {
-        static::assertSame('product-description-reviews', $this->productDescriptionReviewResolver->getType());
+        static::assertSame(ProductDescriptionReviewsCmsElementResolver::TYPE, $this->productDescriptionReviewResolver->getType());
     }
 
     public function testCollect(): void
@@ -52,7 +52,7 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('product-description-reviews');
+        $slot->setType(ProductDescriptionReviewsCmsElementResolver::TYPE);
 
         $collection = $this->productDescriptionReviewResolver->collect($slot, $resolverContext);
 
@@ -66,7 +66,7 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
-        $slot->setType('product-description-reviews');
+        $slot->setType(ProductDescriptionReviewsCmsElementResolver::TYPE);
 
         $this->productDescriptionReviewResolver->enrich($slot, $resolverContext, $result);
 

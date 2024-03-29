@@ -1,41 +1,39 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swImportExportEditProfileImportSettings from 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
-Shopware.Component.register('sw-import-export-edit-profile-import-settings', swImportExportEditProfileImportSettings);
-
-describe('module/sw-import-export/components/sw-import-export-edit-profile-import-settings', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    function getProfileMock() {
-        return {
-            systemDefault: false,
-            config: { createEntities: true, updateEntities: true },
-        };
-    }
-
-    async function createWrapper(profile) {
-        return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-import-settings'), {
-            propsData: {
-                profile,
-            },
+async function createWrapper(profile) {
+    return mount(await wrapTestComponent('sw-import-export-edit-profile-import-settings', { sync: true }), {
+        global: {
             stubs: {
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
             },
-        });
-    }
+        },
+        props: {
+            profile,
+        },
+    });
+}
+
+function getProfileMock() {
+    return {
+        systemDefault: false,
+        config: { createEntities: true, updateEntities: true },
+    };
+}
+
+describe('module/sw-import-export/components/sw-import-export-edit-profile-import-settings', () => {
+    let wrapper;
 
     afterEach(() => {
-        if (wrapper) wrapper.destroy();
+        if (wrapper) wrapper.unmount();
     });
 
     it('should be a Vue.js component', async () => {
@@ -45,6 +43,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
 
     it('should always keep one switch activated', async () => {
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
         const switches = wrapper.findAll('input[type="checkbox"]');
 
         expect(wrapper.vm.profile.config.createEntities).toBe(true);
@@ -66,9 +65,10 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
         profile.systemDefault = true;
 
         wrapper = await createWrapper(profile);
+        await flushPromises();
         const switches = wrapper.findAll('input[type="checkbox"]');
 
-        expect(switches.at(0).attributes('disabled')).toBe('disabled');
-        expect(switches.at(1).attributes('disabled')).toBe('disabled');
+        expect(switches.at(0).attributes('disabled')).toBeDefined();
+        expect(switches.at(1).attributes('disabled')).toBeDefined();
     });
 });

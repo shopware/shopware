@@ -8,13 +8,11 @@ import Iterator from 'src/helper/iterator.helper';
 /**
  * this file handles the plugin functionality of shopware
  *
- * to use the PluginManager import:
+ * to use the PluginManager:
  * ```
- *     import PluginManager from 'src/helper/plugin/plugin.manager';
+  *    window.PluginManager.register(.....);
  *
- *     PluginManager.register(.....);
- *
- *     PluginManager.initializePlugins(.....);
+ *     window.PluginManager.initializePlugins(.....);
  * ```
  *
  * to extend from the base plugin import:
@@ -205,40 +203,39 @@ class PluginManagerSingleton {
 
     /**
      * Initializes all plugins which are currently registered.
+     *
+     * @return {Promise<void>}
      */
-    initializePlugins() {
+    async initializePlugins() {
         const initializationFailures = [];
 
-        (async () => {
-            /** @deprecated tag:v6.6.0 - All async plugins will be fetched via async import */
-            if (window.Feature.isActive('v6.6.0.0')) {
-                await this._fetchAsyncPlugins();
-            }
+        await this._fetchAsyncPlugins();
 
-            for (const [pluginName] of Object.entries(this.getPluginList())) {
-                if (pluginName) {
-                    if (!this._registry.has(pluginName)) {
-                        throw new Error(`The plugin "${pluginName}" is not registered.`);
-                    }
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (pluginName) {
+                if (!this._registry.has(pluginName)) {
+                    throw new Error(`The plugin "${pluginName}" is not registered.`);
+                }
 
-                    const plugin = this._registry.get(pluginName);
+                const plugin = this._registry.get(pluginName);
 
-                    if (plugin.has('registrations')) {
-                        for (const [, entry] of plugin.get('registrations')) {
-                            try {
-                                this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
-                            } catch (failure) {
-                                initializationFailures.push(failure);
-                            }
+                if (plugin.has('registrations')) {
+                    for (const [, entry] of plugin.get('registrations')) {
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        } catch (failure) {
+                            initializationFailures.push(failure);
                         }
                     }
                 }
             }
+        }
 
-            initializationFailures.forEach((failure) => {
-                console.error(failure);
-            });
-        })();
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        });
+
+        return Promise.resolve();
     }
 
     /**
@@ -324,29 +321,70 @@ class PluginManagerSingleton {
     }
 
     /**
+     * @param {Object} pluginFromRegistry
+     * @param {String|NodeList|HTMLElement} selector
+     * @return {Promise<void>}
+     * @private
+     */
+    async _fetchAsyncPlugin(pluginFromRegistry, selector) {
+        if (!pluginFromRegistry.get('async')) {
+            return;
+        }
+
+        let needsFetch = false;
+        if (DomAccess.isNode(selector)) {
+            needsFetch = true;
+        }
+
+        if (typeof selector === 'string') {
+            selector = PluginManagerSingleton._queryElements(selector);
+            needsFetch = !!selector.length;
+        }
+
+        if (!needsFetch) {
+            return;
+        }
+
+        const pluginClassPromise = pluginFromRegistry.get('class')();
+        const fetchedPlugin = await pluginClassPromise;
+        const pluginClass = fetchedPlugin.default;
+
+        pluginFromRegistry.set('async', false);
+        pluginFromRegistry.set('class', pluginClass);
+    }
+
+    /**
      * Initializes a single plugin.
      *
-     * @param {Object} pluginName
+     * @param {string} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      */
-    initializePlugin(pluginName, selector, options) {
+    async initializePlugin(pluginName, selector, options) {
         let plugin;
         let pluginClass;
         let mergedOptions;
 
         if (this._registry.has(pluginName, selector)) {
             plugin = this._registry.get(pluginName, selector);
+            await this._fetchAsyncPlugin(plugin, selector);
             const registrationOptions = plugin.get('registrations').get(selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
         } else {
             plugin = this._registry.get(pluginName);
+            await this._fetchAsyncPlugin(plugin, selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }
 
-        this._initializePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
+        try {
+            this._initializePlugin(pluginClass, selector, mergedOptions, plugin.get('name'));
+        } catch (failure) {
+            console.error(failure);
+        }
+
+        return Promise.resolve();
     }
 
     /**
@@ -584,20 +622,23 @@ export default class PluginManager {
 
     /**
      * Initializes all plugins which are currently registered.
+     *
+     * @return {Promise<void>}
      */
     static initializePlugins() {
-        PluginManagerInstance.initializePlugins();
+        return PluginManagerInstance.initializePlugins();
     }
 
     /**
      * Initializes a single plugin.
      *
-     * @param {Object} pluginName
+     * @param {string} pluginName
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
+     * @returns {Promise<void>}
      */
     static initializePlugin(pluginName, selector, options) {
-        PluginManagerInstance.initializePlugin(pluginName, selector, options);
+        return PluginManagerInstance.initializePlugin(pluginName, selector, options);
     }
 }
 

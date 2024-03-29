@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -12,7 +14,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Api\UserRecoveryController;
@@ -41,11 +41,9 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 
 /**
  * @internal
- *
- * @group slow
- *
- * @covers \Shopware\Core\Framework\RateLimiter\RateLimiter
  */
+#[CoversClass(RateLimiter::class)]
+#[Group('slow')]
 class RateLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -127,10 +125,7 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
-            $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(AccountService::class),
-            $this->getContainer()->get('customer.repository'),
-            $this->getContainer()->get(CartRestorer::class),
             $this->getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,
@@ -333,11 +328,7 @@ class RateLimiterTest extends TestCase
 
                 static::assertArrayHasKey('errors', $response);
                 static::assertEquals(429, $response['errors'][0]['status']);
-                if (!Feature::isActive('v6.6.0.0')) {
-                    static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
-                } else {
-                    static::assertEquals(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
-                }
+                static::assertEquals(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
             } else {
                 static::assertEquals(204, $this->browser->getResponse()->getStatusCode());
             }

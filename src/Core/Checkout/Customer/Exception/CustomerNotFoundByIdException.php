@@ -12,7 +12,7 @@ class CustomerNotFoundByIdException extends CustomerException
     public function __construct(string $id)
     {
         parent::__construct(
-            Response::HTTP_NOT_FOUND,
+            Response::HTTP_UNAUTHORIZED,
             self::CUSTOMER_NOT_FOUND_BY_ID,
             'No matching customer for the id "{{ id }}" was found.',
             ['id' => $id]

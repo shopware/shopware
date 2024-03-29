@@ -1,5 +1,5 @@
 {% block component_account_login %}
-    <div class="card login-card">
+    <div class="card login-card mb-3">
         <div class="card-body">
             {% block component_account_login_header %}
                 {% if cardTitle %}
@@ -14,7 +14,6 @@
                       action="{{ path('frontend.account.login') }}"
                       method="post"
                       data-form-validation="true">
-
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -27,7 +26,7 @@
 
                     {% block component_account_login_form_description %}
                         <p class="login-form-description">
-                            {{ "account.loginFormDescription"|trans|sw_sanitize }}
+                            {{ 'account.loginFormDescription'|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -35,18 +34,18 @@
                         {% if loginError %}
                             {% if errorSnippet != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                    type: "danger",
+                                    type: 'danger',
                                     content: errorSnippet|trans|sw_sanitize
                                 } %}
                             {% elseif waitTime != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                    type: "info",
-                                    content: "account.loginThrottled"|trans({"%seconds%": waitTime})|sw_sanitize
+                                    type: 'info',
+                                    content: 'account.loginThrottled'|trans({'%seconds%': waitTime})|sw_sanitize
                                 } %}
                             {% else %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                    type: "danger",
-                                    content: "account.loginBadCredentials"|trans|sw_sanitize
+                                    type: 'danger',
+                                    content: 'account.loginBadCredentials'|trans|sw_sanitize
                                 } %}
                             {% endif %}
                         {% endif %}
@@ -59,15 +58,16 @@
                                     {% block component_account_login_form_mail_label %}
                                         <label class="form-label"
                                                for="loginMail">
-                                            {{ "account.loginMailLabel"|trans|sw_sanitize }}
+                                            {{ 'account.loginMailLabel'|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
 
                                     {% block component_account_login_form_mail_input %}
                                         <input type="email"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
+                                               autocomplete="username webauthn"
                                                id="loginMail"
-                                               placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
+                                               placeholder="{{ 'account.loginMailPlaceholder'|trans|striptags }}"
                                                name="username"
                                                required="required">
                                     {% endblock %}
@@ -79,14 +79,16 @@
                                     {% block component_account_login_form_password_label %}
                                         <label class="form-label"
                                                for="loginPassword">
-                                            {{ "account.loginPasswordLabel"|trans|sw_sanitize }}
+                                            {{ 'account.loginPasswordLabel'|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
+
                                     {% block component_account_login_form_password_input %}
                                         <input type="password"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
+                                               autocomplete="current-password"
                                                id="loginPassword"
-                                               placeholder="{{ "account.loginPasswordPlaceholder"|trans|striptags }}"
+                                               placeholder="{{ 'account.loginPasswordPlaceholder'|trans|striptags }}"
                                                name="password"
                                                required="required">
                                     {% endblock %}
@@ -96,7 +98,7 @@
                     {% endblock %}
 
                     {% block component_account_login_password_recover %}
-                        <div class="login-password-recover">
+                        <div class="login-password-recover mb-3">
                             {% block component_account_login_password_recover_link %}
                                 <a href="{{ seoUrl('frontend.account.recover.page') }}">
                                     {{ 'account.loginPasswordRecover'|trans }}
@@ -109,7 +111,7 @@
                         <div class="login-submit">
                             <button type="submit"
                                     class="btn btn-primary">
-                                {{ "account.loginSubmit"|trans|sw_sanitize }}
+                                {{ 'account.loginSubmit'|trans|sw_sanitize }}
                             </button>
                         </div>
                     {% endblock %}

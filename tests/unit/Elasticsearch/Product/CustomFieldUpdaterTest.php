@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -23,9 +24,8 @@ use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\CustomFieldUpdater
  */
+#[CoversClass(CustomFieldUpdater::class)]
 class CustomFieldUpdaterTest extends TestCase
 {
     public function testSubscribedEvents(): void
@@ -151,37 +151,35 @@ class CustomFieldUpdaterTest extends TestCase
             ],
         ];
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $elasticsearchHelper->expects(static::once())->method('enabledMultilingualIndex')->willReturn(true);
-            $deLang = Uuid::randomHex();
-            $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
-                Defaults::LANGUAGE_SYSTEM,
-                $deLang,
-            ]);
+        $deLang = Uuid::randomHex();
+        $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
+            Defaults::LANGUAGE_SYSTEM,
+            $deLang,
+        ]);
 
-            $customFields = [
-                'properties' => [
-                    $deLang => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [
-                            'test' => [
-                                'type' => 'text',
-                            ],
-                        ],
-                    ],
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [
-                            'test' => [
-                                'type' => 'text',
-                            ],
+        $customFields = [
+            'properties' => [
+                $deLang => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'test' => [
+                            'type' => 'text',
                         ],
                     ],
                 ],
-            ];
-        }
+                Defaults::LANGUAGE_SYSTEM => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'test' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
         $indices
             ->expects(static::once())
             ->method('putMapping')
@@ -237,10 +235,9 @@ class CustomFieldUpdaterTest extends TestCase
     }
 
     /**
-     * @dataProvider providerMapping
-     *
      * @param array<mixed> $mapping
      */
+    #[DataProvider('providerMapping')]
     public function testMapping(string $type, array $mapping): void
     {
         static::assertSame($mapping, CustomFieldUpdater::getTypeFromCustomFieldType($type));

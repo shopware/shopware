@@ -24,9 +24,4 @@ class Migration1697462064FixMediaPath extends MigrationStep
 
         $this->registerIndexer($connection, 'media.path.post_update');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

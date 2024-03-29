@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
@@ -34,7 +34,7 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncTest\AsyncTest;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\AsyncPlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\NotFoundPlugin\NotFoundPlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestTheme;
 use Symfony\Component\Asset\UrlPackage;
@@ -47,9 +47,8 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeCompiler
  */
+#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -352,21 +351,6 @@ PHP_EOL;
         $actual = $event->getConcatenatedStyles();
 
         $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
-
-        static::assertEquals($expected, $actual);
-    }
-
-    public function testConcanatedScriptsEventPassThrough(): void
-    {
-        $subscriber = new MockThemeCompilerConcatenatedSubscriber();
-
-        $scripts = 'console.log(\'foo\');';
-
-        $event = new ThemeCompilerConcatenatedScriptsEvent($scripts, $this->mockSalesChannelId);
-        $subscriber->onGetConcatenatedScripts($event);
-        $actual = $event->getConcatenatedScripts();
-
-        $expected = $scripts . MockThemeCompilerConcatenatedSubscriber::SCRIPTS_CONCAT;
 
         static::assertEquals($expected, $actual);
     }
@@ -711,6 +695,11 @@ PHP_EOL;
             'V6_6_0_0' => 1,
         ]);
 
+        $themeFileImporterMock = $this->createMock(ThemeFileImporter::class);
+        $themeFileImporterMock->method('getRealPath')->willReturnCallback(function ($filePath) {
+            return $filePath;
+        });
+
         $projectDir = 'tests/unit/Storefront/Theme/fixtures';
         $compiler = new ThemeCompiler(
             $fs,
@@ -718,7 +707,7 @@ PHP_EOL;
             $resolver,
             true,
             $this->createMock(EventDispatcher::class),
-            $this->createMock(ThemeFileImporter::class),
+            $themeFileImporterMock,
             [],
             $this->createMock(CacheInvalidator::class),
             $logger,
@@ -732,13 +721,18 @@ PHP_EOL;
 
         $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
         $themePluginBundle = new TestTheme();
-        $asyncPluginBundle = new AsyncTest(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncTest');
+        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
         $notFoundPluginBundle = new NotFoundPlugin(
             true,
             $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
         );
         $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
         $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
+        $app = $configurationFactory->createFromApp('ThemeApp', 'ThemeApp');
+
+        $appWrongPath = $projectDir . '/tmp/207973030/1_0_0/Resources'; // missing ThemeApp in path
+        $app->setBasePath($appWrongPath);
+        $appWithoutJs = $configurationFactory->createFromApp('ThemeAppWithoutJs', 'ThemeAppWithoutJs');
 
         $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
         $scripts = new FileCollection();
@@ -751,6 +745,8 @@ PHP_EOL;
         $configCollection->add($testTheme);
         $configCollection->add($asyncPlugin);
         $configCollection->add($notFoundPlugin);
+        $configCollection->add($app);
+        $configCollection->add($appWithoutJs);
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
@@ -762,15 +758,17 @@ PHP_EOL;
         );
 
         $themeBasePath = '/theme/2fb1d60e66e241fe65bcedc271cc2174';
-        $asyncMainJsInTheme = $themeBasePath . '/js/async-test/async-test.js';
-        $asyncAnotherJsFileInTheme = $themeBasePath . '/js/async-test/custom_plugins_AsyncTest_src_Resources_app_storefront_src_plugins_lorem-ipsum_plugin_js.js';
+        $asyncMainJsInTheme = $themeBasePath . '/js/async-plugin/async-plugin.js';
+        $asyncAnotherJsFileInTheme = $themeBasePath . '/js/async-plugin/custom_plugins_AsyncPlugin_src_Resources_app_storefront_src_plugins_lorem-ipsum_plugin_js.js';
         $themeMainJsInTheme = $themeBasePath . '/js/test-theme/test-theme.js';
+        $appJsFile = $themeBasePath . '/js/theme-app/theme-app.js';
 
         static::assertTrue($fs->directoryExists($distLocation));
         static::assertTrue($fs->fileExists($distLocation . '/test-theme.js'));
         static::assertTrue($fs->fileExists($asyncMainJsInTheme));
         static::assertTrue($fs->fileExists($asyncAnotherJsFileInTheme));
         static::assertTrue($fs->fileExists($themeMainJsInTheme));
+        static::assertTrue($fs->fileExists($appJsFile));
     }
 
     /**

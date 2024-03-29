@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -12,10 +13,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class DeleteAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -144,9 +144,7 @@ class DeleteAddressRouteTest extends TestCase
         static::assertSame('CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT', $response['errors'][0]['code']);
     }
 
-    /**
-     * @group mysample
-     */
+    #[Group('mysample')]
     public function testDeleteActiveAddress(): void
     {
         $data = [

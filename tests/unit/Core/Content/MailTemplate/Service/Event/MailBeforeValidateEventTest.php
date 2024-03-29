@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -13,9 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent
  */
+#[CoversClass(MailBeforeValidateEvent::class)]
 class MailBeforeValidateEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
@@ -58,7 +58,7 @@ class MailBeforeValidateEventTest extends TestCase
             ]
         );
 
-        static::assertSame(Level::Info->value, $event->getLogLevel());
+        static::assertSame(Level::Info, $event->getLogLevel());
         static::assertSame('mail.before.send', $event->getName());
         static::assertSame($context, $event->getContext());
         static::assertSame([

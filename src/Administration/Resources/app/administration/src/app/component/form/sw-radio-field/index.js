@@ -6,8 +6,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description radio input field.
  * @status ready
  * @example-type static
@@ -27,17 +26,14 @@ Component.register('sw-radio-field', {
     template,
     inheritAttrs: false,
 
+    emits: ['update:value'],
+
     inject: ['feature'],
 
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         bordered: {
@@ -98,13 +94,7 @@ Component.register('sw-radio-field', {
                 console.warn(`Selected index "${this.value}" does not exists in given options`);
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.options[selectedIndex].value);
-
-                return;
-            }
-
-            this.$emit('change', this.options[selectedIndex].value);
+            this.$emit('update:value', this.options[selectedIndex].value);
         },
     },
 });

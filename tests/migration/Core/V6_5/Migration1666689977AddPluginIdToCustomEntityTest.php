@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1666689977AddPluginIdToCustomEntity;
@@ -11,9 +12,8 @@ use Shopware\Core\Migration\V6_5\Migration1666689977AddPluginIdToCustomEntity;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1666689977AddPluginIdToCustomEntity
  */
+#[CoversClass(Migration1666689977AddPluginIdToCustomEntity::class)]
 class Migration1666689977AddPluginIdToCustomEntityTest extends TestCase
 {
     public function testMultipleExecution(): void

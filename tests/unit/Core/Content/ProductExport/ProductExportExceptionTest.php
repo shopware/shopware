@@ -2,20 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
-use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
-use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
-use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\ProductExportException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ProductExport\ProductExportException
  */
+#[CoversClass(ProductExportException::class)]
 class ProductExportExceptionTest extends TestCase
 {
     public function testTemplateBodyNotSet(): void
@@ -29,41 +24,12 @@ class ProductExportExceptionTest extends TestCase
         throw $exception;
     }
 
-    #[DisabledFeatures(['v6.6.0.0'])]
     public function testRenderFooterException(): void
     {
         $exception = ProductExportException::renderFooterException('Footer!');
         static::assertSame('Failed rendering string template using Twig: Footer!', $exception->getMessage());
 
-        $this->expectException(RenderFooterException::class);
-
-        throw $exception;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testRenderHeaderException(): void
-    {
-        $exception = ProductExportException::renderHeaderException('Header!');
-        static::assertSame('Failed rendering string template using Twig: Header!', $exception->getMessage());
-
-        $this->expectException(RenderHeaderException::class);
-
-        throw $exception;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testRenderProductException(): void
-    {
-        $exception = ProductExportException::renderProductException('Product!');
-        static::assertSame('Failed rendering string template using Twig: Product!', $exception->getMessage());
-
-        $this->expectException(RenderProductException::class);
+        $this->expectException(ProductExportException::class);
 
         throw $exception;
     }
@@ -96,17 +62,6 @@ class ProductExportExceptionTest extends TestCase
         $this->expectException(ProductExportException::class);
 
         throw $exception;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testProductExportNotFoundLegacy(): void
-    {
-        $exception = ProductExportException::productExportNotFound('product-id');
-
-        static::assertInstanceOf(EmptyExportException::class, $exception);
     }
 
     public function testProductExportNotFound(): void

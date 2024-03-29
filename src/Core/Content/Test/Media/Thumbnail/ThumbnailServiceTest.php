@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Test\Media\Thumbnail;
 
 use League\Flysystem\UnableToReadFile;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
@@ -28,9 +30,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -60,7 +61,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPngWithFolder();
 
         $filePath = $media->getPath();
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
 
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -162,7 +163,7 @@ class ThumbnailServiceTest extends TestCase
         $media->getMediaFolder()->getConfiguration()->setThumbnailQuality(100);
 
         $filePath = $media->getPath();
-        $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'r');
         \assert($resource !== false);
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
 
@@ -199,7 +200,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getJpgWithFolderWithoutThumbnails();
 
         $filePath = $media->getPath();
-        $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware.jpg', 'r');
         static::assertNotFalse($resource);
 
         $this->getPublicFilesystem()->writeStream($filePath, $resource);
@@ -337,7 +338,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $url = $media->getPath();
@@ -400,7 +401,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $url = $media->getPath();
@@ -464,7 +465,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $url = $media->getPath();
@@ -512,9 +513,7 @@ class ThumbnailServiceTest extends TestCase
         return [[true], [false]];
     }
 
-    /**
-     * @dataProvider strictModeConditionsProvider
-     */
+    #[DataProvider('strictModeConditionsProvider')]
     public function testUpdateThumbnailStrictMode(bool $strict): void
     {
         $this->setFixtureContext($this->context);
@@ -536,7 +535,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $location = $media->getPath();

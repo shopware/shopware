@@ -49,14 +49,9 @@
                     {% block sw_admin_menu_navigation_main_items %}
                     <template
                         v-for="(entry, index) in mainMenuEntries"
-                        {% if VUE3 %}
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        {% endif %}
                     >
                         <sw-admin-menu-item
-                            {% if VUE2 %}
-                            :key="`${entry.id || entry.path}-${entry.children.length}`"
-                            {% endif %}
                             :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
                             :sidebar-expanded="isExpanded"
                             :entry="entry"
@@ -176,28 +171,9 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_user_actions_items %}
 
+                {# @deprecated tag:v6.7.0 - Remove block #}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_user_actions_items_keyboard_shortcuts_overview %}
-                <li class="sw-admin-menu__navigation-list-item">
-                    <sw-shortcut-overview ref="swShortcutOverview" />
-                    <a
-                        v-tooltip="{
-                            message: $tc('sw-shortcut-overview.iconTooltip', 0, { key: 'Shift + ?' }),
-                            appearance: 'light',
-                            position: 'right'
-                        }"
-                        href="#"
-                        class="sw-admin-menu__navigation-link"
-                        @click.prevent="openKeyboardShortcutOverview"
-                    >
-                        <sw-icon
-                            class="sw-admin-menu__navigation-link-icon"
-                            name="regular-keyboard"
-                            small
-                        />
-                        {{ $tc('sw-shortcut-overview.title') }}
-                    </a>
-                </li>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -240,16 +216,11 @@
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
             <template
                 v-for="entry in flyoutEntries"
-                {% if VUE3 %}
                 :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
-                {% endif %}
             >
 
                 <li
                     v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                    {% if VUE2 %}
-                    :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
-                    {% endif %}
                     :style="{ 'border-color': flyoutColor }"
                     class="sw-admin-menu__separator"
                 >

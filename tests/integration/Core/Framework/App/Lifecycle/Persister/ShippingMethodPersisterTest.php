@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -172,48 +171,6 @@ class ShippingMethodPersisterTest extends TestCase
         $this->removeApp(self::ACTIVE_FLAG_APP_PATH);
     }
 
-    /**
-     * @deprecated tag:v6.6.0.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.0.
-     */
-    public function testGetAvailabilityRuleUuidReturnsAlwaysValidRule(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->installApp(self::APP_PATH);
-
-        $alwaysValidRule = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `name` = "Always valid (Default)"'));
-
-        $appShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-        $availabilityRuleId = $appShippingMethods->first()?->getShippingMethod()?->getAvailabilityRuleId();
-
-        static::assertSame($alwaysValidRule, $availabilityRuleId);
-
-        $this->removeApp(self::APP_PATH);
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - Method will be removed without replacement because availabilityRuleId can be nullable as of 6.6.0.0.
-     */
-    public function testGetAvailabilityRuleUuidReturnsFirstRuleForShippingArea(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->connection->update('rule', ['name' => 'Foo Bar'], ['name' => 'Always valid (Default)']);
-
-        $this->installApp(self::APP_PATH);
-
-        $ruleId = Uuid::fromBytesToHex($this->connection->fetchOne('SELECT `id` FROM `rule` WHERE `areas` LIKE "%shipping%" ORDER BY `id` ASC'));
-
-        $appShippingMethods = $this->getApp()->getAppShippingMethods();
-        static::assertInstanceOf(EntityCollection::class, $appShippingMethods);
-        $availabilityRuleId = $appShippingMethods->first()?->getShippingMethod()?->getAvailabilityRuleId();
-
-        static::assertSame($ruleId, $availabilityRuleId);
-
-        $this->removeApp(self::APP_PATH);
-    }
-
     private function getNumberOfShippingMethods(bool $getAppShippingMethod = false): int
     {
         $sql = 'SELECT count(*) from `shipping_method`';
@@ -247,7 +204,6 @@ class ShippingMethodPersisterTest extends TestCase
         $shippingMethodPersister = new ShippingMethodPersister(
             $this->getContainer()->get('shipping_method.repository'),
             $this->getContainer()->get('app_shipping_method.repository'),
-            $this->getContainer()->get('rule.repository'),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get(AppLoader::class),

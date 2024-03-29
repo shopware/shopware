@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class SalesChannelException extends HttpException
 {
     final public const SALES_CHANNEL_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__SALES_CHANNEL_DOES_NOT_EXISTS';
@@ -22,16 +22,13 @@ class SalesChannelException extends HttpException
 
     final public const COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION';
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed as the name was misleading, use SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION instead
-     */
-    final public const SALES_CHANNEL_NOT_AVAILABLE_EXCEPTION = self::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION;
-
     final public const SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION = 'SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION';
 
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';
 
     final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
+
+    final public const SALES_CHANNEL_DOMAIN_IN_USE = 'SYSTEM__SALES_CHANNEL_DOMAIN_IN_USE';
 
     public static function salesChannelNotFound(string $salesChannelId): self
     {
@@ -122,5 +119,16 @@ class SalesChannelException extends HttpException
     public static function unknownPaymentMethod(string $paymentMethodId): ShopwareHttpException
     {
         return PaymentException::unknownPaymentMethodById($paymentMethodId);
+    }
+
+    public static function salesChannelDomainInUse(?\Throwable $previous = null): ShopwareHttpException
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_DOMAIN_IN_USE,
+            'The sales channel domain cannot be deleted because it is still referenced in product exports.',
+            [],
+            $previous
+        );
     }
 }

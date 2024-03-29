@@ -4,7 +4,7 @@ Storefront Component
 The Storefront component is a frontend for Shopware\Core written in PHP. 
 
 This repository is considered **read-only**. Please send pull requests
-to our [main Shopware\Core repository](https://github.com/shopware/platform).
+to our [main Shopware\Core repository](https://github.com/shopware/shopware).
 
 
 Getting started
@@ -34,8 +34,8 @@ located in `platform/src/Storefront/Resources/views/storefront/base.html.twig`, 
 Resources
 ---------
 
-  * [Documentation](https://developers.shopware.com)
-  * [Contributing](https://developers.shopware.com/community/contributing-code/)
-  * [Report issues](https://github.com/shopware/platform/issues) and
-    [send Pull Requests](https://github.com/shopware/platform/pulls)
-    in the [main Shopware\Core repository](https://github.com/shopware/platform)
+  * [Documentation](https://developer.shopware.com)
+  * [Contributing](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html)
+  * [Report issues](https://github.com/shopware/shopware/issues) and
+    [send Pull Requests](https://github.com/shopware/shopware/pulls)
+    in the [main Shopware\Core repository](https://github.com/shopware/shopware)

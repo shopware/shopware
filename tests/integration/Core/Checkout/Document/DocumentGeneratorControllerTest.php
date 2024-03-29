@@ -82,7 +82,10 @@ class DocumentGeneratorControllerTest extends TestCase
             ]
         );
 
-        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        $ruleIds = [];
+        if ($shippingRuleId = $shippingMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $shippingRuleId;
+        }
         if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
             $ruleIds[] = $paymentRuleId;
         }

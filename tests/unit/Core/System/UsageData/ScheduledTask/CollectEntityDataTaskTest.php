@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\ScheduledTask;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTask;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTask
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(CollectEntityDataTask::class)]
 class CollectEntityDataTaskTest extends TestCase
 {
     public function testItHandlesCorrectTask(): void

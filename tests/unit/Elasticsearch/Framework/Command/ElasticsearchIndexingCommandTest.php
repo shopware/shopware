@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -14,12 +14,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand
  */
+#[CoversClass(ElasticsearchIndexingCommand::class)]
 class ElasticsearchIndexingCommandTest extends TestCase
 {
-    #[DisabledFeatures(['v6.5.0.0'])]
     public function testExecute(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
@@ -34,7 +32,6 @@ class ElasticsearchIndexingCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    #[DisabledFeatures(['v6.5.0.0'])]
     public function testExecuteQueue(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
@@ -49,7 +46,6 @@ class ElasticsearchIndexingCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    #[DisabledFeatures(['v6.5.0.0'])]
     public function testEsDisabled(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();

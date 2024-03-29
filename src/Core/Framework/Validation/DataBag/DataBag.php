@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Validation\DataBag;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -30,7 +29,7 @@ class DataBag extends ParameterBag
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     public function all(?string $key = null): array
     {
@@ -46,11 +45,11 @@ class DataBag extends ParameterBag
             return $data;
         }
 
-        if (!\is_array($data = $data[$key] ?? [])) {
-            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($data)));
+        if (!\is_array($value = $data[$key] ?? [])) {
+            throw new BadRequestException(sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($value)));
         }
 
-        return $data;
+        return $value;
     }
 
     /**
@@ -58,26 +57,12 @@ class DataBag extends ParameterBag
      */
     public function add(array $parameters = []): void
     {
-        /**
-         * @deprecated tag:v6.6.0 - remove complete if statement, parameters will always be translated to databags
-         */
-        if (Feature::isActive('v6.6.0.0')) {
-            $parameters = $this->wrapArrayParameters($parameters);
-        }
-
-        parent::add($parameters);
+        parent::add($this->wrapArrayParameters($parameters));
     }
 
     public function set(string $key, mixed $value): void
     {
-        /**
-         * @deprecated tag:v6.6.0 - remove complete if statement, parameters will always be translated to databags
-         */
-        if (Feature::isActive('v6.6.0.0')) {
-            $value = $this->wrapArrayParameters([$value])[0];
-        }
-
-        parent::set($key, $value);
+        parent::set($key, $this->wrapArrayParameters([$value])[0]);
     }
 
     /**

@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
@@ -32,18 +34,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater
  */
+#[Package('services-settings')]
+#[CoversClass(RuleAreaUpdater::class)]
 class RuleAreaUpdaterTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -57,6 +58,8 @@ class RuleAreaUpdaterTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
+
         $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
 
         $registry = new StaticDefinitionInstanceRegistry(
@@ -193,10 +196,9 @@ class RuleAreaUpdaterTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaDefinitionTest extends RuleDefinition
 {
     public function getEntityName(): string
@@ -217,10 +219,9 @@ class RuleAreaDefinitionTest extends RuleDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestOneToOne extends EntityDefinition
 {
     public function getEntityName(): string
@@ -237,10 +238,9 @@ class RuleAreaTestOneToOne extends EntityDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestOneToMany extends EntityDefinition
 {
     public function getEntityName(): string
@@ -258,10 +258,9 @@ class RuleAreaTestOneToMany extends EntityDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestManyToOne extends EntityDefinition
 {
     public function getEntityName(): string
@@ -278,10 +277,9 @@ class RuleAreaTestManyToOne extends EntityDefinition
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleAreaTestManyToMany extends EntityDefinition
 {
     public function getEntityName(): string

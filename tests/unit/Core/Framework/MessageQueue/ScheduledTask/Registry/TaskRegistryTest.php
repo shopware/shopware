@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask;
@@ -21,9 +22,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry
  */
+#[CoversClass(TaskRegistry::class)]
 class TaskRegistryTest extends TestCase
 {
     /**
@@ -157,7 +157,7 @@ class TaskRegistryTest extends TestCase
             static::assertNotEmpty($data[0]);
             static::assertNotEmpty($data[1]);
 
-            [ $queueTaskPayload, $scheduledTaskPayload ] = $data;
+            [$queueTaskPayload, $scheduledTaskPayload] = $data;
 
             static::assertArrayHasKey('status', $queueTaskPayload);
             static::assertArrayHasKey('status', $scheduledTaskPayload);
@@ -219,7 +219,7 @@ class TaskRegistryTest extends TestCase
             static::assertNotEmpty($data[0]);
             static::assertNotEmpty($data[1]);
 
-            [ $queueTaskPayload, $skippedTaskPayload ] = $data;
+            [$queueTaskPayload, $skippedTaskPayload] = $data;
 
             static::assertArrayHasKey('status', $queueTaskPayload);
             static::assertArrayHasKey('status', $skippedTaskPayload);

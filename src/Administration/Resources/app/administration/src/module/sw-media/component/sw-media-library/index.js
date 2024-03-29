@@ -22,11 +22,6 @@ export default {
         Mixin.getByName('media-grid-listener'),
     ],
 
-    model: {
-        prop: 'selection',
-        event: 'media-selection-change',
-    },
-
     props: {
         selection: {
             type: Array,
@@ -217,13 +212,7 @@ export default {
         },
 
         selectedItems() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:selection', this.selectedItems);
-
-                return;
-            }
-
-            this.$emit('media-selection-change', this.selectedItems);
+            this.$emit('update:selection', this.selectedItems);
         },
 
         sorting() {

@@ -597,11 +597,12 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testAccountGuestLoginPageWithoutRedirectFails(): void
+    public function testAccountGuestLoginPageWithoutRedirectRedirects(): void
     {
         $response = $this->request('GET', '/account/guest/login', []);
 
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('/account/login', $response->headers->get('location'));
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
@@ -652,7 +653,7 @@ class AuthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): Entity|null
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): ?Entity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();

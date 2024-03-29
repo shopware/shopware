@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Pagelet;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,11 +29,10 @@ class HeaderPageletLoaderTest extends TestCase
     }
 
     /**
-     * @dataProvider sortingTestDataProvider
-     *
      * @param list<array{name: string}> $languages
      * @param list<string> $expectedOrder
      */
+    #[DataProvider('sortingTestDataProvider')]
     public function testLanguageSorting(array $languages, array $expectedOrder): void
     {
         $createdLanguages = [];

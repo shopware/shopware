@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
@@ -95,9 +96,7 @@ class MailServiceTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider senderEmailDataProvider
-     */
+    #[DataProvider('senderEmailDataProvider')]
     public function testEmailSender(string $expected, ?string $basicInformationEmail = null, ?string $configSender = null, ?string $dataSenderEmail = null): void
     {
         $this->getContainer()

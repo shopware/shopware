@@ -15,9 +15,6 @@
         {% block sw_media_folder_parent_icon%}
         <img
             v-if="isParent"
-            {% if VUE2 %}
-            key="sw-media-folder-preview"
-            {% endif %}
             :src="assetFilter('/administration/static/img/media/folder--back.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder back"
@@ -28,9 +25,6 @@
         {% block sw_media_folder_default_icon%}
         <span
             v-else-if="!!item.defaultFolderId"
-            {% if VUE2 %}
-            key="sw-media-folder-preview"
-            {% endif %}
         >
             <img
                 :src="assetFilter('/administration/static/img/media/' + iconName + '.svg')"
@@ -49,9 +43,6 @@
         {% block sw_media_folder_folder_icon%}
         <img
             v-else
-            {% if VUE2 %}
-            key="sw-media-folder-preview"
-            {% endif %}
             :src="assetFilter('/administration/static/img/media/folder-thumbnail--large.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder thumbnail"
@@ -71,12 +62,9 @@
             class="sw-media-base-item__name-field"
             :value="item.name"
             name="media-item-name"
-            @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop
-            {% if VUE3 %}
             @keydown.enter.stop
-            {% endif %}
             @keyup.esc="endInlineEdit"
         />
         <div

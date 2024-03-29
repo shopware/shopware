@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Commands;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -16,10 +18,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand
  */
 #[Package('buyers-experience')]
+#[CoversClass(DeleteNotUsedMediaCommand::class)]
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
     public function testExecuteWithConfirm(): void
@@ -41,9 +42,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
         static::assertStringContainsString('Successfully deleted 2 media files.', $commandTester->getDisplay());
     }
 
-    /**
-     * @dataProvider limitOffsetProvider
-     */
+    #[DataProvider('limitOffsetProvider')]
     public function testExecuteWithLimitAndOffset(int $limit, int $offset): void
     {
         $service = $this->createMock(UnusedMediaPurger::class);

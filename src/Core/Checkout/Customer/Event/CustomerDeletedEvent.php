@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -15,7 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, MailAware
+class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, MailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.deleted';
 
@@ -67,5 +69,18 @@ class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, M
     {
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class));
+    }
+
+    public function getValues(): array
+    {
+        return [
+            'customerId' => $this->customer->getId(),
+            'customerNumber' => $this->customer->getCustomerNumber(),
+            'customerEmail' => $this->customer->getEmail(),
+            'customerFirstName' => $this->customer->getFirstName(),
+            'customerLastName' => $this->customer->getLastName(),
+            'customerCompany' => $this->customer->getCompany(),
+            'customerSalutationId' => $this->customer->getSalutationId(),
+        ];
     }
 }

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -20,7 +19,6 @@ use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -74,7 +72,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if ($request === null) {
-            $request = new Request();
+            throw StorefrontException::noRequestProvided();
         }
 
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
@@ -89,14 +87,10 @@ abstract class StorefrontController extends AbstractController
             IconCacheTwigFilter::enable();
         }
 
-        $response = Profiler::trace('twig-rendering', fn () => $this->render($view, $event->getParameters(), new StorefrontResponse()));
+        $response = Profiler::trace('twig-rendering', fn () => $this->render($view, $event->getParameters(), new Response()));
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::disable();
-        }
-
-        if (!$response instanceof StorefrontResponse) {
-            throw StorefrontException::unSupportStorefrontResponse();
         }
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
@@ -108,11 +102,6 @@ abstract class StorefrontController extends AbstractController
             $response->setContent(
                 $seoUrlReplacer->replace($content, $host, $salesChannelContext)
             );
-        }
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $response->setData($parameters);
-            $response->setContext($salesChannelContext);
         }
 
         $response->headers->set('Content-Type', 'text/html');
@@ -137,7 +126,7 @@ abstract class StorefrontController extends AbstractController
 
             $redirectTo = $request->get('redirectTo');
 
-            if ($redirectTo) {
+            if ($redirectTo && \is_string($redirectTo)) {
                 return $this->redirectToRoute($redirectTo, $params);
             }
 
@@ -175,7 +164,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if ($request === null) {
-            $request = new Request();
+            throw StorefrontException::noRequestProvided();
         }
 
         $attributes = array_merge(
@@ -199,7 +188,7 @@ abstract class StorefrontController extends AbstractController
             $params = json_decode($params, true);
         }
 
-        if (empty($params)) {
+        if (empty($params) || \is_numeric($params)) {
             $params = [];
         }
 
@@ -280,11 +269,25 @@ abstract class StorefrontController extends AbstractController
             try {
                 return $this->twig->render($view, $parameters);
             } catch (LoaderError|RuntimeError|SyntaxError $e) {
-                throw StorefrontException::cannotRenderView($view, $e->getMessage(), $parameters);
+                throw StorefrontException::renderViewException($view, $e, $parameters);
             }
         }
 
         throw StorefrontException::dontHaveTwigInjected(static::class);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response
+    {
+        $content = $this->renderView($view, $parameters);
+
+        $response ??= new Response();
+
+        $response->setContent($content);
+
+        return $response;
     }
 
     protected function getTemplateFinder(): TemplateFinder

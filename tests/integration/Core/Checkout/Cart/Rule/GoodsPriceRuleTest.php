@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -28,10 +29,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[Group('rules')]
 class GoodsPriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

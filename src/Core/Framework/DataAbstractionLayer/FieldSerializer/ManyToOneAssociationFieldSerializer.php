@@ -3,13 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
@@ -36,12 +34,9 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 
         $referenceField = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
         if ($referenceField === null) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Could not find reference field "%s" from definition "%s"',
-                    $field->getReferenceField(),
-                    $field->getReferenceDefinition()::class
-                )
+            throw DataAbstractionLayerException::definitionFieldDoesNotExist(
+                $field->getReferenceDefinition()::class,
+                $field->getReferenceField(),
             );
         }
         $key = $field->getPropertyName();
@@ -51,17 +46,14 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($value)) {
-            throw new ExpectedArrayException($parameters->getPath());
+            throw DataAbstractionLayerException::expectedArray($parameters->getPath());
         }
 
         $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
         if ($fkField === null) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Could not find FK field "%s" from field "%s"',
-                    $field->getStorageName(),
-                    $parameters->getDefinition()::class
-                )
+            throw DataAbstractionLayerException::fkFieldByStorageNameNotFound(
+                $parameters->getDefinition()::class,
+                $field->getStorageName(),
             );
         }
 
@@ -70,8 +62,8 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];
 
-            // plugins can add a ManyToOne where they define that the local/storage column is the primary and the reference is the foreign key
-            // in this case we have a reversed many to one association configuration
+        // plugins can add a ManyToOne where they define that the local/storage column is the primary and the reference is the foreign key
+        // in this case we have a reversed many to one association configuration
         } elseif ($isPrimary) {
             $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $fkField->getPropertyName());
         } else {
@@ -107,7 +99,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($data->getValue())) {
-            throw new ExpectedArrayException($parameters->getPath());
+            throw DataAbstractionLayerException::expectedArray($parameters->getPath());
         }
 
         $this->writeExtractor->extract(
@@ -123,6 +115,6 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 
     public function decode(Field $field, mixed $value): never
     {
-        throw new DecodeByHydratorException($field);
+        throw DataAbstractionLayerException::decodeHandledByHydrator($field);
     }
 }

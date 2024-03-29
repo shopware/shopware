@@ -8,8 +8,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders a language switcher.
  * @status ready

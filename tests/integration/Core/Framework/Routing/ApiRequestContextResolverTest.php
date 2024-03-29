@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -41,11 +42,10 @@ class ApiRequestContextResolverTest extends TestCase
     }
 
     /**
-     * @dataProvider userRoleProvider
-     *
      * @param array<string, bool> $expected
      * @param array<string, list<string>> $roles
      */
+    #[DataProvider('userRoleProvider')]
     public function testResolveAdminSourceByOAuthUserId(array $expected, array $roles, bool $isAdmin = false): void
     {
         $user = $this->createUser($roles, $isAdmin);
@@ -74,11 +74,10 @@ class ApiRequestContextResolverTest extends TestCase
     }
 
     /**
-     * @dataProvider userRoleProvider
-     *
      * @param array<string, bool> $expected
      * @param array<string, list<string>> $roles
      */
+    #[DataProvider('userRoleProvider')]
     public function testResolveContextByClientId(array $expected, array $roles, bool $isAdmin = false): void
     {
         $user = $this->createUser($roles, $isAdmin);
@@ -396,7 +395,7 @@ class ApiRequestContextResolverTest extends TestCase
         ]);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
 
         $errors = $response['errors'];

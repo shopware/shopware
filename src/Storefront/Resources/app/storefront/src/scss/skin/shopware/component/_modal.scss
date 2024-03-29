@@ -14,3 +14,8 @@ https://getbootstrap.com/docs/5.2/components/modal
         line-height: $modal-title-line-height;
     }
 }
+
+.js-pseudo-modal-back-btn .icon {
+    color: currentColor;
+    margin-right: $spacer-sm;
+}

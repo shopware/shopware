@@ -63,7 +63,7 @@
       },
       "sidebar": {
         "labelContextMenuAddToMailTemplate": "Als Anhang hinzufügen",
-        "placeholderTestMail": "shop{'@'}beispiel.com",
+        "placeholderTestMail": "E-Mail-Adresse eingeben ...",
         "buttonTestMail": "Senden",
         "labelTestMail": "Empfänger-Adresse",
         "titleTestMail": "Test-Mail senden",

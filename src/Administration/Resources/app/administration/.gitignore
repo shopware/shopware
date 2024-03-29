@@ -17,3 +17,5 @@ selenium-debug.log
 yalc.lock
 src/entity-schema-definition.d.ts
 entity-schema-types
+.vscode
+.vue-compat-components-statistics.json

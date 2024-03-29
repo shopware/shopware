@@ -21,6 +21,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @phpstan-type Mapping array<string, array{current_default: string, new_default: string, inserts: list<string>, updateId: string, deletions: list<string>, state: list<string>}>
  */
 #[Package('buyers-experience')]
 class SalesChannelValidator implements EventSubscriberInterface
@@ -74,12 +76,12 @@ class SalesChannelValidator implements EventSubscriberInterface
      *     'current_default' => 'en',
      *     'new_default' => 'de',
      *     'inserts' => ['de', 'en'],
-     *     'updates' => ['de', 'de'],
+     *     'updateId' => 'de',
      *     'deletions' => ['gb'],
      *     'state' => ['en', 'gb']
      * ]
      *
-     * @return array<string, array<string, list<string>>>
+     * @return Mapping
      */
     private function extractMapping(PreWriteValidationEvent $event): array
     {
@@ -100,7 +102,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, array<string, list<string>>> $mapping
+     * @param Mapping $mapping
      */
     private function handleSalesChannelMapping(array &$mapping, WriteCommand $command): void
     {
@@ -110,7 +112,7 @@ class SalesChannelValidator implements EventSubscriberInterface
 
         if ($command instanceof UpdateCommand) {
             $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-            $mapping[$id]['updates'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
+            $mapping[$id]['updateId'] = Uuid::fromBytesToHex($command->getPayload()['language_id']);
 
             return;
         }
@@ -134,7 +136,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, list<string>> $mapping
+     * @param Mapping $mapping
      */
     private function handleSalesChannelLanguageMapping(array &$mapping, WriteCommand $command): void
     {
@@ -180,8 +182,8 @@ class SalesChannelValidator implements EventSubscriberInterface
                 $deletions[$id] = $channel['current_default'];
             }
 
-            if (isset($channel['updates']) && !$this->validUpdateCase($channel)) {
-                $updates[$id] = $channel['updates'];
+            if (isset($channel['updateId']) && !$this->validUpdateCase($channel)) {
+                $updates[$id] = $channel['updateId'];
             }
         }
 
@@ -205,7 +207,7 @@ class SalesChannelValidator implements EventSubscriberInterface
      */
     private function validUpdateCase(array $channel): bool
     {
-        $updateId = $channel['updates'];
+        $updateId = $channel['updateId'];
 
         return \in_array($updateId, $channel['state'], true)
             || empty($channel['new_default']) && $updateId === $channel['current_default']

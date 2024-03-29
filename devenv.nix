@@ -13,6 +13,7 @@ in {
     pkgs.symfony-cli
     pkgs.deno
     pkgs.jq
+    pkgs.ludtwig
     ( pkgs.writeShellScriptBin "php-pcov" ''
       export PHP_INI_SCAN_DIR=''${PHP_INI_SCAN_DIR-'${pcov}/lib'}
       exec -a "$0" "${pcov}/bin/.php-wrapped"  "$@"
@@ -23,7 +24,7 @@ in {
 
   languages.javascript = {
     enable = lib.mkDefault true;
-    package = lib.mkDefault pkgs.nodejs-18_x;
+    package = lib.mkDefault pkgs.nodejs_20;
   };
 
   languages.php = {
@@ -48,6 +49,8 @@ in {
       short_open_tag = 0
       zend.detect_unicode = 0
       realpath_cache_ttl = 3600
+      post_max_size = 32M
+      upload_max_filesize = 32M
     '';
 
     fpm.pools.web = lib.mkDefault {
@@ -71,6 +74,7 @@ in {
           not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
         }
 
+        encode zstd gzip
         root * public
         php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
             trusted_proxies private_ranges
@@ -99,6 +103,7 @@ in {
     ];
     settings = {
       mysqld = {
+        group_concat_max_len = 320000;
         log_bin_trust_function_creators = 1;
         sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
       };
@@ -106,6 +111,8 @@ in {
   };
 
   services.redis.enable = lib.mkDefault true;
+  # WSL2 fix locale
+  services.redis.extraConfig = "locale-collate C";
   services.adminer.enable = lib.mkDefault true;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
   services.mailpit.enable = lib.mkDefault true;
@@ -117,7 +124,7 @@ in {
   # Environment variables
 
   env.APP_URL = lib.mkDefault "http://localhost:8000";
-  env.APP_SECRET = lib.mkDefault "devsecret";
+  env.APP_SECRET = lib.mkDefault "def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
 

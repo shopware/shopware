@@ -91,7 +91,7 @@ export default {
         stateMachineHistoryCriteria() {
             const criteria = new Criteria(1, 1);
 
-            criteria.addFilter(Criteria.equals('entityId.id', this.entity.id));
+            criteria.addFilter(Criteria.equals('referencedId', this.entity.id));
             criteria.addFilter(Criteria.equals('entityName', this.entityName));
             criteria.addAssociation('user');
             criteria.addSorting({ field: 'createdAt', order: 'DESC' });

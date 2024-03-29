@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor;
@@ -9,19 +11,16 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor
  */
+#[CoversClass(PagingListingProcessor::class)]
 class PagingProcessorTest extends TestCase
 {
-    /**
-     * @dataProvider prepareProvider
-     */
+    #[DataProvider('prepareProvider')]
     public function testPrepare(Request $request, Criteria $expected, string $method = Request::METHOD_GET): void
     {
         $request->setMethod($method);
@@ -87,7 +86,10 @@ class PagingProcessorTest extends TestCase
     public function testProcess(): void
     {
         $request = new Request(['p' => 2]);
-        $result = new ProductListingResult('foo', 100, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
+        $criteria = new Criteria();
+        $criteria->setLimit(24);
+
+        $result = new ProductListingResult('foo', 100, new ProductCollection(), null, $criteria, Context::createDefaultContext());
         $context = $this->createMock(SalesChannelContext::class);
 
         $config = new StaticSystemConfigService([

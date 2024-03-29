@@ -2,19 +2,113 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Util\Exception\ComparatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\FloatComparator
  */
+#[CoversClass(FloatComparator::class)]
 class FloatComparatorTest extends TestCase
 {
+    #[DataProvider('compareDataProvider')]
+    public function testCompare(string $operator, float $a, float $b, bool $expected): void
+    {
+        static::assertSame($expected, FloatComparator::compare($a, $b, $operator));
+    }
+
+    public function testCompareThrowException(): void
+    {
+        static::expectException(ComparatorException::class);
+        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('empty')->getMessage());
+
+        FloatComparator::compare(1, 2, 'empty');
+    }
+
     /**
-     * @dataProvider equalsDataProvider
+     * @return iterable<string, array<string, string|float|bool>>
      */
+    public static function compareDataProvider(): iterable
+    {
+        yield 'Test not equal return true' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'a' => 1,
+            'b' => 2,
+            'expected' => true,
+        ];
+        yield 'Test not equal return false' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'a' => 1,
+            'b' => 1,
+            'expected' => false,
+        ];
+        yield 'Test greater than or equal return true' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'a' => 1,
+            'b' => 1,
+            'expected' => true,
+        ];
+        yield 'Test greater than or equal return false' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'a' => 1,
+            'b' => 2,
+            'expected' => false,
+        ];
+        yield 'Test less than or equal return true' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'a' => 1,
+            'b' => 1,
+            'expected' => true,
+        ];
+        yield 'Test less than or equal return false' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'a' => 1,
+            'b' => 0,
+            'expected' => false,
+        ];
+        yield 'Test equal return true' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'a' => 1,
+            'b' => 1,
+            'expected' => true,
+        ];
+        yield 'Test equal return false' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'a' => 1,
+            'b' => 2,
+            'expected' => false,
+        ];
+        yield 'Test greater than return true' => [
+            'operator' => Rule::OPERATOR_GT,
+            'a' => 2,
+            'b' => 1,
+            'expected' => true,
+        ];
+        yield 'Test greater than return false' => [
+            'operator' => Rule::OPERATOR_GT,
+            'a' => 1,
+            'b' => 2,
+            'expected' => false,
+        ];
+        yield 'Test less than return true' => [
+            'operator' => Rule::OPERATOR_LT,
+            'a' => 1,
+            'b' => 2,
+            'expected' => true,
+        ];
+        yield 'Test less than return false' => [
+            'operator' => Rule::OPERATOR_LT,
+            'a' => 2,
+            'b' => 1,
+            'expected' => false,
+        ];
+    }
+
+    #[DataProvider('equalsDataProvider')]
     public function testEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::equals($a, $b));
@@ -53,9 +147,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider notEqualsDataProvider
-     */
+    #[DataProvider('notEqualsDataProvider')]
     public function testNotEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::notEquals($a, $b));
@@ -74,9 +166,7 @@ class FloatComparatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider lessThanDataProvider
-     */
+    #[DataProvider('lessThanDataProvider')]
     public function testLessThan(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::lessThan($a, $b));
@@ -110,9 +200,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider greaterThanDataProvider
-     */
+    #[DataProvider('greaterThanDataProvider')]
     public function testGreaterThan(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::greaterThan($a, $b));
@@ -145,9 +233,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider lessThanOrEqualsDataProvider
-     */
+    #[DataProvider('lessThanOrEqualsDataProvider')]
     public function testLessThanOrEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::lessThanOrEquals($a, $b));
@@ -180,9 +266,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider greaterThanOrEqualsDataProvider
-     */
+    #[DataProvider('greaterThanOrEqualsDataProvider')]
     public function testGreaterThanOrEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::greaterThanOrEquals($a, $b));

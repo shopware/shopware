@@ -5,8 +5,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @protected
+ * @private
  * @description Simple text field.
  * @status ready
  * @example-type dynamic
@@ -16,6 +15,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-text-field', {
     template,
     inheritAttrs: false,
+
+    emits: ['update:value'],
 
     inject: ['feature'],
 
@@ -92,31 +93,15 @@ Component.register('sw-text-field', {
 
     methods: {
         onChange(event) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', event.target.value || '');
-
-                return;
-            }
-
-            this.$emit('change', event.target.value || '');
+            this.$emit('update:value', event.target.value || '');
         },
 
         onInput(event) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', event.target.value);
-                return;
-            }
-
-            this.$emit('input', event.target.value);
+            this.$emit('update:value', event.target.value);
         },
 
         restoreInheritance() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', null);
-                return;
-            }
-
-            this.$emit('input', null);
+            this.$emit('update:value', null);
         },
 
         createInputId(identification) {

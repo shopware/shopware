@@ -2,10 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStateRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
@@ -16,14 +20,11 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\ShippingStateRule
  */
+#[Package('services-settings')]
+#[CoversClass(ShippingStateRule::class)]
+#[Group('rules')]
 class ShippingStateRuleTest extends TestCase
 {
     private ShippingStateRule $rule;
@@ -55,9 +56,7 @@ class ShippingStateRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $stateIds[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $stateId, bool $stateExists = true): void
     {
         $countryIds = ['kyln123', 'kyln456'];

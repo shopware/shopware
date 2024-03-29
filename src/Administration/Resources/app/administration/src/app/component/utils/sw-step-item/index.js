@@ -3,8 +3,7 @@ import './sw-step-item.scss';
 
 const { Component } = Shopware;
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Renders a step and must be used in the slot of the sw-step-display component.
  * @status ready
  * @example-type dynamic
@@ -58,11 +57,7 @@ Component.register('sw-step-item', {
         },
 
         stepDisplay() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$parent.$parent;
-            }
-
-            return this.$parent;
+            return this.$parent.$parent;
         },
     },
 

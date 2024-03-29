@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -23,15 +23,16 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\AuthController
  */
+#[CoversClass(AuthController::class)]
 class AuthControllerTest extends TestCase
 {
     private AuthControllerTestClass $controller;
@@ -124,24 +125,65 @@ class AuthControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function testGuestLoginPageWithoutRedirectParametersThrows(): void
+    public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
     {
         $context = Generator::createSalesChannelContext();
         $context->assign(['customer' => null]);
 
         $request = new Request();
 
-        $this->expectException(CustomerException::class);
-        $this->expectExceptionMessage('Guest account is not allowed to login');
-
         $this->controller->guestLoginPage($request, $context);
+
+        static::assertArrayHasKey('frontend.account.login.page', $this->controller->redirected);
+        static::assertArrayHasKey('danger', $this->controller->flashBag);
+        static::assertArrayHasKey(0, $this->controller->flashBag['danger']);
+        static::assertEquals('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
     }
 }
 
 /**
  * @internal
  */
-class AuthControllerTestClass extends AuthController
+class AuthControllerTestClass extends AuthController implements ResetInterface
 {
     use StorefrontControllerMockTrait;
+
+    /**
+     * @var array<string, mixed>
+     */
+    public array $flashBag = [];
+
+    /**
+     * @var array<string, mixed>
+     */
+    public array $redirected = [];
+
+    public function reset(): void
+    {
+        $this->flashBag = [];
+        $this->redirected = [];
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function trans(string $snippet, array $parameters = []): string
+    {
+        return $snippet;
+    }
+
+    protected function addFlash(string $type, mixed $message): void
+    {
+        $this->flashBag[$type][] = $message;
+    }
+
+    protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
+    {
+        $this->redirected[$route][] = [
+            'parameters' => $parameters,
+            'status' => $status,
+        ];
+
+        return new RedirectResponse('/');
+    }
 }

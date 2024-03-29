@@ -98,6 +98,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
 
     methods: {
         onSearchTermChange(input) {
+            this.searchTerm = input;
             if (input.length <= 0) {
                 return;
             }

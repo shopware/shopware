@@ -26,7 +26,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class FirstRunWizardControllerTest extends TestCase
 {
     use EventDispatcherBehaviour;
@@ -45,7 +45,7 @@ class FirstRunWizardControllerTest extends TestCase
         $dispatchedEvent = null;
 
         // Response for request of TrackingEventClient::fireTrackingEvent()
-        $this->getRequestHandler()->append(new Response());
+        $this->getStoreRequestHandler()->append(new Response());
 
         $this->addEventListener(
             $this->getContainer()->get('event_dispatcher'),
@@ -59,7 +59,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         static::assertInstanceOf(FirstRunWizardStartedEvent::class, $dispatchedEvent);
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
         static::assertInstanceOf(Request::class, $lastRequest);
         static::assertEquals('POST', $lastRequest->getMethod());
         static::assertEquals('/swplatform/tracking/events', $lastRequest->getUri()->getPath());
@@ -115,7 +115,7 @@ class FirstRunWizardControllerTest extends TestCase
         );
 
         // Response for request of TrackEventClient::fireTrackingEvent()
-        $this->getRequestHandler()->append(new Response());
+        $this->getStoreRequestHandler()->append(new Response());
 
         // Response for request of FirstRunWizardClient::upgradeAccessToken()
         $this->getFrwRequestHandler()->append(new Response(

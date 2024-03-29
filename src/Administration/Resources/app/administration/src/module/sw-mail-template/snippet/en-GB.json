@@ -63,7 +63,7 @@
       },
       "sidebar": {
         "labelContextMenuAddToMailTemplate": "Add as attachment",
-        "placeholderTestMail": "shop{'@'}example.com",
+        "placeholderTestMail": "Enter email address...",
         "buttonTestMail": "Send",
         "labelTestMail": "Recipient address",
         "titleTestMail": "Send test email",

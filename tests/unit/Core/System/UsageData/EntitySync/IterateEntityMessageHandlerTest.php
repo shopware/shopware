@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\ConnectionException;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,10 +22,9 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(IterateEntityMessageHandler::class)]
 class IterateEntityMessageHandlerTest extends TestCase
 {
     public function testDispatchesNoMessageToFetchDeletedOrUpdatedEntitiesOnInitialRun(): void
@@ -62,8 +62,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::exactly(1))
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(null);
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::exactly(1))
@@ -111,8 +109,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -143,11 +139,11 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('test-entity', $entitySyncMessage->getEntityName());
+        static::assertEquals('test-entity', $entitySyncMessage->entityName);
         static::assertEquals([
             ['id' => 'first-id'],
             ['id' => 'second-id'],
-        ], $entitySyncMessage->getPrimaryKeys());
+        ], $entitySyncMessage->primaryKeys);
     }
 
     public function testSkipEntityIfDefinitionIsNotFound(): void
@@ -165,8 +161,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects(static::never())
             ->method('getLastConsentIsAcceptedDate');
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -201,8 +195,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -250,8 +242,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())

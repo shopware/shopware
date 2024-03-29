@@ -3,10 +3,13 @@
 namespace Shopware\Storefront\Test\Framework\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
@@ -14,8 +17,6 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
-use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -23,10 +24,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @group skip-paratest
- * @group cache
  */
+#[Group('skip-paratest')]
+#[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {
     use AppSystemTestBehaviour;

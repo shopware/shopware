@@ -1,17 +1,14 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigText from 'src/module/sw-cms/elements/text/config';
-import swCmsElConfigProductName from 'src/module/sw-cms/elements/product-name/config';
-
-Shopware.Component.register('sw-cms-el-config-text', swCmsElConfigText);
-Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', swCmsElConfigProductName);
 
 async function createWrapper(propsOverride) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-name'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-config-product-name', {
+        sync: true,
+    }), {
+        props: {
             element: {
                 config: {
                     content: {
@@ -36,25 +33,27 @@ async function createWrapper(propsOverride) {
                 },
             };
         },
-        provide: {
-            cmsService: {},
-        },
-        stubs: {
-            'sw-tabs': {
-                data() {
-                    return {
-                        active: '',
-                    };
-                },
-                template: `
+        global: {
+            provide: {
+                cmsService: {},
+            },
+            stubs: {
+                'sw-tabs': {
+                    data() {
+                        return {
+                            active: '',
+                        };
+                    },
+                    template: `
                     <div class="sw-tabs">
                         <slot name="default" v-bind="{ active }"></slot>
                         <slot name="content" v-bind="{ active }"></slot>
                     </div>
                 `,
+                },
+                'sw-container': true,
+                'sw-tabs-item': true,
             },
-            'sw-container': true,
-            'sw-tabs-item': true,
         },
     });
 }
@@ -64,10 +63,6 @@ describe('module/sw-cms/elements/product-name/config', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should map to a product name if the component is in a product page', async () => {

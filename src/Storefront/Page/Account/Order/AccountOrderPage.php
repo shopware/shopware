@@ -3,46 +3,99 @@
 namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Page;
 
-#[Package('checkout')]
-class AccountOrderPage extends Page
-{
-    /**
-     * @var StorefrontSearchResult<OrderCollection>
-     */
-    protected $orders;
-
-    /**
-     * @var string|null
-     */
-    protected $deepLinkCode;
-
-    /**
-     * @return StorefrontSearchResult<OrderCollection>
-     */
-    public function getOrders(): StorefrontSearchResult
+if (Feature::isActive('v6.7.0.0')) {
+    #[Package('checkout')]
+    class AccountOrderPage extends Page
     {
-        return $this->orders;
+        /**
+         * @var EntitySearchResult<OrderCollection>
+         */
+        protected EntitySearchResult $orders;
+
+        /**
+         * @var string|null
+         */
+        protected $deepLinkCode;
+
+        /**
+         * @return EntitySearchResult<OrderCollection>
+         */
+        public function getOrders(): EntitySearchResult
+        {
+            return $this->orders;
+        }
+
+        /**
+         * @param EntitySearchResult<OrderCollection> $orders
+         */
+        public function setOrders(EntitySearchResult $orders): void
+        {
+            $this->orders = $orders;
+        }
+
+        public function getDeepLinkCode(): ?string
+        {
+            return $this->deepLinkCode;
+        }
+
+        public function setDeepLinkCode(?string $deepLinkCode): void
+        {
+            $this->deepLinkCode = $deepLinkCode;
+        }
     }
-
-    /**
-     * @param StorefrontSearchResult<OrderCollection> $orders
-     */
-    public function setOrders(StorefrontSearchResult $orders): void
+} else {
+    #[Package('checkout')]
+    class AccountOrderPage extends Page
     {
-        $this->orders = $orders;
-    }
+        /**
+         * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<OrderCollection>
+         *
+         * @var StorefrontSearchResult<OrderCollection>
+         */
+        protected $orders;
 
-    public function getDeepLinkCode(): ?string
-    {
-        return $this->deepLinkCode;
-    }
+        /**
+         * @var string|null
+         */
+        protected $deepLinkCode;
 
-    public function setDeepLinkCode(?string $deepLinkCode): void
-    {
-        $this->deepLinkCode = $deepLinkCode;
+        /**
+         * @deprecated tag:v6.7.0 - Return type will change to EntitySearchResult<OrderCollection>
+         *
+         * @return StorefrontSearchResult<OrderCollection>
+         */
+        public function getOrders(): StorefrontSearchResult
+        {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Return type will change to EntitySearchResult<OrderCollection>');
+
+            return $this->orders;
+        }
+
+        /**
+         * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<OrderCollection>
+         *
+         * @param StorefrontSearchResult<OrderCollection> $orders
+         */
+        public function setOrders(StorefrontSearchResult $orders): void
+        {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Type will change to EntitySearchResult<OrderCollection>');
+            $this->orders = $orders;
+        }
+
+        public function getDeepLinkCode(): ?string
+        {
+            return $this->deepLinkCode;
+        }
+
+        public function setDeepLinkCode(?string $deepLinkCode): void
+        {
+            $this->deepLinkCode = $deepLinkCode;
+        }
     }
 }

@@ -14,9 +14,11 @@ use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigDomainLoadedEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
@@ -160,7 +162,7 @@ class SystemConfigService implements ResetInterface
         }
 
         $queryBuilder = $this->connection->createQueryBuilder()
-            ->select(['configuration_key', 'configuration_value'])
+            ->select('configuration_key', 'configuration_value')
             ->from('system_config');
 
         if ($inherit) {
@@ -229,6 +231,11 @@ class SystemConfigService implements ResetInterface
      */
     public function setMultiple(array $values, ?string $salesChannelId = null): void
     {
+        $event = new BeforeSystemConfigMultipleChangedEvent($values, $salesChannelId);
+        $this->eventDispatcher->dispatch($event);
+
+        $values = $event->getConfig();
+
         $where = $salesChannelId ? 'sales_channel_id = :salesChannelId' : 'sales_channel_id IS NULL';
 
         $existingIds = $this->connection
@@ -324,6 +331,8 @@ class SystemConfigService implements ResetInterface
         foreach ($events as $event) {
             $this->eventDispatcher->dispatch($event);
         }
+
+        $this->eventDispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void

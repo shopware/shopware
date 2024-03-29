@@ -1,11 +1,5 @@
-// eslint-disable-next-line filename-rules/match
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import swUsageDataConsentBanner from 'src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner';
-import swButton from 'src/app/component/base/sw-button';
-import enGB from 'src/module/sw-dashboard/snippet/en-GB.json';
-
-Shopware.Component.register('sw-usage-data-consent-banner', swUsageDataConsentBanner);
-Shopware.Component.register('sw-button', swButton);
 
 const usageDataService = {
     getConsent: () => jest.fn(),
@@ -14,52 +8,51 @@ const usageDataService = {
     hideBanner: () => jest.fn(),
 };
 
+/**
+ * @package data-services
+ */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
-    return shallowMount(await Shopware.Component.build('sw-usage-data-consent-banner'), {
-        propsData: {
+    const wrapper = mount(await wrapTestComponent('sw-usage-data-consent-banner', {
+        sync: true,
+    }), {
+        props: {
             canBeHidden,
         },
-        stubs: {
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-external-link': true,
-            'sw-internal-link': true,
-            'sw-icon': true,
-            'sw-help-text': true,
-            i18n: true,
-        },
-        mocks: {
-            $tc: (...args) => JSON.stringify([...args]),
-            $i18n: {
-                locale: 'en-GB',
-                messages: {
-                    'en-GB': enGB,
+        global: {
+            stubs: {
+                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-external-link': true,
+                'sw-internal-link': true,
+                'sw-help-text': true,
+                i18n: true,
+            },
+            provide: {
+                usageDataService,
+                acl: {
+                    can: () => isPrivileged,
                 },
             },
         },
-        provide: {
-            usageDataService,
-            acl: {
-                can: () => isPrivileged,
-            },
-        },
     });
+
+    await flushPromises();
+
+    return wrapper;
 }
 
-/**
- * @package merchant-services
- */
-describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner', () => {
-    let wrapper;
+describe('src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner', () => {
+    let wrapper = null;
 
     beforeEach(async () => {
-        Shopware.State.commit('usageData/updateConsent', {
-            isConsentGiven: false,
-            isBannerHidden: false,
-        });
-    });
+        if (Shopware.State.get('usageData')) {
+            Shopware.State.commit('usageData/updateConsent', {
+                isConsentGiven: false,
+                isBannerHidden: false,
+            });
+        }
 
-    afterEach(() => {
-        wrapper.destroy();
+        Shopware.State.registerModule('usageData', swUsageDataConsentBanner);
     });
 
     it('should show the usage data consent banner', async () => {
@@ -72,7 +65,7 @@ describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner',
         const hideBannerSpy = jest.spyOn(usageDataService, 'hideBanner');
 
         wrapper = await createWrapper(true);
-        const declineButton = wrapper.get('.sw-usage-data-consent-banner__decline-button');
+        const declineButton = wrapper.get('.sw-usage-data-consent-banner__footer-decline-button');
 
         await declineButton.trigger('click');
 
@@ -89,7 +82,7 @@ describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner',
         const acceptConsentSpy = jest.spyOn(usageDataService, 'acceptConsent');
 
         wrapper = await createWrapper(true);
-        const declineButton = wrapper.get('.sw-usage-data-consent-banner__accept-button');
+        const declineButton = wrapper.get('.sw-usage-data-consent-banner__footer-accept-button');
 
         await declineButton.trigger('click');
 
@@ -108,7 +101,7 @@ describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner',
         const revokeConsentSpy = jest.spyOn(usageDataService, 'revokeConsent');
 
         wrapper = await createWrapper();
-        const declineButton = wrapper.get('.sw-usage-data-consent-banner__reject-button');
+        const declineButton = wrapper.get('.sw-usage-data-consent-banner__footer-reject-button');
 
         await declineButton.trigger('click');
 

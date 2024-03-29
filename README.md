@@ -22,7 +22,7 @@
 </p>
 
 
-Shopware 6 is an open headless commerce platform powered by [Symfony 6.2](https://symfony.com) and [Vue.js 2.6](https://vuejs.org) that is used by thousands of shops and supported by a huge, [worldwide community](https://slack.shopware.com) of developers, agencies and merchants.
+Shopware 6 is an open headless commerce platform powered by [Symfony 7](https://symfony.com) and [Vue.js 3](https://vuejs.org) that is used by thousands of shops and supported by a huge, [worldwide community](https://slack.shopware.com) of developers, agencies and merchants.
 
 If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github!
 

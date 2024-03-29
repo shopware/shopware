@@ -1,13 +1,15 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+
+{# Extend `src/Storefront/Resources/views/storefront/component/review/review-widget.html.twig` instead #}
+
 {% block page_product_detail_review_widget %}
     <div class="sticky-top product-detail-review-widget">
-
         {% block page_product_detail_review_info_container %}
             {% block page_product_detail_review_info %}
                 <div class="product-detail-review-info js-review-info">
-
                     {% block page_product_detail_review_title %}
                         <p class="product-detail-review-title h5">
-                            {{ "detail.reviewTitle"|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
+                            {{ 'detail.reviewTitle'|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -30,7 +32,7 @@
 
                             {% if productReviewCount > 0 %}
                                 <p class="h6">
-                                    {{ productAvgRating }} {{ "detail.reviewAvgRate"|trans|sw_sanitize }} {{ reviews.matrix.maxPoints }} {{ "detail.reviewAvgRateElements"|trans }}
+                                    {{ productAvgRating }} {{ 'detail.reviewAvgRate'|trans|sw_sanitize }} {{ reviews.matrix.maxPoints }} {{ 'detail.reviewAvgRateElements'|trans }}
                                 </p>
                             {% endif %}
                         </div>
@@ -43,7 +45,7 @@
             {% endif %}
 
             {% set formAjaxSubmitOptions = {
-                replaceSelectors: [".js-review-container"],
+                replaceSelectors: ['.js-review-container'],
                 submitOnChange: true
             } %}
 
@@ -54,8 +56,7 @@
                               action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                               method="post"
                               data-form-ajax-submit="true"
-                              {# ludtwig-ignore html-string-quotation #}
-                              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
                             {% if app.request.get('limit') %}
                                 <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                             {% endif %}
@@ -71,11 +72,9 @@
                             {% for matrix in reviews.matrix.matrix %}
                                 {% block page_product_detail_review_filter_box %}
                                     <div class="row product-detail-review-filter">
-
                                         {% block page_product_detail_review_filter_checkbox %}
                                             <div class="col-md-8 col-lg-5 product-detail-review-checkbox">
                                                 <div class="form-check">
-
                                                     {% block page_product_detail_review_filter_checkbox_input %}
                                                         <input type="checkbox"
                                                                class="form-check-input"
@@ -136,13 +135,12 @@
 
         {% block page_product_detail_review_form_teaser %}
             <div class="product-detail-review-teaser js-review-teaser">
-
                 {% block page_product_detail_review_form_teaser_header %}
                     <p class="h4">
                         {% if not reviews.customerReview %}
-                            {{ "detail.reviewTeaserTitle"|trans|sw_sanitize }}
+                            {{ 'detail.reviewTeaserTitle'|trans|sw_sanitize }}
                         {% else %}
-                            {{ "detail.reviewExistsTeaserTitle"|trans|sw_sanitize }}
+                            {{ 'detail.reviewExistsTeaserTitle'|trans|sw_sanitize }}
                         {% endif %}
                     </p>
                 {% endblock %}
@@ -150,9 +148,9 @@
                 {% block page_product_detail_review_form_teaser_text %}
                     <p>
                         {% if not reviews.customerReview %}
-                            {{ "detail.reviewTeaserText"|trans|sw_sanitize }}
+                            {{ 'detail.reviewTeaserText'|trans|sw_sanitize }}
                         {% else %}
-                            {{ "detail.reviewExistsTeaserText"|trans|sw_sanitize }}
+                            {{ 'detail.reviewExistsTeaserText'|trans|sw_sanitize }}
                         {% endif %}
                     </p>
                 {% endblock %}
@@ -166,13 +164,13 @@
                             aria-controls="review-form review-list">
                         <span class="product-detail-review-teaser-show">
 							{% if not reviews.customerReview %}
-                                {{ "detail.reviewTeaserButton"|trans|sw_sanitize }}
+                                {{ 'detail.reviewTeaserButton'|trans|sw_sanitize }}
                             {% else %}
-                                {{ "detail.reviewExistsTeaserButton"|trans|sw_sanitize }}
+                                {{ 'detail.reviewExistsTeaserButton'|trans|sw_sanitize }}
                             {% endif %}
 						</span>
                         <span class="product-detail-review-teaser-hide">
-							{{ "detail.reviewTeaserButtonHide"|trans|sw_sanitize }}
+							{{ 'detail.reviewTeaserButtonHide'|trans|sw_sanitize }}
 						</span>
                     </button>
                 {% endblock %}

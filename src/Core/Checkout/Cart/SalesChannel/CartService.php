@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-final - Should not be extended and is only intended as cache
+ * @final
  */
 #[Package('checkout')]
 class CartService implements ResetInterface

@@ -1,7 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swMailHeaderFooterList from 'src/module/sw-mail-template/component/sw-mail-header-footer-list';
-
-Shopware.Component.register('sw-mail-header-footer-list', swMailHeaderFooterList);
+import { mount } from '@vue/test-utils';
 
 const mailHeaderFooterMock = [
     {
@@ -24,53 +21,50 @@ const mailHeaderFooterMock = [
 ];
 
 const createWrapper = async (privileges = []) => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
+    return mount(await wrapTestComponent('sw-mail-header-footer-list', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve(mailHeaderFooterMock);
+                        },
 
-    return shallowMount(await Shopware.Component.build('sw-mail-header-footer-list'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve(mailHeaderFooterMock);
+                        delete: (id) => {
+                            const hasSalesChannel = mailHeaderFooterMock.find(item => item.id === id).salesChannels.length;
+
+                            if (hasSalesChannel) {
+                                return Promise.reject();
+                            }
+
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
                     },
-
-                    delete: (id) => {
-                        const hasSalesChannel = mailHeaderFooterMock.find(item => item.id === id).salesChannels.length;
-
-                        if (hasSalesChannel) {
-                            return Promise.reject();
-                        }
-
-                        return Promise.resolve();
-                    },
-                }),
+                },
+                searchRankingService: {},
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+            stubs: {
+                'sw-card': {
+                    template: '<div><slot name="grid"></slot></div>',
                 },
-            },
-        },
-        stubs: {
-            'sw-card': {
-                template: '<div><slot name="grid"></slot></div>',
-            },
-            'sw-entity-listing': {
-                props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
-                template: `
+                'sw-entity-listing': {
+                    props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
+                    template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
@@ -91,12 +85,13 @@ const createWrapper = async (privileges = []) => {
                             </slot>
                         </template>
                     </div>`,
-                methods: {
-                    resetSelection() {},
-                    doSearch() {},
+                    methods: {
+                        resetSelection() {},
+                        doSearch() {},
+                    },
                 },
+                'sw-context-menu-item': true,
             },
-            'sw-context-menu-item': true,
         },
     });
 };
@@ -104,7 +99,7 @@ const createWrapper = async (privileges = []) => {
 describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => {
     it('should not allow to duplicate without create permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const duplicateButton = wrapper.find('.sw-mail-header-footer-list-grid__duplicate-action');
         expect(duplicateButton.attributes().disabled).toBeTruthy();
@@ -112,7 +107,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should allow to duplicate with create permission', async () => {
         const wrapper = await createWrapper(['mail_templates.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const duplicateButton = wrapper.find('.sw-mail-header-footer-list-grid__duplicate-action');
         expect(duplicateButton.attributes().disabled).toBeFalsy();
@@ -120,7 +115,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should not allow to delete without delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteButton = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteButton.attributes().disabled).toBeTruthy();
@@ -128,7 +123,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should allow to delete with delete permission', async () => {
         const wrapper = await createWrapper(['mail_templates.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteButton = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteButton.attributes().disabled).toBeFalsy();
@@ -136,7 +131,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should not allow to edit without edit permission', async () => {
         const wrapper = await createWrapper(['mail_templates.viewer']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editButton.text()).toBe('global.default.view');
@@ -147,7 +142,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
             'mail_templates.viewer',
             'mail_templates.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editButton.text()).toBe('global.default.edit');
@@ -155,7 +150,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should hide item selection if user does not have delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
 
@@ -165,7 +160,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should show item selection if user has delete permission', async () => {
         const wrapper = await createWrapper(['mail_templates.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
 
@@ -175,12 +170,12 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should show error notification if delete failed', async () => {
         const wrapper = await createWrapper(['mail_templates.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.createNotificationError = jest.fn();
 
         await expect(wrapper.vm.onDelete(mailHeaderFooterMock[0])).rejects.toEqual();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
 
@@ -189,12 +184,12 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
 
     it('should not show error notification if delete successfully', async () => {
         const wrapper = await createWrapper(['mail_templates.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.createNotificationError = jest.fn();
 
         wrapper.vm.onDelete(mailHeaderFooterMock[1]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
 
@@ -205,7 +200,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         const wrapper = await createWrapper();
 
         // wait for vue to render the listing
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // fill listing with mail templates mocks
         wrapper.vm.mailHeaderFooters = [
@@ -214,7 +209,7 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         ];
 
         // wait for vue to update the grid
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const listing = wrapper.find('#mailHeaderFooterGrid');
         expect(listing.exists()).toBe(true);
@@ -227,12 +222,12 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         const wrapper = await createWrapper();
 
         // wait for vue to render the listing
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.mailHeaderFooters = [];
 
         // wait for vue to remove the grid
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const listing = wrapper.find('#mailHeaderFooterGrid');
         expect(listing.exists()).toBe(false);

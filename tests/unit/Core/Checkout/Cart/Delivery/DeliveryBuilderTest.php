@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Delivery;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -24,9 +26,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder
  */
+#[CoversClass(DeliveryBuilder::class)]
 class DeliveryBuilderTest extends TestCase
 {
     public function testBuildThrowsIfNoShippingMethodCanBeFound(): void
@@ -81,9 +82,7 @@ class DeliveryBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getLineItemsThatResultInAnEmptyDelivery
-     */
+    #[DataProvider('getLineItemsThatResultInAnEmptyDelivery')]
     public function testLineItemResultInAnEmptyDelivery(LineItemCollection $lineItems): void
     {
         $cart = new Cart('cart-token');
@@ -126,9 +125,7 @@ class DeliveryBuilderTest extends TestCase
         ])];
     }
 
-    /**
-     * @dataProvider provideLineItemDataForSingleDelivery
-     */
+    #[DataProvider('provideLineItemDataForSingleDelivery')]
     public function testDeliveryTimesForSingleDelivery(LineItemCollection $lineItems, DeliveryDate $expectedDeliveryDate): void
     {
         $cart = new Cart('cart-token');

@@ -24,8 +24,4 @@ class Migration1674704527UpdateVATPatternForCyprusCountry extends MigrationStep
             ['pattern' => '(CY)?[0-9]{8}[A-Z]{1}', 'iso' => 'CY']
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

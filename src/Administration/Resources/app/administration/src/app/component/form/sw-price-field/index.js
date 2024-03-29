@@ -7,31 +7,33 @@ const { debounce } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @component-example
  * <sw-price-field :taxRate="{ taxRate: 19 }"
- *                 :price="[{ net: 10, gross: 11.90, currencyId: '...' }, ...]"
+ *                 :value="[{ net: 10, gross: 11.90, currencyId: '...' }, ...]"
  *                 :defaultPrice="{...}"
  *                 :currency="{...}">
  * </sw-price-field>
  */
 Component.register('sw-price-field', {
     template,
-
     inheritAttrs: false,
+
+    emits: [
+        'update:value',
+        'price-lock-change',
+        'price-calculate',
+        'price-gross-change',
+        'price-net-change',
+        'calculating',
+    ],
 
     inject: ['feature'],
 
-    model: {
-        prop: 'price',
-        event: 'priceChange',
-    },
-
     props: {
-        price: {
+        value: {
             type: Array,
             required: true,
         },
@@ -168,7 +170,7 @@ Component.register('sw-price-field', {
 
         priceForCurrency: {
             get() {
-                const priceForCurrency = Object.values(this.price).find((price) => {
+                const priceForCurrency = Object.values(this.value).find((price) => {
                     return price.currencyId === this.currency?.id;
                 });
 
@@ -206,7 +208,7 @@ Component.register('sw-price-field', {
                 return this.inherited;
             }
 
-            const priceForCurrency = Object.values(this.price).find((price) => {
+            const priceForCurrency = Object.values(this.value).find((price) => {
                 return price.currencyId === this.currency.id;
             });
 
@@ -266,13 +268,7 @@ Component.register('sw-price-field', {
             this.priceForCurrency.linked = !this.priceForCurrency.linked;
             this.$emit('price-lock-change', this.priceForCurrency.linked);
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:price', this.priceForCurrency);
-
-                return;
-            }
-
-            this.$emit('change', this.priceForCurrency);
+            this.$emit('update:value', this.priceForCurrency);
         },
 
         onPriceGrossInputChange(value) {
@@ -303,15 +299,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-gross-change', value);
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:price', this.priceForCurrency);
-                    this.convertGrossToNet(value);
-
-                    return;
-                }
-
-                this.$emit('change', this.priceForCurrency);
-
+                this.$emit('update:value', this.priceForCurrency);
                 this.convertGrossToNet(value);
             }
         },
@@ -320,15 +308,7 @@ Component.register('sw-price-field', {
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
                 this.$emit('price-net-change', value);
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:price', this.priceForCurrency);
-                    this.convertGrossToNet(value);
-
-                    return;
-                }
-
-                this.$emit('change', this.priceForCurrency);
-
+                this.$emit('update:value', this.priceForCurrency);
                 this.convertNetToGross(value);
             }
         },

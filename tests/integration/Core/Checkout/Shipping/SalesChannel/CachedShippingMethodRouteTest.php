@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
@@ -21,11 +24,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('cache')]
+#[Group('store-api')]
 class CachedShippingMethodRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -54,18 +56,14 @@ class CachedShippingMethodRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')
             ->invalidateTags([self::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

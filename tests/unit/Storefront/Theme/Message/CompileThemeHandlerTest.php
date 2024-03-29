@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
@@ -18,9 +19,8 @@ use Shopware\Storefront\Theme\ThemeCompiler;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Message\CompileThemeHandler
  */
+#[CoversClass(CompileThemeHandler::class)]
 class CompileThemeHandlerTest extends TestCase
 {
     public function testHandleMessageCompile(): void

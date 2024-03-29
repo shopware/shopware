@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -11,15 +12,16 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 #[AsMessageHandler(handles: CollectEntityDataTask::class)]
 final class CollectEntityDataTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly EntityDispatchService $entityDispatchService,
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void

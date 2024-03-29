@@ -1,19 +1,15 @@
 <div>
     <template
         v-for="componentSection in componentSections"
-        {% if VUE3 %}
         :key="componentSection.props.locationId"
-        {% endif %}
     >
         {# These components should not contain a position identifier because it is generally rendered #}
         <sw-card
             v-if="componentSection.component === 'card'"
-            {% if VUE2 %}
-            :key="componentSection.props.locationId"
-            {% endif %}
             position-identifier=""
-            :title="componentSection.props.title"
-            :subtitle="componentSection.props.subtitle"
+            :title="$tc(componentSection?.props?.title ?? '')"
+            :subtitle="$tc(componentSection?.props?.subtitle ?? '')"
+            :content-padding="componentSection.props?.contentPadding ?? true"
         >
 
             <template
@@ -30,7 +26,7 @@
                         :active-tab="getActiveTab(componentSection).name"
                         :name="tab.name"
                     >
-                        {{ tab.label }}
+                        {{ $tc(tab.label ?? '') }}
                     </sw-tabs-item>
                 </sw-tabs>
             </template>

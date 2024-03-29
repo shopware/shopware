@@ -9,10 +9,6 @@
         font-weight: $font-weight-semi-bold;
         line-height: 25px;
         margin-top: 20px;
-
-        &.is--capitalized {
-            text-transform: capitalize;
-        }
     }
 
     .recommended-plugins__description {

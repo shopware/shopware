@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class AttachmentLoaderCriteriaEvent extends Event
 {
     final public const EVENT_NAME = 'mail.after.create.message';

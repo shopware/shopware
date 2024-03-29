@@ -17,7 +17,7 @@ class CustomAppEvent extends Event implements CustomAppAware, FlowEventAware
      */
     public function __construct(
         private readonly string $name,
-        private readonly array|null $appData,
+        private readonly ?array $appData,
         private readonly Context $context
     ) {
     }

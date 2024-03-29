@@ -34,9 +34,9 @@ class ArrayNormalizer
     }
 
     /**
-     * @param iterable<mixed> $input
+     * @param iterable<array-key, mixed> $input
      *
-     * @return array<mixed>
+     * @return array<array-key, mixed>
      */
     public static function expand(iterable $input): array
     {

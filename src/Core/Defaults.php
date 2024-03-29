@@ -5,7 +5,7 @@ namespace Shopware\Core;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @Internal
+ * @internal
  * System wide defaults that are fixed for performance measures
  */
 #[Package('core')]

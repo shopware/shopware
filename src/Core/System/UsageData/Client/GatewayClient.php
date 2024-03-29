@@ -10,17 +10,22 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class GatewayClient
 {
     public function __construct(
         private readonly HttpClientInterface $client,
         private readonly ShopIdProvider $shopIdProvider,
+        private readonly bool $dispatchEnabled,
     ) {
     }
 
     public function isGatewayAllowsPush(): bool
     {
+        if (!$this->dispatchEnabled) {
+            return false;
+        }
+
         $response = $this->client->request(
             Request::METHOD_GET,
             '/killswitch',

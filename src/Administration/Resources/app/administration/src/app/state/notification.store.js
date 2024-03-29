@@ -11,8 +11,8 @@ const NOTIFICATION_LOAD_LIMIT = 50;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function initializeUserNotifications() {
-    if (Application.getApplicationRoot().$store) {
-        Application.getApplicationRoot().$store.commit('notification/setNotificationsForCurrentUser');
+    if (State) {
+        State.commit('notification/setNotificationsForCurrentUser');
         return;
     }
     State.get('notification').notifications = getNotificationsForUser();
@@ -131,20 +131,6 @@ export default {
     },
 
     getters: {
-        /**
-         * @deprecated tag:v6.6.0 - use `getNotificationsObject` instead
-         */
-        getNotifications(state) {
-            return Object.values(state.notifications).reverse();
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use `getGrowlNotificationsObject` instead
-         */
-        getGrowlNotifications(state) {
-            return Object.values(state.growlNotifications);
-        },
-
         getNotificationsObject(state) {
             return state.notifications;
         },

@@ -20,6 +20,10 @@ class SalesChannelExceptionHandler implements ExceptionHandlerInterface
             return new LanguageOfSalesChannelDomainDeleteException($e);
         }
 
+        if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*product_export.*CONSTRAINT `fk.product_export.sales_channel_domain_id`/', $e->getMessage())) {
+            return SalesChannelException::salesChannelDomainInUse($e);
+        }
+
         return null;
     }
 }

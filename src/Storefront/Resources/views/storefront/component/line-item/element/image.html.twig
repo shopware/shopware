@@ -1,20 +1,34 @@
 {% block component_line_item_image %}
     {% set thumbnail %}
-        {% if lineItem.cover.url %}
-            {% block component_line_item_image_thumbnails %}
-                {% sw_thumbnails 'line-item-img-thumbnails' with {
-                    media: lineItem.cover,
-                    sizes: {
-                        'default': '100px'
-                    },
-                    attributes: {
-                        'class': 'img-fluid line-item-img',
-                        'alt': (lineItem.cover.translated.alt ?: ''),
-                        'title': (lineItem.cover.translated.title ?: ''),
-                        'loading': 'lazy'
-                    }
-                } %}
-            {% endblock %}
+        {% if lineItem.cover.url and lineItem.cover.isSpatialObject() == false %}
+            {% set attributes = {
+                class: 'img-fluid line-item-img',
+                title: (lineItem.cover.translated.title ?: '')
+            } %}
+
+            {% if lineItem.cover.getMediaType().getName() === 'VIDEO' %}
+                {% block component_line_item_video %}
+                    {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
+                        media: lineItem.cover,
+                        attributes: attributes
+                    } %}
+                {% endblock %}
+            {% else %}
+                {% set attributes = attributes|merge({
+                    alt: (lineItem.cover.translated.alt ?: ''),
+                    loading: 'lazy'
+                }) %}
+
+                {% block component_line_item_image_thumbnails %}
+                    {% sw_thumbnails 'line-item-img-thumbnails' with {
+                        media: lineItem.cover,
+                        sizes: {
+                            default: '100px'
+                        },
+                        attributes: attributes
+                    } %}
+                {% endblock %}
+            {% endif %}
         {% else %}
             {% if fallbackIcon %}
                 {% block component_line_item_image_fallback_icon %}
@@ -34,15 +48,6 @@
             {% endif %}
         {% endif %}
     {% endset %}
-
-    {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string. Remove this if block. #}
-    {% if productLink and not lineItemLink %}
-        {% set lineItemLink = seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) %}
-
-        {% if controllerAction is same as('confirmPage') %}
-            {% set lineItemModalLink = path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) %}
-        {% endif %}
-    {% endif %}
 
     {% if lineItemLink %}
         <a href="{{ lineItemLink }}"

@@ -1,14 +1,10 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/state/cms-page.state';
-
-import swCmsElProductListing from 'src/module/sw-cms/elements/product-listing/component/index';
-
-Shopware.Component.register('sw-cms-el-product-listing', swCmsElProductListing);
 
 const currentDemoProducts = [
     { id: 'PRODUCT-0' },
@@ -32,7 +28,9 @@ const defaultConfig = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-product-listing'), {
+    return mount(await wrapTestComponent('sw-cms-el-product-listing', {
+        sync: true,
+    }), {
         data() {
             return {
                 cmsPageState: {
@@ -40,7 +38,7 @@ async function createWrapper() {
                 },
             };
         },
-        propsData: {
+        props: {
             element: {
                 config: {
                     boxLayout: {
@@ -49,21 +47,23 @@ async function createWrapper() {
                 },
             },
         },
-        stubs: {
-            'sw-cms-el-product-box': {
-                name: 'sw-cms-el-product-box',
-                template: '<div>Product-Box</div>',
-                props: ['element'],
-            },
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+        global: {
+            stubs: {
+                'sw-cms-el-product-box': {
+                    name: 'sw-cms-el-product-box',
+                    template: '<div>Product-Box</div>',
+                    props: ['element'],
                 },
-                getCmsElementRegistry: () => {
-                    return { 'product-listing': {} };
+                'sw-icon': true,
+            },
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'product-listing': {} };
+                    },
                 },
             },
         },
@@ -95,7 +95,7 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
 
         expect(productBoxes).toHaveLength(8);
 
-        productBoxes.wrappers.forEach((productBox, index) => {
+        productBoxes.forEach((productBox, index) => {
             const expectedDefaultConfig = { ...defaultConfig };
 
             const product = currentDemoProducts[index];

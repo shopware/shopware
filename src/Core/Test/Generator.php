@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Test;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -16,16 +15,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -161,35 +157,6 @@ class Generator extends TestCase
         );
     }
 
-    public static function createGrossPriceDetector(): TaxDetector
-    {
-        return (new self())->createTaxDetector(true, false);
-    }
-
-    public static function createNetPriceDetector(): TaxDetector
-    {
-        return (new self())->createTaxDetector(false, false);
-    }
-
-    public static function createNetDeliveryDetector(): TaxDetector
-    {
-        return (new self())->createTaxDetector(false, true);
-    }
-
-    /**
-     * @param QuantityPriceDefinition[] $priceDefinitions indexed by product number
-     */
-    public function createProductPriceGateway($priceDefinitions): ProductGateway
-    {
-        /** @var MockObject|ProductGateway $mock */
-        $mock = $this->createMock(ProductGateway::class);
-        $mock
-            ->method('get')
-            ->willReturn($priceDefinitions);
-
-        return $mock;
-    }
-
     public static function createCart(): Cart
     {
         $cart = new Cart('test');
@@ -250,20 +217,5 @@ class Generator extends TestCase
         $cart->addDeliveries(new DeliveryCollection([$delivery]));
 
         return $cart;
-    }
-
-    private function createTaxDetector(bool $useGross, bool $isNetDelivery): TaxDetector
-    {
-        /** @var MockObject|TaxDetector $mock */
-        $mock = $this->createMock(TaxDetector::class);
-        $mock
-            ->method('useGross')
-            ->willReturn($useGross);
-
-        $mock
-            ->method('isNetDelivery')
-            ->willReturn($isNetDelivery);
-
-        return $mock;
     }
 }

@@ -28,19 +28,6 @@ function getScrollbarWidth(element: HTMLElement): number {
     return (element.offsetWidth - element.clientWidth);
 }
 
-/**
- * uses the browser's copy function to copy a string
- * @deprecated tag:v6.6.0 - The document.execCommand() API is deprecated, use copyStringToClipBoard instead
- */
-function copyToClipboard(stringToCopy: string): void {
-    const tempTextArea = document.createElement('textarea');
-    tempTextArea.value = stringToCopy;
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextArea);
-}
-
 async function copyStringToClipboard(stringToCopy: string): Promise<void> {
     await navigator.clipboard.writeText(stringToCopy);
 }
@@ -49,6 +36,5 @@ async function copyStringToClipboard(stringToCopy: string): Promise<void> {
 export default {
     getScrollbarHeight,
     getScrollbarWidth,
-    copyToClipboard,
     copyStringToClipboard,
 };

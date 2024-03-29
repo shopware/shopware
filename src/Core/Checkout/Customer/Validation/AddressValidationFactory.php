@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -40,15 +39,10 @@ class AddressValidationFactory implements DataValidationFactoryInterface
         return $definition;
     }
 
-    private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext|Context $context): DataValidationDefinition
+    private function buildCommonValidation(DataValidationDefinition $definition, SalesChannelContext $context): DataValidationDefinition
     {
-        if ($context instanceof SalesChannelContext) {
-            $frameworkContext = $context->getContext();
-            $salesChannelId = $context->getSalesChannel()->getId();
-        } else {
-            $frameworkContext = $context;
-            $salesChannelId = null;
-        }
+        $frameworkContext = $context->getContext();
+        $salesChannelId = $context->getSalesChannel()->getId();
 
         $definition
             ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $frameworkContext]))

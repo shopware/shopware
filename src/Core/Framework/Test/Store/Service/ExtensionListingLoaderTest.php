@@ -29,8 +29,8 @@ class ExtensionListingLoaderTest extends TestCase
 
     public function testServerNotReachable(): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(function (): void {
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(function (): void {
             throw new ClientException('', new Request('GET', ''), new Response(500, [], ''));
         });
 
@@ -43,9 +43,9 @@ class ExtensionListingLoaderTest extends TestCase
 
     public function testExternalAreAdded(): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
-        $this->getRequestHandler()->append(new Response(200, [], $this->getLicencesJson()));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"data":[]}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], $this->getLicencesJson()));
 
         $collection = new ExtensionCollection();
         $collection->set('myPlugin', (new ExtensionStruct())->assign(['name' => 'myPlugin', 'label' => 'Label', 'version' => '1.0.0', 'active' => true]));
@@ -61,9 +61,9 @@ class ExtensionListingLoaderTest extends TestCase
 
     public function testExternalAreMerged(): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"data":[]}'));
-        $this->getRequestHandler()->append(new Response(200, [], $this->getLicencesJson()));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"data":[]}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], $this->getLicencesJson()));
 
         $collection = new ExtensionCollection();
         $collection->set('SwagApp', (new ExtensionStruct())->assign(['name' => 'SwagApp', 'label' => 'Label', 'version' => '1.0.0', 'active' => true, 'type' => 'app']));

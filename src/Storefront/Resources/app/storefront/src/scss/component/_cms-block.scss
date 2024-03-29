@@ -35,6 +35,8 @@ specific styling for elements dependent on their parent block
     }
 
     .cms-block-container {
+        position: relative;
+
         .cms-block-container-row {
             flex-direction: row;
         }

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -29,7 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -149,9 +150,8 @@ class SitemapExporterTest extends TestCase
 
     /**
      * NEXT-21735
-     *
-     * @group not-deterministic
      */
+    #[Group('not-deterministic')]
     public function testWriteWithMultipleSchemesAndSameLanguage(): void
     {
         $salesChannel = $this->salesChannelRepository->search(
@@ -199,7 +199,7 @@ class SitemapExporterTest extends TestCase
             $files = $this->getFilesystem('shopware.filesystem.sitemap')
                 ->listContents('sitemap/salesChannel-' . $salesChannel->getId() . '-' . $salesChannelContext->getLanguageId());
 
-            static::assertCount(1, $files);
+            static::assertCount(1, iterator_to_array($files));
         }
     }
 

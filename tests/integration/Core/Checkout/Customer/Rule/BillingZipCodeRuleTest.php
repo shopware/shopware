@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class BillingZipCodeRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -233,9 +234,7 @@ class BillingZipCodeRuleTest extends TestCase
         static::assertEquals(new ArrayOfType('string'), $zipCodes[1]);
     }
 
-    /**
-     * @dataProvider getMatchValuesNumeric
-     */
+    #[DataProvider('getMatchValuesNumeric')]
     public function testRuleMatchingNumeric(string $operator, bool $isMatching, string $zipCode): void
     {
         $zipCodes = ['90210', '81985'];
@@ -257,9 +256,7 @@ class BillingZipCodeRuleTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getMatchValuesAlphanumeric
-     */
+    #[DataProvider('getMatchValuesAlphanumeric')]
     public function testRuleMatchingAlphanumeric(string $operator, bool $isMatching, ?string $zipCode, string $customerZipCode = '9E21L', bool $noCustomer = false, bool $noAddress = false): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

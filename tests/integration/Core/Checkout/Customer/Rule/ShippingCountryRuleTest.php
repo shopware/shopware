@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -24,7 +25,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ShippingCountryRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -229,9 +230,7 @@ class ShippingCountryRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $countryIds[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $countryId): void
     {
         $countryIds = ['kyln123', 'kyln456'];

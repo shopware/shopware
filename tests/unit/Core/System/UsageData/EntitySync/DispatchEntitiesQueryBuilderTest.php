@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -31,10 +33,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(DispatchEntitiesQueryBuilder::class)]
 class DispatchEntitiesQueryBuilderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -46,6 +47,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
+        $this->connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
 
         $this->connection->expects(static::never())
             ->method('createQueryBuilder');

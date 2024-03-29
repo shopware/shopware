@@ -1,5 +1,4 @@
-/** @deprecated tag:v6.6.0 - Entry point containing async imports will be turned into the main.js. */
-import 'src/main-async';
+import 'src/main';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 describe('Storefront main entry point', () => {

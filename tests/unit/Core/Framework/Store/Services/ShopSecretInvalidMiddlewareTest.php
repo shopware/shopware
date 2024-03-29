@@ -4,19 +4,19 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware
  */
+#[Package('services-settings')]
+#[CoversClass(ShopSecretInvalidMiddleware::class)]
 class ShopSecretInvalidMiddlewareTest extends TestCase
 {
     public function testKeepsStoreTokensAndReturnsResponse(): void

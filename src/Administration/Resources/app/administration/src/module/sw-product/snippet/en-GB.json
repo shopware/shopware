@@ -3,9 +3,10 @@
     "visibility": {
       "textHeadline": "Product display modes per Sales Channel",
       "placeholderVisibility": "Select Sales Channels...",
+      "columnSalesChannel": "Sales Channel",
       "columnAll": "Visible",
-      "columnSearchOnly": "Hide in Listings",
-      "columnLinkOnly": "Hide in Listings and search",
+      "columnSearchOnly": "Hide in listings",
+      "columnLinkOnly": "Hide in listings and search",
       "visibilityModalDescription": "“Hide in listing” will exclude the product from product overview listings but also from product sliders and cross selling lists. Selecting the option “Hide in listing and search” will also exclude the product from search actions. Products can still be reached via URL.",
       "linkAdvancedVisibility": "Set visibility for selected Sales Channels",
       "labelVisibility": "Sales Channels",
@@ -127,6 +128,7 @@
       "placeholderHeight": "e.g. 200...",
       "placeholderLength": "e.g. 100...",
       "placeholderWeight": "e.g. 0.4...",
+      "placeholderTime": "e.g. 31...",
       "placeholderStock": "Enter quantity in stock...",
       "placeholderMinPurchase": "Min. amount purchaseable...",
       "placeholderMaxPurchase": "Max. amount purchaseable...",
@@ -287,7 +289,9 @@
       "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
       "errorMediaItemDuplicated": "Media item \"{fileName}\" is already assigned.",
-      "coverSubline": "Cover"
+      "coverSubline": "Cover",
+      "spatialSubline": "3D",
+      "arSubline": "AR"
     },
     "advancedPrices": {
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -23,10 +24,9 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\Shipp
 
 /**
  * @internal
- *
- * @group slow
  */
 #[Package('checkout')]
+#[Group('slow')]
 class DeliveryPromotionCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -64,10 +64,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We add a product and also an absolute promotion.
      * Our final delivery price should then be as expected.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testAbsoluteDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -103,10 +102,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We add a product and also an percentage promotion.
      * Our final delivery price should then be as expected.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testPercentageDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -142,10 +140,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We only add a product and got a auto promotion.
      * Our final delivery price should then be as expected.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testPercentageAutoDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -173,10 +170,9 @@ class DeliveryPromotionCalculationTest extends TestCase
      * discounts would discount our shipping costs beneath 0
      * Because we are aware of this fact, shipping costs are 0
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testPercentageAbsoluteDeliveryDiscountCombination(): void
     {
         $productId = Uuid::randomHex();
@@ -214,11 +210,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an absolute discount may not reduce shipping costs beneath 0
      *
-     * @group promotions
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testAbsoluteDeliveryDiscountHigherThanShippingCosts(): void
     {
         $productId = Uuid::randomHex();
@@ -250,11 +245,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an fixed price discount may not increase shipping costs
      *
-     * @group promotions
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testFixedDeliveryDiscountHigherThanShippingCosts(): void
     {
         $productId = Uuid::randomHex();
@@ -286,11 +280,10 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an fixed price discount sets shipping costs to the defined price
      *
-     * @group promotions
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testFixedDeliveryDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -323,11 +316,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount that has currency advanced
      * prices, sets shipping costs to the defined advanced currency price
      *
-     * @group promotions
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testFixedDeliveryDiscountWithCurrency(): void
     {
         $productId = Uuid::randomHex();
@@ -365,11 +357,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount sets shipping costs to the defined price
      * all other discounts are ignored when fixed price discount is present
      *
-     * @group promotions
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testMultipleDeliveryDiscountsWithFixed(): void
     {
         $productId = Uuid::randomHex();
@@ -410,14 +401,13 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount sets shipping costs to the defined price
      * all other discount are ignored when fixed price discount is present
      *
-     * @group promotions
-     *
-     * NEXT-21735 - Sometimes has a $reduceValue of 0
-     * @group not-deterministic
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions
+
+NEXT-21735 - Sometimes has a $reduceValue of 0')]
+    #[Group('not-deterministic')]
     public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
         $productId = Uuid::randomHex();
@@ -456,11 +446,10 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that if several fixed price discount are collected
      * only one and the best customer discount will be selected
      *
-     * @group promotions
-     *
      * @throws Exception
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testMultipleFixedPriceDeliveryDiscounts(): void
     {
         $productId = Uuid::randomHex();
@@ -506,9 +495,8 @@ class DeliveryPromotionCalculationTest extends TestCase
      * a max global threshold of 40 EUR.
      * Our test needs to verify that we use 40 EUR, and end with a shipping cost
      * sum of 60 EUR in the end.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function test50PercentageDeliveryDiscountWithMaximumValue(): void
     {
         $productId = Uuid::randomHex();
@@ -552,9 +540,8 @@ class DeliveryPromotionCalculationTest extends TestCase
      * a max global threshold of 40 EUR.
      * But for your currency, we use 30 EUR instead.
      * Our test needs to verify that we use 30 EUR, and end with a product sum of 70 EUR in the end.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function test50PercentageDeliveryDiscountWithMaximumValueAndCurrencies(): void
     {
         $productId = Uuid::randomHex();
@@ -594,9 +581,8 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * This test verifies that we use the same tax calculation for our discounts
      * as the delivery costs have (they take them from products)
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testMultipleDiscountsWithMultipleTaxProducts(): void
     {
         $productId = Uuid::randomHex();

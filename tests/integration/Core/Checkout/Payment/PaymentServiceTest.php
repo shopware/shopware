@@ -15,10 +15,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentService;
@@ -28,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -89,9 +84,6 @@ class PaymentServiceTest extends TestCase
         $orderId = Uuid::randomHex();
         $salesChannelContext = Generator::createSalesChannelContext();
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidOrderException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(sprintf('The order with id %s is invalid or could not be found.', $orderId));
 
@@ -185,9 +177,6 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(TokenInvalidatedException::class);
-        }
         static::expectException(PaymentException::class);
         static::expectExceptionMessage('The provided token ' . $token . ' is invalidated and the payment could not be processed.');
 
@@ -212,10 +201,6 @@ class PaymentServiceTest extends TestCase
         $token = Uuid::randomHex();
         $request = new Request();
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidTokenException::class);
-        }
-
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
 
@@ -238,9 +223,6 @@ class PaymentServiceTest extends TestCase
         $paymentMethodId = $this->createPaymentMethod($this->context, DefaultPayment::class);
 
         $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::assertInstanceof(TokenExpiredException::class, $response->getException());
-        }
         static::assertInstanceof(PaymentException::class, $response->getException());
         static::assertEquals('The provided token ' . $token . ' is expired and the payment could not be processed.', $response->getException()->getMessage());
     }

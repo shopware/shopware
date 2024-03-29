@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
@@ -12,10 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\GatewayStatusService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(GatewayStatusService::class)]
 class GatewayStatusServiceTest extends TestCase
 {
     public function testGatewayAllowsPush(): void

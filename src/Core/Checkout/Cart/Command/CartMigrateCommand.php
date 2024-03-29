@@ -5,15 +5,14 @@ namespace Shopware\Core\Checkout\Cart\Command;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,17 +31,13 @@ class CartMigrateCommand extends Command
     /**
      * @internal
      *
-     * param cannot be natively typed, as symfony might change the type in the future
-     *
      * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay|null $redis
      *
-     * @phpstan-ignore-next-line ignore can be removed in 6.6.0 when all props are natively typed
+     * @phpstan-ignore-next-line param cannot be natively typed, as symfony might change the type in the future
      */
     public function __construct(
-        /** @deprecated tag:v6.6.0 - Property will become private */
-        protected $redis,
-        /** @deprecated tag:v6.6.0 - Property will become private and readonly */
-        protected Connection $connection,
+        private $redis,
+        private readonly Connection $connection,
         private readonly bool $compress,
         private readonly int $expireDays,
         private readonly RedisConnectionFactory $factory
@@ -119,8 +114,7 @@ class CartMigrateCommand extends Command
 
         $queue = new MultiInsertQueryQueue($this->connection, 50, false, true);
 
-        // @deprecated tag:v6.6.0 - payload always exists
-        $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
+        $created = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         foreach ($keys as $index => $key) {
             if (\method_exists($this->redis, '_prefix')) {
@@ -134,33 +128,16 @@ class CartMigrateCommand extends Command
 
             $value = \unserialize($value);
 
-            if (!\array_key_exists('sales_channel_id', $value)) {
-                $this->io->writeln('<error>Sales channel id is missing for key ' . $key . '. Carts created before 6.4.12 can not be migrated</error>');
-
-                continue;
-            }
-
             $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize($value['content']);
 
-            unset($value['content'], $value['compressed']);
+            $migratedCart = [];
+            $migratedCart['token'] = substr($key, \strlen(RedisCartPersister::PREFIX));
+            $migratedCart['payload'] = $this->compress ? CacheValueCompressor::compress($content['cart']) : serialize($content['cart']);
+            $migratedCart['compressed'] = $this->compress ? 1 : 0;
+            $migratedCart['rule_ids'] = \json_encode($content['rule_ids'], \JSON_THROW_ON_ERROR);
+            $migratedCart['created_at'] = $created;
 
-            // @deprecated tag:v6.6.0 - payload always exists - keep IF body
-            if ($payloadExists) {
-                $value['payload'] = $this->compress ? CacheValueCompressor::compress($content['cart']) : serialize($content['cart']);
-                $value['compressed'] = $this->compress ? 1 : 0;
-            } else {
-                $value['cart'] = serialize($content['cart']);
-            }
-
-            $value['rule_ids'] = \json_encode($value['rule_ids'], \JSON_THROW_ON_ERROR);
-            $value['customer_id'] = $value['customer_id'] ? Uuid::fromHexToBytes($value['customer_id']) : null;
-            $value['currency_id'] = Uuid::fromHexToBytes($value['currency_id']);
-            $value['shipping_method_id'] = Uuid::fromHexToBytes($value['shipping_method_id']);
-            $value['payment_method_id'] = Uuid::fromHexToBytes($value['payment_method_id']);
-            $value['country_id'] = Uuid::fromHexToBytes($value['country_id']);
-            $value['sales_channel_id'] = Uuid::fromHexToBytes($value['sales_channel_id']);
-
-            $queue->addInsert('cart', $value);
+            $queue->addInsert('cart', $migratedCart);
 
             if ($index % 50 === 0) {
                 $queue->execute();
@@ -202,9 +179,6 @@ class CartMigrateCommand extends Command
 
         $iterator = $this->createIterator();
 
-        // @deprecated tag:v6.6.0 - payload always exists
-        $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
-
         while ($tokens = $iterator->fetch()) {
             $rows = $this->connection->fetchAllAssociative('SELECT * FROM cart WHERE token IN (:tokens)', ['tokens' => $tokens], ['tokens' => ArrayParameterType::STRING]);
 
@@ -212,12 +186,7 @@ class CartMigrateCommand extends Command
             foreach ($rows as $row) {
                 $key = RedisCartPersister::PREFIX . $row['token'];
 
-                // @deprecated tag:v6.6.0 - keep if body, remove complete else
-                if ($payloadExists) {
-                    $cart = $row['compressed'] ? CacheValueCompressor::uncompress($row['payload']) : unserialize((string) $row['payload']);
-                } else {
-                    $cart = \unserialize($row['cart']);
-                }
+                $cart = $row['compressed'] ? CacheValueCompressor::uncompress($row['payload']) : unserialize((string) $row['payload']);
 
                 $content = ['cart' => $cart, 'rule_ids' => \json_decode((string) $row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR)];
 
@@ -227,18 +196,6 @@ class CartMigrateCommand extends Command
                 $value = \serialize([
                     'compressed' => $this->compress,
                     'content' => $content,
-                    // used for migration
-                    'token' => $row['token'],
-                    'customer_id' => $row['customer_id'] ? Uuid::fromBytesToHex($row['customer_id']) : null,
-                    'rule_ids' => \json_decode((string) $row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR),
-                    'currency_id' => Uuid::fromBytesToHex($row['currency_id']),
-                    'shipping_method_id' => Uuid::fromBytesToHex($row['shipping_method_id']),
-                    'payment_method_id' => Uuid::fromBytesToHex($row['payment_method_id']),
-                    'country_id' => Uuid::fromBytesToHex($row['country_id']),
-                    'sales_channel_id' => Uuid::fromBytesToHex($row['sales_channel_id']),
-                    'price' => $row['price'],
-                    'line_item_count' => $row['line_item_count'],
-                    'created_at' => $row['created_at'],
                 ]);
 
                 $this->redis->set($key, $value, ['EX' => $this->expireDays * 86400]);

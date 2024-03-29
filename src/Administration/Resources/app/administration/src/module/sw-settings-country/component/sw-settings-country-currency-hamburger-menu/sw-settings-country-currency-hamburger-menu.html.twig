@@ -43,18 +43,10 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_country_currency_hamburger_menu_item_visibility_checkbox %}
             <sw-checkbox-field
-                {% if VUE3 %}
                 v-model:value="item.checked"
-                {% else %}
-                v-model="item.checked"
-                {% endif %}
                 :label="item.name"
                 :disabled="item.disabled || !acl.can('country.editor')"
-                {% if VUE3 %}
                 @update:value="onCheckCurrency(item.id, item.checked)"
-                {% else %}
-                @change="onCheckCurrency(item.id, item.checked)"
-                {% endif %}
             />
             {% endblock %}
 

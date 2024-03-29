@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Action;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Config;
@@ -14,9 +15,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Action\Xml\Action
  */
+#[CoversClass(Action::class)]
 class ActionTest extends TestCase
 {
     private Action $action;
@@ -26,8 +26,8 @@ class ActionTest extends TestCase
     protected function setUp(): void
     {
         $this->document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
+            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
 
         $actions = $this->document->getElementsByTagName('flow-actions')->item(0);

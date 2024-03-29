@@ -42,7 +42,6 @@ class ErrorResponseFactory
                 $errors[] = $error;
             }
 
-            /** @var array<ShopwareExceptionData> $errors */
             $errors = $this->convert($errors);
 
             return $errors;
@@ -118,14 +117,13 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
-            /** @var list<string> $encodings */
-            $encodings = mb_detect_order();
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart
             if (\is_string($value)) {
+                $encodings = mb_detect_order();
                 if (!ctype_print($value) && mb_strlen($value) === 16) {
                     $array[$key] = sprintf('ATTENTION: Converted binary string by the "%s": %s', self::class, bin2hex($value));
-                } elseif (!mb_detect_encoding($value, $encodings, true)) {
+                } elseif (!\is_bool($encodings) && !mb_detect_encoding($value, $encodings, true)) {
                     $array[$key] = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
                 }
             }

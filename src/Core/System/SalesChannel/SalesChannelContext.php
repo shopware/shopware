@@ -409,7 +409,7 @@ class SalesChannelContext extends Struct
 
     public function getCustomerId(): ?string
     {
-        return $this->customer ? $this->customer->getId() : null;
+        return $this->customer?->getId();
     }
 
     /**

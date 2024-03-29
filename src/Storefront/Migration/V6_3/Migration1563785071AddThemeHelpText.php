@@ -21,7 +21,12 @@ class Migration1563785071AddThemeHelpText extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `theme_translation` ADD `help_texts` json NULL AFTER `labels`;');
+        $this->addColumn(
+            connection: $connection,
+            table: 'theme_translation',
+            column: 'help_texts',
+            type: 'JSON',
+        );
     }
 
     public function updateDestructive(Connection $connection): void

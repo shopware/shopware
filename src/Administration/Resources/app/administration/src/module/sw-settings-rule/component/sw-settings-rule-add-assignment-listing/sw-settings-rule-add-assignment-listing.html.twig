@@ -14,6 +14,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_rule_add_assignment_listing_grid %}
     <sw-data-grid
+        class="sw-settings-rule-add-assignment-listing__grid"
         :is-loading="loading"
         :data-source="items"
         :columns="entityContext.addContext.gridColumns"
@@ -36,11 +37,7 @@
                 <sw-checkbox-field
                     :disabled="!isRecordSelectable(item)"
                     :value="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
-                    {% if VUE3 %}
                     @update:value="selectItem($event, item)"
-                    {% else %}
-                    @change="selectItem($event, item)"
-                    {% endif %}
                 />
             </div>
             {% endblock %}

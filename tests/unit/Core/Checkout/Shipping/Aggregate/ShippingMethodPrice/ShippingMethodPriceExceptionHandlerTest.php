@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceExceptionHandler;
 use Shopware\Core\Checkout\Shipping\ShippingException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceExceptionHandler
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(ShippingMethodPriceExceptionHandler::class)]
 class ShippingMethodPriceExceptionHandlerTest extends TestCase
 {
     public function testPriority(): void

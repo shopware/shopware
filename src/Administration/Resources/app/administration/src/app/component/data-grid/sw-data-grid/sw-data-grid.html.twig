@@ -96,11 +96,7 @@
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
                                 :value="allSelectedChecked"
-                                {% if VUE3 %}
                                 @update:value="selectAll"
-                                {% else %}
-                                @change="selectAll"
-                                {% endif %}
                             />
                             {% endblock %}
                         </div>
@@ -322,11 +318,7 @@
                                 <sw-checkbox-field
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
-                                    {% if VUE3 %}
                                     @update:value="selectItem($event, item)"
-                                    {% else %}
-                                    @change="selectItem($event, item)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>
@@ -338,8 +330,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_body_columns %}
                     <td
-                        v-for="(column, columnIndex) in currentColumns"
-                        v-show="column.visible"
+                        v-for="(column, columnIndex) in currentVisibleColumns"
                         :key="`${item.id}-${columnIndex}`"
                         class="sw-data-grid__cell"
                         :class="getCellClasses(column)"
@@ -370,7 +361,7 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_columns_boolean %}
                                     <sw-data-grid-column-boolean
-                                        v-model="item[column.property]"
+                                        v-model:value="item[column.property]"
                                         :is-inline-edit="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')"
                                     />
                                     {% endblock %}
@@ -385,7 +376,7 @@
                                             :column="column"
                                             :compact="compact"
                                             :value="item[column.property]"
-                                            @input="item[column.property] = $event"
+                                            @update:value="item[column.property] = $event"
                                         />
                                         {% endblock %}
                                     </template>

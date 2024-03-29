@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -142,18 +141,6 @@ class RedisCartPersister extends AbstractCartPersister
         return \serialize([
             'compressed' => $this->compress,
             'content' => $content,
-            // used for migration
-            'token' => $cart->getToken(),
-            'customer_id' => $context->getCustomerId(),
-            'rule_ids' => $context->getRuleIds(),
-            'currency_id' => $context->getCurrency()->getId(),
-            'shipping_method_id' => $context->getShippingMethod()->getId(),
-            'payment_method_id' => $context->getPaymentMethod()->getId(),
-            'country_id' => $context->getShippingLocation()->getCountry()->getId(),
-            'sales_channel_id' => $context->getSalesChannel()->getId(),
-            'price' => $cart->getPrice()->getTotalPrice(),
-            'line_item_count' => $cart->getLineItems()->count(),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 }

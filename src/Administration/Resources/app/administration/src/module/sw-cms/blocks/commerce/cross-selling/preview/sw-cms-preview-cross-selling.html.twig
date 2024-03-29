@@ -10,16 +10,11 @@
 
         <template
             v-for="block in 4"
-            {% if VUE3 %}
             :key="block"
-            {% endif %}
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_block_cross_selling_preview_box %}
             <div
-                {% if VUE2 %}
-                :key="block"
-                {% endif %}
                 class="sw-cms-block-preview-cross-selling__product-box"
             >
                 <img

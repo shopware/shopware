@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -30,9 +31,7 @@ class ManifestValidatorTest extends TestCase
         $this->manifestValidator->validate($manifest, Context::createDefaultContext());
     }
 
-    /**
-     * @dataProvider invalidManifestProvider
-     */
+    #[DataProvider('invalidManifestProvider')]
     public function testValidateInvalidManifest(string $exceptionMessage): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidManifest/manifest.xml');

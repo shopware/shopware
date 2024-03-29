@@ -2,8 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
 import swProductDetailVariants from 'src/module/sw-product/view/sw-product-detail-variants';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
@@ -12,79 +11,75 @@ import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
-const { Component } = Shopware;
-
 Shopware.Component.register('sw-product-detail-variants', swProductDetailVariants);
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Component.build('sw-product-detail-variants'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([]);
-                    },
-                    delete: () => {
-                        return Promise.resolve();
-                    },
-                    get: () => {
-                        return Promise.resolve({
-                            configuratorSettings: [
-                                {
-                                    option: {
-                                        groupId: 1,
+    return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([]);
+                        },
+                        delete: () => {
+                            return Promise.resolve();
+                        },
+                        get: () => {
+                            return Promise.resolve({
+                                configuratorSettings: [
+                                    {
+                                        option: {
+                                            groupId: 1,
+                                        },
                                     },
-                                },
-                            ],
-                        });
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+                                ],
+                            });
+                        },
+                    }),
                 },
-            },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-        },
-        mocks: {
-            $tc: key => key,
-        },
-        stubs: {
-            'sw-card': {
-                template: `
+                        return privileges.includes(identifier);
+                    },
+                },
+
+            },
+            mocks: {
+                $tc: key => key,
+            },
+            stubs: {
+                'sw-card': {
+                    template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+                },
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
                   <div class="sw-data-grid">
                   <template v-for="item in dataSource">
                     <slot name="actions" v-bind="{ item }"></slot>
                   </template>
                   </div>
                 `,
+                },
+                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
+                'sw-context-menu-item': true,
+                'sw-loader': await Shopware.Component.build('sw-loader'),
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-modal': true,
+                'sw-skeleton': true,
+                'sw-product-variants-overview': true,
+                'sw-tabs': true,
             },
-            'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
-            'sw-context-menu-item': true,
-            'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-modal': true,
-            'sw-skeleton': true,
-            'sw-product-variants-overview': true,
-            'sw-tabs': true,
         },
     });
 }

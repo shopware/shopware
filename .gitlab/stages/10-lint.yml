@@ -1,11 +1,12 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
 
 Danger:
     extends: .base-no-setup
     stage: lint
     image:
-        name: ghcr.io/shyim/danger-php:latest
-        entrypoint: ["/bin/sh", "-c"]
+        name: ghcr.io/shyim/danger-php:0.3.0
+        entrypoint: [""]
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -32,6 +33,20 @@ ESLint (Administration):
         - npm run lint:types
     after_script:
         - grep 'failure message' eslint.junit.xml
+
+ESLint (Acceptance Test Suite):
+    extends: .base-no-setup
+    stage: lint
+    image: node:lts-alpine
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - changes:
+              - 'tests/acceptance/**/*'
+    script:
+        - cd tests/acceptance
+        - npm clean-install
+        - npm run lint
 
 Check eslint parser (Administration):
     extends: .base-with-node
@@ -162,15 +177,38 @@ PHP lint:
         - composer run lint:changelog
         - composer run lint:snippets
         - ./bin/console sync:composer:version --dry-run
-        # ToDo: NEXT-31639 - activate again after first RC release
-        # - composer run bc-check
+        # Proper BC check for one major cycle
+        - composer run bc-check
+
+# MR based BC checker used during a new major release phase
+#BC check MR:
+#  extends: PHP lint
+#  rules:
+#    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == null'
+#      when: never
+#    - !reference [.rules, skip]
+#    - !reference [.rules, run]
+#    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*removes_deprecations.*/'
+#      allow_failure: true
+#      changes:
+#          - composer.json
+#          - 'changelog/**/*.md'
+#          - 'src/**/snippet/**/*.json'
+#          - '**/*.php'
+#    - changes:
+#          - composer.json
+#          - 'changelog/**/*.md'
+#          - 'src/**/snippet/**/*.json'
+#          - '**/*.php'
+#  script:
+#        - composer run bc-check -- --from=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
 
 Twig lint (storefront):
   extends: .base-no-setup
   stage: lint
   allow_failure: true
   image:
-    name: maltejanz/ludtwig:0.8.0
+    name: maltejanz/ludtwig:0.8.3
   rules:
     - changes:
       - 'src/Storefront/Resources/views/ludtwig-config.toml'
@@ -181,8 +219,7 @@ Twig lint (storefront):
     - ludtwig .
     - ludtwig --version
     - echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
-    - echo "And then go into the folder src/Storefront/Resources/views and execute:"
-    - echo "ludtwig ."
+    - echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
 
 NPM CI:
     extends: .base-no-setup
@@ -203,9 +240,8 @@ NPM CI:
         - JS_APP_DIR: "src/Administration/Resources/app/administration/"
           NODE_IMAGE_TAG:
           - "lts-alpine"
-          - "18-alpine"
+          - "20-alpine"
         - JS_APP_DIR: "src/Storefront/Resources/app/storefront/"
           NODE_IMAGE_TAG:
             - "lts-alpine"
-            - "16-alpine"
-            - "18-alpine"
+            - "20-alpine"

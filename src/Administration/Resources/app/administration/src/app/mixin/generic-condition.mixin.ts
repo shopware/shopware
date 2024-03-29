@@ -1,7 +1,7 @@
 /**
  * @package admin
  */
-import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
 import type RuleConditionService from '../service/rule-condition.service';
 import createCriteriaFromArray from '../service/criteria-helper.service';
@@ -28,13 +28,13 @@ interface Config {
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Mixin.register('generic-condition', defineComponent({
     data(): {
         visibleValue: null|number,
-        baseUnit: null|unknown,
-        selectedUnit: null|unknown,
+        baseUnit: unknown,
+        selectedUnit: unknown,
         } {
         return {
             visibleValue: null,
@@ -117,7 +117,7 @@ export default Mixin.register('generic-condition', defineComponent({
         },
 
         currentError() {
-            let error: null|unknown = null;
+            let error: unknown = null;
 
             Object.values(this.config.fields).forEach((config) => {
                 if (error) {

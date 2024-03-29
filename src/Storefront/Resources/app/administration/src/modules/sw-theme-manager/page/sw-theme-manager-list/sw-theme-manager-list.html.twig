@@ -36,11 +36,7 @@
                                                 name="sortType"
                                                 :label="$tc('sw-theme-manager.sorting.labelSort')"
                                                 :value="sortingConCat"
-                                                {% if VUE3 %}
                                                 @update:value="onSortingChanged"
-                                                {% else %}
-                                                @change="onSortingChanged"
-                                                {% endif %}
                                                 aside
                                             >
 
@@ -338,11 +334,7 @@
                                 </div>
 
                                 <sw-text-field
-                                    {% if VUE3 %}
                                     v-model:value="newThemeName"
-                                    {% else %}
-                                    v-model="newThemeName"
-                                    {% endif %}
                                     name="sw-field--duplicate-theme-name"
                                     :label="$tc('sw-theme-manager.modal.labelDuplicateThemeName')"
                                     :placeholder="$tc('sw-theme-manager.modal.placeholderDuplicateThemeName')"
@@ -384,11 +376,7 @@
                                 </div>
 
                                 <sw-text-field
-                                    {% if VUE3 %}
                                     v-model:value="newThemeName"
-                                    {% else %}
-                                    v-model="newThemeName"
-                                    {% endif %}
                                     name="sw-field--rename-theme-name"
                                     :label="$tc('sw-theme-manager.modal.labelRenameThemeName')"
                                     :placeholder="$tc('sw-theme-manager.modal.placeholderRenameThemeName')"

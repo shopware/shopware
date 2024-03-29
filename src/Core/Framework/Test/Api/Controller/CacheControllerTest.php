@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,10 +15,9 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
 #[Package('system-settings')]
+#[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -33,9 +31,7 @@ class CacheControllerTest extends TestCase
         $this->cache = $this->getContainer()->get('cache.object');
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testClearCacheEndpoint(): void
     {
         $this->cache = $this->getContainer()->get('cache.object');
@@ -62,40 +58,6 @@ class CacheControllerTest extends TestCase
 
         static::assertFalse($this->cache->getItem('foo')->isHit());
         static::assertFalse($this->cache->getItem('bar')->isHit());
-    }
-
-    public function testWarmupCacheEndpoint(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        if (!$this->getContainer()->has(CacheWarmer::class)) {
-            static::markTestSkipped('CacheWarmer test needs storefront bundle to be installed');
-        }
-
-        $this->cache = $this->getContainer()->get('cache.object');
-
-        $item = $this->cache->getItem('foo');
-        $item->set('bar');
-        $item->tag(['foo-tag']);
-        $this->cache->save($item);
-
-        $item = $this->cache->getItem('bar');
-        $item->set('foo');
-        $item->tag(['bar-tag']);
-        $this->cache->save($item);
-
-        static::assertTrue($this->cache->getItem('foo')->isHit());
-        static::assertTrue($this->cache->getItem('bar')->isHit());
-
-        $this->getBrowser()->request('DELETE', '/api/_action/cache_warmup');
-
-        /** @var JsonResponse $response */
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        static::assertTrue($this->cache->getItem('foo')->isHit());
-        static::assertTrue($this->cache->getItem('bar')->isHit());
     }
 
     public function testCacheInfoEndpoint(): void
@@ -143,17 +105,44 @@ class CacheControllerTest extends TestCase
 
         $messages = $bus->getDispatchedMessages();
 
-        $hasSalesChannelIndexerMessage = false;
-        $hasCategoryIndexerMessage = false;
-        foreach ($messages as $message) {
-            if (isset($message['message']) && $message['message'] instanceof IterateEntityIndexerMessage) {
-                $hasSalesChannelIndexerMessage = $hasSalesChannelIndexerMessage ?: $message['message']->getIndexer() === 'sales_channel.indexer';
-                $hasCategoryIndexerMessage = $hasCategoryIndexerMessage ?: $message['message']->getIndexer() === 'category.indexer';
-            }
-        }
+        static::assertCount(1, $messages, 'Expected exactly one dispatched message');
 
-        static::assertTrue($hasSalesChannelIndexerMessage);
-        static::assertFalse($hasCategoryIndexerMessage);
+        $message = $messages[0]['message'];
+        static::assertInstanceOf(FullEntityIndexerMessage::class, $message);
+
+        static::assertContains('category.indexer', $message->getSkip());
+    }
+
+    public function testCacheIndexEndpointWithOnlyParameter(): void
+    {
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        $bus->reset();
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/index',
+            [],
+            [],
+            [
+                'HTTP_CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode(['only' => ['category.indexer']], \JSON_THROW_ON_ERROR)
+        );
+
+        /** @var JsonResponse $response */
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $messages = $bus->getDispatchedMessages();
+
+        static::assertCount(1, $messages, 'Expected exactly one dispatched message');
+
+        $message = $messages[0]['message'];
+        static::assertInstanceOf(FullEntityIndexerMessage::class, $message);
+
+        static::assertContains('category.indexer', $message->getOnly());
     }
 
     public function testCacheIndexEndpointNoPermissions(): void

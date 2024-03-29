@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class FilterAggregation extends BucketAggregation
 {
     /**
-     * @param Filter[] $filter
+     * @param array<Filter> $filter
      */
     public function __construct(
         string $name,
@@ -24,7 +24,7 @@ class FilterAggregation extends BucketAggregation
     }
 
     /**
-     * @return Filter[]
+     * @return array<Filter>
      */
     public function getFilter(): array
     {
@@ -41,8 +41,7 @@ class FilterAggregation extends BucketAggregation
         $fields = $this->aggregation?->getFields() ?? [];
 
         foreach ($this->filter as $filter) {
-            $nested = $filter->getFields();
-            foreach ($nested as $field) {
+            foreach ($filter->getFields() as $field) {
                 $fields[] = $field;
             }
         }
@@ -51,7 +50,7 @@ class FilterAggregation extends BucketAggregation
     }
 
     /**
-     * @param Filter[] $filters
+     * @param array<Filter> $filters
      */
     public function addFilters(array $filters): void
     {

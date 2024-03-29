@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -9,17 +10,16 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitio
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator
- *
  * @internal
  */
+#[CoversClass(StoreApiGenerator::class)]
 class StoreApiGeneratorTest extends TestCase
 {
     private StoreApiGenerator $generator;
@@ -115,5 +115,21 @@ class StoreApiGeneratorTest extends TestCase
 
         static::assertArrayHasKey('post', $paths['/search/guided-shopping-presentation']);
         static::assertArrayNotHasKey('/_action/order_delivery/{orderDeliveryId}/state/{transition}', $paths);
+    }
+
+    public function testMergeComponentsSchemaRequiredFieldsRecursive(): void
+    {
+        $schema = $this->customApiGenerator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $this->customBundleSchemas->getName()
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('required', $entities['Simple']);
+        static::assertCount(3, $entities['Simple']['required']);
     }
 }

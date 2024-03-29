@@ -106,7 +106,9 @@ export default {
 
             criteria.getAssociation('deliveries')
                 .addAssociation('stateMachineState')
-                .addAssociation('shippingMethod');
+                .addAssociation('shippingOrderAddress')
+                .addAssociation('shippingMethod')
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
 
             return criteria;
         },
@@ -279,6 +281,14 @@ export default {
             this.loadFilterValues();
         },
 
+        deliveryTooltip(deliveries) {
+            return deliveries.map(delivery => {
+                return `${delivery.shippingOrderAddress.street},
+                        ${delivery.shippingOrderAddress.zipcode}
+                        ${delivery.shippingOrderAddress.city}`;
+            }).join('<hr style="margin: 8px 0">');
+        },
+
         onEdit(order) {
             if (order?.id) {
                 this.$router.push({
@@ -355,6 +365,7 @@ export default {
                 property: 'salesChannel.name',
                 label: 'sw-order.list.columnSalesChannel',
                 allowResize: true,
+                visible: false,
             }, {
                 property: 'orderCustomer.firstName',
                 dataIndex: 'orderCustomer.lastName,orderCustomer.firstName',
@@ -364,6 +375,12 @@ export default {
                 property: 'billingAddressId',
                 dataIndex: 'billingAddress.street',
                 label: 'sw-order.list.columnBillingAddress',
+                allowResize: true,
+                visible: false,
+            }, {
+                property: 'deliveries.id',
+                dataIndex: 'deliveries.shippingOrderAddress.street',
+                label: 'sw-order.list.columnDeliveryAddress',
                 allowResize: true,
             }, {
                 property: 'amountTotal',

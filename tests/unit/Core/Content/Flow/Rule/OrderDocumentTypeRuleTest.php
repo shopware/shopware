@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -20,12 +23,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(OrderDocumentTypeRule::class)]
+#[Group('rules')]
 class OrderDocumentTypeRuleTest extends TestCase
 {
     private OrderDocumentTypeRule $rule;
@@ -58,11 +59,10 @@ class OrderDocumentTypeRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchingValues
-     *
      * @param list<string> $selectedDocumentIds
      */
-    public function testOrderDocumentTypeRuleMatching(bool $expected, string|null $documentId, array $selectedDocumentIds, string $operator): void
+    #[DataProvider('getMatchingValues')]
+    public function testOrderDocumentTypeRuleMatching(bool $expected, ?string $documentId, array $selectedDocumentIds, string $operator): void
     {
         $order = new OrderEntity();
         $collection = new DocumentCollection();
@@ -86,7 +86,7 @@ class OrderDocumentTypeRuleTest extends TestCase
     public function testInvalidScopeIsFalse(): void
     {
         $invalidScope = $this->createMock(RuleScope::class);
-        $this->rule->assign(['documentIds' => [uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
+        $this->rule->assign(['documentIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
 
@@ -117,7 +117,7 @@ class OrderDocumentTypeRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{boolean, string|null, list<string>, string}>
+     * @return array<string, array{bool, string|null, list<string>, string}>
      */
     public static function getMatchingValues(): array
     {

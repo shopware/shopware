@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
@@ -21,9 +22,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\ActionButton\Executor
  */
+#[CoversClass(Executor::class)]
 class ExecutorTest extends TestCase
 {
     public function testConnectionProblemsGotConverted(): void

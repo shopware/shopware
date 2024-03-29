@@ -1,15 +1,7 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swCustomFieldDetail from 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
-import 'src/app/component/form/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-modal';
-
-Shopware.Component.register('sw-custom-field-detail', swCustomFieldDetail);
+import { mount } from '@vue/test-utils';
 
 function getFieldTypes() {
     return {
@@ -33,37 +25,10 @@ function getFieldTypes() {
 }
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-custom-field-detail'), {
-        localVue,
-        mocks: {
-            $i18n: {
-                fallbackLocale: 'en-GB',
-            },
-        },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                },
-            },
-            customFieldDataProviderService: {
-                getTypes: () => getFieldTypes(),
-            },
-            SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(null),
-            validationService: {},
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-custom-field-detail', {
+        sync: true,
+    }), {
+        props: {
             currentCustomField: {
                 id: 'id1',
                 name: 'custom_additional_field_1',
@@ -76,23 +41,51 @@ async function createWrapper(privileges = []) {
             },
             set: {},
         },
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-container': true,
-            'sw-custom-field-type-checkbox': true,
-            'sw-switch-field': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-icon': true,
-            'sw-help-text': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-loader': true,
-            'sw-alert': true,
-            'sw-custom-field-type-select': true,
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $i18n: {
+                    fallbackLocale: 'en-GB',
+                },
+            },
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                customFieldDataProviderService: {
+                    getTypes: () => getFieldTypes(),
+                },
+                SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(null),
+                validationService: {},
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
+            },
+            stubs: {
+                'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-container': true,
+                'sw-custom-field-type-checkbox': true,
+                'sw-switch-field': true,
+                'sw-number-field': true,
+                'sw-text-field': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-icon': true,
+                'sw-help-text': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-loader': true,
+                'sw-alert': true,
+                'sw-custom-field-type-select': true,
+            },
         },
     });
 }
@@ -107,6 +100,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const wrapper = await createWrapper([
             'custom_field.editor',
         ]);
+        await flushPromises();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
@@ -123,6 +117,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
     it('cannot edit fields', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         const technicalNameField = wrapper.find('.sw-custom-field-detail__technical-name');
@@ -130,18 +125,20 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         const modalSwitchField = wrapper.find('.sw-custom-field-detail__switch');
         const modalSaveButton = wrapper.find('.sw-custom-field-detail__footer-save');
 
-        expect(modalTypeField.attributes('disabled')).toBeTruthy();
-        expect(technicalNameField.attributes('disabled')).toBeTruthy();
-        expect(modalPositionField.attributes('disabled')).toBeTruthy();
-        expect(modalSwitchField.attributes('disabled')).toBeTruthy();
-        expect(modalSaveButton.attributes('disabled')).toBeTruthy();
+        expect(modalTypeField.attributes('disabled')).toBeDefined();
+        expect(technicalNameField.attributes('disabled')).toBeDefined();
+        expect(modalPositionField.attributes('disabled')).toBeDefined();
+        expect(modalSwitchField.attributes('disabled')).toBeDefined();
+        expect(modalSaveButton.attributes('disabled')).toBeDefined();
     });
 
     it('should update config correctly', async () => {
         const wrapper = await createWrapper(['custom_field.editor']);
+        await flushPromises();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
         await modalTypeField.setValue('select');
+        await flushPromises();
 
         expect(wrapper.vm.currentCustomField.config).toEqual(expect.objectContaining({
             customFieldType: 'select',

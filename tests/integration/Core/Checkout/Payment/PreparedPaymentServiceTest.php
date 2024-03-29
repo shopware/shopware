@@ -16,10 +16,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -30,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -111,9 +106,6 @@ class PreparedPaymentServiceTest extends TestCase
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
         PreparedTestPaymentHandler::$fail = true;
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(ValidatePreparedPaymentException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'this is supposed to fail');
         $this->paymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
@@ -125,15 +117,8 @@ class PreparedPaymentServiceTest extends TestCase
         $cart = Generator::createCart();
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(UnknownPaymentMethodException::class);
-        }
         $this->expectException(PaymentException::class);
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
-        } else {
-            $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
-        }
+        $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
         $this->paymentService->handlePreOrderPayment($cart, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -179,10 +164,6 @@ class PreparedPaymentServiceTest extends TestCase
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The capture process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . 'this is supposed to fail');
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(CapturePreparedPaymentException::class);
-        }
-
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
 
@@ -196,15 +177,8 @@ class PreparedPaymentServiceTest extends TestCase
         $order = $this->loadOrder($orderId, $salesChannelContext);
         $struct = new ArrayStruct(['testStruct']);
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(UnknownPaymentMethodException::class);
-        }
         $this->expectException(PaymentException::class);
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
-        } else {
-            $this->expectExceptionMessage(\sprintf('The payment method %s could not be found.', $paymentMethodId));
-        }
+        $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $paymentMethodId));
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);
     }
 
@@ -230,9 +204,6 @@ class PreparedPaymentServiceTest extends TestCase
         $order = $this->loadOrder($orderId, $salesChannelContext, false);
         $struct = new ArrayStruct(['testStruct']);
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidOrderException::class);
-        }
         $this->expectException(PaymentException::class);
 
         $this->paymentService->handlePostOrderPayment($order, new RequestDataBag(), $salesChannelContext, $struct);

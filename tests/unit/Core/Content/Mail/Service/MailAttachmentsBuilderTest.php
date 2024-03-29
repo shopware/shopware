@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -24,9 +25,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder
  */
+#[CoversClass(MailAttachmentsBuilder::class)]
 class MailAttachmentsBuilderTest extends TestCase
 {
     private MockObject&MediaService $mediaService;

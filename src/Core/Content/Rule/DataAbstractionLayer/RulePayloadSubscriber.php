@@ -41,8 +41,10 @@ class RulePayloadSubscriber implements EventSubscriberInterface
     {
         $this->indexIfNeeded($event);
 
-        /** @var RuleEntity $entity */
         foreach ($event->getEntities() as $entity) {
+            if (!$entity instanceof RuleEntity) {
+                continue;
+            }
             $payload = $entity->getPayload();
             if ($payload === null || !\is_string($payload)) {
                 continue;
@@ -60,8 +62,8 @@ class RulePayloadSubscriber implements EventSubscriberInterface
     {
         $rules = [];
 
-        /** @var RuleEntity $rule */
         foreach ($event->getEntities() as $rule) {
+            \assert($rule instanceof RuleEntity);
             if ($rule->getPayload() === null && !$rule->isInvalid()) {
                 $rules[$rule->getId()] = $rule;
             }

@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -16,13 +19,11 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemDimensionVolumeRule::class)]
+#[Group('rules')]
 class LineItemDimensionVolumeRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -47,9 +48,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         ?float $volume,
@@ -108,9 +107,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, null, 200, true, true];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         ?float $volume,
@@ -149,9 +146,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         ?float $volume,
@@ -253,7 +248,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         $result = $lineItemDimensionVolumeRule->getConfig();
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result->getData()['operatorSet']['operators']);
-        static::assertSame(RuleConfig::UNIT_VOLUME, $result->getData()['fields'][0]['config']['unit']);
+        static::assertSame(RuleConfig::UNIT_VOLUME, $result->getData()['fields']['amount']['config']['unit']);
     }
 
     private function createLineItemWithVolume(float $volume): LineItem

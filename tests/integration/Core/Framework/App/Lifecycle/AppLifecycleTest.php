@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
@@ -408,7 +407,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -573,7 +571,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -713,7 +710,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -799,7 +795,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -846,7 +841,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -889,7 +883,6 @@ class AppLifecycleTest extends TestCase
             'configurable' => true,
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -935,7 +928,6 @@ class AppLifecycleTest extends TestCase
             'appSecret' => 'iamsecret',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -989,7 +981,6 @@ class AppLifecycleTest extends TestCase
             'integration' => [
                 'id' => $integrationId,
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -1066,7 +1057,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -1280,34 +1270,8 @@ class AppLifecycleTest extends TestCase
         static::assertSame($appFlowActions[0], $newAppFlowActions[0]);
     }
 
-    public function testRefreshFlowActions(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
-
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
-
-        $flowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($flowActions);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/Resources/flow-action-v2.xml');
-        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
-
-        $newFlowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($newFlowActions);
-        static::assertCount(2, $newFlowActions);
-        foreach ($flowActions as $action) {
-            static::assertContains($action['id'], \array_column($newFlowActions, 'id'));
-        }
-    }
-
     public function testRefreshFlowExtension(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);
@@ -1330,34 +1294,8 @@ class AppLifecycleTest extends TestCase
         }
     }
 
-    public function testRefreshFlowActionsWithAnotherAction(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $context = Context::createDefaultContext();
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/manifest.xml');
-        $this->appLifecycle->install($manifest, true, $this->context);
-
-        $appId = $this->getAppId();
-        static::assertIsString($appId);
-
-        $flowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($flowActions);
-
-        $flowAction = Action::createFromXmlFile(__DIR__ . '/_fixtures/withFlowActions/Resources/flow-action-v3.xml');
-        $flowActionPersister = static::getContainer()->get(FlowActionPersister::class);
-        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
-
-        $newFlowActions = $this->getAppFlowActions($appId);
-        static::assertIsArray($newFlowActions);
-        static::assertCount(1, $newFlowActions);
-        foreach ($flowActions as $action) {
-            static::assertNotContains($action['id'], \array_column($newFlowActions, 'id'));
-        }
-    }
-
     public function testRefreshFlowExtensionWithAnotherAction(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
         $context = Context::createDefaultContext();
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withFlowExtension/manifest.xml');
         $this->appLifecycle->install($manifest, true, $this->context);

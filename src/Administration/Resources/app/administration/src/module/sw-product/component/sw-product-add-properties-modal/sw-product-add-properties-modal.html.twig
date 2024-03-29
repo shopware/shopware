@@ -40,7 +40,7 @@
                                     :value="searchTerm"
                                     :placeholder="$tc('sw-property-search.placeholderSearch')"
                                     @focus="focus"
-                                    @input="input"
+                                    @update:value="input"
                                     @option-select="onSelectOption"
                                 />
                                 {% endblock %}

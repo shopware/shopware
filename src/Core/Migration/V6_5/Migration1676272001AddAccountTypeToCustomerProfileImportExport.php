@@ -23,11 +23,6 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExport extends Mig
         $this->addAccountTypeToCustomerProfileImportExport($connection);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     private function addAccountTypeToCustomerProfileImportExport(Connection $connection): void
     {
         /** @var false|array<string, string> $profile */

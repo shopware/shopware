@@ -341,7 +341,7 @@ class RegisterControllerTest extends TestCase
     private function getMailRecipientStruct(array $customerData): MailRecipientStruct
     {
         return new MailRecipientStruct([
-            $customerData['email'] => $customerData['firstName'] . ' ' . $customerData['lastName'],
+            (string) $customerData['email'] => $customerData['firstName'] . ' ' . $customerData['lastName'],
         ]);
     }
 

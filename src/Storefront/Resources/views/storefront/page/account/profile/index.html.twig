@@ -7,21 +7,21 @@
                 {% block page_account_profile_personal_welcome %}
                     <div class="account-welcome">
                         {% block page_account_profile_personal_welcome_headline %}
-                            <h1>{{ "account.profileTitle"|trans|sw_sanitize }}</h1>
+                            <h1>{{ 'account.profileTitle'|trans|sw_sanitize }}</h1>
                         {% endblock %}
 
                         {% block page_account_profile_personal_welcome_intro %}
-                            <p>{{ "account.profileText"|trans|sw_sanitize }}</p>
+                            <p>{{ 'account.profileText'|trans|sw_sanitize }}</p>
                         {% endblock %}
                     </div>
                 {% endblock %}
 
                 {% block page_account_profile_personal %}
-                    <div class="card account-profile-personal">
+                    <div class="card account-profile-personal mb-5">
                         <div class="card-body">
                             {% block page_account_profile_personal_header %}
                                 <div class="card-title">
-                                    {{ "account.profilePersonalTitle"|trans|sw_sanitize }}
+                                    {{ 'account.profilePersonalTitle'|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -32,16 +32,16 @@
                                       data-form-validation="true">
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
-                                            'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
-                                            'showVatIdField': true,
-                                            'data': context.customer,
-                                            'onlyCompanyRegistration': context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false
+                                            showBirthdayField: config('core.loginRegistration.showBirthdayField'),
+                                            showVatIdField: true,
+                                            data: context.customer,
+                                            onlyCompanyRegistration: context.currentCustomerGroup.translated.registrationOnlyCompanyRegistration ?? false
                                         } %}
                                     {% endblock %}
 
                                     {% block page_account_profile_personal_required %}
                                         <p class="account-profile-required-info required-fields">
-                                            {{ "general.requiredFields"|trans|sw_sanitize }}
+                                            {{ 'general.requiredFields'|trans|sw_sanitize }}
                                         </p>
                                     {% endblock %}
 
@@ -50,8 +50,8 @@
                                             {% block page_account_profile_personal_action_button_send %}
                                                 <button type="submit"
                                                         class="profile-form-submit btn btn-light btn-sm"
-                                                        title="{{ "account.profileSaveChanges"|trans|striptags }}">
-                                                    {{ "account.profileSaveChanges"|trans|sw_sanitize }}
+                                                        title="{{ 'account.profileSaveChanges'|trans|striptags }}">
+                                                    {{ 'account.profileSaveChanges'|trans|sw_sanitize }}
                                                 </button>
                                             {% endblock %}
                                         </div>
@@ -63,11 +63,11 @@
                 {% endblock %}
 
                 {% block page_account_profile_credentials %}
-                    <div class="card account-profile-credentials">
+                    <div class="card account-profile-credentials mb-4">
                         <div class="card-body">
                             {% block page_account_profile_credentials_header %}
                                 <div class="card-title">
-                                    {{ "account.profileCredentialsTitle"|trans|sw_sanitize }}
+                                    {{ 'account.profileCredentialsTitle'|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
@@ -76,7 +76,7 @@
                                     {% block page_account_profile_credentials_current_mail %}
                                         <div class="col-12 col-md-6">
                                             {% block page_account_profile_credentials_current_mail_label %}
-                                                <span class="account-profile-mail-label">{{ "account.profileCurrentMail"|trans|sw_sanitize }}</span>
+                                                <span class="account-profile-mail-label">{{ 'account.profileCurrentMail'|trans|sw_sanitize }}</span>
                                                 <span class="account-profile-mail">{{ context.customer.email }}</span>
                                             {% endblock %}
                                         </div>
@@ -90,7 +90,7 @@
                                                role="button"
                                                aria-expanded="{% if emailFormViolation %}true{% else %}false{% endif %}"
                                                aria-controls="profile-email-form">
-                                                {{ "account.profileChangeEmail"|trans|sw_sanitize }}
+                                                {{ 'account.profileChangeEmail'|trans|sw_sanitize }}
                                             </a>
                                         </div>
                                     {% endblock %}
@@ -103,7 +103,7 @@
                                                role="button"
                                                aria-expanded="{% if passwordFormViolation %}true{% else %}false{% endif %}"
                                                aria-controls="profile-password-form">
-                                                {{ "account.profileChangePassword"|trans|sw_sanitize }}
+                                                {{ 'account.profileChangePassword'|trans|sw_sanitize }}
                                             </a>
                                         </div>
                                     {% endblock %}
@@ -126,7 +126,7 @@
                                               data-form-validation="true">
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
-                                                    {{ "account.profileMailTitle"|trans|sw_sanitize }}
+                                                    {{ 'account.profileMailTitle'|trans|sw_sanitize }}
                                                 </div>
                                             {% endblock %}
 
@@ -137,7 +137,7 @@
                                                             {% block page_account_profile_mail_label %}
                                                                 <label class="form-label"
                                                                        for="personalMail">
-                                                                    {{ "account.personalMailLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                    {{ 'account.personalMailLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                                 </label>
                                                             {% endblock %}
 
@@ -146,7 +146,7 @@
                                                                        class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="section-personal email"
                                                                        id="personalMail"
-                                                                       placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}"
+                                                                       placeholder="{{ 'account.personalMailPlaceholder'|trans|striptags }}"
                                                                        name="email[email]"
                                                                        data-form-validation-equal="personalMail"
                                                                        required="required">
@@ -167,7 +167,7 @@
                                                             {% block page_account_profile_personal_mail_confirmation_label %}
                                                                 <label class="form-label"
                                                                        for="personalMailConfirmation">
-                                                                    {{ "account.personalMailConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                    {{ 'account.personalMailConfirmationLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                                 </label>
                                                             {% endblock %}
 
@@ -176,11 +176,11 @@
                                                                        class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="section-personal email"
                                                                        id="personalMailConfirmation"
-                                                                       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans|striptags }}"
+                                                                       placeholder="{{ 'account.personalMailConfirmationPlaceholder'|trans|striptags }}"
                                                                        name="email[emailConfirmation]"
                                                                        required="required"
                                                                        data-form-validation-equal="personalMail"
-                                                                       data-form-validation-equal-message="{{ "account.personalMailConfirmationInvalidMessage"|trans|striptags }}">
+                                                                       data-form-validation-equal-message="{{ 'account.personalMailConfirmationInvalidMessage'|trans|striptags }}">
                                                             {% endblock %}
 
                                                             {% block page_account_profile_mail_confirmation_input_error %}
@@ -194,7 +194,7 @@
                                                     {% endblock %}
                                                 </div>
 
-                                                <p class="text-muted">{{ "account.profileConfirmPassword"|trans|sw_sanitize }}</p>
+                                                <p class="text-muted">{{ 'account.profileConfirmPassword'|trans|sw_sanitize }}</p>
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_password %}
@@ -203,7 +203,7 @@
                                                         {% block page_account_profile_mail_password_label %}
                                                             <label class="form-label"
                                                                    for="personalMailPasswordCurrent">
-                                                                {{ "account.personalPasswordLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                {{ 'account.personalPasswordLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                             </label>
                                                         {% endblock %}
 
@@ -212,7 +212,7 @@
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and emailFormViolation %} is-invalid{% endif %}"
                                                                    autocomplete="new-password"
                                                                    id="personalMailPasswordCurrent"
-                                                                   placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}"
+                                                                   placeholder="{{ 'account.personalPasswordPlaceholder'|trans|striptags }}"
                                                                    name="email[password]"
                                                                    required="required">
                                                         {% endblock %}
@@ -230,7 +230,7 @@
 
                                             {% block page_account_profile_mail_required %}
                                                 <p class="account-profile-required-info required-fields">
-                                                    {{ "general.requiredFields"|trans|sw_sanitize }}
+                                                    {{ 'general.requiredFields'|trans|sw_sanitize }}
                                                 </p>
                                             {% endblock %}
 
@@ -239,8 +239,8 @@
                                                     {% block page_account_profile_mail_action_button_send %}
                                                         <button type="submit"
                                                                 class="profile-form-submit btn btn-light btn-sm"
-                                                                title="{{ "account.profileSaveChanges"|trans|striptags }}">
-                                                            {{ "account.profileSaveChanges"|trans|sw_sanitize }}
+                                                                title="{{ 'account.profileSaveChanges'|trans|striptags }}">
+                                                            {{ 'account.profileSaveChanges'|trans|sw_sanitize }}
                                                         </button>
                                                     {% endblock %}
                                                 </div>
@@ -262,7 +262,7 @@
                                               data-form-validation="true">
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
-                                                    {{ "account.profilePasswordTitle"|trans|sw_sanitize }}
+                                                    {{ 'account.profilePasswordTitle'|trans|sw_sanitize }}
                                                 </div>
                                             {% endblock %}
 
@@ -273,7 +273,7 @@
                                                             {% block page_account_profile_new_password_label %}
                                                                 <label class="form-label"
                                                                        for="newPassword">
-                                                                    {{ "account.profilePasswordCreateNew"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                    {{ 'account.profilePasswordCreateNew'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                                 </label>
                                                             {% endblock %}
 
@@ -282,11 +282,11 @@
                                                                        class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="new-password"
                                                                        id="newPassword"
-                                                                       placeholder="{{ "account.profilePasswordCreateNewPlaceholder"|trans|striptags }}"
+                                                                       placeholder="{{ 'account.profilePasswordCreateNewPlaceholder'|trans|striptags }}"
                                                                        name="password[newPassword]"
                                                                        data-form-validation-equal="newPassword"
                                                                        data-form-validation-length="{{ config('core.loginRegistration.passwordMinLength') }}"
-                                                                       data-form-validation-length-message=" {{ "account.personalPasswordDescription"|trans({
+                                                                       data-form-validation-length-message=" {{ 'account.personalPasswordDescription'|trans({
                                                                            '%minLength%': config('core.loginRegistration.passwordMinLength')
                                                                        })|sw_sanitize }}"
                                                                        required="required">
@@ -307,7 +307,7 @@
                                                             {% block page_account_profile_new_password_confirmation_label %}
                                                                 <label class="form-label"
                                                                        for="passwordConfirmation">
-                                                                    {{ "account.personalPasswordConfirmationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                    {{ 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                                 </label>
                                                             {% endblock %}
 
@@ -316,11 +316,11 @@
                                                                        class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="new-password"
                                                                        id="passwordConfirmation"
-                                                                       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans|striptags }}"
+                                                                       placeholder="{{ 'account.personalPasswordConfirmationPlaceholder'|trans|striptags }}"
                                                                        name="password[newPasswordConfirm]"
                                                                        required="required"
                                                                        data-form-validation-equal="newPassword"
-                                                                       data-form-validation-equal-message="{{ "account.personalPasswordConfirmationInvalidMessage"|trans|striptags }}">
+                                                                       data-form-validation-equal-message="{{ 'account.personalPasswordConfirmationInvalidMessage'|trans|striptags }}">
                                                             {% endblock %}
 
                                                             {% block page_account_profile_new_password_confirmation_error %}
@@ -334,7 +334,7 @@
                                                     {% endblock %}
                                                 </div>
 
-                                                <p class="text-muted">{{ "account.profileConfirmPassword"|trans|sw_sanitize }}</p>
+                                                <p class="text-muted">{{ 'account.profileConfirmPassword'|trans|sw_sanitize }}</p>
                                             {% endblock %}
 
                                             {% block page_account_profile_current_password %}
@@ -343,7 +343,7 @@
                                                         {% block page_account_profile_current_password_label %}
                                                             <label class="form-label"
                                                                    for="password">
-                                                                {{ "account.profilePasswordCurrent"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                                                {{ 'account.profilePasswordCurrent'|trans|sw_sanitize }}{{ 'general.required'|trans|sw_sanitize }}
                                                             </label>
                                                         {% endblock %}
 
@@ -352,7 +352,7 @@
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
                                                                    autocomplete="new-password"
                                                                    id="password"
-                                                                   placeholder="{{ "account.profilePasswordCurrentPlaceholder"|trans|striptags }}"
+                                                                   placeholder="{{ 'account.profilePasswordCurrentPlaceholder'|trans|striptags }}"
                                                                    name="password[password]"
                                                                    required="required">
                                                         {% endblock %}
@@ -370,7 +370,7 @@
 
                                             {% block page_account_profile_password_required %}
                                                 <p class="account-profile-required-info required-fields">
-                                                    {{ "general.requiredFields"|trans|sw_sanitize }}
+                                                    {{ 'general.requiredFields'|trans|sw_sanitize }}
                                                 </p>
                                             {% endblock %}
 
@@ -379,8 +379,8 @@
                                                     {% block page_account_profile_password_action_button_send %}
                                                         <button type="submit"
                                                                 class="profile-form-submit btn btn-light btn-sm"
-                                                                title="{{ "account.profileSaveChanges"|trans|striptags }}">
-                                                            {{ "account.profileSaveChanges"|trans|sw_sanitize }}
+                                                                title="{{ 'account.profileSaveChanges'|trans|striptags }}">
+                                                            {{ 'account.profileSaveChanges'|trans|sw_sanitize }}
                                                         </button>
                                                     {% endblock %}
                                                 </div>
@@ -411,16 +411,13 @@
                              role="dialog">
                             <div class="modal-dialog modal-dialog-centered"
                                  role="document">
-
                                 {% block page_account_delete_account_confirm_modal_content %}
                                     <div class="modal-content">
-
                                         {% block page_account_delete_account_confirm_modal_header %}
                                             <div class="modal-header">
-
                                                 {% block page_account_delete_account_confirm_modal_header_title %}
                                                     <div class="modal-title h3">
-                                                        {{ "account.profileDeleteModalTitle"|trans|sw_sanitize }}
+                                                        {{ 'account.profileDeleteModalTitle'|trans|sw_sanitize }}
                                                     </div>
                                                 {% endblock %}
 
@@ -437,23 +434,22 @@
 
                                         {% block page_account_delete_account_confirm_modal_body %}
                                             <div class="modal-body">
-
                                                 {% block page_account_delete_account_confirm_modal_form %}
                                                     <form method="post"
                                                           action="{{ path('frontend.account.profile.delete') }}"
                                                           data-form-submit-loader="true">
                                                         {% block page_account_delete_account_confirm_alert %}
-                                                            {{ "account.profileDeleteAlert"|trans|sw_sanitize }}
+                                                            {{ 'account.profileDeleteAlert'|trans|sw_sanitize }}
                                                         {% endblock %}
 
                                                         {% block page_account_delete_account_confirm_text %}
-                                                            <h6 class="py-2">{{ "account.profileDeleteConfirm"|trans|sw_sanitize }}</h6>
+                                                            <h6 class="py-2">{{ 'account.profileDeleteConfirm'|trans|sw_sanitize }}</h6>
                                                         {% endblock %}
 
                                                         {% block page_account_delete_account_confirm_button %}
                                                             <div class="text-right">
                                                                 <button class="btn btn-outline-danger" type="submit">
-                                                                    {{ "account.profileDeleteButton"|trans|sw_sanitize }}
+                                                                    {{ 'account.profileDeleteButton'|trans|sw_sanitize }}
                                                                 </button>
                                                             </div>
                                                         {% endblock %}

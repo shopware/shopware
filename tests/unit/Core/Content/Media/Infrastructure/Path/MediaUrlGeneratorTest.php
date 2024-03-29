@@ -4,7 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Infrastructure\Path;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Core\Params\UrlParamsSource;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
@@ -12,15 +15,12 @@ use Shopware\Core\Content\Media\MediaException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator
- * @covers \Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator
  */
+#[CoversClass(MediaUrlGenerator::class)]
+#[CoversClass(AbstractMediaUrlGenerator::class)]
 class MediaUrlGeneratorTest extends TestCase
 {
-    /**
-     * @dataProvider generateProvider
-     */
+    #[DataProvider('generateProvider')]
     public function testGenerate(UrlParams $params, ?string $expected): void
     {
         $generator = new MediaUrlGenerator(

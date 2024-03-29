@@ -30,15 +30,15 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     {
         $salesChannelRepositoryClass = $this->getSalesChannelRepositoryClassByEntityName($entityName);
 
-        /** @var SalesChannelRepository $salesChannelRepository */
         $salesChannelRepository = $this->container->get($salesChannelRepositoryClass);
+        \assert($salesChannelRepository instanceof SalesChannelRepository);
 
         return $salesChannelRepository;
     }
 
     public function get(string $class): EntityDefinition
     {
-        if (mb_strpos($class, $this->prefix) !== 0) {
+        if (!str_starts_with($class, $this->prefix)) {
             $class = $this->prefix . $class;
         }
 
@@ -46,7 +46,7 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     }
 
     /**
-     * @return SalesChannelDefinitionInterface[]
+     * @return array<SalesChannelDefinitionInterface>
      */
     public function getSalesChannelDefinitions(): array
     {

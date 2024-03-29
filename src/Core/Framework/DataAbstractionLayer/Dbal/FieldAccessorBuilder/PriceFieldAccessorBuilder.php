@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\Log\Package;
@@ -74,11 +75,11 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
          * We can indirectly cast to float by adding 0.0
          */
 
-        $template = '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.c#currencyId#.#property#")) #factor#)';
+        $template = '(JSON_UNQUOTE(JSON_EXTRACT(#root#.#field#, "$.c#currencyId#.#property#")) #factor#)';
 
         $variables = [
-            '#root#' => $root,
-            '#field#' => $field->getStorageName(),
+            '#root#' => EntityDefinitionQueryHelper::escape($root),
+            '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
             '#currencyId#' => $currencyId,
             '#property#' => $jsonAccessor,
             '#factor#' => '+ 0.0',
@@ -88,8 +89,8 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         if ($currencyId !== Defaults::CURRENCY) {
             $variables = [
-                '#root#' => $root,
-                '#field#' => $field->getStorageName(),
+                '#root#' => EntityDefinitionQueryHelper::escape($root),
+                '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
                 '#currencyId#' => Defaults::CURRENCY,
                 '#property#' => $jsonAccessor,
                 '#factor#' => $currencyFactor,

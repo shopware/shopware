@@ -1,21 +1,19 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swCmsSectionActions from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
-
-Shopware.Component.register('sw-cms-section-actions', swCmsSectionActions);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-section-actions'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-section-actions', {
+        sync: true,
+    }), {
+        props: {
             section: {},
         },
-        stubs: {
-            'sw-icon': true,
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
         },
     });
 }

@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Struct\StateAwareTrait
  */
+#[CoversClass(StateAwareTrait::class)]
 class StateAwareTraitTest extends TestCase
 {
     public function testTrait(): void

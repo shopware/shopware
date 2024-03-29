@@ -1,44 +1,44 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProfileIndexGeneral from 'src/module/sw-profile/view/sw-profile-index-general';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/base/sw-highlight-text';
-
-Shopware.Component.register('sw-profile-index-general', swProfileIndexGeneral);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
+    return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-text-field': true,
+                'sw-select-field': true,
+                'sw-password-field': {
+                    template: '<input class="sw-password-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
+                    props: {
+                        value: '',
+                    },
+                },
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+            },
+            provide: {
+                acl: {
+                    can: (key) => {
+                        if (!key) {
+                            return true;
+                        }
 
-    return shallowMount(await Shopware.Component.build('sw-profile-index-general'), {
-        localVue,
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-text-field': true,
-            'sw-select-field': true,
-            'sw-password-field': true,
-            'sw-select-base': true,
-            'sw-popover': true,
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+                        return privileges.includes(key);
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             user: {},
             languages: [],
             newPassword: null,
@@ -47,7 +47,11 @@ async function createWrapper(privileges = []) {
             isUserLoading: false,
             languageId: null,
             isDisabled: true,
-            userRepository: {},
+            userRepository: {
+                schema: {
+                    entity: '',
+                },
+            },
             timezoneOptions: [
                 {
                     label: 'UTC',
@@ -59,78 +63,75 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-profile/view/sw-profile-index-general', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to change new password', async () => {
-        const spyNewPasswordChangeEmit = jest.spyOn(wrapper.vm, '$emit');
+        const wrapper = await createWrapper(['user.update_profile']);
+        await flushPromises();
 
-        await wrapper.setData({
-            computedNewPassword: 'Shopware',
-        });
+        const changeNewPasswordField = wrapper.find('.sw-password-field:nth-of-type(1)');
+        await changeNewPasswordField.setValue('Shopware');
+        await changeNewPasswordField.trigger('input');
+        await flushPromises();
 
-        expect(spyNewPasswordChangeEmit).toHaveBeenCalledWith('new-password-change', 'Shopware');
+        expect(wrapper.emitted('new-password-change')[0][0]).toBe('Shopware');
     });
 
     it('should be able to change new password confirm', async () => {
-        const spyNewPasswordConfirmChangeEmit = jest.spyOn(wrapper.vm, '$emit');
+        const wrapper = await createWrapper(['user.update_profile']);
+        await flushPromises();
 
-        await wrapper.setData({
-            computedNewPasswordConfirm: 'Shopware',
-        });
+        const changeNewPasswordConfirmField = wrapper.find('.sw-password-field:nth-of-type(2)');
+        await changeNewPasswordConfirmField.setValue('Shopware');
+        await changeNewPasswordConfirmField.trigger('input');
+        await flushPromises();
 
-        expect(spyNewPasswordConfirmChangeEmit).toHaveBeenCalledWith('new-password-confirm-change', 'Shopware');
+        expect(wrapper.emitted('new-password-confirm-change')[0][0]).toBe('Shopware');
     });
 
     it('should be able to upload media', async () => {
-        const spyMediaUploadEmit = jest.spyOn(wrapper.vm, '$emit');
+        const wrapper = await createWrapper(['media.creator']);
+        await flushPromises();
 
-        wrapper.vm.onUploadMedia({ targetId: 'targetId' });
+        await wrapper.find('sw-upload-listener').trigger('media-upload-finish', { targetId: 'targetId' });
 
-        expect(spyMediaUploadEmit).toHaveBeenCalledWith('media-upload', { targetId: 'targetId' });
+        expect(wrapper.emitted('media-upload')[0][0].targetId).toBe('targetId');
     });
 
     it('should be able to drop media', async () => {
-        const spyMediaUploadEmit = jest.spyOn(wrapper.vm, '$emit');
+        const wrapper = await createWrapper(['media.creator']);
+        await flushPromises();
 
-        wrapper.vm.onDropMedia({ id: 'targetId' });
+        await wrapper.find('sw-media-upload-v2').trigger('media-drop', { id: 'targetId' });
 
-        expect(spyMediaUploadEmit).toHaveBeenCalledWith('media-upload', { targetId: 'targetId' });
+        expect(wrapper.emitted('media-upload')[0][0].targetId).toBe('targetId');
     });
 
     it('should be able to remove media', async () => {
-        const spyMediaRemoveEmit = jest.spyOn(wrapper.vm, '$emit');
+        const wrapper = await createWrapper(['media.creator']);
+        await flushPromises();
 
-        wrapper.vm.onRemoveMedia();
+        await wrapper.find('sw-media-upload-v2').trigger('media-upload-remove-image');
 
-        expect(spyMediaRemoveEmit).toHaveBeenCalledWith('media-remove');
+        expect(wrapper.emitted('media-remove')[0]).toHaveLength(0);
     });
 
     it('should be able to open media', async () => {
-        const spyMediaOpenEmit = jest.spyOn(wrapper.vm, '$emit');
+        const wrapper = await createWrapper(['media.creator']);
+        await flushPromises();
 
-        wrapper.vm.onOpenMedia();
+        await wrapper.find('sw-media-upload-v2').trigger('media-upload-sidebar-open');
 
-        expect(spyMediaOpenEmit).toHaveBeenCalledWith('media-open');
+        expect(wrapper.emitted('media-open')[0]).toHaveLength(0);
     });
 
     it('should be able to select timezone', async () => {
-        await wrapper.find('.sw-profile--timezone').trigger('click');
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['user.update_profile']);
+        await flushPromises();
+
+        await wrapper.find('.sw-profile--timezone .sw-single-select__selection-input').trigger('click');
+        await flushPromises();
 
         const results = wrapper.findAll('.sw-select-result');
-        const resultNames = results.wrappers.map(result => result.text());
+        const resultNames = results.map(result => result.text());
 
         expect(resultNames).toContain('UTC');
     });

@@ -6,7 +6,7 @@ const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-entity-multi-select', {
     template,
@@ -20,11 +20,6 @@ Component.register('sw-entity-multi-select', {
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
 
     props: {
         labelProperty: {
@@ -297,13 +292,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         emitChanges(newCollection) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:entityCollection', newCollection);
-
-                return;
-            }
-
-            this.$emit('change', newCollection);
+            this.$emit('update:entityCollection', newCollection);
         },
 
         addItem(item) {

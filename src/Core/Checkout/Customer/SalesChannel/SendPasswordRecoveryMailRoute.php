@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -28,7 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -91,13 +90,17 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->customerRecoveryRepository->create([$recoveryData], $repoContext);
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
-        \assert($customerRecovery instanceof CustomerRecoveryEntity);
+
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByIdException($customerId);
+        }
 
         $hash = $customerRecovery->getHash();
 
         $recoverUrl = $this->getRecoverUrl($context, $hash, $data->get('storefrontUrl'), $customerRecovery);
 
         $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
+
         $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);
 
         return new SuccessResponse();
@@ -157,7 +160,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        /** @var ConstraintInterface[] $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
@@ -207,7 +209,10 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         }
 
         $customer = $result->first();
-        \assert($customer instanceof CustomerEntity);
+
+        if (!$customer instanceof CustomerEntity) {
+            throw CustomerException::customerNotFound($email);
+        }
 
         return $customer;
     }

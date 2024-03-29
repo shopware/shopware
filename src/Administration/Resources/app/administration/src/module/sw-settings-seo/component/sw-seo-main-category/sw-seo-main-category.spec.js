@@ -1,21 +1,17 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swSeoMainCategory from 'src/module/sw-settings-seo/component/sw-seo-main-category';
-
-Shopware.Component.register('sw-seo-main-category', swSeoMainCategory);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-seo-main-category'), {
-        localVue,
-        stubs: {
-            'sw-single-select': true,
+    return mount(await wrapTestComponent('sw-seo-main-category', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-single-select': true,
+            },
         },
         propsData: {
             mainCategories: [],

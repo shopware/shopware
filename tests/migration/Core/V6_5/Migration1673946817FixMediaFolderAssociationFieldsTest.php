@@ -3,28 +3,24 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1673946817FixMediaFolderAssociationFields;
+use Shopware\Core\Migration\V6_6\Migration1679581138RemoveAssociationFields;
 
 /**
  * @package core
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1673946817FixMediaFolderAssociationFields
  */
+#[CoversClass(Migration1673946817FixMediaFolderAssociationFields::class)]
 class Migration1673946817FixMediaFolderAssociationFieldsTest extends TestCase
 {
     private Connection $connection;
 
     protected function setUp(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::markTestSkipped('This test is not compatible with v6.6.0.0. Re-enable when migration refactoring is complete or remove the unit test with next major.');
-        }
-
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
@@ -36,6 +32,15 @@ class Migration1673946817FixMediaFolderAssociationFieldsTest extends TestCase
 
     public function testFieldsAreMigrated(): void
     {
+        if (!$this->columnExists($this->connection, 'media_default_folder', 'association_fields')) {
+            $this->connection->executeStatement('ALTER TABLE `media_default_folder` ADD COLUMN `association_fields` JSON NOT NULL;');
+        }
+
+        $this->connection->executeStatement('UPDATE media_default_folder SET association_fields = :association_fields WHERE entity = :user', [
+            'association_fields' => '["avatarUser"]',
+            'user' => 'user',
+        ]);
+
         $migration = new Migration1673946817FixMediaFolderAssociationFields();
         $migration->update($this->connection);
 
@@ -46,5 +51,18 @@ class Migration1673946817FixMediaFolderAssociationFieldsTest extends TestCase
 
         static::assertIsArray($fields);
         static::assertContains('avatarUsers', $fields);
+
+        $migration = new Migration1679581138RemoveAssociationFields();
+        $migration->updateDestructive($this->connection);
+    }
+
+    private function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
     }
 }

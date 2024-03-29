@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -17,13 +20,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemActualStockRule::class)]
+#[Group('rules')]
 class LineItemActualStockRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -48,9 +49,7 @@ class LineItemActualStockRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         int $stock,
@@ -96,9 +95,7 @@ class LineItemActualStockRuleTest extends TestCase
         yield 'no match / operator lower than equals / higher stock' => [Rule::OPERATOR_LTE, 100, 200, false];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         int $stock,
@@ -125,9 +122,7 @@ class LineItemActualStockRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         int $stock,
@@ -226,7 +221,7 @@ class LineItemActualStockRuleTest extends TestCase
         $result = $cartVolumeRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('stock', $result['fields'][0]['name']);
+        static::assertSame('stock', $result['fields']['stock']['name']);
     }
 
     private function createLineItemWithStock(int $stock): LineItem

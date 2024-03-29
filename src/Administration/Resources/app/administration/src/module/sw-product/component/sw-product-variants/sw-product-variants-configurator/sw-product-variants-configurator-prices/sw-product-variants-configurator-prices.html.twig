@@ -42,7 +42,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_prices_search_field %}
                 <sw-simple-search-field
-                    v-model="term"
+                    v-model:value="term"
                     size="small"
                     variant="form"
                     :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')"
@@ -78,16 +78,11 @@
                     {% block sw_product_variants_configurator_prices_column_currency %}
                     <template
                         v-for="currency in currenciesList"
-                        {% if VUE3 %}
                         :key="currency.id"
-                        {% endif %}
                         #[`column-currency.${currency.id}`]="{ item, isInlineEdit, compact }"
                     >
 
                         <sw-product-variants-price-field
-                            {% if VUE2 %}
-                            :key="currency.id"
-                            {% endif %}
                             :price="getCurrencyOfOption(item, currency.id)"
                             :tax-rate="product.taxId"
                             :currency="currency"

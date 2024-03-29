@@ -4,35 +4,21 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_default_shipping_address %}
     <sw-checkbox-field
-        {% if VUE3 %}
         v-model:value="isDefaultShippingAddressId"
-        {% else %}
-        v-model="isDefaultShippingAddressId"
-        {% endif %}
+        name="sw-field--isDefaultShippingAddressId"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
-        {% if VUE3 %}
         @update:value="onChangeDefaultShippingAddress"
-        {% else %}
-        @change="onChangeDefaultShippingAddress"
-        {% endif %}
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_address_form_options_default_billing_address %}
     <sw-checkbox-field
-        {% if VUE3 %}
         v-model:value="isDefaultBillingAddressId"
-        {% else %}
-        v-model="isDefaultBillingAddressId"
-        {% endif %}
+        name="sw-field--isDefaultBillingAddressId"
         class="sw-customer-address-form__set-default-billing-address-action"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
-        {% if VUE3 %}
         @update:value="onChangeDefaultBillingAddress"
-        {% else %}
-        @change="onChangeDefaultBillingAddress"
-        {% endif %}
     />
     {% endblock %}
 

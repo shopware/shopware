@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -66,7 +65,10 @@ class DocumentControllerTest extends TestCase
             ]
         );
 
-        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        $ruleIds = [];
+        if ($shippingRuleId = $shippingMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $shippingRuleId;
+        }
         if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
             $ruleIds[] = $paymentRuleId;
         }
@@ -129,11 +131,7 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::assertEquals(400, $browser->getResponse()->getStatusCode());
-        } else {
-            static::assertEquals(404, $browser->getResponse()->getStatusCode());
-        }
+        static::assertEquals(404, $browser->getResponse()->getStatusCode());
     }
 
     private function login(string $email): KernelBrowser

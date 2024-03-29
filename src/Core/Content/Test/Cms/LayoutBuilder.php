@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Test\Cms;
 
+use Shopware\Core\Content\Product\Cms\CrossSellingCmsElementResolver;
+use Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -363,10 +365,10 @@ class LayoutBuilder
         $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
-                'type' => 'product-description-reviews',
+                'type' => ProductDescriptionReviewsCmsElementResolver::TYPE,
                 'position' => $this->blockPosition($section),
                 'slots' => [
-                    ['type' => 'product-description-reviews', 'slot' => 'content'],
+                    ['type' => ProductDescriptionReviewsCmsElementResolver::TYPE, 'slot' => 'content'],
                 ],
             ],
             self::margin(20, 0, 20, 0)
@@ -381,10 +383,10 @@ class LayoutBuilder
         $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
-                'type' => 'cross-selling',
+                'type' => CrossSellingCmsElementResolver::TYPE,
                 'position' => $this->blockPosition($section),
                 'slots' => [
-                    ['type' => 'cross-selling', 'slot' => 'content'],
+                    ['type' => CrossSellingCmsElementResolver::TYPE, 'slot' => 'content'],
                 ],
             ],
             self::margin(20, 0, 20, 0)

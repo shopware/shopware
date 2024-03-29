@@ -1,17 +1,5 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal';
-import 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/data-grid/sw-data-grid-settings';
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/grid/sw-pagination';
-import 'src/app/component/base/sw-empty-state';
-import 'src/app/component/structure/sw-page';
+import { mount } from '@vue/test-utils';
+
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -33,58 +21,20 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return {
-        wrapper: shallowMount(await Shopware.Component.build('sw-advanced-selection-rule'), {
-            localVue,
-            provide: {
-                ruleConditionDataProviderService: {
-                    getGroups: () => {
-                        return [];
-                    },
-                    getConditions: () => {
-                        return [];
-                    },
-                    getRestrictedRuleTooltipConfig: () => {
-                        return { disabled: false, message: 'ruleAwarenessRestrictionLabelText' };
-                    },
-                    isRuleRestricted: (conditions) => { return conditions[0]; },
-                },
-                filterFactory: {
-                    create: () => [],
-                },
-                filterService: {
-                    getStoredCriteria: () => {
-                        return Promise.resolve([]);
-                    },
-                    mergeWithStoredFilters: (storeKey, criteria) => criteria,
-                },
-                shortcutService: {
-                    startEventListener() {},
-                    stopEventListener() {},
-                },
-                searchRankingService: {
-                    getSearchFieldsByEntity: () => {
-                        return Promise.resolve({
-                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                        });
-                    },
-                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                        return criteria;
-                    },
-                },
-            },
-            propsData: {
-                ruleAwareGroupKey: 'item',
-                restrictedRuleIds: ['1'],
-                restrictedRuleIdsTooltipLabel: 'restricted',
-            },
+    return mount(await wrapTestComponent('sw-advanced-selection-rule', {
+        sync: true,
+    }), {
+        props: {
+            ruleAwareGroupKey: 'item',
+            restrictedRuleIds: ['1'],
+            restrictedRuleIdsTooltipLabel: 'restricted',
+        },
+        global: {
             stubs: {
-                'sw-entity-advanced-selection-modal': await Shopware.Component.build('sw-entity-advanced-selection-modal'),
-                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
-                'sw-modal': await Shopware.Component.build('sw-modal'),
-                'sw-card': await Shopware.Component.build('sw-card'),
+                'sw-entity-advanced-selection-modal': await wrapTestComponent('sw-entity-advanced-selection-modal'),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-card': await wrapTestComponent('sw-card'),
                 'sw-context-button': {
                     template: '<div></div>',
                 },
@@ -102,37 +52,76 @@ async function createWrapper() {
                     template: '<div></div>',
                 },
             },
-        }),
-    };
+            provide: {
+                ruleConditionDataProviderService: {
+                    getGroups: () => {
+                        return [];
+                    },
+                    getConditions: () => {
+                        return [];
+                    },
+                    getRestrictedRuleTooltipConfig: () => {
+                        return { disabled: false, message: 'ruleAwarenessRestrictionLabelText' };
+                    },
+                    isRuleRestricted: (conditions) => {
+                        return conditions[0];
+                    },
+                },
+                filterFactory: {
+                    create: () => [],
+                },
+                filterService: {
+                    getStoredCriteria: () => {
+                        return Promise.resolve([]);
+                    },
+                    mergeWithStoredFilters: (storeKey, criteria) => criteria,
+                },
+                shortcutService: {
+                    startEventListener() {
+                    },
+                    stopEventListener() {
+                    },
+                },
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
+                },
+            },
+        },
+
+    });
 }
 
 describe('components/sw-advanced-selection-product', () => {
-    let wrapper;
-    let selectionModal;
-
-    beforeEach(async () => {
-        const data = await createWrapper();
-        wrapper = data.wrapper;
-        selectionModal = wrapper.findComponent({ name: 'sw-entity-advanced-selection-modal' });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.JS component that wraps the selection modal component', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.vm).toBeTruthy();
-        expect(selectionModal.exists()).toBe(true);
-        expect(selectionModal.vm).toBeTruthy();
+
+        const selectionModal = document.body.querySelector('.sw-modal');
+        expect(selectionModal).toBeInTheDocument();
     });
 
     it('should get disabled column class', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const cls = wrapper.vm.getColumnClass({ id: '1', conditions: [true] });
 
         expect(cls).toBe('sw-advanced-selection-rule-disabled');
     });
 
     it('should get restricted tooltip', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         let tooltip = wrapper.vm.tooltipConfig({ id: '1' });
 
         expect(tooltip.message).toBe('restricted');
@@ -143,6 +132,9 @@ describe('components/sw-advanced-selection-product', () => {
     });
 
     it('should notice if record selectable', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const obj = wrapper.vm.isRecordSelectable({ id: '1', conditions: [true] });
 
         expect(obj.isSelectable).toBeFalsy();
@@ -150,6 +142,9 @@ describe('components/sw-advanced-selection-product', () => {
     });
 
     it('should return counts', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         const aggregations = {
             productPrices: {
                 buckets: [{
@@ -167,6 +162,9 @@ describe('components/sw-advanced-selection-product', () => {
     });
 
     it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

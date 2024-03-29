@@ -77,9 +77,7 @@
             {% block sw_settings_payment_overview_list %}
             <template
                 v-for="card in paymentMethodCards"
-                {% if VUE3 %}
                 :key="card.id"
-                {% endif %}
             >
 
                 <template v-if="card.hasCustomCard">

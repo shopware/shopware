@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -59,24 +58,6 @@ class CustomerStorer extends FlowStorer
             CustomerAware::CUSTOMER,
             $this->lazyLoad(...)
         );
-    }
-
-    /**
-     * @param array<int, mixed> $args
-     *
-     * @deprecated tag:v6.6.0 - Will be removed in v6.6.0.0
-     */
-    public function load(array $args): ?CustomerEntity
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0.0')
-        );
-
-        [$id, $context] = $args;
-        $criteria = new Criteria([$id]);
-
-        return $this->loadCustomer($criteria, $context, $id);
     }
 
     private function lazyLoad(StorableFlow $storableFlow): ?CustomerEntity

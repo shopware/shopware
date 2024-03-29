@@ -22,12 +22,7 @@ class CategoryEntity extends Entity
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
-    /**
-     * @var string|null
-     *
-     * @deprecated tag:v6.6.0 - Will be protected
-     */
-    public $afterCategoryId;
+    protected ?string $afterCategoryId = null;
 
     /**
      * @var string|null

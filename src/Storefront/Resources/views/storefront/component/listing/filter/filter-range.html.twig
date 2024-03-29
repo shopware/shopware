@@ -49,9 +49,7 @@
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
          data-filter-range="true"
-         {# ludtwig-ignore html-string-quotation #}
-         data-filter-range-options='{{ filterRangeOptions|json_encode }}'>
-
+         data-filter-range-options="{{ filterRangeOptions|json_encode }}">
         {% block component_filter_range_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
@@ -64,13 +62,12 @@
                     data-bs-offset="0,8"
                     aria-haspopup="true"
                     {% endif %}>
-
                 {% block component_filter_range_display_name %}
                     {{ displayName }}
                 {% endblock %}
 
                 {% block component_filter_range_toggle_icon %}
-                    {% sw_icon 'arrow-medium-down' style {'pack': 'solid', 'size': 'xs', 'class': 'filter-panel-item-toggle'} %}
+                    {% sw_icon 'arrow-medium-down' style {pack: 'solid', size: 'xs', class: 'filter-panel-item-toggle'} %}
                 {% endblock %}
             </button>
         {% endblock %}
@@ -78,13 +75,10 @@
         {% block component_filter_range_dropdown %}
             <div class="filter-range-dropdown filter-panel-item-dropdown{% if sidebar %} collapse{% else %} dropdown-menu{% endif %}"
                  id="{{ filterItemId }}">
-
                 {% block component_filter_range_container %}
                     <div class="filter-range-container">
-
                         {% block component_filter_range_min %}
                             <label class="filter-range-min">
-
                                 {% block component_filter_range_min_label %}
                                     {{ 'listing.filterRangeMinLabel'|trans|sw_sanitize }}
                                 {% endblock %}
@@ -113,7 +107,6 @@
 
                         {% block component_filter_range_max %}
                             <label class="filter-range-max">
-
                                 {% block component_filter_range_max_label %}
                                     {{ 'listing.filterRangeMaxLabel'|trans|sw_sanitize }}
                                 {% endblock %}

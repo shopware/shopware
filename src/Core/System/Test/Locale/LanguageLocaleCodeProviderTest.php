@@ -5,8 +5,6 @@ namespace Shopware\Core\System\Test\Locale;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,11 +40,7 @@ class LanguageLocaleCodeProviderTest extends TestCase
 
     public function testGetLocaleForLanguageIdThrowsForNotExistingLanguage(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::expectException(LocaleException::class);
-        } else {
-            static::expectException(LanguageNotFoundException::class);
-        }
+        static::expectException(LocaleException::class);
         $this->languageLocaleProvider->getLocaleForLanguageId(Uuid::randomHex());
     }
 

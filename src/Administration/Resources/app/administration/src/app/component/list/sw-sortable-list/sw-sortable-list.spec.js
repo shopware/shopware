@@ -2,49 +2,50 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 import 'src/app/component/list/sw-sortable-list';
 
 const listItems = [{ id: 0 }, { id: 1 }, { id: 2 }];
 
 async function createWrapper(userConfig = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.directive('droppable', {});
-    localVue.directive('draggable', {});
-
     const defaultConfig = {
-        localVue,
-        propsData: {
+        props: {
             items: [...listItems],
         },
-        scopedSlots: {
+        slots: {
             item: (propsData) => {
                 return propsData.item.id;
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({ save: () => Promise.resolve() }),
+        global: {
+            directives: {
+                draggable: {},
+                droppable: {},
+                tooltip: {},
             },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({ save: () => Promise.resolve() }),
+                },
+            },
+            mocks: {
+                $tc: v => v,
+            },
+            sync: true,
         },
-        mocks: {
-            $tc: v => v,
-        },
-        sync: true,
     };
 
-    return shallowMount(await Shopware.Component.build('sw-sortable-list'), deepMergeObject(defaultConfig, userConfig));
+    const wrapper = shallowMount(await Shopware.Component.build('sw-sortable-list'), deepMergeObject(defaultConfig, userConfig));
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('src/component/list/sw-sortable-list', () => {
     /** @type Wrapper */
     let wrapper;
-
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper();
@@ -242,124 +243,6 @@ describe('src/component/list/sw-sortable-list', () => {
         };
 
         wrapper.vm.onDragStart({}, {}, { id: 'drag-element-id' });
-    });
-
-    it('should find scrollable parent', async () => {
-        wrapper = await createWrapper();
-
-        const scrollableParent = {
-            scrollHeight: 10,
-            clientHeight: 0,
-            id: 'scrollable-parent',
-        };
-
-        wrapper.vm.$el = {
-            scrollHeight: 0,
-            clientHeight: 0,
-            id: 'element',
-            parentElement: {
-                scrollHeight: 1,
-                clientHeight: 5,
-                id: 'parent-element',
-                parentElement: scrollableParent,
-            },
-        };
-
-        expect(wrapper.vm.scrollableParent).toEqual(scrollableParent);
-    });
-
-    it('should scroll when in scroll margin', async () => {
-        wrapper = await createWrapper({
-            propsData: {
-                scrollOnDrag: true,
-                scrollOnDragConf: {
-                    speed: 10,
-                    margin: 10,
-                    accelerationMargin: 0,
-                },
-            },
-        });
-
-        wrapper.vm.dragElement = {
-            id: 'drag-element-id',
-            getBoundingClientRect() {
-                return {
-                    top: 100,
-                    bottom: 91,
-                };
-            },
-        };
-
-        const scrollByOptions = [];
-        wrapper.vm.$el = {
-            scrollHeight: 10,
-            clientHeight: 0,
-            id: 'element',
-            getBoundingClientRect() {
-                return {
-                    top: 91,
-                    bottom: 100,
-                };
-            },
-            scrollBy(options) {
-                scrollByOptions.push(options);
-            },
-        };
-
-        wrapper.vm.scroll();
-
-        await flushPromises();
-
-        expect(scrollByOptions).toHaveLength(2);
-        expect(scrollByOptions[0].top).toBe(-10);
-        expect(scrollByOptions[1].top).toBe(10);
-    });
-
-    it('should scroll accelerated when in acceleration margin', async () => {
-        wrapper = await createWrapper({
-            propsData: {
-                scrollOnDrag: true,
-                scrollOnDragConf: {
-                    speed: 10,
-                    margin: 10,
-                    accelerationMargin: 0,
-                },
-            },
-        });
-
-        wrapper.vm.dragElement = {
-            id: 'drag-element-id',
-            getBoundingClientRect() {
-                return {
-                    top: 100,
-                    bottom: 110,
-                };
-            },
-        };
-
-        const scrollByOptions = [];
-        wrapper.vm.$el = {
-            scrollHeight: 10,
-            clientHeight: 0,
-            id: 'element',
-            getBoundingClientRect() {
-                return {
-                    top: 110,
-                    bottom: 100,
-                };
-            },
-            scrollBy(options) {
-                scrollByOptions.push(options);
-            },
-        };
-
-        wrapper.vm.scroll();
-
-        await flushPromises();
-
-        expect(scrollByOptions).toHaveLength(2);
-        expect(scrollByOptions[0].top).toBeLessThan(-10);
-        expect(scrollByOptions[1].top).toBeGreaterThan(10);
     });
 
     it('should not scroll when not in scroll margin', async () => {

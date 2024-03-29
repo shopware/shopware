@@ -12,4 +12,5 @@ shopware:
 
     usage_data:
         gateway:
+            dispatch_enabled: false
             base_uri: 'http://localhost:8888'

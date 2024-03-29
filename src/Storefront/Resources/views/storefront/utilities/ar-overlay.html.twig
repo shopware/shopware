@@ -1,0 +1,105 @@
+{# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+{% block augmented_reality_overlay %}
+    <div
+        data-spatial-ar-overlay
+        class="spatial-ar-overlay"
+    >
+        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {% block augmented_reality_overlay_exit %}
+            <button
+                data-spatial-ar-overlay-exit
+                class="spatial-ar-exit-button"
+            >
+                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                {% block augmented_reality_overlay_exit_icon %}
+                    {% sw_icon 'x' style {
+                        size: 'small'
+                    } %}
+                {% endblock %}
+            </button>
+        {% endblock %}
+
+        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {% block augmented_reality_overlay_placement_hint %}
+            <div class="spatial-ar-placement-hint w-100 h-100">
+                <div class="
+                    position-absolute
+                    text-white
+                    top-50
+                    start-50
+                    translate-middle
+                    d-flex
+                    flex-column
+                    w-50
+                    align-items-center
+                    justify-content-center
+                    gap-2
+                ">
+                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {% block augmented_reality_overlay_placement_hint_icon %}
+                        {% sw_icon 'handtouch' style {
+                            size: 'fluid'
+                        } %}
+                    {% endblock %}
+
+                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {% block augmented_reality_overlay_placement_hint_text %}
+                        <span class="text-center">{{ 'spatial.tapToPlaceTheObject'|trans|striptags }}</span>
+                    {% endblock %}
+                </div>
+
+                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                {% block augmented_reality_overlay_placement_hint_progress_bar %}
+                    <div class="progress rounded-pill position-absolute w-50 start-50 translate-middle-x">
+                        <div data-spatial-ar-overlay-progress
+                            class="progress-bar"
+                            role="progressbar"
+                            style="width: 0"
+                            aria-valuenow="0"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                        ></div>
+                    </div>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {% block augmented_reality_overlay_movement_hint %}
+            <div class="spatial-ar-movement-hint w-100 h-100">
+                <div class="
+                    position-absolute
+                    text-white
+                    top-50
+                    start-50
+                    translate-middle
+                    d-flex
+                    flex-column
+                    w-50
+                    align-items-center
+                    justify-content-center
+                    gap-2
+                ">
+                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {% block augmented_reality_overlay_movement_hint_icons %}
+                        <div class="ar-anim-container">
+                            {% sw_icon 'surface' style {
+                                size: 'fluid',
+                                class: 'ar-icon-surface'
+                            } %}
+                            {% sw_icon 'phone' style {
+                                size: 'fluid',
+                                class: 'ar-icon-phone'
+                            } %}
+                        </div>
+                    {% endblock %}
+
+                    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                    {% block augmented_reality_overlay_movement_hint_text %}
+                        <span class="text-center">{{ 'spatial.moveTheDeviceToStart'|trans|striptags }}</span>
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -25,7 +26,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ShippingZipCodeRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -281,9 +282,7 @@ class ShippingZipCodeRuleTest extends TestCase
         static::assertEquals(new ArrayOfType('string'), $zipCodes[1]);
     }
 
-    /**
-     * @dataProvider getMatchValuesNumeric
-     */
+    #[DataProvider('getMatchValuesNumeric')]
     public function testRuleMatchingNumeric(string $operator, bool $isMatching, string $zipCode): void
     {
         $zipCodes = ['90210', '81985'];
@@ -322,9 +321,7 @@ class ShippingZipCodeRuleTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getMatchValuesAlphanumeric
-     */
+    #[DataProvider('getMatchValuesAlphanumeric')]
     public function testRuleMatchingAlphanumeric(
         string $operator,
         bool $isMatching,

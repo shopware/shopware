@@ -53,11 +53,7 @@ export default {
                 code: this.newTagName,
             };
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', [...this.value, newTagItem]);
-            } else {
-                this.$emit('change', [...this.value, newTagItem]);
-            }
+            this.$emit('update:value', [...this.value, newTagItem]);
 
             this.newTagName = '';
         },
@@ -84,7 +80,7 @@ export default {
 
             const discountValue = discountType === 'percentage'
                 ? value
-                : format.currency(Number(value), this.currency.shortName);
+                : format.currency(Number(value), this.currency.isoCode);
 
             return this.$tc(
                 `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,

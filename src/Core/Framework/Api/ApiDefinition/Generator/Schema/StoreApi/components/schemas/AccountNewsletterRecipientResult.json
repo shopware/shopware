@@ -5,18 +5,28 @@
     "components": {
         "schemas": {
             "AccountNewsletterRecipientResult": {
-                "allOf": [
-                    {
-                        "$ref": "#\/components\/schemas\/Struct"
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "undefined",
+                            "notSet",
+                            "direct",
+                            "optIn",
+                            "optOut"
+                        ]
                     },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "status": {
-                                "type": "string"
-                            }
-                        }
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "account_newsletter_recipient"
+                        ]
                     }
+                },
+                "required": [
+                    "status",
+                    "apiAlias"
                 ]
             }
         }

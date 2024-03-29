@@ -1,52 +1,97 @@
 .rules:
-    # skip job if the skip label for the stage is set
-    skip:
-        if: '( $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train" || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ ) && (
-               $CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/ && $CI_JOB_STAGE == "lint"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/ && $CI_JOB_STAGE == "unit"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ && $CI_JOB_STAGE == "E2E"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::skip.*/ && $CI_JOB_STAGE == "quarantine"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*downstream::skip.*/ && $CI_JOB_STAGE == "downstream"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*split::skip.*/ && $CI_JOB_STAGE == "split"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*build::skip.*/ && $CI_JOB_STAGE == "build"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::skip.*/ && $CI_JOB_STAGE == "deploy"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ && $CI_JOB_STAGE == "visual"
-            || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ && $CI_JOB_STAGE != "quarantine" && $CI_JOB_STAGE != "lint" )'
-        when: never
-    # skip job in merge train pipelines
-    skip-in-merge-train:
-        if: '($CI_MERGE_REQUEST_EVENT_TYPE == "merge_train")'
-        when: never
-    # execute job if the all label for the stage is set
-    run:
-        if: '$CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/ && $CI_JOB_STAGE == "lint"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/ && $CI_JOB_STAGE == "unit"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ && $CI_JOB_STAGE == "E2E"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::all.*/ && $CI_JOB_STAGE == "quarantine"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*downstream::all.*/ && $CI_JOB_STAGE == "downstream"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/ && $CI_JOB_STAGE == "split"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*build::all.*/ && $CI_JOB_STAGE == "build"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::all.*/ && $CI_JOB_STAGE == "deploy"
-          || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/ && $CI_JOB_STAGE == "visual"'
-    # execute job if the all label for the stage is set and ALLOW_FAILURE == true
-    run-allow-failure:
-          if: '$ALLOW_FAILURE == "true" && (
-                 $CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/ && $CI_JOB_STAGE == "lint"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/ && $CI_JOB_STAGE == "unit"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ && $CI_JOB_STAGE == "E2E"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::all.*/ && $CI_JOB_STAGE == "quarantine"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*downstream::all.*/ && $CI_JOB_STAGE == "downstream"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/ && $CI_JOB_STAGE == "split"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*build::all.*/ && $CI_JOB_STAGE == "build"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::all.*/ && $CI_JOB_STAGE == "deploy"
-              || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/ && $CI_JOB_STAGE == "visual")'
-    # condition for executing in merge trains and non merge request pipelines
-    long-running:
-        if: '$CI_MERGE_REQUEST_EVENT_TYPE == null
-          || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+  # skip job if the skip label for the stage is set
+  skip: &skip
+    if: >
+      (
+        $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train" || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/
+      ) && (
+        $CI_MERGE_REQUEST_LABELS =~ /.*lint::skip.*/ && $CI_JOB_STAGE == "lint"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/ && $CI_JOB_STAGE == "unit"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ && $CI_JOB_STAGE == "E2E"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::skip.*/ && $CI_JOB_STAGE == "quarantine"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*downstream::skip.*/ && $CI_JOB_STAGE == "downstream"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*split::skip.*/ && $CI_JOB_STAGE == "split"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*build::skip.*/ && $CI_JOB_STAGE == "build"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::skip.*/ && $CI_JOB_STAGE == "deploy"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/ && $CI_JOB_STAGE == "visual"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::only.*/ && $CI_JOB_STAGE != "quarantine" && $CI_JOB_STAGE != "lint"
+      )
+    when: never
+  # skip job in merge train pipelines
+  skip-in-merge-train: &skip-in-merge-train
+    if: >
+      $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+    when: never
+  # execute job if the all label for the stage is set
+  run: &run
+    if: >
+      $CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/ && $CI_JOB_STAGE == "lint"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/ && $CI_JOB_STAGE == "unit"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ && $CI_JOB_STAGE == "E2E"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::all.*/ && $CI_JOB_STAGE == "quarantine"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*downstream::all.*/ && $CI_JOB_STAGE == "downstream"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/ && $CI_JOB_STAGE == "split"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*build::all.*/ && $CI_JOB_STAGE == "build"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::all.*/ && $CI_JOB_STAGE == "deploy"
+      || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/ && $CI_JOB_STAGE == "visual"
+  # execute job if the all label for the stage is set and ALLOW_FAILURE == true
+  run-allow-failure: &run-allow-failure
+    if: >
+      $ALLOW_FAILURE == "true" && (
+        $CI_MERGE_REQUEST_LABELS =~ /.*lint::all.*/ && $CI_JOB_STAGE == "lint"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/ && $CI_JOB_STAGE == "unit"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ && $CI_JOB_STAGE == "E2E"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*quarantine::all.*/ && $CI_JOB_STAGE == "quarantine"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*downstream::all.*/ && $CI_JOB_STAGE == "downstream"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/ && $CI_JOB_STAGE == "split"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*build::all.*/ && $CI_JOB_STAGE == "build"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*deploy::all.*/ && $CI_JOB_STAGE == "deploy"
+        || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/ && $CI_JOB_STAGE == "visual"
+      )
+  # condition for executing in merge trains and non merge request pipelines
+  long-running: &long-running
+    if: >
+      $CI_MERGE_REQUEST_EVENT_TYPE == null
+      || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
 
-    # match if long running but only if failure is allowed
-    long-running-allow-failure:
-      if: '$ALLOW_FAILURE == "true" && (
-              $CI_MERGE_REQUEST_EVENT_TYPE == null
-           || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train")'
+  # match if long running but only if failure is allowed
+  long-running-allow-failure: &long-running-allow-failure
+    if: >
+      $ALLOW_FAILURE == "true" && (
+        $CI_MERGE_REQUEST_EVENT_TYPE == null
+        || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+      )
+  scheduled: &scheduled
+    if: >
+      $CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*run_scheduled*/
+
+  split:
+    rule-tag: &split-rule-tag '$CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_TAG != null'
+    rule-scheduled: &split-rule-scheduled '$CI_COMMIT_REF_PROTECTED == "true" && $CI_PIPELINE_SOURCE == "schedule"'
+    rule-scheduled-or-tag: &split-rule-scheduled-or-tag '$CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG != null)'
+
+    rules-base: &split-rules-base
+      - *skip-in-merge-train
+      - *skip
+      - *run
+
+    rules-label-or-scheduled-or-tag:
+      - *split-rules-base
+      - if: *split-rule-scheduled-or-tag
+
+    rules-tag: &split-rules-tag
+      - if: *split-rule-scheduled
+        when: never
+      - if: *split-rule-tag
+
+    rules-scheduled: &split-rules-scheduled
+      - if: *split-rule-tag
+        when: never
+      - if: *split-rule-scheduled
+
+    rules-label: &split-rules-label
+      - if: *split-rule-tag
+        when: never
+      - if: *split-rule-scheduled
+        when: never
+      - *split-rules-base

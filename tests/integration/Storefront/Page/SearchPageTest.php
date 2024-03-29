@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -57,7 +56,7 @@ class SearchPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertSame(
-            ProductListingFeaturesSubscriber::DEFAULT_SEARCH_SORT,
+            'score',
             $page->getListing()->getSorting()
         );
     }
@@ -73,14 +72,14 @@ class SearchPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame('Demostore', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame('Searchresult | Demostore', $page->getMetaInformation()?->getMetaTitle());
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.shopName', 'Teststore', $context->getSalesChannel()->getId());
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertSame('Teststore', $page->getMetaInformation()?->getMetaTitle());
+        static::assertSame('Searchresult | Teststore', $page->getMetaInformation()?->getMetaTitle());
     }
 
     protected function getPageLoader(): SearchPageLoader

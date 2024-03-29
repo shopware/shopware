@@ -1,7 +1,7 @@
 ---
 title: Rule Scripting in apps
 date: 2022-02-21
-area: business-ops
+area: services-settings
 tags: [rule, app-system, app-scripts]
 ---
 

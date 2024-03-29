@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
     template,
 
+    emits: ['update:value'],
+
     inject: ['feature'],
 
     computed: {
@@ -26,14 +28,7 @@ Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
 
     methods: {
         emitColor() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.localValue);
-                this.visible = false;
-
-                return;
-            }
-
-            this.$emit('input', this.localValue);
+            this.$emit('update:value', this.localValue);
             this.visible = false;
         },
     },

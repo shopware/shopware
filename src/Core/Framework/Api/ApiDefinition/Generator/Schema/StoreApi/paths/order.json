@@ -22,7 +22,8 @@
                                         "pattern": "^[0-9a-f]{32}$"
                                     }
                                 },
-                                "type": "object"
+                                "type": "object",
+                                "required": ["orderId"]
                             }
                         }
                     }
@@ -41,7 +42,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -92,7 +94,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -145,7 +148,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }
@@ -193,7 +197,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

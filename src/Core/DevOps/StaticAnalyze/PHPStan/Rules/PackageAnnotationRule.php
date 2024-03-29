@@ -22,11 +22,6 @@ class PackageAnnotationRule implements Rule
      * @internal
      */
     public const PRODUCT_AREA_MAPPING = [
-        'business-ops' => [
-            '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
-            '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
-            '/Shopware\\\\Core\\\\System\\\\(Tag)\\\\/',
-        ],
         'inventory' => [
             '/Shopware\\\\Core\\\\Content\\\\(Product|ProductExport|Property)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Currency|Unit)\\\\/',
@@ -42,13 +37,17 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Footer\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\/',
         ],
-        'system-settings' => [
+        'services-settings' => [
+            '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Tag)\\\\/',
             '/Shopware\\\\Core\\\\Content\\\\(ImportExport|Mail)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Update)\\\\/',
             '/Shopware\\\\Core\\\\System\\\\(Country|CustomField|Integration|Language|Locale|Snippet|User)\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Country\\\\/',
             '/Shopware\\\\Storefront\\\\Page\\\\Suggest\\\\/',
             '/Shopware\\\\Storefront\\\\Page\\\\Search\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
         ],
         'sales-channel' => [
             '/Shopware\\\\Core\\\\Content\\\\(MailTemplate|Seo|Sitemap)\\\\/',
@@ -71,9 +70,6 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Page\\\\Wishlist\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist\\\\/',
-        ],
-        'merchant-services' => [
-            '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
         ],
         'storefront' => [
             '/Shopware\\\\Storefront\\\\Theme\\\\/',

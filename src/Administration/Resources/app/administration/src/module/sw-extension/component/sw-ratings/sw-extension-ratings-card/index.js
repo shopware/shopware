@@ -89,7 +89,9 @@ export default {
                 this.numberOfRatings = this.summary.numberOfRatings;
                 this.reviews = this.reviews.concat(reviews);
             } catch (e) {
-                this.showExtensionErrors(e);
+                if (typeof this.showExtensionErrors === 'function') {
+                    this.showExtensionErrors(e);
+                }
             } finally {
                 this.isLoading = false;
             }

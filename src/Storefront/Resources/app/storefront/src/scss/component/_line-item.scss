@@ -608,8 +608,7 @@
     border-radius: $border-radius-sm;
 }
 
-// @deprecated tag:v6.6.0 - Class `line-item-ordernumber` will be removed. Use `line-item-product-number` instead.
-.line-item-ordernumber, line-item-product-number {
+.line-item-product-number {
     margin-bottom: $spacer-sm;
     font-size: $font-size-sm;
 }

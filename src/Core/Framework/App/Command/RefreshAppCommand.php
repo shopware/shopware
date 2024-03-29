@@ -58,7 +58,7 @@ class RefreshAppCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $refreshableApps = $this->appService->getRefreshableAppInfo($context);
         $requestedApps = $input->getArgument('name');

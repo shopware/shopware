@@ -108,9 +108,9 @@ export default class AddressEditorPlugin extends Plugin {
      * @private
      */
     _onOpen(pseudoModal) {
-        window.PluginManager.initializePlugins();
-
-        this._registerModalEvents(pseudoModal);
+        window.PluginManager.initializePlugins().then(() => {
+            this._registerModalEvents(pseudoModal);
+        });
 
         this.$emitter.publish('onOpen', { pseudoModal });
     }
@@ -147,7 +147,7 @@ export default class AddressEditorPlugin extends Plugin {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
                 const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
                 const target = DomAccess.querySelector(modal, targetSelector);
-                const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
+                const parentSelector = DomAccess.getDataAttribute(target, 'data-bs-parent');
                 const parent = DomAccess.querySelector(modal, parentSelector);
 
                 parent.addEventListener('hidden.bs.collapse', () => {

@@ -1,10 +1,7 @@
 /**
- * @package content
+ * @package inventory
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryEntryPointModal from 'src/module/sw-category/component/sw-category-entry-point-modal';
-
-Shopware.Component.register('sw-category-entry-point-modal', swCategoryEntryPointModal);
+import { mount } from '@vue/test-utils';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -27,45 +24,47 @@ async function createWrapper() {
         },
     ]);
 
-    return shallowMount(await Shopware.Component.build('sw-category-entry-point-modal'), {
-        stubs: {
-            'sw-modal': {
-                template: `
-                    <div class="sw-modal">
-                      <slot name="modal-header"></slot>
-                      <slot></slot>
-                      <slot name="modal-footer"></slot>
-                    </div>
-                `,
+    return mount(await wrapTestComponent('sw-category-entry-point-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal">
+                          <slot name="modal-header"></slot>
+                          <slot></slot>
+                          <slot name="modal-footer"></slot>
+                        </div>
+                    `,
+                },
+                'sw-single-select': true,
+                'sw-text-field': true,
+                'sw-textarea-field': true,
+                'sw-cms-list-item': true,
+                'sw-switch-field': true,
+                'sw-button': true,
             },
-            'sw-single-select': true,
-            'sw-text-field': true,
-            'sw-textarea-field': true,
-            'sw-cms-list-item': true,
-            'sw-switch-field': true,
-            'sw-button': true,
-        },
-        propsData: {
-            salesChannelCollection,
-        },
-        provide: {
-            cmsPageTypeService: {
-                getTypes: () => {
-                    return [{
-                        name: 'page',
-                        title: 'page',
-                    }, {
-                        name: 'landingpage',
-                        title: 'landingpage',
-                    }, {
-                        name: 'product_list',
-                        title: 'product_list',
-                    }, {
-                        name: 'product_detail',
-                        title: 'product_detail',
-                    }];
+            provide: {
+                cmsPageTypeService: {
+                    getTypes: () => {
+                        return [{
+                            name: 'page',
+                            title: 'page',
+                        }, {
+                            name: 'landingpage',
+                            title: 'landingpage',
+                        }, {
+                            name: 'product_list',
+                            title: 'product_list',
+                        }, {
+                            name: 'product_detail',
+                            title: 'product_detail',
+                        }];
+                    },
                 },
             },
+        },
+        props: {
+            salesChannelCollection,
         },
     });
 }
@@ -75,18 +74,10 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have enabled fields', async () => {
         global.activeAclRoles = ['category.editor'];
 
         const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled)
             .toBeUndefined();
@@ -102,8 +93,6 @@ describe('src/module/sw-category/component/sw-category-entry-point-modal', () =>
 
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-category-entry-point-modal__show-in-main-navigation').attributes().disabled)
             .toBe('true');

@@ -43,42 +43,6 @@
     text-align: right;
 }
 
-.checkout-aside-product-header {
-    margin-bottom: $spacer-lg;
-}
-
-/** @deprecated tag:v6.6.0 - Styling for "checkout-aside-item" will be removed because the corresponding templates were replaced with "line-item" in v6.5.0. Please build upon the CSS for "line-item" instead. */
-.checkout-aside-item {
-    margin-bottom: $spacer;
-
-    .checkout-aside-item-title {
-        font-weight: $font-weight-bold;
-        margin-bottom: $spacer-xs;
-    }
-
-    .checkout-aside-item-characteristics {
-        margin-bottom: $spacer-xs;
-
-        .checkout-aside-item-characteristics-option {
-            font-weight: $font-weight-bold;
-        }
-    }
-
-    .checkout-aside-item-link-quantity {
-        margin-bottom: $spacer-xs;
-    }
-}
-
-/** @deprecated tag:v6.6.0 - Styling for "checkout-aside-item" will be removed because the corresponding templates were replaced with "line-item" in v6.5.0. Please build upon the CSS for "line-item" instead. */
-.checkout-aside-item-price {
-    font-weight: $font-weight-bold;
-    text-align: right;
-}
-
 .checkout-aside-action {
-    margin-top: $spacer;
-}
-
-.checkout-aside-add-code {
     margin-top: $spacer;
 }

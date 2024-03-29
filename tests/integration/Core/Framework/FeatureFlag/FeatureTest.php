@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
@@ -12,9 +14,8 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class FeatureTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -158,6 +159,10 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
+        set_error_handler(static function (int $errno, string $errstr): never {
+            throw new \Exception($errstr, $errno);
+        }, \E_USER_WARNING);
+
         $_SERVER['APP_ENV'] = 'test';
         $_ENV['APP_ENV'] = 'test';
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
@@ -172,6 +177,8 @@ class FeatureTest extends TestCase
         $this->expectExceptionMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
 
         $template->render([]);
+
+        restore_error_handler();
     }
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
@@ -232,9 +239,7 @@ class FeatureTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider featureAllDataProvider
-     */
+    #[DataProvider('featureAllDataProvider')]
     public function testFeatureAll(string $appEnv, bool $active): void
     {
         $_SERVER['FEATURE_NEXT_102'] = 'true';
@@ -569,11 +574,10 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $featureConfig
+     * @param array<string, array{name?: string, default?: bool, major?: bool, description?: string}> $featureConfig
      * @param array<string, string> $env
-     *
-     * @dataProvider isActiveDataProvider
      */
+    #[DataProvider('isActiveDataProvider')]
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
     {
         $_SERVER['APP_ENV'] = 'prod';

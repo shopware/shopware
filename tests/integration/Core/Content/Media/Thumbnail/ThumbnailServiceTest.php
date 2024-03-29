@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Thumbnail;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
@@ -13,9 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Thumbnail\ThumbnailService
  */
+#[CoversClass(ThumbnailService::class)]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -40,7 +40,7 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb');
+        $resource = fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'r');
         \assert($resource !== false);
 
         $this->getFilesystem('shopware.filesystem.public')->writeStream($media->getPath(), $resource);

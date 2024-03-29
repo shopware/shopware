@@ -15,7 +15,7 @@ use Shopware\Core\System\Country\CountryCollection;
 class CustomerAddressCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCustomerIds(): array
     {
@@ -28,7 +28,7 @@ class CustomerAddressCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCountryIds(): array
     {
@@ -41,7 +41,7 @@ class CustomerAddressCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getCountryStateIds(): array
     {

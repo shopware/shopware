@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
-use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -27,14 +28,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class LoginRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -115,7 +114,7 @@ class LoginRouteTest extends TestCase
         static::assertNotEmpty($contextToken);
     }
 
-    public function testItUpdatesCustomerLanguageIdOnValidLogin(): void
+    public function testItNotUpdatesCustomerLanguageIdOnValidLogin(): void
     {
         $email = Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($email, null, true, $this->getDeDeLanguageId());
@@ -131,7 +130,7 @@ class LoginRouteTest extends TestCase
             );
 
         static::assertEquals(
-            Defaults::LANGUAGE_SYSTEM,
+            $this->getDeDeLanguageId(),
             $this->customerRepository->search(
                 new Criteria([$customerId]),
                 Context::createDefaultContext()
@@ -165,7 +164,7 @@ class LoginRouteTest extends TestCase
 
     public function testLoginWithInvalidBoundSalesChannelId(): void
     {
-        static::expectException(UnauthorizedHttpException::class);
+        static::expectException(CustomerNotFoundException::class);
 
         $email = Uuid::randomHex() . '@example.com';
         $salesChannel = $this->createSalesChannel([
@@ -194,9 +193,8 @@ class LoginRouteTest extends TestCase
         $customerId = $this->createCustomer($email);
         $contextToken = Uuid::randomHex();
 
-        $this->createCart($contextToken);
-
         $salesChannelContext = $this->createSalesChannelContext($contextToken, [], $customerId);
+        $this->createCart($contextToken, $salesChannelContext);
 
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
@@ -255,9 +253,9 @@ class LoginRouteTest extends TestCase
 
         $salesChannelContext2 = $this->createSalesChannelContext($this->ids->get('context-2'), [], $customerId, $this->ids->get('sales-channel-2'));
 
-        $this->createCart($this->ids->get('context-1'));
+        $this->createCart($this->ids->get('context-1'), $salesChannelContext1);
 
-        $this->createCart($this->ids->get('context-2'));
+        $this->createCart($this->ids->get('context-2'), $salesChannelContext2);
 
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
@@ -277,33 +275,11 @@ class LoginRouteTest extends TestCase
         static::assertNotEquals($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
     }
 
-    private function createCart(string $contextToken): void
+    private function createCart(string $contextToken, SalesChannelContext $context): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $persister = $this->getContainer()->get(CartPersister::class);
 
-        $defaultCountry = $connection->fetchOne('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
-        $defaultPaymentMethod = $connection->fetchOne('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`');
-        $defaultShippingMethod = $connection->fetchOne('SELECT id FROM shipping_method WHERE active = 1');
-
-        // @deprecated tag:v6.6.0 - keep $column = 'payload'
-        $column = 'cart';
-        if (EntityDefinitionQueryHelper::columnExists($connection, 'cart', 'payload')) {
-            $column = 'payload';
-        }
-
-        $connection->insert('cart', [
-            'token' => $contextToken,
-            $column => serialize(new Cart($contextToken)),
-            'line_item_count' => 1,
-            'rule_ids' => json_encode([]),
-            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
-            'country_id' => $defaultCountry,
-            'price' => 1,
-            'payment_method_id' => $defaultPaymentMethod,
-            'shipping_method_id' => $defaultShippingMethod,
-            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $persister->save(new Cart($contextToken), $context);
     }
 
     /**

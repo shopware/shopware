@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -115,9 +116,8 @@ class JsonApiEncoderTest extends TestCase
 
     /**
      * @param mixed $input
-     *
-     * @dataProvider emptyInputProvider
      */
+    #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput($input): void
     {
         $this->expectException(UnsupportedEncoderInputException::class);
@@ -142,9 +142,7 @@ class JsonApiEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider complexStructsProvider
-     */
+    #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
         /** @var EntityDefinition $definition */
@@ -308,9 +306,8 @@ class JsonApiEncoderTest extends TestCase
     /**
      * @param array<mixed> $input
      * @param array<mixed>|null $output
-     *
-     * @dataProvider customFieldsProvider
      */
+    #[DataProvider('customFieldsProvider')]
     public function testCustomFields(array $input, $output): void
     {
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);

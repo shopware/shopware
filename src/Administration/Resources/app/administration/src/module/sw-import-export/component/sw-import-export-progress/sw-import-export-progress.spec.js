@@ -1,24 +1,17 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swImportExportProgress from 'src/module/sw-import-export/component/sw-import-export-progress';
-
-Shopware.Component.register('sw-import-export-progress', swImportExportProgress);
+import { mount } from '@vue/test-utils';
 
 describe('module/sw-import-export/components/sw-import-export-progress', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-progress'), {
-            stubs: [
-                'sw-button',
-            ],
-        });
+        wrapper = mount(await wrapTestComponent('sw-import-export-progress', { sync: true }));
     });
 
     afterEach(() => {
-        wrapper.destroy();
+        wrapper.unmount();
     });
 
     it('should be a Vue.js component', async () => {

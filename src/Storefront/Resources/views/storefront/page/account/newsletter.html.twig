@@ -3,7 +3,7 @@
         {% if newsletterAccountPagelet.messages|length > 0 %}
             <div class="newsletter-alerts">
                 {% for message in newsletterAccountPagelet.messages %}
-                    {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text } %}
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: message.type, content: message.text } %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -17,11 +17,9 @@
     {% block page_account_overview_newsletter_content_form %}
         <form name="newsletterRegister"
               method="post"
-              action="{{ path("frontend.account.newsletter") }}"
+              action="{{ path('frontend.account.newsletter') }}"
               data-form-auto-submit="true"
-              {# ludtwig-ignore html-string-quotation #}
-              data-form-auto-submit-options='{{ formAutoSubmitOptions|json_encode }}'>
-
+              data-form-auto-submit-options="{{ formAutoSubmitOptions|json_encode }}">
             {% block page_account_overview_newsletter_content_form_check_control %}
                 <div class="form-check">
                     {% block page_account_overview_newsletter_content_form_input %}
@@ -46,7 +44,7 @@
                     {% block page_account_overview_newsletter_content_form_label %}
                         <label class="form-check-label custom-control-label"
                                for="newsletterRegister">
-                            {{ "account.newsletterSettings"|trans({'%shopname%': config('core.basicInformation.shopName')})|sw_sanitize }}
+                            {{ 'account.newsletterSettings'|trans({'%shopname%': config('core.basicInformation.shopName')})|sw_sanitize }}
                         </label>
                     {% endblock %}
                 </div>

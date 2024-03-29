@@ -1,16 +1,12 @@
-import swOrderUserCard from 'src/module/sw-order/component/sw-order-user-card';
-
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-user-card', swOrderUserCard);
 
 describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', () => {
     let userCard;
 
     beforeAll(async () => {
-        userCard = await Shopware.Component.build('sw-order-user-card');
+        userCard = await wrapTestComponent('sw-order-user-card', { sync: true });
     });
 
     const trackingCode = 'TR-4CK1N-GCD';
@@ -79,9 +75,5 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
                 shippingMethodWithPlaceholder,
             ),
         ).toBe(`${trackingUrl}${trackingCode}lorem%20ipsum%20dolor%20sit%20amet`);
-    });
-
-    it('should return filters from filter registry', async () => {
-        expect(userCard.computed.currencyFilter()).toEqual(expect.any(Function));
     });
 });

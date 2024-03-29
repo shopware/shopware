@@ -24,11 +24,9 @@ interface Hookable
     public function getName(): string;
 
     /**
-     * @param AppEntity|null $app - @deprecated tag:v6.6.0 parameter $app will be required in v6.6.0.0
-     *
      * @return array<mixed>
      */
-    public function getWebhookPayload(): array;
+    public function getWebhookPayload(?AppEntity $app = null): array;
 
     /**
      * returns if it is allowed to dispatch the event to given app with given permissions

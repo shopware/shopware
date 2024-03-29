@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -26,7 +27,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class PaymentMethodRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -294,10 +295,9 @@ class PaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider matchDataProvider
-     *
      * @param array<string, string|array<string>> $ruleProperties
      */
+    #[DataProvider('matchDataProvider')]
     public function testMatch(array $ruleProperties, string $paymentMethodId, bool $expected): void
     {
         $paymentMethodRule = new PaymentMethodRule();

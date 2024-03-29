@@ -42,6 +42,7 @@ export default {
             isSaveSuccessful: false,
             showModalReplace: false,
             fileNameError: null,
+            arReady: false,
         };
     },
 
@@ -68,11 +69,20 @@ export default {
                 'has--error': this.fileNameError,
             };
         },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isSpatial() {
+            // we need to check the media url since media.fileExtension is set directly after upload
+            return this.item?.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
+        },
     },
 
     watch: {
         'item.id': {
             handler() {
+                this.fetchSpatialItemConfig();
                 this.fileNameError = null;
             },
         },
@@ -85,6 +95,19 @@ export default {
     methods: {
         createdComponent() {
             this.loadCustomFieldSets();
+            this.fetchSpatialItemConfig();
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        async fetchSpatialItemConfig() {
+            await this.mediaRepository
+                .get(this.item.id, Shopware.Context.api)
+                .then(entity => {
+                    // Set default if undefined
+                    this.arReady = entity?.config?.spatial?.arReady ?? false;
+                });
         },
 
         loadCustomFieldSets() {
@@ -107,12 +130,19 @@ export default {
             this.isSaveSuccessful = false;
         },
 
-        copyLinkToClipboard() {
+        async copyLinkToClipboard() {
             if (this.item) {
-                dom.copyToClipboard(this.item.url);
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-media.general.notification.urlCopied.message'),
-                });
+                try {
+                    await dom.copyStringToClipboard(this.item.url);
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                    });
+                } catch (err) {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                    });
+                }
             }
         },
 
@@ -216,6 +246,26 @@ export default {
 
         onRemoveFileNameError() {
             this.fileNameError = null;
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        toggleAR(newValue) {
+            const newSpatialConfig = {
+                spatial: {
+                    arReady: newValue,
+                    updatedAt: Date.now(),
+                },
+            };
+            const newItemConfig = {
+                config: {
+                    ...this.item.config,
+                    ...newSpatialConfig,
+                },
+            };
+
+            this.$emit('update:item', { ...this.item, ...newItemConfig });
         },
     },
 };

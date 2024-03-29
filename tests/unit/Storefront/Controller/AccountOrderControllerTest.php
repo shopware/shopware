@@ -2,8 +2,10 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -25,6 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AccountOrderController;
@@ -40,9 +43,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\AccountOrderController
  */
+#[CoversClass(AccountOrderController::class)]
 class AccountOrderControllerTest extends TestCase
 {
     private AccountOrderControllerTestClass $controller;
@@ -176,6 +178,70 @@ class AccountOrderControllerTest extends TestCase
         // Ensure flash massage is shown
         static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_ALREADY_PAID', $this->controller->flash);
         static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
+    }
+
+    public function testCancelOrderRedirectsToCorrectRouteForLoggedInCustomer(): void
+    {
+        $routerMock = $this->createMock(RouterInterface::class);
+        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $dispatcher = static::createMock(EventDispatcherInterface::class);
+
+        $container = new ContainerBuilder();
+        $container->set('router', $routerMock);
+        $container->set('event_dispatcher', $dispatcher);
+        $this->controller->setContainer($container);
+
+        $customer = new CustomerEntity();
+        $customer->setGuest(false);
+        $salesChannelContextMock->method('getCustomer')->willReturn($customer);
+
+        $expectedRouteName = 'frontend.account.order.page';
+        $expectedRedirectUrl = 'http://localhost/account/order';
+        $routerMock->expects(static::once())
+            ->method('generate')
+            ->with(static::equalTo($expectedRouteName))
+            ->willReturn($expectedRedirectUrl);
+
+        $request = new Request();
+        $request->attributes->set('orderId', Uuid::randomHex());
+
+        $response = $this->controller->cancelOrder($request, $salesChannelContextMock);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertEquals($expectedRedirectUrl, $response->getTargetUrl());
+    }
+
+    public function testCancelOrderRedirectsToCorrectRouteForGuestCustomer(): void
+    {
+        $routerMock = $this->createMock(RouterInterface::class);
+        $salesChannelContextMock = $this->createMock(SalesChannelContext::class);
+        $dispatcher = static::createMock(EventDispatcherInterface::class);
+
+        $container = new ContainerBuilder();
+        $container->set('router', $routerMock);
+        $container->set('event_dispatcher', $dispatcher);
+
+        $this->controller->setContainer($container);
+
+        $customer = new CustomerEntity();
+        $customer->setGuest(true);
+        $salesChannelContextMock->method('getCustomer')->willReturn($customer);
+
+        $expectedRouteName = 'frontend.account.order.single.page';
+        $expectedRedirectUrl = 'http://localhost/account/order/guest';
+        $routerMock->expects(static::once())
+            ->method('generate')
+            ->with(static::equalTo($expectedRouteName))
+            ->willReturn($expectedRedirectUrl);
+
+        $request = new Request();
+        $request->attributes->set('orderId', Uuid::randomHex());
+        $request->attributes->set('deepLinkCode', 'deep-link-code');
+
+        $response = $this->controller->cancelOrder($request, $salesChannelContextMock);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertEquals($expectedRedirectUrl, $response->getTargetUrl());
     }
 }
 

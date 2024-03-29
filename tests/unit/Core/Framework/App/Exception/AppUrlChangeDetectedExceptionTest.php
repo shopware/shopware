@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException
  */
+#[CoversClass(AppUrlChangeDetectedException::class)]
 class AppUrlChangeDetectedExceptionTest extends TestCase
 {
     public function testException(): void

@@ -38,11 +38,7 @@
             {% block sw_product_detail_seo_urls_content_seo_additional %}
             <sw-inherit-wrapper
                 v-if="product.mainCategories"
-                {% if VUE3 %}
                 v-model:value="productMainCategory"
-                {% else %}
-                v-model="productMainCategory"
-                {% endif %}
                 :has-parent="!!parentProduct.id && !!props.currentSalesChannelId && product.categories.length === 0"
                 :label="$tc('sw-seo-url.labelMainCategory')"
                 :inherited-value="parentMainCategory"

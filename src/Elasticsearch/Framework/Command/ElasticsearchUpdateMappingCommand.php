@@ -28,7 +28,7 @@ class ElasticsearchUpdateMappingCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->indexMappingUpdater->update(Context::createDefaultContext());
+        $this->indexMappingUpdater->update(Context::createCLIContext());
 
         return self::SUCCESS;
     }

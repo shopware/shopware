@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Hookable;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
@@ -21,9 +22,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory
  */
+#[CoversClass(HookableEventFactory::class)]
 class HookableEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

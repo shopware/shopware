@@ -2,24 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemQuantity::class)]
 class LineItemQuantityTest extends TestCase
 {
     /**
      * This test verifies that our property is correctly
      * assigned and returned in its getter.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testPropertyLineItemId(): void
     {
         $item = new LineItemQuantity('ID1', 2);
@@ -30,9 +30,8 @@ class LineItemQuantityTest extends TestCase
     /**
      * This test verifies that our property is correctly
      * assigned and returned in its getter.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testPropertQuantity(): void
     {
         $item = new LineItemQuantity('ID1', 2);
@@ -43,9 +42,8 @@ class LineItemQuantityTest extends TestCase
     /**
      * This test verifies that its possible
      * to adjust the quantity value of this object.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testSetQuantity(): void
     {
         $item = new LineItemQuantity('ID1', 2);

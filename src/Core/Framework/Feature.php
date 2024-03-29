@@ -4,11 +4,12 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string}
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string, active?: bool, static?: bool}
  */
 #[Package('core')]
 class Feature
@@ -89,7 +90,13 @@ class Feature
         }
 
         $featureAll = EnvironmentHelper::getVariable('FEATURE_ALL', '');
+
         if (self::isTrue((string) $featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
+            // If feature is not major and is have set active, return the active state
+            if (\array_key_exists($feature, self::$registeredFeatures) && (self::$registeredFeatures[$feature]['major'] ?? false) === false && \array_key_exists('active', self::$registeredFeatures[$feature])) {
+                return self::$registeredFeatures[$feature]['active'];
+            }
+
             if ($featureAll === Feature::ALL_MAJOR) {
                 return true;
             }
@@ -98,6 +105,10 @@ class Feature
             if (isset(self::$registeredFeatures[$feature]) && (self::$registeredFeatures[$feature]['major'] ?? false) === false) {
                 return true;
             }
+        }
+
+        if (\array_key_exists($feature, self::$registeredFeatures) && \array_key_exists('active', self::$registeredFeatures[$feature])) {
+            return self::$registeredFeatures[$feature]['active'];
         }
 
         if (!EnvironmentHelper::hasVariable($feature) && !EnvironmentHelper::hasVariable(\strtolower($feature))) {
@@ -112,6 +123,17 @@ class Feature
     public static function ifActive(string $flagName, \Closure $closure): void
     {
         self::isActive($flagName) && $closure();
+    }
+
+    public static function setActive(string $feature, bool $active): void
+    {
+        $feature = self::normalizeName($feature);
+
+        if (!isset(self::$registeredFeatures[$feature])) {
+            throw FeatureException::featureNotRegistered($feature);
+        }
+
+        self::$registeredFeatures[$feature]['active'] = $active;
     }
 
     public static function ifNotActive(string $flagName, \Closure $closure): void
@@ -179,7 +201,7 @@ class Feature
     public static function throwException(string $flag, string $message, bool $state = true): void
     {
         if (self::isActive($flag) === $state || (self::$registeredFeatures !== [] && !self::has($flag))) {
-            throw new \RuntimeException($message);
+            throw FeatureException::error($message);
         }
 
         if (\PHP_SAPI !== 'cli') {
@@ -190,7 +212,7 @@ class Feature
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
         if (self::isActive($majorFlag) || (self::$registeredFeatures !== [] && !self::has($majorFlag))) {
-            throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
+            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
         }
 
         if (empty(self::$silent[$majorFlag])) {
@@ -204,10 +226,14 @@ class Feature
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
     {
+        $fullQualifiedMethodName = sprintf('%s::%s', $class, $method);
+        if (str_contains($method, '::')) {
+            $fullQualifiedMethodName = $method;
+        }
+
         $message = \sprintf(
-            'Method "%s::%s()" is deprecated and will be removed in %s.',
-            $class,
-            $method,
+            'Method "%s()" is deprecated and will be removed in %s.',
+            $fullQualifiedMethodName,
             $majorVersion
         );
 

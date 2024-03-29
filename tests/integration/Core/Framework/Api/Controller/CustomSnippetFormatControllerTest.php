@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -90,10 +91,9 @@ class CustomSnippetFormatControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider renderProvider
-     *
      * @param array{format: array<int, array<int, string>>, data: array<string, mixed>} $payload
      */
+    #[DataProvider('renderProvider')]
     public function testRender(array $payload, string $expectedHtml): void
     {
         $url = '/api/_action/custom-snippet/render';

@@ -1,7 +1,7 @@
 ---
 title: Integrate an app into the flow event
 date: 2022-10-11
-area: business-ops
+area: services-settings
 tags: [flow, app]
 ---
 
@@ -33,7 +33,7 @@ interface CustomAppAware
 ```
 
 ### Flow storer
-Flow data storer saves the data from the event as the [StorableFlow](../../adr/admin/flow-builder/2022-07-21-adding-the-StorableFlow-to-implement-DelayAction-in-Flow-Builder.md), and we use them in flow actions.
+Flow data storer saves the data from the event as the [StorableFlow](../adr/2022-07-21-adding-the-storable-flow-to-implement-delay-action-in-flow-builder.md), and we use them in flow actions.
 
 **Problems:**
 * Currently, we keep the event data in the core but do not store any personalized event data from the application.

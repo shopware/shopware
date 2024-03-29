@@ -34,8 +34,4 @@ class Migration1694426018AddEntityIndexToStateMachineHistory extends MigrationSt
             ');
         }
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

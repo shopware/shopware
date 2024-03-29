@@ -56,18 +56,14 @@
                 <sw-entity-single-select
                     v-if="!isProductPage"
                     ref="cmsProductSelection"
-                    v-model="element.config.product.value"
+                    v-model:value="element.config.product.value"
                     entity="product"
                     :label="$tc('sw-cms.elements.productBox.config.label.selection')"
                     :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
                     :criteria="productCriteria"
                     :context="productSelectContext"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="onProductChange"
-                    {% else %}
-                    @change="onProductChange"
-                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_variant_selected_item %}
@@ -111,11 +107,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_el_product_description_rating_config_options_alignment %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.alignment.value"
-                    {% else %}
-                    v-model="element.config.alignment.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.general.config.label.alignment')"
                     :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"
                 >

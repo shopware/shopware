@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Framework\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -20,11 +21,10 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
 #[Package('buyers-experience')]
+#[Group('slow')]
+#[Group('skip-paratest')]
 class NavigationPageSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;

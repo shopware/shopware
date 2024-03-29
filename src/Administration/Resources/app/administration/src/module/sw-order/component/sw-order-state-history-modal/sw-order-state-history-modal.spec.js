@@ -1,12 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderStateHistoryModalComponent from 'src/module/sw-order/component/sw-order-state-history-modal';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/grid/sw-pagination';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 function getCollection(entity, collection) {
@@ -59,6 +55,7 @@ const stateHistoryFixture = [
             username: 'admin',
         },
         createdAt: '2022-10-12T10:01:33.815+00:00',
+        referencedId: '2',
     },
 ];
 
@@ -109,75 +106,73 @@ orderProp.deliveries.first = () => ({
     },
 });
 
-Shopware.Component.register('sw-order-state-history-modal', swOrderStateHistoryModalComponent);
-
 describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     let SwOrderStateHistoryModal;
 
-    async function createWrapper(options = {}) {
-        return shallowMount(SwOrderStateHistoryModal, {
-            stubs: {
-                'sw-modal': {
-                    template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
+    async function createWrapper(options = {}, order = orderProp, stateHistory = stateHistoryFixture) {
+        return mount(SwOrderStateHistoryModal, {
+            global: {
+                stubs: {
+                    'sw-modal': {
+                        template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                    'sw-data-grid-skeleton': true,
+                    'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
+                    'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                    'sw-icon': true,
+                    'sw-time-ago': true,
+                    'sw-label': {
+                        template: '<div class="sw-label"><slot></slot></div>',
+                    },
                 },
-                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-data-grid-skeleton': true,
-                'sw-pagination': await Shopware.Component.build('sw-pagination'),
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-icon': true,
-                'sw-time-ago': true,
-                'sw-label': {
-                    template: '<div class="sw-label"><slot></slot></div>',
+                provide: {
+                    stateStyleDataProviderService: {
+                        getStyle: () => {
+                            return {
+                                variant: '',
+                            };
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                if (options.error) {
+                                    // eslint-disable-next-line prefer-promise-reject-errors
+                                    return Promise.reject({
+                                        response: {
+                                            data: {
+                                                errors: [
+                                                    {
+                                                        code: 'This is an error code',
+                                                        detail: 'This is an detailed error message',
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                    });
+                                }
+
+                                return Promise.resolve(getCollection('state_machine_history', stateHistory));
+                            },
+                        }),
+                    },
                 },
             },
-
             data() {
                 return {
                     ...options,
                 };
             },
-
-            provide: {
-                stateStyleDataProviderService: {
-                    getStyle: () => {
-                        return {
-                            variant: '',
-                        };
-                    },
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            if (options.error) {
-                                // eslint-disable-next-line prefer-promise-reject-errors
-                                return Promise.reject({
-                                    response: {
-                                        data: {
-                                            errors: [
-                                                {
-                                                    code: 'This is an error code',
-                                                    detail: 'This is an detailed error message',
-                                                },
-                                            ],
-                                        },
-                                    },
-                                });
-                            }
-
-                            return Promise.resolve(getCollection('state_machine_history', stateHistoryFixture));
-                        },
-                    }),
-                },
-            },
-            propsData: {
+            props: {
                 isLoading: false,
-                order: orderProp,
+                order,
             },
         });
     }
 
     beforeAll(async () => {
-        SwOrderStateHistoryModal = await Shopware.Component.build('sw-order-state-history-modal');
+        SwOrderStateHistoryModal = await wrapTestComponent('sw-order-state-history-modal', { sync: true });
     });
 
     it('should be a Vue.js component', async () => {
@@ -249,5 +244,69 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
 
         expect(pageButtons.at(1).classes()).toContain('is-active');
         expect(wrapper.vm.page).toBe(2);
+    });
+
+    it('should have multiple transactions', async () => {
+        orderProp.transactions.push(); // add transaction twice
+
+        const wrapper = await createWrapper(
+            {},
+            { ...orderProp, transactions: [...orderProp.transactions, { ...orderProp.transactions[0], id: '4' }] },
+        );
+
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+    });
+
+    it('should enumerate multiple transactions', async () => {
+        // add second transaction
+        const wrapper = await createWrapper(
+            {},
+            { ...orderProp, transactions: [...orderProp.transactions, { ...orderProp.transactions[0], id: '4' }] },
+            [...stateHistoryFixture, { ...stateHistoryFixture[1], referencedId: '4' }],
+        );
+
+        const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
+
+        await flushPromises();
+
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+
+        const allEntityColumns = await wrapper.findAll('.sw-data-grid__cell--entity > .sw-data-grid__cell-content');
+        expect(allEntityColumns.map((c) => c.text())).toEqual([
+            'global.entities.order',
+            'global.entities.order_delivery',
+            'global.entities.order_transaction 1',
+            'global.entities.order_transaction 2', // New-transaction-started entry
+            'global.entities.order_transaction 2',
+        ]);
+
+
+        const allUserColumns = await wrapper.findAll('.sw-data-grid__cell--user > .sw-data-grid__cell-content');
+        expect(allUserColumns.map((c) => c.text())).toEqual([
+            'sw-order.stateHistoryModal.labelSystemUser',
+            'admin',
+            'admin',
+            'sw-order.stateHistoryModal.labelSystemUser', // New-transaction-started entry
+            'admin',
+        ]);
+    });
+
+    it('should not enumerate single transaction', async () => {
+        const wrapper = await createWrapper();
+
+        const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
+
+        await flushPromises();
+
+        expect(wrapper.vm.hasMultipleTransactions).toBe(false);
+        expect(spy).toHaveBeenCalledTimes(3);
+
+        const allEntityColumns = await wrapper.findAll('.sw-data-grid__cell--entity > .sw-data-grid__cell-content');
+        expect(allEntityColumns.map((c) => c.text())).toEqual([
+            'global.entities.order',
+            'global.entities.order_delivery',
+            'global.entities.order_transaction',
+        ]);
     });
 });

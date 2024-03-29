@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
@@ -41,9 +42,8 @@ class SetOrderCustomFieldActionTest extends TestCase
      * @param array<int, mixed>|null $existedData
      * @param array<int, mixed>|null $updateData
      * @param array<int, mixed>|null $expectData
-     *
-     * @dataProvider createDataProvider
      */
+    #[DataProvider('createDataProvider')]
     public function testCreateCustomFieldForOrder(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
     {
         $customFieldName = 'custom_field_test';

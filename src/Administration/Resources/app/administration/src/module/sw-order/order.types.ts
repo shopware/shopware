@@ -1,4 +1,4 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 /**
  * @package checkout
@@ -14,6 +14,7 @@ enum LineItemType {
     CREDIT = 'credit',
     CUSTOM = 'custom',
     PROMOTION = 'promotion',
+    CONTAINER = 'container',
 }
 
 enum PriceType {

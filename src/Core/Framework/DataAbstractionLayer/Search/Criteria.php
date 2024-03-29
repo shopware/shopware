@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Util\Json;
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
+
     final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
@@ -41,17 +42,17 @@ class Criteria extends Struct implements \Stringable
     final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
-     * @var FieldSorting[]
+     * @var list<FieldSorting>
      */
     protected $sorting = [];
 
     /**
-     * @var Filter[]
+     * @var array<array-key, Filter>
      */
     protected $filters = [];
 
     /**
-     * @var Filter[]
+     * @var list<Filter>
      */
     protected $postFilters = [];
 
@@ -61,12 +62,12 @@ class Criteria extends Struct implements \Stringable
     protected $aggregations = [];
 
     /**
-     * @var ScoreQuery[]
+     * @var list<ScoreQuery>
      */
     protected $queries = [];
 
     /**
-     * @var FieldGrouping[]
+     * @var list<FieldGrouping>
      */
     protected $groupFields = [];
 
@@ -86,7 +87,7 @@ class Criteria extends Struct implements \Stringable
     protected $totalCountMode = self::TOTAL_COUNT_MODE_NONE;
 
     /**
-     * @var Criteria[]
+     * @var array<string, Criteria>
      */
     protected $associations = [];
 
@@ -116,7 +117,7 @@ class Criteria extends Struct implements \Stringable
     protected $title;
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     protected array $fields = [];
 
@@ -169,7 +170,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return FieldSorting[]
+     * @return list<FieldSorting>
      */
     public function getSorting(): array
     {
@@ -190,7 +191,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return Filter[]
+     * @return array<array-key, Filter>
      */
     public function getFilters(): array
     {
@@ -206,7 +207,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return Filter[]
+     * @return list<Filter>
      */
     public function getPostFilters(): array
     {
@@ -214,7 +215,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return ScoreQuery[]
+     * @return list<ScoreQuery>
      */
     public function getQueries(): array
     {
@@ -222,7 +223,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return Criteria[]
+     * @return array<string, Criteria>
      */
     public function getAssociations(): array
     {
@@ -334,7 +335,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param string[] $paths
+     * @param array<string> $paths
      *
      * Allows to add multiple associations paths
      *
@@ -527,7 +528,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return FieldGrouping[]
+     * @return list<FieldGrouping>
      */
     public function getGroupFields(): array
     {
@@ -602,7 +603,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param string[] $fields
+     * @param list<string> $fields
      */
     public function addFields(array $fields): self
     {
@@ -612,7 +613,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getFields(): array
     {
@@ -629,7 +630,6 @@ class Criteria extends Struct implements \Stringable
         $fields = [];
 
         foreach ($parts as $part) {
-            /** @var CriteriaPartInterface $item */
             foreach ($part as $item) {
                 foreach ($item->getFields() as $field) {
                     $fields[] = $field;

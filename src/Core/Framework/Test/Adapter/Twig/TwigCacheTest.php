@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
@@ -16,9 +17,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @group cache
  */
+#[Group('cache')]
 class TwigCacheTest extends TestCase
 {
     use KernelTestBehaviour;

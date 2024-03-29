@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -18,12 +21,10 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderTrackingCodeRule
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(OrderTrackingCodeRule::class)]
+#[Group('rules')]
 class OrderTrackingCodeRuleTest extends TestCase
 {
     private OrderTrackingCodeRule $rule;
@@ -34,10 +35,9 @@ class OrderTrackingCodeRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getRuleTestData
-     *
      * @param list<string> $trackingCodeData
      */
+    #[DataProvider('getRuleTestData')]
     public function testIfMatches(
         OrderTrackingCodeRule $rule,
         array $trackingCodeData,
@@ -52,19 +52,19 @@ class OrderTrackingCodeRuleTest extends TestCase
         $order = new OrderEntity();
         $order->setDeliveries($orderDeliveryCollection);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('token');
         $context = $this->createMock(SalesChannelContext::class);
 
         $match = $rule->match(new FlowRuleScope(
             $order,
             $cart,
-            $context
+            $this->createMock(SalesChannelContext::class)
         ));
         static::assertSame($expected, $match);
     }
 
     /**
-     * @return iterable<string, array{OrderTrackingCodeRule, list<string>, boolean}>
+     * @return iterable<string, array{OrderTrackingCodeRule, list<string>, bool}>
      */
     public static function getRuleTestData(): iterable
     {
@@ -107,11 +107,11 @@ class OrderTrackingCodeRuleTest extends TestCase
 
     public function testNoOrderDeliveries(): void
     {
-        $order = new OrderEntity();
-
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $scope = new FlowRuleScope($order, $cart, $context);
+        $scope = new FlowRuleScope(
+            new OrderEntity(),
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
 
         $this->rule->assign(['isSet' => true]);
         static::assertFalse($this->rule->match($scope));
@@ -143,7 +143,7 @@ class OrderTrackingCodeRuleTest extends TestCase
         static::assertEquals([
             'operatorSet' => null,
             'fields' => [
-                [
+                'isSet' => [
                     'name' => 'isSet',
                     'type' => 'bool',
                     'config' => [],

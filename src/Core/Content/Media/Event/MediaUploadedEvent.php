@@ -3,8 +3,8 @@
 namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
-use Shopware\Core\Content\Flow\Dispatching\Aware\MediaUploadedAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -14,11 +14,8 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - MediaUploadedAware is deprecated and will be removed in v6.6.0
- */
 #[Package('buyers-experience')]
-class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValuesAware, FlowEventAware, Hookable
+class MediaUploadedEvent extends Event implements ScalarValuesAware, FlowEventAware, Hookable
 {
     public const EVENT_NAME = 'media.uploaded';
 
@@ -56,7 +53,7 @@ class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValu
         return $this->context;
     }
 
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return [
             'mediaId' => $this->mediaId,

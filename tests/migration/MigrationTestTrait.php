@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Migration;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 /**
@@ -9,17 +11,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
  */
 trait MigrationTestTrait
 {
-    /**
-     * @before
-     */
+    #[Before]
     public function startTransaction(): void
     {
         KernelLifecycleManager::getConnection()->beginTransaction();
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function rollbackTransaction(): void
     {
         KernelLifecycleManager::getConnection()->rollBack();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\DevOps\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -11,9 +12,8 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\DevOps\System\Command\OpenApiValidationCommand
  */
+#[CoversClass(OpenApiValidationCommand::class)]
 class OpenApiValidationCommandTest extends TestCase
 {
     public function testRunWithoutErrors(): void

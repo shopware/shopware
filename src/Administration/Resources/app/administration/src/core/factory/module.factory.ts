@@ -7,15 +7,8 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
-import type { Route } from 'vue-router';
-import type {
-    Component,
-    Dictionary,
-    NavigationGuard,
-    PathToRegexpOptions,
-    RedirectOption,
-    RoutePropsFunction,
-} from 'vue-router/types/router';
+import type { NavigationGuard, RouteLocationNamedRaw, RouteRecordRedirectOption, RouterLinkProps } from 'vue-router';
+import type { App } from 'vue';
 import type { ComponentConfig } from './async-component.factory';
 import type { Snippets } from './locale.factory';
 
@@ -35,20 +28,19 @@ export type ModuleTypes = 'plugin' | 'core';
 interface SwRouteConfig {
     path: string;
     name?: string;
-    component?: string | Component;
-    components?: Dictionary<Component> | {
+    component?: string | App<Element>;
+    components?: Record<string, App<Element>> | {
         default: string
     };
-    redirect?: RedirectOption;
+    redirect?: RouteRecordRedirectOption;
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
     // eslint-disable-next-line @typescript-eslint/ban-types
-    props?: boolean | Object | RoutePropsFunction;
+    props?: boolean | Object | RouterLinkProps;
     caseSensitive?: boolean;
-    pathToRegexpOptions?: PathToRegexpOptions;
     coreRoute?: boolean;
     type?: ModuleTypes;
     flag?: string;
@@ -88,7 +80,7 @@ interface SettingsItem {
 export interface ModuleManifest {
     flag?: string,
     type: ModuleTypes,
-    routeMiddleware?: (next: () => void, currentRoute: Route) => void,
+    routeMiddleware?: (next: () => void, currentRoute: RouteLocationNamedRaw) => void,
     routes: {
         [key: string]: SwRouteConfig
     },
@@ -382,7 +374,7 @@ function iterateChildRoutes(routeDefinition: SwRouteConfig): SwRouteConfig {
         return routeDefinition;
     }
 
-    routeDefinition.children = Object.entries(routeDefinitionChildren).map(([key, child]) => {
+    routeDefinition.children = Object.entries(routeDefinitionChildren).map(([key, child]: [string, SwRouteConfig]) => {
         if (child.path && child.path.length === 0) {
             child.path = '';
         } else {
@@ -432,11 +424,11 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
             return;
         }
 
-        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         componentList[componentKey] = component;
     });
 
+    // @ts-expect-error
     route.components = componentList;
 
     return route;

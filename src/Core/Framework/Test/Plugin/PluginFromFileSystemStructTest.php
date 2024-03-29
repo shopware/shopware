@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Plugin;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 
@@ -10,9 +11,7 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
  */
 class PluginFromFileSystemStructTest extends TestCase
 {
-    /**
-     * @dataProvider dataProviderTestGetName
-     */
+    #[DataProvider('dataProviderTestGetName')]
     public function testGetName(PluginFromFileSystemStruct $pluginFromFileSystem, string $expectedResult): void
     {
         static::assertSame($expectedResult, $pluginFromFileSystem->getName());

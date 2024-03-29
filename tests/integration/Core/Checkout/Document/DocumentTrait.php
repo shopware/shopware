@@ -173,7 +173,7 @@ trait DocumentTrait
     }
 
     /**
-     * @param array<string|bool, string|bool|int> $config
+     * @param array<string|bool, string|bool|int|array<int, string>> $config
      */
     private function upsertBaseConfig(array $config, string $documentType, ?string $salesChannelId = null): void
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\User\Recovery;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
@@ -12,10 +13,9 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent
  */
 #[Package('system-settings')]
+#[CoversClass(UserRecoveryRequestEvent::class)]
 class UserRecoveryRequestEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

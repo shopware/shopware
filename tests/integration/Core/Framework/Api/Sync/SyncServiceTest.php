@@ -38,6 +38,23 @@ class SyncServiceTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
+    public function testSendNoneExistingId(): void
+    {
+        $ids = new IdsCollection();
+
+        $operations = [
+            new SyncOperation('delete-price', 'product_price', 'delete', [['id' => $ids->get('not-existing-price')]]),
+        ];
+
+        $result = $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+
+        static::assertEquals([], $result->getDeleted());
+
+        $expected = ['product_price' => [$ids->get('not-existing-price')]];
+
+        static::assertEquals($expected, $result->getNotFound());
+    }
+
     public function testDeleteProductMediaAndUpdateProduct(): void
     {
         $ids = new IdsCollection();

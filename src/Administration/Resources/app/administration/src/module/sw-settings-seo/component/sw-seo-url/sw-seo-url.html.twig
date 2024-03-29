@@ -17,11 +17,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_seo_url_card_seo_path %}
             <sw-inherit-wrapper
-                {% if VUE3 %}
                 v-model:value="currentSeoUrl.seoPathInfo"
-                {% else %}
-                v-model="currentSeoUrl.seoPathInfo"
-                {% endif %}
                 :has-parent="currentSalesChannelId !== null && !isHeadlessSalesChannel && hasDefaultTemplate"
                 :inherited-value="(currentSeoUrl.salesChannelId !== null && !isHeadlessSalesChannel) ? defaultSeoUrl.seoPathInfo : null"
             >
@@ -36,11 +32,7 @@
                         :disable-inheritance-toggle="isHeadlessSalesChannel"
                         :label="$tc('sw-seo-url.labelSeoPathInfo')"
                         :help-text="seoUrlHelptext"
-                        {% if VUE3 %}
                         @update:value="props.updateCurrentValue"
-                        {% else %}
-                        @input="props.updateCurrentValue"
-                        {% endif %}
                     />
                     {% endblock %}
                 </template>

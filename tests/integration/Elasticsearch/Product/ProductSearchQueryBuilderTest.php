@@ -4,15 +4,18 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -25,21 +28,19 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
-use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
+use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\ProductSearchQueryBuilder
  */
 #[Package('system-settings')]
+#[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -55,16 +56,21 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private Connection $connection;
 
+    private CustomFieldService $customFieldService;
+
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, Feature::isActive('ES_MULTILINGUAL_INDEX'));
+        $this->customFieldService = $this->getContainer()->get(CustomFieldService::class);
     }
 
-    /**
-     * @beforeClass
-     */
+    protected function tearDown(): void
+    {
+        $this->customFieldService->reset();
+    }
+
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -74,9 +80,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -104,9 +108,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         return $ids;
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAndSearch(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(true, ['name']);
@@ -134,9 +136,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOrSearch(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, ['name']);
@@ -166,15 +166,14 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider providerSearchCases
-     *
      * @param array<string> $config
      * @param array<string> $expectedProducts
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('providerSearchCases')]
     public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
     {
+        $this->registerCustomFieldsMapping();
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
 
@@ -195,13 +194,9 @@ class ProductSearchQueryBuilderTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSearchWithStopWord(IdsCollection $ids): void
     {
-        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
-
         $this->setSearchConfiguration(false, ['name', 'description']);
         $this->setSearchScores([]);
 
@@ -218,9 +213,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testScoring(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, ['name', 'description', 'customSearchKeywords']);
@@ -297,10 +290,16 @@ class ProductSearchQueryBuilderTest extends TestCase
             ['SW5686779889'],
         ];
 
-        yield 'search for custom field' => [
-            ['name', 'customFields.evolvesTo'],
+        yield 'search for custom field json' => [
+            ['customFields.evolvesTo'],
             'Flareon',
             ['product-10'],
+        ];
+
+        yield 'search for custom field text' => [
+            ['customFields.evolvesText'],
+            'Jolteon',
+            ['product-11'],
         ];
     }
 
@@ -436,6 +435,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ->customField('evolvesTo', ['Vaporeon', 'Jolteon', 'Flareon'])
                 ->price(50, 50)
                 ->build(),
+            (new ProductBuilder($ids, 'product-11'))
+                ->name('EeveeCfText')
+                ->customField('evolvesText', 'Jolteon')
+                ->price(50, 50)
+                ->build(),
         ];
 
         $this->productRepository->create($products, Context::createDefaultContext());
@@ -445,28 +449,23 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, function (ElasticsearchProductCustomFieldsMappingEvent $event): void {
-            $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
-        });
-
         $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
-            $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
+            $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
+            $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });
 
-        $definition = $this->getContainer()->get(ElasticsearchProductDefinition::class);
+        $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
         $class = new \ReflectionClass($definition);
-        if ($class->hasProperty('customFieldsTypes')) {
-            $reflectionProperty = $class->getProperty('customFieldsTypes');
-            $reflectionProperty->setAccessible(true);
-            $reflectionProperty->setValue($definition, null);
-        }
+        $reflectionProperty = $class->getProperty('customFieldsTypes');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($definition, []);
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
-            $class = new \ReflectionClass($definition);
-            $reflectionProperty = $class->getProperty('customFieldsTypes');
-            $reflectionProperty->setAccessible(true);
-            $reflectionProperty->setValue($definition, []);
-        }
+        $service = new \ReflectionClass($this->customFieldService);
+        $reflectionProperty = $service->getProperty('customFields');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($this->customFieldService, [
+            'evolvesTo' => CustomFieldTypes::SELECT,
+            'evolvesText' => CustomFieldTypes::TEXT,
+        ]);
     }
 }

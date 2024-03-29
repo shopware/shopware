@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\User\Recovery;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -29,10 +30,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\User\Recovery\UserRecoveryService
  */
 #[Package('system-settings')]
+#[CoversClass(UserRecoveryService::class)]
 class UserRecoveryServiceTest extends TestCase
 {
     private RouterInterface&MockObject $router;

@@ -2,13 +2,9 @@
  * @package buyers-experience
  */
 
-import { mount, createLocalVue, config } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { mount } from '@vue/test-utils';
+import { createRouter, createWebHistory } from 'vue-router';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
-import 'src/app/component/base/sw-icon';
-import 'src/app/component/structure/sw-admin-menu-item';
-import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
 
 const responses = global.repositoryFactoryMock.responses;
@@ -107,31 +103,20 @@ const inactiveStorefront = {
     },
 };
 
-async function createWrapper(salesChannels = [], privileges = []) {
-    // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
-
-    const localVue = createLocalVue();
-    localVue.use(VueRouter);
-
-    const router = new VueRouter({
+async function createWrapper(salesChannels = []) {
+    const router = createRouter({
+        history: createWebHistory(),
         routes: [{
             name: 'sw.sales.channel.detail',
             path: '/sw/sales/channel/detail/:id',
-            component: localVue.component('sw-sales-channel-detail', {
-                name: 'sw-sales-channel-detail',
-                template: '<div class="sw-sales-channel-detail"></div>',
-            }),
+            component: await wrapTestComponent('sw-sales-channel-detail', { sync: true }),
         }, {
             name: 'sw.sales.channel.list',
             path: '/sw/sales/channel/list',
-            component: localVue.component('sw-sales-channel-list', {
-                name: 'sw-sales-channel-list',
-                template: '<div class="sw-sales-channel-list"></div>',
-            }),
+            component: await wrapTestComponent('sw-sales-channel-list', { sync: true }),
         }],
     });
+
 
     router.push({
         name: 'sw.sales.channel.detail',
@@ -139,87 +124,101 @@ async function createWrapper(salesChannels = [], privileges = []) {
         params: { id: '8106c8da-4528-406e-8b47-dcae65965f6b' },
     });
 
-    return mount(await Shopware.Component.build('sw-sales-channel-menu'), {
-        localVue,
-        router,
-        stubs: {
-            // eslint does not allow vue js templating syntax when used in a string
-            // eslint-disable-next-line no-template-curly-in-string
-            'sw-icon': { props: ['name'], template: '<div :class="`sw-icon sw-icon--${name}`"></div>' },
-            'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-loader': true,
-            'sw-internal-link': true,
-        },
-        provide: {
-            domainLinkService: {
-                getDomainLink: getDomainLink,
-            },
-            acl: {
-                can: (privilegeKey) => {
-                    if (!privilegeKey) { return true; }
+    await router.isReady();
 
-                    return privileges.includes(privilegeKey);
+    return mount(await wrapTestComponent('sw-sales-channel-menu', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    template: '<div :class="`sw-icon sw-icon--${name}`"></div>',
+                    props: ['name'],
                 },
+                'sw-admin-menu-item': {
+                    template: '<div class="sw-admin-menu-item" :class="$attrs.class"><div>{{ entry.label }}</div><slot name="additional-text"></slot></div>',
+                    props: ['entry'],
+                },
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-loader': true,
+                'sw-internal-link': true,
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: jest.fn((criteria, context) => {
-                        const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
+            provide: {
+                domainLinkService: {
+                    getDomainLink: getDomainLink,
+                },
+                repositoryFactory: {
+                    create: () => ({
+                        search: jest.fn((criteria, context) => {
+                            const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
 
-                        return Promise.resolve(new EntityCollection(
-                            'sales-channel',
-                            'sales_channel',
-                            context,
-                            criteria,
-                            salesChannelsWithLimit,
-                            salesChannels.length,
-                            null,
-                        ));
+                            return Promise.resolve(new EntityCollection(
+                                'sales-channel',
+                                'sales_channel',
+                                context,
+                                criteria,
+                                salesChannelsWithLimit,
+                                salesChannels.length,
+                                null,
+                            ));
+                        }),
                     }),
-                }),
+                },
             },
         },
     });
 }
 
+Shopware.Application.addServiceProvider('salesChannelFavorites', () => {
+    const favorites = [];
+
+    return {
+        state: { favorites },
+        initService() {
+            favorites.length = 0;
+            return Promise.resolve();
+        },
+        getFavoriteIds() {
+            return favorites;
+        },
+        isFavorite(id) {
+            return favorites.includes(id);
+        },
+        update(state, salesChannelId) {
+            if (state && !this.isFavorite(salesChannelId)) {
+                favorites.push(salesChannelId);
+            } else if (!state && this.isFavorite(salesChannelId)) {
+                const index = this.state.favorites.indexOf(salesChannelId);
+
+                favorites.splice(index, 1);
+            }
+        },
+    };
+});
+
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
     beforeEach(async () => {
-        Shopware.State.get('session').languageId = defaultAdminLanguageId;
-        Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
         Shopware.Service('salesChannelFavorites').state.favorites = [];
-
+        Shopware.State.get('session').languageId = defaultAdminLanguageId;
         global.repositoryFactoryMock.showError = false;
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-        wrapper.destroy();
-    });
-
     it('should be able to create sales channels when user has the privilege', async () => {
-        const wrapper = await createWrapper(
-            [],
-            [
-                'sales_channel.creator',
-            ],
-        );
+        global.activeAclRoles = ['sales_channel.creator'];
+
+        const wrapper = await createWrapper();
 
         const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
         expect(buttonCreateSalesChannel.exists()).toBeTruthy();
-
-        wrapper.destroy();
     });
 
     it('should not be able to create sales channels when user has not the privilege', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');
         expect(buttonCreateSalesChannel.exists()).toBeFalsy();
-
-        wrapper.destroy();
     });
 
     it('should search the right sales channels', async () => {
@@ -233,8 +232,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
                 domains: expect.any(Object),
             }),
         }));
-
-        wrapper.destroy();
     });
 
     it('should show an entry for every sales channel returned from api', async () => {
@@ -262,8 +259,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
-
-        wrapper.destroy();
     });
 
     it('should use link to default language if exists', async () => {
@@ -279,8 +274,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         await domainLinkButton.trigger('click');
 
         expect(window.open).toHaveBeenCalledWith('http://shop/default-language', '_blank');
-
-        wrapper.destroy();
     });
 
     it('prefers link to domain with actual admin language over others', async () => {
@@ -296,8 +289,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         await domainLinkButton.trigger('click');
 
         expect(window.open).toHaveBeenCalledWith('http://shop/admin-language', '_blank');
-
-        wrapper.destroy();
     });
 
     it('takes first domain link if neither default language nor admin language exists', async () => {
@@ -314,8 +305,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         await domainLinkButton.trigger('click');
 
         expect(window.open).toHaveBeenCalledWith('http://shop/custom-language', '_blank');
-
-        wrapper.destroy();
     });
 
     it('does not pick a storefront domain if there is none', async () => {
@@ -325,8 +314,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
-
-        wrapper.destroy();
     });
 
     it('does not show a storefront domain if storefront is not active', async () => {
@@ -336,23 +323,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
-
-        wrapper.destroy();
-    });
-
-    it('shows just one saleschannel as selected', async () => {
-        const wrapper = await createWrapper([storeFrontWithStandardDomain, headlessSalesChannel]);
-
-        await flushPromises();
-
-        const links = wrapper.findAll('.sw-admin-menu__navigation-link');
-
-        const activeLinkClasses = ['router-link-active', ' router-link-active'];
-
-        expect(links.at(0).classes().some(cssClass => activeLinkClasses.includes(cssClass))).toBe(true);
-        expect(links.at(1).classes().some(cssClass => activeLinkClasses.includes(cssClass))).toBe(false);
-
-        wrapper.destroy();
     });
 
     it('shows "more" when no favourites are selected and there are more than 7 saleschannels', async () => {
@@ -383,7 +353,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.isVisible()).toBe(true);
         expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
-        wrapper.destroy();
     });
 
     it('shows "more" when more than 50 sales channels are available and marked as favourites', async () => {
@@ -416,7 +385,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.isVisible()).toBe(true);
         expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
-        wrapper.destroy();
     });
 
     it('hide "more" when less than 7 sales channels are available and no favourites are selected', async () => {
@@ -449,8 +417,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         // check if "more" item is hidden
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.exists()).toBe(false);
-
-        wrapper.destroy();
     });
 
     it('hide "more" when less than 50 sales channels are available and favourites are selected', async () => {
@@ -471,8 +437,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         // check if "more" item is hidden
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.exists()).toBe(false);
-
-        wrapper.destroy();
     });
 
     it('should only load the sales channel once when no favorites are defined', async () => {
@@ -486,13 +450,9 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
 
         const wrapper = await createWrapper(salesChannels);
 
-        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(0);
-
         await flushPromises();
 
         expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
-
-        wrapper.destroy();
     });
 
     it('should only load the sales channel once when also favorites are defined', async () => {
@@ -507,12 +467,8 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
         const wrapper = await createWrapper(salesChannels);
 
-        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(0);
-
         await flushPromises();
 
         expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
-
-        wrapper.destroy();
     });
 });

@@ -1,5 +1,5 @@
 /*
- * @package business-ops
+ * @package services-settings
  */
 
 import template from './sw-product-stream-list.html.twig';
@@ -195,7 +195,7 @@ export default {
 
             this.isLoading = true;
 
-            this.productStreamRepository.clone(item.id, Shopware.Context.api, behavior).then((clone) => {
+            this.productStreamRepository.clone(item.id, behavior, Shopware.Context.api).then((clone) => {
                 const route = { name: 'sw.product.stream.detail', params: { id: clone.id } };
 
                 this.$router.push(route);

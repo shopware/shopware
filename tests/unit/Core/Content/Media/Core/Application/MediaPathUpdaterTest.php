@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Application;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
@@ -13,9 +14,8 @@ use Shopware\Core\Framework\Test\IdsCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Application\MediaPathUpdater
  */
+#[CoversClass(MediaPathUpdater::class)]
 class MediaPathUpdaterTest extends TestCase
 {
     public function testUpdateMedia(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -21,11 +22,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
- * @group cart
  */
 #[Package('checkout')]
+#[Group('store-api')]
+#[Group('cart')]
 class CartDeleteRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -141,10 +141,6 @@ export default {
         createdComponent() {
             this.isLoading = true;
             if (this.taxId) {
-                if (!this.feature.isActive('VUE3')) {
-                    this.taxId = this.$route.params.id;
-                }
-
                 this.taxRepository.get(this.taxId).then((tax) => {
                     this.tax = tax;
                     this.isLoading = false;

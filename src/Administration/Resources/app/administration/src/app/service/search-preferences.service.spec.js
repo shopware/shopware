@@ -37,14 +37,14 @@ describe('searchPreferencesService', () => {
                 expect.objectContaining({
                     fields: [
                         {
-                            _score: 500,
-                            _searchable: true,
-                            fieldName: 'promotionCode',
+                            _score: 80,
+                            _searchable: false,
+                            fieldName: 'documentNumber',
                             group: [
                                 {
-                                    _score: 500,
-                                    _searchable: true,
-                                    fieldName: 'payload.code',
+                                    _score: 80,
+                                    _searchable: false,
+                                    fieldName: 'config.documentNumber',
                                 },
                             ],
                         },

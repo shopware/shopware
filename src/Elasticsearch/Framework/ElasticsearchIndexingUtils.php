@@ -4,12 +4,9 @@ namespace Shopware\Elasticsearch\Framework;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
-use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -59,13 +56,6 @@ WHERE custom_field_set_relation.entity_name = :entity
 ', ['entity' => $entity]) + $customFieldsMapping;
 
         $event = new ElasticsearchCustomFieldsMappingEvent($entity, $mappings, $context);
-
-        /**
-         * @deprecated tag:v6.6.0 - If statement will be removed
-         */
-        if (!Feature::isActive('v6.6.0.0') && $entity === ProductDefinition::ENTITY_NAME) {
-            $this->eventDispatcher->dispatch(new ElasticsearchProductCustomFieldsMappingEvent($mappings, $context));
-        }
 
         $this->eventDispatcher->dispatch($event);
 

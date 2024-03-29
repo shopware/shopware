@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -15,11 +17,10 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\LineItemCollection
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemCollection::class)]
 class LineItemCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void
@@ -29,10 +30,9 @@ class LineItemCollectionTest extends TestCase
     }
 
     /**
-     * @dataProvider lineItemStateProvider
-     *
      * @param array<string, bool> $expectedResults
      */
+    #[DataProvider('lineItemStateProvider')]
     public function testHasLineItemWithState(LineItemCollection $collection, array $expectedResults): void
     {
         foreach ($expectedResults as $state => $expected) {
@@ -347,8 +347,8 @@ class LineItemCollectionTest extends TestCase
 
         static::assertEquals(
             new PriceCollection([
-                new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'A' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'B' => new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ]),
             $lineItems->getPrices()
         );

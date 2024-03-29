@@ -36,8 +36,4 @@ class Migration1671723392AddWebhookLifetimeConfig extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

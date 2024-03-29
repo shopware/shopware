@@ -22,11 +22,7 @@
             :value="condition.value"
             :disabled="disabled"
             show-clearable-button
-            {% if VUE3 %}
             @update:value="setBooleanValue"
-            {% else %}
-            @change="setBooleanValue"
-            {% endif %}
         />
         {% endblock %}
     </template>
@@ -35,11 +31,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_stream_value_empty_value %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="emptyValue"
-            {% else %}
-            v-model="emptyValue"
-            {% endif %}
+            name="sw-field--emptyValue"
             class="sw-product-stream-value__select"
             size="medium"
             :options="reversedEmptyOptions"
@@ -57,11 +50,8 @@
             :disabled="!acl.can('product_stream.editor')"
         >
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="filterType"
-                {% else %}
-                v-model="filterType"
-                {% endif %}
+                name="sw-field--filterType"
                 size="medium"
                 :options="operators"
                 :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
@@ -73,11 +63,7 @@
 
         <template v-if="fieldType === 'product_state_list'">
             <sw-single-select
-                {% if VUE3 %}
                 v-model:value="actualCondition.value"
-                {% else %}
-                v-model="actualCondition.value"
-                {% endif %}
                 :options="productStateOptions"
                 :disabled="disabled"
             />
@@ -88,11 +74,7 @@
             {% block sw_product_stream_value_entity_single_value %}
             <sw-entity-single-select
                 v-if="definition.entity === 'product' && actualCondition.type === 'equals'"
-                {% if VUE3 %}
                 v-model:value="actualCondition.value"
-                {% else %}
-                v-model="actualCondition.value"
-                {% endif %}
                 size="medium"
                 show-clearable-button
                 :entity="definition.entity"
@@ -142,11 +124,7 @@
 
             <sw-entity-single-select
                 v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equals'"
-                {% if VUE3 %}
                 v-model:value="actualCondition.value"
-                {% else %}
-                v-model="actualCondition.value"
-                {% endif %}
                 size="medium"
                 :entity="definition.entity"
                 :criteria="propertyCriteria"
@@ -180,11 +158,7 @@
             {% block sw_product_stream_value_entity_single_value_visibilities %}
             <sw-entity-single-select
                 v-else-if="definition.entity === 'product_visibility' && actualCondition.type === 'equals'"
-                {% if VUE3 %}
                 v-model:value="actualCondition.value"
-                {% else %}
-                v-model="actualCondition.value"
-                {% endif %}
                 size="medium"
                 :entity="definition.entity"
                 :criteria="visibilitiesCriteria"
@@ -198,11 +172,7 @@
 
             <sw-entity-single-select
                 v-else-if="actualCondition.type === 'equals'"
-                {% if VUE3 %}
                 v-model:value="actualCondition.value"
-                {% else %}
-                v-model="actualCondition.value"
-                {% endif %}
                 size="medium"
                 :entity="definition.entity"
                 :context="context"
@@ -231,12 +201,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_entity_multi_value %}
             <sw-entity-multi-id-select
-                v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equalsAny'"
-                {% if VUE3 %}
-                v-model:ids="multiValue"
-                {% else %}
-                v-model="multiValue"
-                {% endif %}
+                v-else-if="definition.entity === 'property_group_option' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
+                v-model:value="multiValue"
                 size="medium"
                 :repository="repository"
                 :criteria="propertyCriteria"
@@ -275,12 +241,8 @@
             </sw-entity-multi-id-select>
 
             <sw-entity-multi-id-select
-                v-else-if="definition.entity === 'product' && actualCondition.type === 'equalsAny'"
-                {% if VUE3 %}
-                v-model:ids="multiValue"
-                {% else %}
-                v-model="multiValue"
-                {% endif %}
+                v-else-if="definition.entity === 'product' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
+                v-model:value="multiValue"
                 size="medium"
                 :repository="repository"
                 :criteria="productCriteria"
@@ -323,11 +285,7 @@
             {% block sw_product_stream_value_entity_multi_value_visibilities %}
             <sw-entity-multi-id-select
                 v-else-if="definition.entity === 'product_visibility' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
-                {% if VUE3 %}
-                v-model:ids="multiValue"
-                {% else %}
-                v-model="multiValue"
-                {% endif %}
+                v-model:value="multiValue"
                 size="medium"
                 :repository="repository"
                 :criteria="visibilitiesCriteria"
@@ -357,11 +315,7 @@
 
             <sw-entity-multi-id-select
                 v-else-if="isMultiSelectValue"
-                {% if VUE3 %}
-                v-model:ids="multiValue"
-                {% else %}
-                v-model="multiValue"
-                {% endif %}
+                v-model:value="multiValue"
                 size="medium"
                 description-position="bottom"
                 :repository="repository"
@@ -405,11 +359,7 @@
                 <sw-arrow-field :disabled="disabled">
                     <component
                         :is="inputComponent"
-                        {% if VUE3 %}
                         v-model:value="gte"
-                        {% else %}
-                        v-model="gte"
-                        {% endif %}
                         size="medium"
                         :disabled="disabled"
                     />
@@ -420,11 +370,7 @@
                 {% block sw_product_stream_value_range_to_value %}
                 <component
                     :is="inputComponent"
-                    {% if VUE3 %}
                     v-model:value="lte"
-                    {% else %}
-                    v-model="lte"
-                    {% endif %}
                     size="medium"
                     :disabled="disabled"
                 />
@@ -436,11 +382,7 @@
                 {% block sw_product_stream_value_range_one_limit %}
                 <component
                     :is="inputComponent"
-                    {% if VUE3 %}
                     v-model:value="currentParameter"
-                    {% else %}
-                    v-model="currentParameter"
-                    {% endif %}
                     size="medium"
                     :disabled="disabled"
                 />
@@ -454,11 +396,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_multi_value %}
             <sw-tagged-field
-                {% if VUE3 %}
                 v-model:value="multiValue"
-                {% else %}
-                v-model="multiValue"
-                {% endif %}
                 size="medium"
             />
             {% endblock %}
@@ -469,11 +407,7 @@
             {% block sw_product_stream_value_relative_time_operator %}
             <sw-arrow-field :disabled="disabled">
                 <sw-single-select
-                    {% if VUE3 %}
                     v-model:value="operator"
-                    {% else %}
-                    v-model="operator"
-                    {% endif %}
                     size="medium"
                     :options="relativeTimeOperators"
                     :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
@@ -485,11 +419,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_value_relative_time_value %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="stringValue"
-                {% else %}
-                v-model="stringValue"
-                {% endif %}
                 class="sw-product-stream-value__time-input"
                 size="medium"
                 number-type="int"
@@ -509,11 +439,7 @@
             {% block sw_product_stream_value_single_value %}
             <component
                 :is="inputComponent"
-                {% if VUE3 %}
                 v-model:value="stringValue"
-                {% else %}
-                v-model="stringValue"
-                {% endif %}
                 size="medium"
                 :disabled="disabled"
             />

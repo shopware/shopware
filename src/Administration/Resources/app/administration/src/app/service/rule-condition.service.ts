@@ -1,4 +1,4 @@
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 
 const { Criteria } = Shopware.Data;
 
@@ -68,7 +68,7 @@ type awarenessConfiguration = {
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService
@@ -693,6 +693,7 @@ export default class RuleConditionService {
                 disabled: false,
                 message: app.$tc(
                     'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
+                    // @ts-expect-error
                     undefined,
                     {
                         conditions: this.getTranslatedConditionViolationList(

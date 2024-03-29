@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -16,9 +17,10 @@ class PluginException extends HttpException
     public const NO_PLUGIN_IN_ZIP = 'FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP';
     public const STORE_NOT_AVAILABLE = 'FRAMEWORK__STORE_NOT_AVAILABLE';
     public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
+    public const PROJECT_DIR_IS_NOT_A_STRING = 'FRAMEWORK__PROJECT_DIR_IS_NOT_A_STRING';
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
+     * @internal will be removed once store extensions are installed over composer
      */
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -86,5 +88,19 @@ class PluginException extends HttpException
             'Could not create temporary directory in "{{ targetDirectory }}" with prefix "{{ prefix }}"',
             ['targetDirectory' => $targetDirectory, 'prefix' => $prefix]
         );
+    }
+
+    public static function projectDirNotInContainer(): self
+    {
+        return new self(
+            500,
+            self::PROJECT_DIR_IS_NOT_A_STRING,
+            'Container parameter "kernel.project_dir" needs to be a string'
+        );
+    }
+
+    public static function notFound(string $name): PluginNotFoundException
+    {
+        return new PluginNotFoundException($name);
     }
 }

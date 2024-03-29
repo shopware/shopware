@@ -152,7 +152,7 @@ export default {
                 },
             };
 
-            return this.profileRepository.clone(item.id, Shopware.Context.api, behavior).then((clone) => {
+            return this.profileRepository.clone(item.id, behavior, Shopware.Context.api).then((clone) => {
                 const criteria = new Criteria(1, 25);
                 criteria.setIds([clone.id]);
                 return this.profileRepository.search(criteria);

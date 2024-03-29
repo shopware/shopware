@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('core')]
 class MediaSerializerSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private MediaSerializer $mediaSerializer)
+    public function __construct(private readonly AbstractMediaSerializer $mediaSerializer)
     {
     }
 

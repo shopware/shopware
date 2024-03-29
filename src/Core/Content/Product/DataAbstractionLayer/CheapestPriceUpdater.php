@@ -157,14 +157,14 @@ class CheapestPriceUpdater
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
-     * @return array<mixed>
+     * @return array<string, array<string, array<string, mixed>>>
      */
     private function fetchPrices(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(IFNULL(product.parent_id, product.id))) as parent_id',
             'LOWER(HEX(product.id)) as variant_id',
             'LOWER(HEX(price.rule_id)) as rule_id',
@@ -173,7 +173,7 @@ class CheapestPriceUpdater
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'IFNULL(product.min_purchase, parent.min_purchase) as min_purchase',
             'price.price',
-        ]);
+        );
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.prices AND product.version_id = price.product_version_id');
@@ -194,14 +194,13 @@ class CheapestPriceUpdater
         $data = $query->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
-        /** @var array<string, mixed> $row */
         foreach ($data as $row) {
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
-            $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
+            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
         }
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(IFNULL(product.parent_id, product.id))) as parent_id',
             'LOWER(HEX(product.id)) as variant_id',
             'NULL as rule_id',
@@ -212,7 +211,7 @@ class CheapestPriceUpdater
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
             'product.child_count as child_count',
-        ]);
+        );
 
         $query->from('product', 'product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
@@ -225,10 +224,9 @@ class CheapestPriceUpdater
 
         $defaults = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {
             if ($row['price'] === null) {
-                $grouped[$row['parent_id']][$row['variant_id']]['default'] = null;
+                $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = null;
 
                 continue;
             }
@@ -236,12 +234,12 @@ class CheapestPriceUpdater
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
             if ($row['child_count'] > 0) {
-                $grouped[$row['parent_id']]['default'] = $row;
+                $grouped[(string) $row['parent_id']]['default'] = $row;
 
                 continue;
             }
 
-            $grouped[$row['parent_id']][$row['variant_id']]['default'] = $row;
+            $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = $row;
         }
 
         return $grouped;

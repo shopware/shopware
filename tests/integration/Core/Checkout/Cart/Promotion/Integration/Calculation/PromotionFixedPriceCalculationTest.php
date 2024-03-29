@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Calculation;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -49,9 +50,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
      * We test that we always end with a final price of our promotion if that one is set to a "fixed price".
      * Our price would be 40 EUR. It must not matter how many items and products we have in there,
      * the final price should always be 40 EUR.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testFixedUnitDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -83,9 +83,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
     /**
      * if a automatic fixed price promotion (no code necessary) discount is removed
      * it should not be added again. This is a new feature - to block automatic promotions.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testRemoveOfFixedUnitPromotionsWithoutCode(): void
     {
         $productId = Uuid::randomHex();
@@ -130,9 +129,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
      * That would lead to 80 EUR for the product
      * But for your currency defined price, we use 65 as fixed price instead.
      * Our test needs to verify that we use 30 EUR, and end with a product sum of 65 EUR in the end.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testFixedUnitPriceDiscountWithCurrencyPrices(): void
     {
         $productId = Uuid::randomHex();
@@ -174,9 +172,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
      * Then we add a promotion with a fixed price of 100 EUR.
      * This means that our final cart price should be 100 EUR and the discount need to be calculated correctly
      * by considering the existing cart items.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testFixedCartPriceDiscount(): void
     {
         $productId1 = Uuid::randomHex();

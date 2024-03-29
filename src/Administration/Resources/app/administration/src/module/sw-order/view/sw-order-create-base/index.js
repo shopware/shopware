@@ -162,7 +162,7 @@ export default {
             const decorateCalcTaxes = calcTaxes.map((item) => {
                 return this.$tc('sw-order.createBase.shippingCostsTax', 0, {
                     taxRate: item.taxRate,
-                    tax: format.currency(item.tax, this.currency.shortName),
+                    tax: format.currency(item.tax, this.currency.isoCode),
                 });
             });
 

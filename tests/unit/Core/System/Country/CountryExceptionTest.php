@@ -2,8 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\System\Country;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\Country\CountryException;
@@ -11,15 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Country\CountryException
  */
 #[Package('buyers-experience')]
+#[CoversClass(CountryException::class)]
 class CountryExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
+    #[DataProvider('exceptionDataProvider')]
     public function testItThrowsException(ShopwareHttpException|CountryException $exception, int $statusCode, string $errorCode, string $message): void
     {
         try {
@@ -42,14 +40,14 @@ class CountryExceptionTest extends TestCase
             'exception' => CountryException::countryNotFound('id-1'),
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CountryException::COUNTRY_NOT_FOUND,
-            'message' => Feature::isActive('v6.6.0.0') ? 'Could not find country with id "id-1"' : 'Country with id "id-1" not found.',
+            'message' => 'Could not find country with id "id-1"',
         ];
 
         yield CountryException::COUNTRY_STATE_NOT_FOUND => [
             'exception' => CountryException::countryStateNotFound('id-1'),
             'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CountryException::COUNTRY_STATE_NOT_FOUND,
-            'message' => Feature::isActive('v6.6.0.0') ? 'Could not find country state with id "id-1"' : 'Country state with id "id-1" not found.',
+            'message' => 'Could not find country state with id "id-1"',
         ];
     }
 }

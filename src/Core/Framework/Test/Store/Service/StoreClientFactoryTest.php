@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
-use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -25,18 +26,14 @@ class StoreClientFactoryTest extends TestCase
 
     private ?string $originalStoreUri = null;
 
-    /**
-     * @before
-     */
+    #[Before]
     public function updateStoreUri(): void
     {
         $this->originalStoreUri = $this->getApiUrlFromSystemConfig();
         $this->getSystemConfigService()->set(self::STORE_URI_CONFIG_KEY, self::TEST_STORE_URI);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function restoreStoreUri(): void
     {
         $this->getSystemConfigService()->set(self::STORE_URI_CONFIG_KEY, $this->originalStoreUri);
@@ -46,7 +43,7 @@ class StoreClientFactoryTest extends TestCase
     {
         $storeClientFactory = new StoreClientFactory($this->getSystemConfigService());
 
-        $client = $storeClientFactory->create([$this->createMock(VerifyResponseSignatureMiddleware::class)]);
+        $client = $storeClientFactory->create();
         $config = $this->getConfigFromClient($client);
 
         static::assertEquals(self::TEST_STORE_URI, $config['base_uri']);

@@ -46,7 +46,7 @@ class FileService extends AbstractFileService
             if (!is_readable($sourcePath)) {
                 throw new FileNotReadableException($sourcePath);
             }
-            $sourceStream = fopen($sourcePath, 'rb');
+            $sourceStream = fopen($sourcePath, 'r');
             if (!\is_resource($sourceStream)) {
                 throw new FileNotReadableException($sourcePath);
             }

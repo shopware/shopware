@@ -1,5 +1,5 @@
 import initMenuItems from 'src/app/init/menu-item.init';
-import { ui } from '@shopware-ag/admin-extension-sdk';
+import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 let stateDispatchBackup = null;
 describe('src/app/init/menu-item.init.ts', () => {

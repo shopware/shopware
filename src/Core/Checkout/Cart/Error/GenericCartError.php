@@ -9,8 +9,6 @@ class GenericCartError extends Error
 {
     /**
      * @param array<string, mixed> $parameters
-     *
-     * @deprecated tag:v6.6.0 $blockResubmit param will be required
      */
     public function __construct(
         protected string $id,
@@ -19,7 +17,7 @@ class GenericCartError extends Error
         protected int $level,
         protected bool $blockOrder,
         protected bool $persistent,
-        protected bool $blockResubmit = true
+        protected bool $blockResubmit
     ) {
         parent::__construct();
     }

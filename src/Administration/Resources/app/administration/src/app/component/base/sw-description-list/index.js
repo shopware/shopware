@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description A definition list which uses CSS grid for a column layout.
  * @status ready
  * @example-type static

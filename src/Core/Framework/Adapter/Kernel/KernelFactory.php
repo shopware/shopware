@@ -17,6 +17,12 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
+ * Shopware\Core\Framework\Adapter\Kernel\KernelFactory
+ *      Shopware\Core\Kernel
+ *          Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel (http caching)
+ *              Shopware\Core\Framework\Adapter\Kernel\HttpKernel (runs request transformer)
+ *                  Shopware\Storefront\Controller\Any
+ *
  * @final
  */
 #[Package('core')]
@@ -43,11 +49,11 @@ class KernelFactory
         }
 
         $middlewares = [];
-        if ($environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+        if (\PHP_SAPI !== 'cli' && $environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
             $middlewares = [new ProfilingMiddleware()];
         }
 
-        $connection = $connection ?? MySQlFactory::create($middlewares);
+        $connection = $connection ?? MySQLFactory::create($middlewares);
 
         $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
 

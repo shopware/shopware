@@ -9,19 +9,11 @@
             class="sw-tree__search"
         >
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="currentTreeSearch"
-                {% else %}
-                v-model="currentTreeSearch"
-                {% endif %}
                 name="treeSearch"
                 :placeholder="$tc('sw-tree.general.placeholderSearch')"
                 size="small"
-                {% if VUE3 %}
                 @update:value="searchItems"
-                {% else %}
-                @input="searchItems"
-                {% endif %}
             >
                 <template #prefix>
                     <sw-icon name="regular-search" />

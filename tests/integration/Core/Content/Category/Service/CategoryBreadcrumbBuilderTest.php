@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Category\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -75,7 +77,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<string|boolean>>
+     * @return iterable<array<string|bool>>
      */
     public static function breadcrumbDataProvider(): iterable
     {
@@ -93,7 +95,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<boolean>>
+     * @return iterable<array<bool>>
      */
     public static function seoCategoryProvider(): iterable
     {
@@ -108,11 +110,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         yield [true, true, true];
     }
 
-    /**
-     * @dataProvider breadcrumbDataProvider
-     *
-     * @group slow
-     */
+    #[DataProvider('breadcrumbDataProvider')]
+    #[Group('slow')]
     public function testIsWithoutEntrypoint(string $key, bool $withSalesChannel, bool $withCategoryId = false): void
     {
         $categoryId = $withCategoryId ? $this->ids->get($key) : null;
@@ -171,11 +170,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame(['DE-A', 'DE-AA'], array_values($result3));
     }
 
-    /**
-     * @dataProvider seoCategoryProvider
-     *
-     * @group slow
-     */
+    #[DataProvider('seoCategoryProvider')]
+    #[Group('slow')]
     public function testItHasSeoCategory(bool $hasCategories, bool $hasMainCategory, bool $hasMainCategory2ndChannel): void
     {
         $this->createTestData('navigation-sc2');
@@ -268,9 +264,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         }
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testApiResponseHasSeoCategory(): void
     {
         $this->createTestData('navigation-test');
@@ -310,9 +304,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertEquals($this->ids->get('navigation-a-2'), $json['product']['seoCategory']['id']);
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testSeoCategoryInheritance(): void
     {
         $optionIds = [
@@ -494,9 +486,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame('EN-AA', $categoryVariant4->getName());
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testGetProductSeoCategoryWithInactiveCategory(): void
     {
         // create and retrieve product and categories

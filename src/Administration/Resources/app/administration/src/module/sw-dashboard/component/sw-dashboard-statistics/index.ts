@@ -1,4 +1,4 @@
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 
@@ -376,6 +376,7 @@ export default Shopware.Component.wrapComponentConfig({
             const criteria = new Criteria(1, 10);
 
             criteria.addAssociation('currency');
+            criteria.addAssociation('stateMachineState');
 
             criteria.addFilter(Criteria.equals('orderDate', this.formatDateToISO(new Date())));
             criteria.addSorting(Criteria.sort(this.todayOrderDataSortBy, this.todayOrderDataSortDirection));

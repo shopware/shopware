@@ -216,14 +216,14 @@
         "api_acl_privileges_route_get": "ACL-Endpunkt-Berechtigungen lesen",
         "api_action_cache_info": "Cache-Info lesen",
         "api_action_cache_index": "Indexer triggern",
-        "api_action_cache_delete_and_warmup": "Cache löschen und aufwärmen",
         "api_action_cache_delete": "Cache löschen",
         "api_action_cache_cleanup": "Cache aufräumen",
         "api_action_container-cache_delete": "Container-Cache löschen",
         "api_info_me": "Eigene API-Userinfo lesen",
         "api_info_ping": "API-Token erneuern",
         "system:clear:cache": "Cache leeren",
-        "api_proxy_switch-customer": "Im Namen eines Kunden handeln"
+        "api_proxy_switch-customer": "Im Namen eines Kunden handeln",
+        "api_feature_flag_toggle": "Merkmalskennzeichen umschalten"
       },
       "app": {
         "label": "Apps",

@@ -23,7 +23,7 @@ class TwigAppVariable extends AppVariable
     /**
      * @internal
      *
-     * @param list<string> $allowList
+     * @param array<string> $allowList
      */
     public function __construct(
         private readonly AppVariable $appVariable,

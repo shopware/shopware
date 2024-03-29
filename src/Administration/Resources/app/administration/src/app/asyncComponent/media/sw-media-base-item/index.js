@@ -123,6 +123,30 @@ export default {
         isLoading() {
             return this.item.isLoading;
         },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isSpatial() {
+            // we need to check the media url since media.fileExtension is set directly after upload
+            return this.item.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        getSpatialIconName() {
+            return !this.item.config?.spatial?.arReady ? 'regular-3d' : 'regular-AR';
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        getSpatialSubline() {
+            return !this.item.config?.spatial?.arReady
+                ? this.$tc('sw-product.mediaForm.spatialSubline')
+                : this.$tc('sw-product.mediaForm.arSubline');
+        },
     },
 
     methods: {

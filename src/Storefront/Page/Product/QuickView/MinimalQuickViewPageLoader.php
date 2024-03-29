@@ -48,7 +48,7 @@ class MinimalQuickViewPageLoader
 
         $this->eventDispatcher->dispatch(new MinimalQuickViewPageCriteriaEvent($productId, $criteria, $salesChannelContext));
 
-        $result = $this->productRoute->load($productId, new Request(), $salesChannelContext, $criteria);
+        $result = $this->productRoute->load($productId, $request->duplicate(), $salesChannelContext, $criteria);
         $product = $result->getProduct();
 
         $page = new MinimalQuickViewPage($product);

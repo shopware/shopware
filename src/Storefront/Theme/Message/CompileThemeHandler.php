@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
-use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\ThemeCompilerInterface;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final class CompileThemeHandler
 {
     public function __construct(
-        private readonly ThemeCompiler $themeCompiler,
+        private readonly ThemeCompilerInterface $themeCompiler,
         private readonly AbstractConfigLoader $configLoader,
         private readonly StorefrontPluginRegistryInterface $extensionRegistry,
         private readonly NotificationService $notificationService,

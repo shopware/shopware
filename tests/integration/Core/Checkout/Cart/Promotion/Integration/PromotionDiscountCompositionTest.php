@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -60,9 +61,8 @@ class PromotionDiscountCompositionTest extends TestCase
      * composition-products need to be divided individually across all included products.
      * We have a product with price 50 EUR and quantity 3 and another product with price 100 and quantity 1.
      * If we have a absolute discount of 30 EUR, then product one should be referenced with 18 EUR and product 2 with 12 EUR (150 EUR vs. 100 EUR).
-     *
-     * @group promotions
      **/
+    #[Group('promotions')]
     public function testCompositionInAbsoluteDiscount(): void
     {
         $productId1 = Uuid::randomHex();
@@ -107,9 +107,8 @@ class PromotionDiscountCompositionTest extends TestCase
      * This test verifies that our composition data is correct.
      * We apply a discount of 25% on all items. So every item should appear with its original
      * quantity and the 25% of its original price as discount.
-     *
-     * @group promotions
      **/
+    #[Group('promotions')]
     public function testCompositionInPercentageDiscount(): void
     {
         $productId1 = Uuid::randomHex();
@@ -150,9 +149,7 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(100 * 0.25, $composition[1]['discount']);
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testPromotionRedemption(): void
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -242,9 +239,8 @@ class PromotionDiscountCompositionTest extends TestCase
      * We apply a discount that sells every item for 10 EUR.
      * We have a product with quantity 3 and total of 150 EUR and another product with 100 EUR.
      * Both our composition entries should have a discount of 120 (-3x10) and 90 EUR (-1x10).
-     *
-     * @group promotions
      **/
+    #[Group('promotions')]
     public function testCompositionInFixedUnitDiscount(): void
     {
         $productId1 = Uuid::randomHex();
@@ -292,9 +288,8 @@ class PromotionDiscountCompositionTest extends TestCase
      * Both our composition entries should have a discount of 108 and 72 EUR which should
      * make the rest of it a total of 70 EUR.
      * The calculation is based on their proportionate distribution.
-     *
-     * @group promotions
      **/
+    #[Group('promotions')]
     public function testCompositionInFixedDiscount(): void
     {
         $productId1 = Uuid::randomHex();

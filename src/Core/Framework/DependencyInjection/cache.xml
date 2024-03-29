@@ -21,12 +21,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
         </service>
 
-        <service id="shopware.cache.invalidator.storage.cache" class="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\CacheInvalidatorStorage">
-            <argument type="service" id="cache.object"/>
-
-            <tag name="shopware.cache.invalidator.storage" storage="cache"/>
-        </service>
-
         <service id="shopware.cache.invalidator.storage.redis_adapter" class="Redis">
             <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
             <argument>%shopware.cache.invalidation.delay_options.dsn%</argument>
@@ -42,7 +36,7 @@
             <argument type="tagged_locator" tag="shopware.cache.invalidator.storage" index-by="storage" />
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage">
+        <service id="Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage" lazy="true">
             <factory service="shopware.cache.invalidator.storage.locator" method="get"/>
 
             <argument>%shopware.cache.invalidation.delay_options.storage%</argument>
@@ -65,6 +59,7 @@
 
         <service id="Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument>%shopware.cache.invalidation.delay%</argument>
 
@@ -138,7 +133,6 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateSalutationRoute" priority="2016" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateInitialStateIdLoader" priority="2017" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCountryStateRoute" priority="2018" />
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent" method="invalidateSeoUrls" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Rule\Event\RuleIndexerEvent" method="invalidateRules" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent" method="invalidateRules" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent" method="invalidateConfig" priority="2001" />
@@ -151,6 +145,7 @@
             <tag name="kernel.event_listener" event="Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook" method="invalidateConfigKey" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent" method="invalidateSitemap" priority="2000" />
             <tag name="kernel.event_listener" event="product_search_config.written" method="invalidateSearch" priority="2002" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaIndexerEvent" method="invalidateMedia" priority="2000" />
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
@@ -158,6 +153,73 @@
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator" decorates="cache.object">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator.inner"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument>%shopware.http.cache.default_ttl%</argument>
+            <argument>%shopware.http.cache.enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
+            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
+            <argument>%shopware.http_cache.stale_while_revalidate%</argument>
+            <argument>%shopware.http_cache.stale_if_error%</argument>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="shopware.cache.reverse_proxy.redis" class="Redis">
+            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
+            <argument>%shopware.http_cache.reverse_proxy.redis_url%</argument>
+            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement.</deprecated>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument>%shopware.cache.invalidation.http_cache%</argument>
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="shopware.reverse_proxy.http_client" class="GuzzleHttp\Client"/>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway">
+            <argument>%shopware.http_cache.reverse_proxy.hosts%</argument>
+            <argument type="collection">
+                <argument key="method">%shopware.http_cache.reverse_proxy.ban_method%</argument>
+                <argument key="headers">%shopware.http_cache.reverse_proxy.ban_headers%</argument>
+            </argument>
+            <argument type="collection">
+                <argument key="method">%shopware.http_cache.reverse_proxy.purge_all.ban_method%</argument>
+                <argument key="headers">%shopware.http_cache.reverse_proxy.purge_all.ban_headers%</argument>
+                <argument key="urls">%shopware.http_cache.reverse_proxy.purge_all.urls%</argument>
+            </argument>
+            <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
+            <argument type="service" id="shopware.cache.reverse_proxy.redis"/>
+            <argument type="service" id="shopware.reverse_proxy.http_client"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway">
+            <argument>%shopware.http_cache.reverse_proxy.hosts%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
+            <argument type="service" id="shopware.reverse_proxy.http_client"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway">
+            <argument type="service" id="shopware.reverse_proxy.http_client"/>
+            <argument>%shopware.http_cache.reverse_proxy.fastly.service_id%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.fastly.api_key%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.fastly.soft_purge%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.fastly.tag_prefix%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.fastly.instance_tag%</argument>
+            <argument>%env(APP_URL)%</argument>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
+            <tag name="kernel.cache_clearer"/>
         </service>
     </services>
 </container>

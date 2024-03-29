@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Adapter\Twig\NamespaceHierarchy;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
@@ -161,12 +162,11 @@ class BundleHierarchyBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider sortingProvider
-     *
      * @param array<string, int> $plugins
      * @param array<string, int> $apps
      * @param array<int, string> $expectedSorting
      */
+    #[DataProvider('sortingProvider')]
     public function testSortingOfTemplates(array $plugins, array $apps, array $expectedSorting): void
     {
         $kernel = $this->createMock(KernelInterface::class);
@@ -253,6 +253,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Framework',
             'Storefront',
         ];
+
         // Remove not installed core bundles from hierarchy
         return array_values(
             array_intersect(

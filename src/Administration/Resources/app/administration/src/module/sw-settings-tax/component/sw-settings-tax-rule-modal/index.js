@@ -45,13 +45,9 @@ export default {
             if (!this.currentTaxRuleType) {
                 return null;
             }
+
             const subComponentName = this.currentTaxRuleType.technicalName.replace(/_/g, '-');
-
-            if (this.feature.isActive('VUE3')) {
-                return `sw-settings-tax-rule-type-${subComponentName}`;
-            }
-
-            return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}`];
+            return `sw-settings-tax-rule-type-${subComponentName}`;
         },
         taxRuleTypeCriteria() {
             const criteria = new Criteria(1, 25);

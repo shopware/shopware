@@ -86,3 +86,23 @@
 @mixin drop-shadow-default() {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 8%), 0 2px 1px rgba(0, 0, 0, 6%), 0 1px 3px rgba(0, 0, 0, 10%);
 }
+
+/**
+* @description Resets the default button styles
+* @example @include reset-button;
+*/
+@mixin reset-button() {
+    padding: 0;
+    outline: none;
+    line-height: unset;
+    color: $color-darkgray-200;
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    &.sw-button:hover:not(.sw-button--disabled),
+    &.sw-button:hover:not([disabled]) {
+        background: transparent;
+        border-color: transparent;
+    }
+}

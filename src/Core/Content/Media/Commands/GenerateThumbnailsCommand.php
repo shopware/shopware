@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -89,7 +88,7 @@ class GenerateThumbnailsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $this->initializeCommand($input, $context);
 
@@ -241,12 +240,7 @@ class GenerateThumbnailsCommand extends Command
             $msg = new UpdateThumbnailsMessage();
             $msg->setIsStrict($this->isStrict);
             $msg->setMediaIds($result->getEntities()->getIds());
-
-            if (Feature::isActive('v6.6.0.0')) {
-                $msg->setContext($context);
-            } else {
-                $msg->withContext($context);
-            }
+            $msg->setContext($context);
 
             $this->messageBus->dispatch($msg);
             ++$batchCount;

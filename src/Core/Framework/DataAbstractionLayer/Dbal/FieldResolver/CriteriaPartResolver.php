@@ -157,7 +157,13 @@ class CriteriaPartResolver
 
             $query->addSelect(self::accessor($alias, $field->getReferenceField()) . ' as id');
             if ($reference->isVersionAware()) {
-                $query->addSelect(self::accessor($alias, $definition->getEntityName() . '_version_id'));
+                $version = 'version_id';
+                // it could be the case that we have a reverse join and the reference is the "parent" definition
+                if ($reference->getFields()->getByStorageName($definition->getEntityName() . '_version_id')) {
+                    $version = $definition->getEntityName() . '_version_id';
+                }
+
+                $query->addSelect(self::accessor($alias, $version));
             }
 
             $query->from(self::escape($reference->getEntityName()), self::escape($alias));

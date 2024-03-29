@@ -1,3 +1,7 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+
+{# Extend `src/Storefront/Resources/views/storefront/element/cms-element-product-description-reviews.html.twig` instead #}
+
 {% block page_product_detail_tabs_inner %}
     <div class="card card-tabs">
         {% block page_product_detail_tabs_navigation %}
@@ -12,20 +16,15 @@
                                     class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link"
                                     id="description-tab"
                                     data-bs-toggle="tab"
-                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
-                                    {% if feature('v6.6.0.0') %}
-                                        data-off-canvas-tabs="true"
-                                    {% else %}
-                                        data-offcanvas-tabs="true"
-                                    {% endif %}
+                                    data-off-canvas-tabs="true"
                                     href="#description-tab-pane"
                                     role="tab"
                                     aria-controls="description-tab-pane"
                                     aria-selected="true"
                                 >
-                                    <span>{{ "detail.tabsDescription"|trans|sw_sanitize }}</span>
+                                    <span>{{ 'detail.tabsDescription'|trans|sw_sanitize }}</span>
                                     <span class="product-detail-tab-navigation-icon">
-                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                        {% sw_icon 'arrow-medium-right' style {pack:'solid'} %}
                                     </span>
                                     {% if page.product.translated.description|length > 0 %}
                                         <span class="product-detail-tab-preview">
@@ -36,13 +35,14 @@
                                                Therefor, only show the button when the length of the text is
                                                greater or equal then 126 characters. #}
                                             {% if page.product.translated.description|length >= 126 %}
-                                                <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans|sw_sanitize }}</span>
+                                                <span class="product-detail-tab-preview-more">{{ 'detail.tabsPreviewMore'|trans|sw_sanitize }}</span>
                                             {% endif %}
                                         </span>
                                     {% endif %}
                                 </a>
                             </li>
                         {% endblock %}
+
                         {% block page_product_detail_tabs_navigation_review %}
                             {% if config('core.listing.showReview') %}
                                 <li class="nav-item">
@@ -50,20 +50,15 @@
                                         class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
                                         id="review-tab"
                                         data-bs-toggle="tab"
-                                        {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
-                                        {% if feature('v6.6.0.0') %}
-                                            data-off-canvas-tabs="true"
-                                        {% else %}
-                                            data-offcanvas-tabs="true"
-                                        {% endif %}
+                                        data-off-canvas-tabs="true"
                                         href="#review-tab-pane"
                                         role="tab"
                                         aria-controls="review-tab-pane"
                                         aria-selected="true"
                                     >
-                                        {{ "detail.tabsReview"|trans|sw_sanitize }}
+                                        {{ 'detail.tabsReview'|trans|sw_sanitize }}
                                         <span class="product-detail-tab-navigation-icon">
-                                            {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                            {% sw_icon 'arrow-medium-right' style {pack:'solid'} %}
                                         </span>
                                     </a>
                                 </li>
@@ -93,7 +88,7 @@
                                      id="review-tab-pane"
                                      role="tabpanel"
                                      aria-labelledby="review-tab">
-                                    {% sw_include '@Storefront/storefront/page/product-detail/review/review.html.twig' with {'reviews': page.reviews} %}
+                                    {% sw_include '@Storefront/storefront/page/product-detail/review/review.html.twig' with {reviews: page.reviews} %}
                                 </div>
                             {% endif %}
                         {% endblock %}

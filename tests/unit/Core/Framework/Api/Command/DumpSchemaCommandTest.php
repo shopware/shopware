@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -10,9 +11,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Command\DumpSchemaCommand
  */
+#[CoversClass(DumpSchemaCommand::class)]
 class DumpSchemaCommandTest extends TestCase
 {
     public function testSimpleCall(): void

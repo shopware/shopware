@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Defaults;
@@ -15,9 +16,8 @@ use Shopware\Core\Migration\V6_5\Migration1676272001AddAccountTypeToCustomerProf
  *
  * @phpstan-type ProfileData array{id: string, mapping: string}
  * @phpstan-type ProfileDataMappingKey array{key: string}
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1676272001AddAccountTypeToCustomerProfileImportExport
  */
+#[CoversClass(Migration1676272001AddAccountTypeToCustomerProfileImportExport::class)]
 class Migration1676272001AddAccountTypeToCustomerProfileImportExportTest extends TestCase
 {
     private Connection $connection;

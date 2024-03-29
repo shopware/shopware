@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
@@ -15,9 +16,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule
  */
+#[CoversClass(LineItemGroupRule::class)]
 class LineItemGroupRuleTest extends TestCase
 {
     public function testMatchReturnsFalseBecauseOfWrongScope(): void

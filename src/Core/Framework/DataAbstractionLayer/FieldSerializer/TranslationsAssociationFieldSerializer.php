@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -61,13 +60,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
         $languageField = $referenceDefinition->getFields()->getByStorageName($field->getLanguageField());
         if ($languageField === null) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Could not find language field "%s" in definition "%s"',
-                    $field->getLanguageField(),
-                    $referenceDefinition::class
-                )
-            );
+            throw DataAbstractionLayerException::languageFieldByStorageNameNotFound($referenceDefinition::class, $field->getLanguageField());
         }
 
         $languagePropName = $languageField->getPropertyName();
@@ -103,7 +96,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $translations = [];
         foreach ($value as $keyValue => $subResources) {
             if (!\is_array($subResources)) {
-                throw new ExpectedArrayException($path);
+                throw DataAbstractionLayerException::expectedArray($path);
             }
 
             // See above for Supported formats
@@ -115,7 +108,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 } elseif (isset($subResources['language']['id'])) {
                     $languageId = $subResources['language']['id'];
                 } else {
-                    throw new MissingTranslationLanguageException($path, (int) $keyValue);
+                    throw DataAbstractionLayerException::missingTranslation($path, (int) $keyValue);
                 }
             } elseif ($languagePropName) {
                 // the key is the language id, also write it into $subResources
@@ -174,7 +167,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
     public function decode(Field $field, mixed $value): never
     {
-        throw new DecodeByHydratorException($field);
+        throw DataAbstractionLayerException::decodeHandledByHydrator($field);
     }
 
     /**
@@ -196,7 +189,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $referenceDefinition = $field->getReferenceDefinition();
 
         if (!\is_array($value)) {
-            throw new ExpectedArrayException($path);
+            throw DataAbstractionLayerException::expectedArray($path);
         }
 
         foreach ($value as $languageId => $translation) {
@@ -218,7 +211,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
         if ($referenceDefinition->hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
-            throw new MissingSystemTranslationException($path . '/' . Defaults::LANGUAGE_SYSTEM);
+            throw DataAbstractionLayerException::missingSystemTranslation($path . '/' . Defaults::LANGUAGE_SYSTEM);
         }
 
         yield from [];

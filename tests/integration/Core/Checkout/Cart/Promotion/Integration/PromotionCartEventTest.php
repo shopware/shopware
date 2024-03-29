@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
@@ -39,9 +40,8 @@ class PromotionCartEventTest extends TestCase
      * Our main test case is to create additional dispatch listener that make sure our event is
      * only called once for every discount +1 for the actual product.
      * We also must not call a line item removed event.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAvoidInfiniteLoopEventsWithLotsOfPromotions(): void
     {
         $productId = Uuid::randomHex();
@@ -72,9 +72,8 @@ class PromotionCartEventTest extends TestCase
     /**
      * This test verifies that we only fire our remove item
      * once, even though we have lots of promotions in our cart.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAvoidInfiniteLoopEventsWhenRemovingLotsOfPromotions(): void
     {
         $productId = Uuid::randomHex();

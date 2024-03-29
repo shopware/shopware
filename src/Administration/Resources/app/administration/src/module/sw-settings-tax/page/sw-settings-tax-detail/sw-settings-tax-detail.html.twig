@@ -30,11 +30,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_tax_detail_actions_save %}
         <sw-button-process
-            {% if VUE3 %}
             v-model:processSuccess="isSaveSuccessful"
-            {% else %}
-            v-model="isSaveSuccessful"
-            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-tax-detail__save-action"
             variant="primary"
@@ -88,22 +84,14 @@
                             :label="$tc('sw-settings-tax.detail.labelName')"
                             :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
                             :error="taxNameError"
-                            {% if VUE3 %}
                             @update:value="changeName"
-                            {% else %}
-                            @change="changeName"
-                            {% endif %}
                         />
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_tax_detail_content_field_tax_rate %}
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="tax.taxRate"
-                            {% else %}
-                            v-model="tax.taxRate"
-                            {% endif %}
                             name="sw-field--tax-taxRate"
                             required
                             :digits="3"
@@ -130,11 +118,7 @@
                                 :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
                                 :value="isDefault"
                                 name="sw-field--isDefault"
-                                {% if VUE3 %}
                                 @update:value="onChangeDefaultTaxRate"
-                                {% else %}
-                                @change="onChangeDefaultTaxRate"
-                                {% endif %}
                             />
                         {% endblock %}
                         </div>

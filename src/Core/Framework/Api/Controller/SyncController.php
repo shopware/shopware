@@ -10,14 +10,16 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
@@ -50,28 +52,26 @@ class SyncController extends AbstractController
             $indexingSkips
         );
 
-        $payload = $this->serializer->decode($request->getContent(), 'json');
+        try {
+            $payload = $this->serializer->decode($request->getContent(), 'json');
+        } catch (NotEncodableValueException) {
+            throw ApiException::invalidApiType('json');
+        }
 
         $operations = [];
         foreach ($payload as $key => $operation) {
-            if (isset($operation['key'])) {
-                $key = $operation['key'];
-            }
-            $key = (string) $key;
-            $operations[] = new SyncOperation(
-                $key,
-                $operation['entity'],
-                $operation['action'],
-                $operation['payload'] ?? [],
-                $operation['criteria'] ?? []
-            );
-
-            if (empty($operation['entity'])) {
-                throw ApiException::invalidSyncOperationException(sprintf('Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.', (string) $key));
-            }
+            $operations[] = SyncOperation::createFromArray($operation, (string) $key);
         }
 
-        $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));
+        try {
+            $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));
+        } catch (DataAbstractionLayerException $exception) {
+            if ($exception->getErrorCode() === DataAbstractionLayerException::INVALID_WRITE_INPUT) {
+                throw ApiException::badRequest('Invalid payload. Should contain a list of associative arrays');
+            }
+
+            throw $exception;
+        }
 
         return $this->createResponse($result, Response::HTTP_OK);
     }

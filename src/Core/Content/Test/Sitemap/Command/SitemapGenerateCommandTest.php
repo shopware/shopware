@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapGenerateCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

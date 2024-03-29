@@ -5,12 +5,8 @@
     {% block sw_order_product_select_blank_item %}
     <sw-text-field
         v-if="isShownItemLabelInput"
-        {% if VUE3 %}
         v-model:value="item.label"
         v-bind="$attrs"
-        {% else %}
-        v-model="item.label"
-        {% endif %}
         size="small"
         :placeholder="$tc('sw-order.detailBase.columnProductName')"
     />
@@ -21,22 +17,14 @@
     <!-- eslint-disable vue/valid-v-else-if -->
     <sw-entity-single-select
         v-else-if="isShownProductSelect"
-        {% if VUE3 %}
         v-model:value="product"
-        {% else %}
-        v-model="product"
-        {% endif %}
         class="sw-order-product-select__single-select"
         :context="contextWithInheritance"
         :criteria="productCriteria"
         entity="product"
         size="small"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="onItemChanged"
-        {% else %}
-        @change="onItemChanged"
-        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <slot

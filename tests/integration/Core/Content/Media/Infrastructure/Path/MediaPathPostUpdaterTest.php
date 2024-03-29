@@ -4,14 +4,17 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaPathPostUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -19,9 +22,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Infrastructure\Path\MediaPathPostUpdater
  */
+#[CoversClass(MediaPathPostUpdater::class)]
 class MediaPathPostUpdaterTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -32,7 +34,8 @@ class MediaPathPostUpdaterTest extends TestCase
         $updater = new MediaPathPostUpdater(
             $this->getContainer()->get(IteratorFactory::class),
             $this->getContainer()->get(MediaPathUpdater::class),
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(EntityIndexerRegistry::class),
         );
 
         $ids = new IdsCollection();
@@ -57,20 +60,30 @@ class MediaPathPostUpdaterTest extends TestCase
             $this->getContainer()->get(MediaPathStorage::class)
         );
 
+        $ids = new IdsCollection();
+        $message = new EntityIndexingMessage([$ids->get('media-1'), $ids->get('media-2')]);
+
+        $indexerRegistry = $this->createMock(EntityIndexerRegistry::class);
+        $indexerRegistry->expects(static::once())
+            ->method('__invoke')
+            ->with(static::callback(function (MediaIndexingMessage $message) use ($ids) {
+                static::assertEquals([$ids->get('media-1'), $ids->get('media-2')], $message->getData());
+                static::assertEquals('media.indexer', $message->getIndexer());
+
+                return true;
+            }));
+
         $updater = new MediaPathPostUpdater(
             $this->getContainer()->get(IteratorFactory::class),
             $internal,
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $indexerRegistry
         );
-
-        $ids = new IdsCollection();
 
         $queue = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class), 250);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-1'), 'file_name' => 'media-1', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->addInsert('media', ['id' => $ids->getBytes('media-2'), 'file_name' => 'media-2', 'file_extension' => 'png', 'created_at' => '2021-01-01 00:00:00']);
         $queue->execute();
-
-        $message = new EntityIndexingMessage([$ids->get('media-1'), $ids->get('media-2')]);
 
         $updater->handle($message);
 

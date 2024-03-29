@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
@@ -10,7 +11,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -51,30 +51,6 @@ class AvailableCombinationLoaderTest extends TestCase
         ]);
     }
 
-    /**
-     * @deprecated tag:v6.6.0.0 - Method will be removed. Use `loadCombinations` instead.
-     */
-    public function testCombinationsAreInResultDeprecated(): void
-    {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::markTestSkipped('The load method has been deprecated and will be removed in v6.6.0.0');
-        }
-
-        $context = Context::createDefaultContext();
-        $productId = $this->createProduct($context);
-        $result = $this->loader->load($productId, $context, TestDefaults::SALES_CHANNEL);
-
-        foreach ($result->getCombinations() as $combinationHash => $combination) {
-            static::assertTrue($result->hasCombination($combination));
-
-            foreach ($combination as $optionId) {
-                static::assertTrue($result->hasOptionId($optionId));
-            }
-
-            static::assertTrue(\in_array($combinationHash, $result->getHashes(), true));
-        }
-    }
-
     public function testCombinationsAreInResult(): void
     {
         $context = Context::createDefaultContext();
@@ -93,56 +69,7 @@ class AvailableCombinationLoaderTest extends TestCase
         }
     }
 
-    /**
-     * @deprecated tag:v6.6.0.0 - Method will be removed. Use `loadCombinations` instead.
-     *
-     * @dataProvider availabilityProvider
-     */
-    public function testCombinationAvailabilityDeprecated(
-        int $stock,
-        bool $expected,
-        ?bool $parentCloseout,
-        ?bool $isCloseout,
-        int $minPurchase,
-        bool $differentChannel = false
-    ): void {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::markTestSkipped('The load method has been deprecated and will be removed in v6.6.0.0');
-        }
-
-        $products = (new ProductBuilder($this->ids, 'a.0'))
-            ->manufacturer('m1')
-            ->name('test')
-            ->price(10)
-            ->visibility(TestDefaults::SALES_CHANNEL)
-            ->configuratorSetting('red', 'color')
-            ->configuratorSetting('xl', 'size')
-            ->stock(10)
-            ->closeout($parentCloseout)
-            ->variant(
-                (new ProductBuilder($this->ids, 'a.1'))
-                    ->visibility($differentChannel ? $this->ids->get('sales-channel') : TestDefaults::SALES_CHANNEL)
-                    ->option('red', 'color')
-                    ->option('xl', 'size')
-                    ->stock($stock)
-                    ->closeout($isCloseout)
-                    ->add('minPurchase', $minPurchase)
-                    ->build()
-            )
-            ->build();
-
-        $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
-
-        $result = $this->loader->load($this->ids->get('a.0'), Context::createDefaultContext(), TestDefaults::SALES_CHANNEL);
-
-        foreach ($result->getCombinations() as $combination) {
-            static::assertEquals($expected, $result->isAvailable($combination));
-        }
-    }
-
-    /**
-     * @dataProvider availabilityProvider
-     */
+    #[DataProvider('availabilityProvider')]
     public function testCombinationAvailability(
         int $stock,
         bool $expected,
@@ -291,7 +218,7 @@ class AvailableCombinationLoaderTest extends TestCase
             'name' => 'Test product',
             'productNumber' => 'a.0',
             'manufacturer' => ['name' => 'test'],
-            'tax' => ['id' => UUid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
+            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
             'stock' => 10,
             'active' => true,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Script;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\ScriptException;
@@ -9,9 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Script\ScriptException
  */
+#[CoversClass(ScriptException::class)]
 class ScriptExceptionTest extends TestCase
 {
     public function testExecutionFailedException(): void

@@ -13,6 +13,7 @@
       "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL.",
+      "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator."
     },
@@ -56,6 +57,9 @@
       "noMessage": "Message is not defined",
       "notificationLoadingDataErrorMessage": "Error loading data"
     },
+    "sw-desktop": {
+      "stagingBarText": "The Shop is in staging mode."
+    },
     "notification-center": {
       "title": "Notifications",
       "emptyText": "Nothing going on lately.",
@@ -76,10 +80,6 @@
         "dalIndexing": {
           "message": "All data indexed. | Indexing data.",
           "messageSuccess": "Indexing has finished."
-        },
-        "warmupIndexing": {
-          "message": "Cache warming up. | One page remaining... | Approximately {n} pages remaining...",
-          "messageSuccess": "Cache has been warmed up."
         },
         "productStream": {
           "title": "Indexing dynamic product groups",
@@ -294,6 +294,9 @@
         },
         "fileNameTooLong": {
           "message": "Provided file name is too long. The maximum length is {length} characters."
+        },
+        "settingsSuccess": {
+          "message": "Settings have been saved."
         }
       },
       "labelUploading": "Uploading..."
@@ -388,13 +391,16 @@
           "message": "Folder \"{mediaName}\" has been moved."
         },
         "errorSingle": {
-          "message": "Error moving \"{mediaName}\"."
+          "message": "Could not move \"{mediaName}\"."
         },
         "successOverall": {
           "message": "Media items have been moved."
         },
         "errorOverall": {
-          "message": "Error moving items."
+          "message": "Could not move items."
+        },
+        "errorFetchNavigation": {
+          "message": "Could not fetch folder navigation."
         }
       }
     },
@@ -487,19 +493,19 @@
       "labelGenerateThumbnails": "Generate thumbnails for this folder",
       "labelThumbnailQuality": "Thumbnail quality",
       "labelThumbnailSize": "Thumbnail size",
-      "labelEditList": "Edit list",
-      "labelStopEdit": "Stop editing",
       "labelKeepProportions": "Keep aspect ratio",
       "notification": {
         "success": {
           "message": "Settings have been saved."
         },
         "error": {
-          "message": "Error while saving settings."
+          "message": "Error while saving settings.",
+          "messageThumbnailSizeExisted": "The thumbnail size already exists."
         }
       },
       "labelDefaultFolder": "Default media location for",
-      "placeholderDefaultFolder": "Select entity..."
+      "placeholderDefaultFolder": "Select entity...",
+      "tooltipCanNotDeleteThumbnailSize": "This thumbnail size cannot be deleted because it is currently in use."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximum size"
@@ -659,7 +665,6 @@
           "label": "Customer email address",
           "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character..."
         },
-        "isNewCustomerRule": "New customer",
         "lastNameRule": "Customer surname",
         "isCompanyRule": "Commercial customer",
         "cartTaxDisplay": {
@@ -705,6 +710,7 @@
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
         "orderDocumentTypeRule": "Order with document",
+        "orderDocumentTypeSentRule": "Order with sent document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -797,6 +803,21 @@
       }
     },
     "sw-condition-generic": {
+      "customerDaysSinceLastLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceFirstLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceLastOrder": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
@@ -847,7 +868,7 @@
         }
       },
       "promotionCodeOfType": {
-        "promotionCodeOfType": {
+        "promotionCodeType": {
           "options": {
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
@@ -1570,13 +1591,23 @@
   "sw-ai-copilot-warning": {
     "text": "AI responses can be inaccurate or misleading."
   },
-  "sw-usage-data": {
-    "sw-settings-usage-data-intro": {
-      "title": "Usage data",
-      "headline": "Improving Shopware collectively",
-      "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
-      "learnMore": "Learn more",
-      "learnMoreUrl": "https://shopware.com/en/privacy/"
+  "help-center": {
+    "sidebar": {
+      "title": "Help",
+      "ariaLabelButtonOpen": "Open help",
+      "ariaLabelButtonClose": "Close help",
+      "ariaLabelButtonShortcut": "Open keyboard shortcuts",
+      "support": {
+        "title": "Support",
+        "documentation": {
+          "text": "Documentation",
+          "href": "https://docs.shopware.com/en"
+        },
+        "createSupportRequest": {
+          "text": "Create support request",
+          "href": "https://account.shopware.com/"
+        }
+      }
     }
   }
 }

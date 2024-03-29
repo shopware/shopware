@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\TranslationValidator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Validation\TranslationValidator
  */
+#[CoversClass(TranslationValidator::class)]
 class TranslationValidatorTest extends TestCase
 {
     private TranslationValidator $translationValidator;

@@ -1,5 +1,5 @@
 /*
- * @package business-ops
+ * @package services-settings
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

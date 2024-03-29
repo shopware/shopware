@@ -37,7 +37,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class IterateEntityMessageHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -103,13 +103,13 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->getEntityName());
+        static::assertEquals('product', $entitySyncMessage->entityName);
         static::assertEquals([
             ['id' => $productIds->get('product-from-the-past')],
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
             ['id' => $productIds->get('product-updated-today')],
-        ], array_values($entitySyncMessage->getPrimaryKeys()));
+        ], array_values($entitySyncMessage->primaryKeys));
     }
 
     public function testItFetchesOnlyNewChangesIfLastRunIsSet(): void
@@ -157,11 +157,11 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->getEntityName());
+        static::assertEquals('product', $entitySyncMessage->entityName);
         static::assertEquals([
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
-        ], array_values($entitySyncMessage->getPrimaryKeys()));
+        ], array_values($entitySyncMessage->primaryKeys));
     }
 
     public function testItFetchesOnlyDeletionsUpToTheCurrentRunDate(): void
@@ -217,7 +217,7 @@ class IterateEntityMessageHandlerTest extends TestCase
             [
                 ['id' => $ids->get('product-from-the-past')],
             ],
-            $entitySyncMessage->getPrimaryKeys(),
+            $entitySyncMessage->primaryKeys,
         );
     }
 
@@ -230,8 +230,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -257,30 +255,6 @@ class IterateEntityMessageHandlerTest extends TestCase
             new \DateTimeImmutable('2023-08-16'),
             new \DateTimeImmutable('2023-08-01'),
         ));
-    }
-
-    public function testIfItDoesNotDispatchIfKillSwitchIsActive(): void
-    {
-        $messageBus = new CollectingMessageBus();
-
-        $messageHandler = new IterateEntityMessageHandler(
-            $messageBus,
-            $this->getContainer()->get(IterateEntitiesQueryBuilder::class),
-            $this->getContainer()->get(ConsentService::class),
-            $this->getContainer()->get(EntityDefinitionService::class),
-            $this->getContainer()->get(LoggerInterface::class),
-        );
-
-        $this->getContainer()->get(SystemConfigService::class)->set(ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED, true);
-
-        $messageHandler(new IterateEntityMessage(
-            'product',
-            Operation::CREATE,
-            new \DateTimeImmutable('2023-08-16'),
-            new \DateTimeImmutable('2023-08-01'),
-        ));
-
-        static::assertEmpty($messageBus->getMessages());
     }
 
     private function setUpProducts(): IdsCollection

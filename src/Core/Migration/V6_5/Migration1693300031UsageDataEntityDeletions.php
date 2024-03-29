@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class Migration1693300031UsageDataEntityDeletions extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -28,10 +28,5 @@ class Migration1693300031UsageDataEntityDeletions extends MigrationStep
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

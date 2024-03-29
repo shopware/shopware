@@ -36,6 +36,7 @@ class CreateMigrationCommand extends Command
             ->addArgument('directory', InputArgument::OPTIONAL)
             ->addArgument('namespace', InputArgument::OPTIONAL)
             ->addOption('plugin', 'p', InputOption::VALUE_REQUIRED)
+            ->addOption('package', '', InputArgument::OPTIONAL, 'The package name for the migration')
             ->addOption(
                 'name',
                 '',
@@ -50,9 +51,10 @@ class CreateMigrationCommand extends Command
         $directory = (string) $input->getArgument('directory');
         $namespace = (string) $input->getArgument('namespace');
         $name = $input->getOption('name') ?? '';
+        $package = $input->getOption('package') ?? 'core';
 
         if (!preg_match('/^[a-zA-Z0-9\_]*$/', (string) $name)) {
-            throw new \InvalidArgumentException('Migrationname contains forbidden characters!');
+            throw new \InvalidArgumentException('Migration name contains forbidden characters!');
         }
 
         if ($directory && !$namespace) {
@@ -67,6 +69,7 @@ class CreateMigrationCommand extends Command
                 '%%timestamp%%' => $timestamp,
                 '%%name%%' => $name,
                 '%%namespace%%' => $namespace,
+                '%%package%%' => $package,
             ]);
 
             return self::SUCCESS;
@@ -86,7 +89,7 @@ class CreateMigrationCommand extends Command
                 if (\count($pluginBundles) > 1) {
                     throw new \RuntimeException(
                         sprintf(
-                            'More than one pluginname starting with "%s" was found: %s',
+                            'More than one plugin name starting with "%s" was found: %s',
                             $pluginName,
                             implode(';', array_keys($pluginBundles))
                         )
@@ -98,7 +101,7 @@ class CreateMigrationCommand extends Command
 
             $directory = $pluginBundle->getMigrationPath();
             if (!file_exists($directory) && !mkdir($directory) && !is_dir($directory)) {
-                throw new \RuntimeException(sprintf('Migrationdirectory "%s" could not be created', $directory));
+                throw new \RuntimeException(sprintf('Migration directory "%s" could not be created', $directory));
             }
 
             $namespace = $pluginBundle->getMigrationNamespace();
@@ -114,6 +117,7 @@ class CreateMigrationCommand extends Command
             '%%timestamp%%' => $timestamp,
             '%%name%%' => $name,
             '%%namespace%%' => $namespace,
+            '%%package%%' => $package,
         ];
 
         $output->writeln('Creating core-migration ...');
@@ -129,12 +133,12 @@ class CreateMigrationCommand extends Command
     }
 
     /**
-     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string} $params
+     * @param array{"%%timestamp%%": int, "%%name%%": string, "%%namespace%%": string, "%%package%%": string} $params
      */
     private function createMigrationFile(OutputInterface $output, string $directory, string $templatePatch, array $params): void
     {
         $path = rtrim($directory, '/') . '/Migration' . $params['%%timestamp%%'] . $params['%%name%%'] . '.php';
-        $file = fopen($path, 'wb');
+        $file = fopen($path, 'w');
         if ($file === false) {
             return;
         }

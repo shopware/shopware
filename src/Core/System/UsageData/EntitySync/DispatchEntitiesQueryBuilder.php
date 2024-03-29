@@ -21,7 +21,7 @@ use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntitiesQueryBuilder
 {
     public const PUID_FIELD_NAME = 'puid';
@@ -138,7 +138,7 @@ class DispatchEntitiesQueryBuilder
     {
         $escapedUpdatedAtColumnName = EntityDefinitionQueryHelper::escape('updated_at');
 
-        if ($message->getOperation() === Operation::CREATE) {
+        if ($message->operation === Operation::CREATE) {
             $this->queryBuilder->andWhere(
                 CompositeExpression::or(
                     $this->queryBuilder->expr()->isNull($escapedUpdatedAtColumnName),
@@ -149,7 +149,7 @@ class DispatchEntitiesQueryBuilder
             $this->queryBuilder->setParameter('lastApprovalDate', $lastApprovalDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         }
 
-        if ($message->getOperation() === Operation::UPDATE) {
+        if ($message->operation === Operation::UPDATE) {
             $this->queryBuilder->andWhere(
                 $this->queryBuilder->expr()->lte($escapedUpdatedAtColumnName, ':lastApprovalDate')
             );

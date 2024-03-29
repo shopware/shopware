@@ -89,7 +89,7 @@ export default {
 
         customerCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addAssociation('addresses');
+            criteria.addAssociation('addresses.country');
 
             return criteria;
         },
@@ -105,21 +105,22 @@ export default {
 
             return criteria;
         },
-
         addressOptions() {
             const addresses = (this.customer?.addresses || []).map(item => {
                 return {
-                    label: `${item.street}, ${item.zipcode} ${item.city}`,
+                    label: `${item.street}, ${item.zipcode} ${item.city}, ${item.country?.translated?.name}`,
                     ...item,
                 };
             });
 
             // eslint-disable-next-line no-unused-expressions
             this.address && addresses.unshift({
-                label: `${this.address.street}, ${this.address.zipcode} ${this.address.city}`,
+                label: this.address?.zipCode !== null
+                    // eslint-disable-next-line max-len
+                    ? `${this.address.street}, ${this.address.zipcode} ${this.address.city}, ${this.address?.country?.translated?.name}`
+                    : `${this.address.street}, ${this.address.city}, ${this.address?.country?.translated?.name}`,
                 ...this.address,
             });
-
             return addresses;
         },
 
@@ -245,8 +246,8 @@ export default {
 
         onAddressChange(customerAddressId) {
             this.$emit('change-address', {
-                orderAddressId: this.addressId,
-                customerAddressId,
+                orderAddressId: this.orderAddressId,
+                customerAddressId: customerAddressId,
                 type: this.type,
             });
         },

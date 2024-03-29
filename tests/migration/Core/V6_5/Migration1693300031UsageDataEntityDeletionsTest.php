@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -10,9 +11,8 @@ use Shopware\Core\Migration\V6_5\Migration1693300031UsageDataEntityDeletions;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1693300031UsageDataEntityDeletions
  */
+#[CoversClass(Migration1693300031UsageDataEntityDeletions::class)]
 class Migration1693300031UsageDataEntityDeletionsTest extends TestCase
 {
     public function testMigrationReturnsCorrectTimeStamp(): void

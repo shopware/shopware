@@ -88,11 +88,14 @@ class PromotionCalculator
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
+        // sort discount line items by priority before building exclusions and calculating discounts
+        $discountLineItems->sort(function (LineItem $a, LineItem $b) {
+            return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
+        });
+
         // array that holds all excluded promotion ids.
         // if a promotion has exclusions they are added on the stack
         $exclusions = $this->buildExclusions($discountLineItems, $calculated, $context);
-
-        // @todo order $discountLineItems by priority
 
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
@@ -169,7 +172,7 @@ class PromotionCalculator
      * that are excluded somehow.
      * The validation which one to take will be done later.
      *
-     * @return array<mixed, boolean>
+     * @return array<mixed, bool>
      */
     private function buildExclusions(LineItemCollection $discountLineItems, Cart $calculated, SalesChannelContext $context): array
     {

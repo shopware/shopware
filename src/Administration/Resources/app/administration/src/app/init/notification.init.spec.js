@@ -1,5 +1,5 @@
 import initializeNotifications from 'src/app/init/notification.init';
-import { notification } from '@shopware-ag/admin-extension-sdk';
+import { notification } from '@shopware-ag/meteor-admin-sdk';
 
 describe('src/app/init/notification.init.ts', () => {
     beforeAll(() => {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -45,10 +46,9 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     }
 
     /**
-     * @dataProvider emptyInputProvider
-     *
      * @throws UnsupportedEncoderInputException
      */
+    #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput($input): void
     {
         $this->expectException(UnsupportedEncoderInputException::class);
@@ -65,9 +65,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider complexStructsProvider
-     */
+    #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
         /** @var EntityDefinition $definition */

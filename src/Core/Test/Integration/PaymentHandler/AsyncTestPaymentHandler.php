@@ -5,7 +5,7 @@ namespace Shopware\Core\Test\Integration\PaymentHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,7 +41,7 @@ class AsyncTestPaymentHandler implements AsynchronousPaymentHandlerInterface
         $context = $salesChannelContext->getContext();
 
         if ($request->query->getBoolean('cancel')) {
-            throw new CustomerCanceledAsyncPaymentException(
+            throw PaymentException::customerCanceled(
                 $transaction->getOrderTransaction()->getId(),
                 'Async Test Payment canceled'
             );

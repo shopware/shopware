@@ -1,71 +1,126 @@
-/**
- * @package inventory
- */
-import { shallowMount } from '@vue/test-utils';
-
-import swSettingsListingOptionBase from 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';
-import swSettingsListingOptionCreate from 'src/module/sw-settings-listing/page/sw-settings-listing-option-create';
-
-Shopware.Component.register('sw-settings-listing-option-base', swSettingsListingOptionBase);
-Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-listing-option-base', swSettingsListingOptionCreate);
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create', () => {
-    function getProductSortingEntity() {
-        return {
-            locked: false,
-            key: 'asasdsafsdfsdafsdafasdf',
-            position: 1,
-            active: true,
-            fields: [
-                {
-                    field: 'product.cheapestPrice',
-                    order: 'desc',
-                    position: 0,
-                    naturalSorting: 0,
-                },
-                {
-                    field: 'product.cheapestPrice',
-                    order: 'desc',
-                    position: 0,
-                    naturalSorting: 0,
-                },
-                {
-                    field: 'my_first_custom_field',
-                    order: 'desc',
-                    position: 0,
-                    naturalSorting: 0,
-                },
-            ],
-            label: 'asasdsafsdfsdafsdafasdf',
-            createdAt: '2020-08-06T13:06:03.799+00:00',
-            updatedAt: null,
-            translated: {
+    function getProductSortings() {
+        return [
+            {
+                locked: false,
+                key: 'asasdsafsdfsdafsdafasdf',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                    {
+                        field: 'my_first_custom_field',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                ],
                 label: 'asasdsafsdfsdafsdafasdf',
+                createdAt: '2020-08-06T13:06:03.799+00:00',
+                updatedAt: null,
+                translated: {
+                    label: 'asasdsafsdfsdafsdafasdf',
+                },
+                apiAlias: null,
+                id: '481a3502b72c4fd99b693c7998b93e37',
+                translations: [],
             },
-            apiAlias: null,
-            id: '481a3502b72c4fd99b693c7998b93e37',
-            translations: [],
-        };
+            {
+                locked: false,
+                key: 'test',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                    {
+                        field: 'my_first_custom_field',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Test',
+                createdAt: '2020-08-06T13:06:03.799+00:00',
+                updatedAt: null,
+                translated: {
+                    label: 'asasdsafsdfsdafsdafasdf',
+                },
+                apiAlias: null,
+                id: '481a3502b72c4fd99b693c7998b93e37',
+                translations: [],
+            },
+        ];
     }
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-create'), {
-            mocks: {
-                $router: {},
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve(),
-                        create: () => Promise.resolve(getProductSortingEntity()),
-                        save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
-                    }),
+        return mount(await wrapTestComponent('sw-settings-listing-option-create', {
+            sync: true,
+        }), {
+            global: {
+                mocks: {
+                    $router: {},
                 },
-                systemConfigApiService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div></div>',
+                provide: {
+                    repositoryFactory: {
+                        create: repository => {
+                            if (repository === 'product_sorting') {
+                                return {
+                                    search: (param) => {
+                                        let response = null;
+
+                                        getProductSortings().forEach(element => {
+                                            if (element[param.filters.field]) {
+                                                response = element;
+                                            }
+                                        });
+
+                                        return Promise.resolve(
+                                            {
+                                                first: () => {
+                                                    return response;
+                                                },
+                                            },
+                                        );
+                                    },
+                                    create: () => getProductSortings()[0],
+                                    save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
+                                };
+                            }
+                            return {
+                                search: () => Promise.resolve(),
+                            };
+                        },
+                    },
+                    systemConfigApiService: {},
+                },
+                stubs: {
+                    'sw-page': {
+                        template: '<div></div>',
+                    },
                 },
             },
         });
@@ -84,35 +139,17 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     it('should create a product sorting entity', async () => {
         const productSortingEntity = wrapper.vm.productSortingEntity;
 
-        await expect(productSortingEntity).resolves.toEqual({
-            active: true,
+        await expect(productSortingEntity).toEqual({
+            active: false,
             apiAlias: null,
             createdAt: '2020-08-06T13:06:03.799+00:00',
-            fields: [
-                {
-                    field: 'product.cheapestPrice',
-                    naturalSorting: 0,
-                    order: 'desc',
-                    position: 0,
-                },
-                {
-                    field: 'product.cheapestPrice',
-                    naturalSorting: 0,
-                    order: 'desc',
-                    position: 0,
-                },
-                {
-                    field: 'my_first_custom_field',
-                    naturalSorting: 0,
-                    order: 'desc',
-                    position: 0,
-                },
-            ],
+            fields: [],
             id: '481a3502b72c4fd99b693c7998b93e37',
             key: 'asasdsafsdfsdafsdafasdf',
             label: 'asasdsafsdfsdafsdafasdf',
             locked: false,
             position: 1,
+            priority: 1,
             translated: { label: 'asasdsafsdfsdafsdafasdf' },
             translations: [],
             updatedAt: null,
@@ -134,7 +171,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
-    it('should handle the "saveErrorAlreadyExists" case', async () => {
+
+    it('should handle the "KeyAlreadyExists" case', async () => {
         wrapper.vm.productSortingEntity.key = 'existingKey';
         const resolvedValue = [{}];
         wrapper.vm.productSortingRepository.search = jest.fn().mockResolvedValue(resolvedValue);
@@ -143,10 +181,9 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         await wrapper.vm.onSave();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveErrorAlreadyExists', { sortingOptionName: wrapper.vm.productSortingEntity.label }),
+            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveError', { sortingOptionName: wrapper.vm.productSortingEntity.label }),
         });
     });
-
 
     it('should display the entity name for the smart bar heading', async () => {
         wrapper.vm.productSortingEntity.label = 'label';
@@ -155,6 +192,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     });
 
     it('should display the fallback snippet for the smart bar heading', async () => {
+        wrapper.vm.productSortingEntity.label = '';
+
         expect(wrapper.vm.smartBarHeading).toBe('sw-settings-listing.create.smartBarTitle');
     });
 

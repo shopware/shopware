@@ -110,13 +110,9 @@ class CustomFieldUpdater implements EventSubscriberInterface
     {
         $indices = $this->indexDetector->getAllUsedIndices();
 
-        $enabledMultilingualIndex = $this->elasticsearchHelper->enabledMultilingualIndex();
-        $languageIds = $enabledMultilingualIndex ? $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language') : [];
+        $languageIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language');
 
         foreach ($indices as $indexName) {
-            // Check if index is old language based index
-            $isLanguageBasedIndex = true;
-
             $body = [
                 'properties' => [
                     'customFields' => [
@@ -125,27 +121,12 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 ],
             ];
 
-            // @deprecated tag:v6.6.0 - Remove this check as old language based indexes will be removed
             foreach ($languageIds as $languageId) {
-                if (str_contains($indexName, $languageId)) {
-                    $isLanguageBasedIndex = true;
-
-                    break;
-                }
-
-                $isLanguageBasedIndex = false;
-            }
-
-            if ($isLanguageBasedIndex) {
-                $body['properties']['customFields']['properties'] = $newCreatedFields;
-            } else {
-                foreach ($languageIds as $languageId) {
-                    $body['properties']['customFields']['properties'][$languageId] = [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => $newCreatedFields,
-                    ];
-                }
+                $body['properties']['customFields']['properties'][$languageId] = [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => $newCreatedFields,
+                ];
             }
 
             // For some reason, we need to include the includes to prevent merge conflicts.

@@ -2,17 +2,7 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swPropertyOptionList from 'src/module/sw-property/component/sw-property-option-list';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/entity/sw-one-to-many-grid';
-import swPropertyOptionDetail from 'src/module/sw-property/component/sw-property-option-detail';
-import 'src/app/component/form/sw-colorpicker';
-
-Shopware.Component.register('sw-property-option-list', swPropertyOptionList);
-Shopware.Component.register('sw-property-option-detail', swPropertyOptionDetail);
+import { mount } from '@vue/test-utils';
 
 function getOptions() {
     const options = [
@@ -73,55 +63,56 @@ function getOptionRepository() {
         create: () => ({
             get: () => Promise.resolve(),
         }),
-        save: () => Promise.resolve(),
+        save: jest.fn(() => Promise.resolve()),
     };
 }
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-property-option-list'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-property-option-list', { sync: true }), {
+        props: {
             propertyGroup: propertyGroup,
             optionRepository: getOptionRepository(),
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    get: () => Promise.resolve(),
-                    save: () => Promise.resolve(),
-                    search: () => Promise.resolve({ propertyGroup }),
-                }),
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        get: () => Promise.resolve(),
+                        save: jest.fn(() => Promise.resolve()),
+                        search: () => Promise.resolve({ propertyGroup }),
+                    }),
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
             },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
-            },
-        },
-        stubs: {
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-ignore-class': true,
-            'sw-container': await Shopware.Component.build('sw-container'),
-            'sw-button': {
-                template: '<div></div>',
-            },
-            'sw-simple-search-field': {
-                template: '<div></div>',
-            },
-            'sw-one-to-many-grid': await Shopware.Component.build('sw-one-to-many-grid'),
-            'sw-pagination': {
-                template: '<div></div>',
-            },
-            'sw-checkbox-field': {
-                template: '<div></div>',
-            },
-            'sw-context-button': {
-                template: '<div></div>',
-            },
-            'sw-icon': {
-                template: '<div></div>',
-            },
-            'sw-property-option-detail': await Shopware.Component.build('sw-property-option-detail'),
-            'sw-modal': {
-                template: `
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-ignore-class': true,
+                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-button': {
+                    template: '<button class="sw-button" @click="$emit(`click`)"></botton>',
+                },
+                'sw-simple-search-field': {
+                    template: '<div></div>',
+                },
+                'sw-one-to-many-grid': await wrapTestComponent('sw-one-to-many-grid', { sync: true }),
+                'sw-pagination': {
+                    template: '<div></div>',
+                },
+                'sw-checkbox-field': {
+                    template: '<div></div>',
+                },
+                'sw-context-button': {
+                    template: '<div></div>',
+                },
+                'sw-icon': {
+                    template: '<div></div>',
+                },
+                'sw-property-option-detail': await wrapTestComponent('sw-property-option-detail', { sync: true }),
+                'sw-modal': {
+                    template: `
                         <div class="sw-modal">
                             <slot></slot>
 
@@ -130,46 +121,60 @@ async function createWrapper() {
                             </div>
                         </div>
                 `,
+                },
+                'sw-colorpicker': {
+                    template: `
+                    <input class="sw-colorpicker-stub"
+                        :value="value" type="color"
+                        @input="$emit(\'update:value\', $event.target.value)"/>
+                    `,
+                    props: ['value'],
+                    emits: ['update:value'],
+                },
+                'sw-upload-listener': {
+                    template: '<div></div>',
+                },
+                'sw-media-compact-upload-v2': {
+                    template: '<div></div>',
+                },
+                'sw-number-field': {
+                    template: `
+                        <input class="sw-number-field-stub"
+                            :value="value" type="number"
+                            @input="$emit(\'update:value\', $event.target.value)"/>
+                    `,
+                    props: ['value'],
+                    emits: ['update:value'],
+                },
+                'sw-text-field': {
+                    template: `
+                        <input class="sw-text-field-stub"
+                            :value="value" type="text"
+                            @input="$emit(\'update:value\', $event.target.value)"/>
+                    `,
+                    props: ['value'],
+                    emits: ['update:value'],
+                },
+                'sw-contextual-field': {
+                    template: '<div></div>',
+                },
+                'sw-extension-component-section': true,
             },
-            'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
-            'sw-upload-listener': {
-                template: '<div></div>',
-            },
-            'sw-media-compact-upload-v2': {
-                template: '<div></div>',
-            },
-            'sw-number-field': {
-                template: '<div></div>',
-            },
-            'sw-text-field': {
-                template: '<div></div>',
-            },
-            'sw-contextual-field': {
-                template: '<div></div>',
-            },
-            'sw-extension-component-section': true,
         },
     });
 }
 
 describe('module/sw-property/component/sw-property-option-list', () => {
-    let wrapper;
+    it('should update property values after saving the changes in the modal', async () => {
+        global.activeAclRoles = ['property.editor'];
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
+        const wrapper = await createWrapper();
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
+        const initialHexCodeValue = wrapper.find('.sw-data-grid__cell--colorHexCode span').text();
 
-    it('should get rid of color value', async () => {
-        const initalHexCodeValue = wrapper.find('.sw-data-grid__cell--colorHexCode span').text();
+        expect(initialHexCodeValue).toBe('#dd7373');
 
-        expect(initalHexCodeValue).toBe('#dd7373');
-
-        // open modal by setting the current selected option
-        wrapper.vm.currentOption = wrapper.vm.propertyGroup.options[0];
+        await wrapper.find('.sw-settings-option-detail__link').trigger('click');
 
         // waiting for modal to be loaded
         await wrapper.vm.$nextTick();
@@ -177,15 +182,21 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         const modal = wrapper.find('.sw-modal');
 
         // clear color value
-        modal.vm.currentOption.colorHexCode = '';
+        await modal.get('.sw-text-field-stub').setValue('new name');
+        await modal.get('.sw-number-field-stub').setValue(0);
+        await modal.get('.sw-colorpicker-stub').setValue('#000000');
 
-        modal.vm.onSave();
+        await modal.find('button[variant="primary"]').trigger('click');
 
-        // waiting for the modal to dissapear
+        // waiting for the modal to disappear
         await wrapper.vm.$nextTick();
 
-        const emptyHexCodeValue = wrapper.find('.sw-data-grid__cell--colorHexCode span').text();
+        expect(wrapper.vm.optionRepository.save).toHaveBeenCalledWith(expect.objectContaining({
+            name: 'new name',
+            position: '0',
+            colorHexCode: '#000000',
+        }));
 
-        expect(emptyHexCodeValue).toBe('');
+        expect(wrapper.find('.modal').exists()).toBe(false);
     });
 });

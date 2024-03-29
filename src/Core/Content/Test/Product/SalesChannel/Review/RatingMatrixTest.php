@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
@@ -14,9 +16,8 @@ class RatingMatrixTest extends TestCase
 {
     /**
      * check that constants are defined as expected
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testThatConstantsAreSetLikeExpected(): void
     {
         $matrix = new RatingMatrix([]);
@@ -25,11 +26,9 @@ class RatingMatrixTest extends TestCase
 
     /**
      * check that matrix calculates correctly
-     *
-     * @dataProvider getRatings
-     *
-     * @group reviews
      */
+    #[DataProvider('getRatings')]
+    #[Group('reviews')]
     public function testMatrixCalculation(float $expectedScore, int $reviewCounts, float $total, array $aggregation): void
     {
         $matrix = new RatingMatrix($aggregation);
@@ -66,9 +65,8 @@ class RatingMatrixTest extends TestCase
 
     /**
      * check that matrix calculates correctly
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testMatrixWithAllAtOne(): void
     {
         $oneCount = 1;
@@ -94,9 +92,8 @@ class RatingMatrixTest extends TestCase
 
     /**
      * function tests that every MatrixElement struct is generated correctly by matrix constructor
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testMatrixElements(): void
     {
         $ratingCounts = [1 => 2, 2 => 3, 3 => 0, 4 => 4, 5 => 12];
@@ -123,9 +120,8 @@ class RatingMatrixTest extends TestCase
 
     /**
      * function tests that every MatrixElement struct is generated correctly by matrix constructor using float values
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testMatrixElementsWithFloatValues(): void
     {
         $ratingCounts = [1 => 2, 2 => 3, 3 => 3, 4 => 4, 5 => 12];
@@ -159,9 +155,8 @@ class RatingMatrixTest extends TestCase
 
     /**
      * check that matrix calculates correctly
-     *
-     * @group reviews
      */
+    #[Group('reviews')]
     public function testMissingAggregations(): void
     {
         $stars = [

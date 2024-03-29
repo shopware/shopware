@@ -24,11 +24,6 @@ Component.register('sw-multi-snippet-drag-and-drop', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: Array as PropType<Array<string[]>>,
@@ -67,6 +62,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             type: Object,
             required: false,
             default(): DragConfig<DragItem> {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultConfig;
             },
         },
@@ -75,6 +72,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             type: Object,
             required: false,
             default(): DragConfig<DragItem> {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultConfig;
             },
         },
@@ -135,11 +134,11 @@ Component.register('sw-multi-snippet-drag-and-drop', {
     },
 
     methods: {
-        onDragStart(config: DragConfig, element: string, dragElement: string): void {
+        onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
             this.$emit('drag-start', { config, element, dragElement });
         },
 
-        onDragEnter(dragData: DragConfig, dropData: DragConfig) {
+        onDragEnter(dragData: DragItem, dropData: DragItem) {
             if (!dragData || !dropData) {
                 return;
             }
@@ -162,15 +161,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                     },
                 );
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', this.linePosition, newValue);
-                } else {
-                    this.$emit(
-                        'change',
-                        this.linePosition,
-                        newValue,
-                    );
-                }
+                this.$emit('update:value', this.linePosition, newValue);
 
                 return;
             }
@@ -183,20 +174,13 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                 return true;
             }
 
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this.selectionDisablingMethod(selection);
         },
 
         onClickDismiss(index: number) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.linePosition, this.value.filter((_, key) => key !== index));
-
-                return;
-            }
-
             this.$emit(
-                'change',
+                'update:value',
                 this.linePosition,
                 this.value.filter((_, key) => key !== index),
             );
@@ -211,13 +195,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         },
 
         onDelete() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.linePosition);
-
-                return;
-            }
-
-            this.$emit('change', this.linePosition);
+            this.$emit('update:value', this.linePosition);
         },
 
         openModal() {

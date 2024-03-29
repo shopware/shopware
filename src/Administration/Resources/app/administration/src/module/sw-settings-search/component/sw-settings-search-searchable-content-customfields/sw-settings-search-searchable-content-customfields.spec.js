@@ -1,16 +1,9 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSearchSearchableContentCustomfields from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content-customfields';
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/data-grid/sw-data-grid-skeleton';
-import 'src/app/component/context-menu/sw-context-menu-item';
+import { mount } from '@vue/test-utils';
 
 const customFields = mockCustomFieldData();
-
-Shopware.Component.register('sw-settings-search-searchable-content-customfields', swSettingsSearchSearchableContentCustomfields);
 
 function mockCustomFieldData() {
     const _customFields = [];
@@ -44,32 +37,40 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-settings-search-searchable-content-customfields'), {
-        localVue,
-
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await wrapTestComponent('sw-settings-search-searchable-content-customfields', {
+        sync: true,
+    }), {
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
+            },
+
+            stubs: {
+                'sw-empty-state': true,
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-pagination': true,
+                'sw-data-grid-skeleton': await wrapTestComponent('sw-data-grid-skeleton'),
+                'sw-context-button': {
+                    template: `
+                    <div class="sw-context-button">
+                        <slot name="button"></slot>
+                        <slot />
+                        <slot name="context-menu"></slot>
+                    </div>
+                    `,
+                },
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-button': true,
             },
         },
 
-        stubs: {
-            'sw-empty-state': true,
-            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-pagination': true,
-            'sw-data-grid-skeleton': await Shopware.Component.build('sw-data-grid-skeleton'),
-            'sw-context-button': true,
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-button': true,
-        },
-
-        propsData: {
+        props: {
             isEmpty: false,
             columns: [],
             repository: {},
@@ -88,7 +89,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         global.activeAclRoles = ['product_search_config.viewer'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -101,6 +102,8 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         await wrapper.setProps({
             isEmpty: true,
         });
+
+        await flushPromises();
 
         expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
     });
@@ -130,6 +133,8 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
             searchConfigs,
             isLoading: false,
         });
+
+        await flushPromises();
 
         const firstRow = wrapper.find(
             '.sw-data-grid__row.sw-data-grid__row--0',
@@ -168,6 +173,8 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
             searchConfigs,
             isLoading: false,
         });
+
+        await flushPromises();
 
         const firstRow = wrapper.find(
             '.sw-data-grid__row.sw-data-grid__row--0',
@@ -238,6 +245,8 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
             searchConfigs,
             isLoading: false,
         });
+        await flushPromises();
+
         const firstRow = wrapper.find(
             '.sw-data-grid__row.sw-data-grid__row--0',
         );

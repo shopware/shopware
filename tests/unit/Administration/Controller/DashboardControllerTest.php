@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Administration\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\DashboardController;
 use Shopware\Administration\Dashboard\OrderAmountService;
@@ -9,14 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Controller\DashboardController
  */
+#[CoversClass(DashboardController::class)]
 class DashboardControllerTest extends TestCase
 {
-    /**
-     * @dataProvider requestProvider
-     */
+    #[DataProvider('requestProvider')]
     public function testRequest(Request $request, string $since, bool $paid, string $timezone): void
     {
         $service = $this->createMock(OrderAmountService::class);

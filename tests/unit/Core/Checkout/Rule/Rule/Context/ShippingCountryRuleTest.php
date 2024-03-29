@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Context;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -14,11 +16,10 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(ShippingCountryRule::class)]
 class ShippingCountryRuleTest extends TestCase
 {
     public function testEquals(): void
@@ -101,9 +102,7 @@ class ShippingCountryRuleTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider unsupportedOperators
-     */
+    #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
         $rule = (new ShippingCountryRule())

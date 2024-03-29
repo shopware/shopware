@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -10,8 +11,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -87,12 +88,11 @@ class CreditNoteRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider creditNoteRendererDataProvider
-     *
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
      * @param array<string, int> $additionalConfig
      */
+    #[DataProvider('creditNoteRendererDataProvider')]
     public function testRender(
         array $possibleTaxes,
         array $creditPrices,
@@ -186,7 +186,7 @@ class CreditNoteRendererTest extends TestCase
         static::assertEmpty($processedTemplate->getSuccess());
         static::assertNotEmpty($errors = $processedTemplate->getErrors());
         static::assertArrayHasKey($orderId, $errors);
-        static::assertInstanceOf(DocumentGenerationException::class, $errors[$orderId]);
+        static::assertInstanceOf(DocumentException::class, $errors[$orderId]);
         static::assertEquals(
             "Unable to generate document. Can not generate credit note document because no invoice document exists. OrderId: $orderId",
             $errors[$orderId]->getMessage()
@@ -320,11 +320,10 @@ class CreditNoteRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider creditNoteRendererCustomerGroupDataProvider
-     *
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
      */
+    #[DataProvider('creditNoteRendererCustomerGroupDataProvider')]
     public function testGenerateCreditNoteWithCustomerGroup(
         bool $groupNet,
         array $possibleTaxes,

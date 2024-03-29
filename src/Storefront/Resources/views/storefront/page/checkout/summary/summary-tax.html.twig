@@ -3,7 +3,7 @@
         {% block page_checkout_summary_tax %}
             {% block page_checkout_summary_tax_label %}
                 <dt class="col-7 checkout-aside-summary-label summary-tax">
-                    {{ "checkout.summaryTax"|trans({
+                    {{ 'checkout.summaryTax'|trans({
                         '%rate%': taxItem.taxRate
                     })|sw_sanitize }}
                 </dt>

@@ -2,8 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-version';
+import { mount } from '@vue/test-utils';
 
 describe('components/base/sw-version', () => {
     let wrapper;
@@ -11,10 +10,12 @@ describe('components/base/sw-version', () => {
     async function createWrapper(version) {
         Shopware.State.commit('context/setAppConfigVersion', version);
 
-        wrapper = shallowMount(await Shopware.Component.build('sw-version'), { stubs: ['sw-color-badge'] });
+        wrapper = mount(await wrapTestComponent('sw-version', { sync: true }), {
+            global: {
+                stubs: ['sw-color-badge'],
+            },
+        });
     }
-
-    afterEach(() => { if (wrapper) wrapper.destroy(); });
 
     it('should be a Vue.js component', async () => {
         await createWrapper('foo');

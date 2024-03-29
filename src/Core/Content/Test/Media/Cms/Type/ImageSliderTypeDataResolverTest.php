@@ -83,7 +83,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $criteriaCollection = $this->imageSliderResolver->collect($slot, $resolverContext);
         static::assertNotNull($criteriaCollection);
-        static::assertCount(1, $criteriaCollection);
+        static::assertCount(1, iterator_to_array($criteriaCollection));
 
         $expectedCriteria = new Criteria(['media123', 'media456']);
 

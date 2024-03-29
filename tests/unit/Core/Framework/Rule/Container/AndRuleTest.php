@@ -2,8 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Rule\Container;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
@@ -11,18 +15,14 @@ use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 
 /**
- * @package business-ops
- *
- * @covers \Shopware\Core\Framework\Rule\Container\AndRule
- * @covers \Shopware\Core\Framework\Rule\Container\Container
- *
  * @internal
  */
+#[Package('services-settings')]
+#[CoversClass(AndRule::class)]
+#[CoversClass(Container::class)]
 class AndRuleTest extends TestCase
 {
-    /**
-     * @dataProvider cases
-     */
+    #[DataProvider('cases')]
     public function testRuleLogic(AndRule $rule, bool $matching): void
     {
         $scope = $this->createMock(RuleScope::class);

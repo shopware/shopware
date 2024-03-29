@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
@@ -48,9 +49,8 @@ use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginLifecycleService
  */
+#[CoversClass(PluginLifecycleService::class)]
 class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;
@@ -73,9 +73,6 @@ class PluginLifecycleServiceTest extends TestCase
 
     private MockObject&PluginService $pluginServiceMock;
 
-    /**
-     * @var (object&MockObject)|MockObject|CommandExecutor|(CommandExecutor&object&MockObject)|(CommandExecutor&MockObject)
-     */
     private CommandExecutor&MockObject $commandExecutor;
 
     protected function setUp(): void
@@ -450,7 +447,7 @@ class PluginLifecycleServiceTest extends TestCase
         $containerMock->method('get')->willReturn($this->eventDispatcher);
         $matcher = static::exactly(2);
         $kernelMock->expects($matcher)->method('getContainer')->willReturnCallback(function () use ($matcher, $containerMock): Container {
-            if ($matcher->getInvocationCount() === 1) {
+            if ($matcher->numberOfInvocations() === 1) {
                 return $containerMock;
             }
 

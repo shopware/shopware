@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\SeoUrlRoute;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
@@ -15,10 +16,9 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(NavigationPageSeoUrlRoute::class)]
 class NavigationPageSeoUrlRouteTest extends TestCase
 {
     public function testPrepareCriteria(): void

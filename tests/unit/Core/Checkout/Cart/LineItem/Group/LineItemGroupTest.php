@@ -2,24 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroup::class)]
 class LineItemGroupTest extends TestCase
 {
     /**
      * This test verifies that we have an empty
      * list on new instances and not null.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testItemsAreEmptyOnNewGroup(): void
     {
         $group = new LineItemGroup();
@@ -30,9 +30,8 @@ class LineItemGroupTest extends TestCase
     /**
      * This test verifies that our hasItems
      * function works correctly for empty entries.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testHasItemsOnEmptyList(): void
     {
         $group = new LineItemGroup();
@@ -43,9 +42,8 @@ class LineItemGroupTest extends TestCase
     /**
      * This test verifies that our hasItems
      * function works correctly for existing entries.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testHasItempsOnExistingList(): void
     {
         $group = new LineItemGroup();
@@ -59,9 +57,8 @@ class LineItemGroupTest extends TestCase
      * This test verifies that our items
      * are correctly added if no entry exists
      * for the item id.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testAddInitialItem(): void
     {
         $group = new LineItemGroup();
@@ -76,9 +73,8 @@ class LineItemGroupTest extends TestCase
      * This test verifies that our quantity
      * is correctly increased if we already have
      * an entry for the provided item id.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testAddQuantityToExisting(): void
     {
         $group = new LineItemGroup();

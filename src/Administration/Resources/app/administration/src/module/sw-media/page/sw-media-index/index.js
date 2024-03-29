@@ -69,14 +69,7 @@ export default {
 
     watch: {
         routeFolderId() {
-            if (this.feature.isActive('VUE3')) {
-                this.term = '';
-                this.updateFolder();
-
-                return;
-            }
-
-            this.term = null;
+            this.term = '';
             this.updateFolder();
         },
     },
@@ -92,7 +85,7 @@ export default {
     methods: {
         createdComponent() {
             // Vue router sets the folder id to an empty string if the page is reloaded
-            if (this.feature.isActive('VUE3') && this.routeFolderId === '') {
+            if (this.routeFolderId === '') {
                 this.updateRoute(null);
 
                 return;

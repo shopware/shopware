@@ -2,19 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
-use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
-use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
-use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\ElasticsearchException
  */
+#[CoversClass(ElasticsearchException::class)]
 class ElasticsearchExceptionTest extends TestCase
 {
     public function testDefinitionNotFound(): void
@@ -35,14 +31,6 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testUnsupportedDefinitionLegacy(): void
-    {
-        $exception = ElasticsearchException::unsupportedElasticsearchDefinition('product');
-
-        static::assertInstanceOf(UnsupportedElasticsearchDefinitionException::class, $exception);
-    }
-
     public function testIndexingError(): void
     {
         $exception = ElasticsearchException::indexingError([
@@ -53,17 +41,6 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('ELASTICSEARCH__INDEXING_ERROR', $exception->getErrorCode());
         static::assertSame("Following errors occurred while indexing: \nfoo\nbar", $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testIndexingErrorLegacy(): void
-    {
-        $exception = ElasticsearchException::indexingError([
-            ['reason' => 'foo'],
-            ['reason' => 'bar'],
-        ]);
-
-        static::assertInstanceOf(ElasticsearchIndexingException::class, $exception);
     }
 
     public function testNestedAggregationMissingInFilterAggregation(): void
@@ -118,13 +95,5 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('ELASTICSEARCH__SERVER_NOT_AVAILABLE', $exception->getErrorCode());
         static::assertSame('Elasticsearch server is not available', $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testServerNotAvailableErrorLegacy(): void
-    {
-        $exception = ElasticsearchException::serverNotAvailable();
-
-        static::assertInstanceOf(ServerNotAvailableException::class, $exception);
     }
 }

@@ -17,6 +17,7 @@ use Shopware\Core\Content\Category\SalesChannel\CachedNavigationRoute;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
 use Shopware\Core\Content\LandingPage\SalesChannel\CachedLandingPageRoute;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
@@ -32,7 +33,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
 use Shopware\Core\Defaults;
@@ -156,13 +156,6 @@ class CacheInvalidationSubscriber
         $logs = [...$this->getChangedShippingMethods($event), ...$this->getChangedShippingAssignments($event)];
 
         $this->cacheInvalidator->invalidate($logs);
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-subscriber
-     */
-    public function invalidateSeoUrls(SeoUrlUpdateEvent $event): void
-    {
     }
 
     public function invalidateRules(): void
@@ -296,6 +289,33 @@ class CacheInvalidationSubscriber
         // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
         $this->cacheInvalidator->invalidate(
             array_map(CachedProductDetailRoute::buildName(...), [...$parentIds, ...$event->getIds()])
+        );
+    }
+
+    public function invalidateMedia(MediaIndexerEvent $event): void
+    {
+        /** @var array{'product_id':string, 'variant_id':string|null} $productIds */
+        $productIds = $this->connection->fetchAllAssociative(
+            'SELECT
+                    LOWER(HEX(pm.product_id)) as product_id,
+                    IF(variant.id IS NULL,  NULL, LOWER(HEX(variant.id))) as variant_id
+                    FROM product_media AS pm
+                    LEFT JOIN product as variant ON (pm.product_id = variant.parent_id)
+                    WHERE media_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($event->getIds())],
+            ['ids' => ArrayParameterType::STRING]
+        );
+
+        $variantIds = array_filter(array_column($productIds, 'variant_id'));
+        $uniqueProductIds = array_unique(array_column($productIds, 'product_id'));
+        $productIds = array_merge(
+            $uniqueProductIds,
+            $variantIds,
+        );
+
+        // invalidates the product detail route each time a product changed or if the product is no longer available (because out of stock)
+        $this->cacheInvalidator->invalidate(
+            array_map(CachedProductDetailRoute::buildName(...), $productIds)
         );
     }
 

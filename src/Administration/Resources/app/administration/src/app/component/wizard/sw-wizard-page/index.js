@@ -53,21 +53,11 @@ Component.register('sw-wizard-page', {
 
     methods: {
         createdComponent() {
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.$emit('page-add', this);
-                return;
-            }
-
-            this.$parent.$emit('page-add', this);
+            this.$parent.$parent.$parent.$emit('page-add', this);
         },
 
         destroyedComponent() {
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$parent.$emit('page-remove', this);
-                return;
-            }
-
-            this.$parent.$emit('page-remove', this);
+            this.$parent.$parent.$parent.$emit('page-remove', this);
         },
     },
 });

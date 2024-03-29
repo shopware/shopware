@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\FloatField;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\FloatField
  */
+#[CoversClass(FloatField::class)]
 class FloatFieldTest extends TestCase
 {
     public function testCreateFromXml(): void

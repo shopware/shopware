@@ -16,11 +16,7 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       placeholder="sw-product.priceForm.placeholderPriceGross"
       size="default"
       value="123"
-    >
-      
-                $
-            
-    </sw-number-field-stub>
+    />
      
     <button
       class="sw-price-field__lock"
@@ -40,15 +36,11 @@ exports[`components/form/sw-price-field should render correctly 1`] = `
       placeholder="sw-product.priceForm.placeholderPriceNet"
       size="default"
       value="250"
-    >
-      
-                $
-            
-    </sw-number-field-stub>
+    />
   </div>
    
-  <!---->
+  <!--v-if-->
    
-  <!---->
+  <!--v-if-->
 </div>
 `;

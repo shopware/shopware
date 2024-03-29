@@ -8,7 +8,10 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class CollectEntityDataMessage implements LowPriorityMessageInterface
 {
+    public function __construct(public readonly ?string $shopId = null)
+    {
+    }
 }

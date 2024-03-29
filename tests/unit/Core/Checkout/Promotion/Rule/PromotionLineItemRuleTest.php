@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -21,10 +23,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  *
  * @package checkout
- *
- * @covers \Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule
  */
 #[Package('buyers-experience')]
+#[CoversClass(PromotionLineItemRule::class)]
 class PromotionLineItemRuleTest extends TestCase
 {
     public function testGetName(): void
@@ -61,7 +62,7 @@ class PromotionLineItemRuleTest extends TestCase
                 'isMatchAny' => true,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [
@@ -82,10 +83,9 @@ class PromotionLineItemRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider lineItemScopeCases
-     *
      * @param list<string>|null $ids
      */
+    #[DataProvider('lineItemScopeCases')]
     public function testMatchesInLineItemScope(?array $ids, LineItem $lineItem, bool $expected): void
     {
         $scope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
@@ -141,12 +141,11 @@ class PromotionLineItemRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider lineItemScopeCases
-     * @dataProvider cartScopeCases
-     *
      * @param list<string>|null $ids
      * @param list<LineItem>|LineItem $lineItems
      */
+    #[DataProvider('lineItemScopeCases')]
+    #[DataProvider('cartScopeCases')]
     public function testMatchesInCartScope(?array $ids, array|LineItem $lineItems, bool $expected): void
     {
         if ($lineItems instanceof LineItem) {

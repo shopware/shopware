@@ -65,7 +65,7 @@ class ImportEntityCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $profileName = $input->getArgument('profile');
         $profile = empty($profileName)
@@ -119,7 +119,7 @@ class ImportEntityCommand extends Command
 
         $progress = new Progress($log->getId(), Progress::STATE_PROGRESS, 0);
         do {
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
             $progressBar->setProgress($progress->getOffset());
             $records += $progress->getProcessedRecords();
         } while (!$progress->isFinished());

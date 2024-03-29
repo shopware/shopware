@@ -25,8 +25,4 @@ class Migration1695776504UpdateZipCodeOfTableOrderAddressToNullable extends Migr
     /**
      * @codeCoverageIgnore
      */
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

@@ -1,6 +1,6 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import type { PropType } from 'vue';
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import template from './sw-order-customer-address-select.html.twig';
 import './sw-order-customer-address-select.scss';
 import type CriteriaType from '../../../../core/data/criteria.data';
@@ -21,11 +21,6 @@ export default Component.wrapComponentConfig({
         'repositoryFactory',
         'feature',
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         customer: {
@@ -78,11 +73,8 @@ export default Component.wrapComponentConfig({
                     return;
                 }
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-
-                    return;
-                }
+                this.$emit('update:value', newValue);
+                return;
 
                 this.$emit('change', newValue);
             },
@@ -198,6 +190,10 @@ export default Component.wrapComponentConfig({
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        searchAddressResults() {
+            return this.customerAddresses;
         },
     },
 });

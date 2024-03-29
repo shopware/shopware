@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-admin-menu';
 import swAdminMenuExtension from 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
 import createMenuService from 'src/app/service/menu.service';
@@ -17,39 +17,32 @@ global.allowedErrors = [missingGetListMethod];
 const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
-async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-admin-menu'), {
-        stubs: {
-            'sw-version': true,
-            'sw-icon': true,
-            'sw-loader': true,
-            'sw-avatar': true,
-            'sw-shortcut-overview': true,
-            'sw-sales-channel-menu': true,
-        },
-        provide: {
-            loginService: {
-                notifyOnLoginListener: () => {},
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-version': true,
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-avatar': true,
+                'sw-shortcut-overview': true,
+                'sw-sales-channel-menu': true,
             },
-            userService: {
-                getUser: () => Promise.resolve({ data: {} }),
-            },
-            menuService,
-            acl: {
-                can: (privilegeKey) => {
-                    if (!privilegeKey) { return true; }
-
-                    return privileges.includes(privilegeKey);
+            provide: {
+                loginService: {
+                    notifyOnLoginListener: () => {},
+                },
+                userService: {
+                    getUser: () => Promise.resolve({ data: {} }),
+                },
+                menuService,
+                appModulesService: {
+                    fetchAppModules: () => Promise.resolve([]),
+                },
+                customEntityDefinitionService: {
+                    getMenuEntries: () => { return []; },
                 },
             },
-            appModulesService: {
-                fetchAppModules: () => Promise.resolve([]),
-            },
-            customEntityDefinitionService: {
-                getMenuEntries: () => { return []; },
-            },
-        },
-        methods: {
         },
     });
 }
@@ -59,22 +52,18 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
         Shopware.State.get('session').currentUser = {};
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not show the sw-sales-channel-menu when privilege does not exists', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
         const swSalesChannelMenu = wrapper.find('sw-sales-channel-menu-stub');
 
         expect(swSalesChannelMenu.exists()).toBeFalsy();
     });
 
     it('should show the sw-sales-channel-menu when privilege exists', async () => {
-        const wrapper = await createWrapper([
-            'sales_channel.viewer',
-        ]);
+        global.activeAclRoles = ['sales_channel.viewer'];
+        const wrapper = await createWrapper();
         const swSalesChannelMenu = wrapper.find('sw-sales-channel-menu-stub');
 
         expect(swSalesChannelMenu.exists()).toBeTruthy();

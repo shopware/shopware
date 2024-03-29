@@ -5,18 +5,19 @@ namespace Shopware\Storefront\Test\Framework\Captcha;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
 use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -68,13 +69,17 @@ class CaptchaRouteListenerTest extends TestCase
             ],
         ]);
 
-        $salutation = $this->getContainer()->get('salutation.repository')->search(
+        /** @var EntityRepository<SalutationCollection> $repo */
+        $repo = $this->getContainer()->get('salutation.repository');
+        $salutation = $repo->search(
             (new Criteria())->setLimit(1),
             Context::createDefaultContext()
-        )->first()->getId();
+        )->getEntities()->first();
+
+        static::assertNotNull($salutation);
 
         $data = [
-            'salutationId' => $salutation,
+            'salutationId' => $salutation->getId(),
             'email' => 'kyln@shopware.com',
             'firstName' => 'Ky',
             'lastName' => 'Le',
@@ -131,7 +136,6 @@ class CaptchaRouteListenerTest extends TestCase
             $this->tokenize('frontend.account.register.save', $data)
         );
 
-        /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);

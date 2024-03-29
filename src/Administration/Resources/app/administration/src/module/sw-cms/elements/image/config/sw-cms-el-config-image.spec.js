@@ -1,46 +1,45 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigImage from 'src/module/sw-cms/elements/image/config';
-import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
-
-Shopware.Component.register('sw-cms-el-config-image', swCmsElConfigImage);
-Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-image'), {
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+    return mount(await wrapTestComponent('sw-cms-el-config-image', {
+        sync: true,
+    }), {
+        global: {
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { image: {} };
+                    },
                 },
-                getCmsElementRegistry: () => {
-                    return { image: {} };
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(),
+                        };
+                    },
                 },
             },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(),
-                    };
+            stubs: {
+                'sw-switch-field': true,
+                'sw-select-field': {
+                    template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
+                    props: ['value', 'options'],
                 },
+                'sw-text-field': true,
+                'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
+                'sw-media-upload-v2': true,
+                'sw-upload-listener': true,
+                'sw-dynamic-url-field': true,
             },
         },
-        stubs: {
-            'sw-switch-field': true,
-            'sw-select-field': {
-                template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options'],
-            },
-            'sw-text-field': true,
-            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
-            'sw-media-upload-v2': true,
-            'sw-upload-listener': true,
-            'sw-dynamic-url-field': true,
-        },
-        propsData: {
+        props: {
             element: {
                 config: {
                     media: {

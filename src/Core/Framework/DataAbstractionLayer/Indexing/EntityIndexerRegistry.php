@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -44,8 +45,14 @@ class EntityIndexerRegistry
     /**
      * @internal
      */
-    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
+    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage|FullEntityIndexerMessage $message): void
     {
+        if ($message instanceof FullEntityIndexerMessage) {
+            $this->index(true, $message->getSkip(), $message->getOnly());
+
+            return;
+        }
+
         if ($message instanceof EntityIndexingMessage) {
             $indexer = $this->getIndexer($message->getIndexer());
 
@@ -56,7 +63,7 @@ class EntityIndexerRegistry
             return;
         }
 
-        $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
+        $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), $message->getSkip());
 
         if (!$next) {
             return;
@@ -69,11 +76,11 @@ class EntityIndexerRegistry
      * @param list<string> $skip
      * @param list<string> $only
      */
-    public function index(bool $useQueue, array $skip = [], array $only = []): void
+    public function index(bool $useQueue, array $skip = [], array $only = [], bool $postUpdate = false): void
     {
         foreach ($this->indexer as $indexer) {
-            // one time indexer are only for update case, they get scheduled after the update were done and the message are send over the: RegisteredIndexerSubscriber::runRegisteredIndexers
-            if ($indexer instanceof PostUpdateIndexer) {
+            // when we are not in post update mode, skip all post update indexer
+            if (!$postUpdate && $indexer instanceof PostUpdateIndexer) {
                 continue;
             }
             if (\in_array($indexer->getName(), $skip, true)) {
@@ -91,6 +98,7 @@ class EntityIndexerRegistry
             while ($message = $indexer->iterate($offset)) {
                 $message->setIndexer($indexer->getName());
                 $message->addSkip(...$skip);
+                $message->isFullIndexing = true;
 
                 $this->sendOrHandle($message, $useQueue);
 
@@ -136,6 +144,7 @@ class EntityIndexerRegistry
             }
 
             $message->setIndexer($indexer->getName());
+            $message->isFullIndexing = false;
             self::addSkips($message, $context);
 
             $this->sendOrHandle($message, $useQueue);
@@ -149,15 +158,17 @@ class EntityIndexerRegistry
         if (!$context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
             return;
         }
-        /** @var ArrayEntity $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
+        if (!$skip instanceof ArrayEntity) {
+            return;
+        }
 
         $message->addSkip(...$skip->get('skips'));
     }
 
     /**
      * @param list<string> $indexer
-     * @param list<string> $skip
+     * @param array<string> $skip
      */
     public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
@@ -185,6 +196,15 @@ class EntityIndexerRegistry
 
             $this->messageBus->dispatch(new IterateEntityIndexerMessage($name, null, $skip));
         }
+    }
+
+    /**
+     * @param list<string> $skip
+     * @param list<string> $only
+     */
+    public function sendFullIndexingMessage(array $skip = [], array $only = []): void
+    {
+        $this->messageBus->dispatch(new FullEntityIndexerMessage($skip, $only));
     }
 
     public function has(string $name): bool
@@ -224,10 +244,10 @@ class EntityIndexerRegistry
     }
 
     /**
+     * @param array<string>                $skip
      * @param array{offset: int|null}|null $offset
-     * @param list<string> $skip
      */
-    private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
+    private function iterateIndexer(string $name, ?array $offset, array $skip): ?EntityIndexingMessage
     {
         $indexer = $this->getIndexer($name);
 
@@ -242,8 +262,9 @@ class EntityIndexerRegistry
 
         $message->setIndexer($indexer->getName());
         $message->addSkip(...$skip);
+        $message->isFullIndexing = true;
 
-        $this->sendOrHandle($message, $useQueue);
+        $this->sendOrHandle($message, true);
 
         return $message;
     }

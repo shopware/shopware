@@ -13,22 +13,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
 class ProductExportGenerateCommandTest extends TestCase
 {
-    use CommandTestBehaviour;
     use IntegrationTestBehaviour;
 
     private ProductExportGenerateCommand $productExportGenerateCommand;
@@ -36,8 +33,6 @@ class ProductExportGenerateCommandTest extends TestCase
     private EntityRepository $repository;
 
     private Context $context;
-
-    private SalesChannelContext $salesChannelContext;
 
     private FilesystemOperator $fileSystem;
 
@@ -51,24 +46,18 @@ class ProductExportGenerateCommandTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
         $this->productExportGenerateCommand = $this->getContainer()->get(ProductExportGenerateCommand::class);
-
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), $this->getSalesChannelDomain()->getSalesChannelId());
     }
 
     public function testExecute(): void
     {
         $this->createTestEntity();
 
-        $input = new StringInput($this->getSalesChannelDomain()->getSalesChannelId());
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->productExportGenerateCommand, $input, $output);
+        $commandTester = new CommandTester($this->productExportGenerateCommand);
+        $commandTester->execute(['sales-channel-id' => $this->getSalesChannelDomain()->getSalesChannelId()]);
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
-        static::assertIsString($fileContent);
         $csvRows = explode(\PHP_EOL, $fileContent);
 
         static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
@@ -79,22 +68,29 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $salesChannelId = $repository->searchIds(new Criteria(), $this->context)->firstId();
+
+        static::assertIsString($salesChannelId);
+
+        return $salesChannelId;
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<SalesChannelDomainCollection> $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         $criteria = new Criteria();
         $criteria->addAssociation('salesChannel');
         $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        return $repository->search($criteria, $this->context)->first();
+        $domain = $repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $domain);
+
+        return $domain;
     }
 
     private function getSalesChannelDomainId(): string
@@ -156,6 +152,9 @@ class ProductExportGenerateCommandTest extends TestCase
     ");
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

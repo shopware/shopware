@@ -8,7 +8,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_configurator_restrictions_search_field %}
         <sw-simple-search-field
-            v-model="term"
+            v-model:value="term"
             size="small"
             variant="form"
             :placeholder="$tc('sw-product.variations.configuratorModal.searchRestrictions')"
@@ -50,14 +50,9 @@
             >
                 <template
                     v-for="restriction in getRestrictionsWithNaming(item.id).values"
-                    {% if VUE3 %}
                     :key="restriction.id"
-                    {% endif %}
                 >
                     <span
-                        {% if VUE2 %}
-                        :key="restriction.id"
-                        {% endif %}
                         class="sw-product-variants-configurator-restrictions__group-name"
                     >
                         {{ restriction.group }}:

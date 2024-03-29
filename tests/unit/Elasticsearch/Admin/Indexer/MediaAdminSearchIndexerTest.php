@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\MediaAdminSearchIndexer
  */
+#[CoversClass(MediaAdminSearchIndexer::class)]
 class MediaAdminSearchIndexerTest extends TestCase
 {
     private MediaAdminSearchIndexer $searchIndexer;

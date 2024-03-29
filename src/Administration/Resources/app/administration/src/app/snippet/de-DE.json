@@ -13,6 +13,7 @@
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain.",
+      "DUPLICATED_NAME": "Dieser Name wird bereits genutzt.",
       "CONTENT__MEDIA_EMPTY_FILE": "Gib einen gültigen Dateinamen an.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Datentyp kann nicht gerendert werden. Bitte kontaktiere Deinen Administrator."
     },
@@ -56,6 +57,9 @@
       "noMessage": "Eine Nachricht wurde nicht definiert",
       "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
+    "sw-desktop": {
+      "stagingBarText": "The Shop befindet sich im Staging mode."
+    },
     "notification-center": {
       "title": "Mitteilungen",
       "emptyText": "Nicht viel los hier.",
@@ -76,10 +80,6 @@
         "dalIndexing": {
           "message": "Alle Daten werden indexiert. | Weitere Daten zur Indexierung verbleibend ...",
           "messageSuccess": "Daten indexiert."
-        },
-        "warmupIndexing": {
-          "message": "Cache aufgewärmt. | Noch eine Seite verbleibend ... |  {n} Seiten verbleibend ...",
-          "messageSuccess": "Cache aufgewärmt."
         },
         "productStream": {
           "title": "Indexierung der dynamischen Produktgruppen",
@@ -294,6 +294,9 @@
         },
         "fileNameTooLong": {
           "message": "Der angegebene Dateiname ist zu lang. Die Maximallänge beträgt {length} Zeichen."
+        },
+        "settingsSuccess": {
+          "message": "Einstellungen erfolgreich gespeichert."
         }
       },
       "labelUploading": "Wird hochgeladen ..."
@@ -388,13 +391,16 @@
           "message": "\"{mediaName}\" erfolgreich verschoben."
         },
         "errorSingle": {
-          "message": "Fehler beim Verschieben von \"{mediaName}\"."
+          "message": "\"{mediaName}\" konnte nicht verschoben werden."
         },
         "successOverall": {
           "message": "Objekte erfolgreich verschoben."
         },
         "errorOverall": {
-          "message": "Fehler beim Verschieben."
+          "message": "Objekte konnten nicht verschoben werden."
+        },
+        "errorFetchNavigation": {
+          "message": "Ordner-Navigation konnte nicht geladen werden."
         }
       }
     },
@@ -487,19 +493,19 @@
       "labelGenerateThumbnails": "Thumbnails für diesen Ordner generieren",
       "labelThumbnailQuality": "Thumbnail-Qualität",
       "labelThumbnailSize": "Thumbnail-Größe",
-      "labelEditList": "Liste bearbeiten",
-      "labelStopEdit": "Bearbeiten beenden",
       "labelKeepProportions": "Seitenverhältnis beibehalten",
       "notification": {
         "success": {
           "message": "Einstellungen erfolgreich gespeichert."
         },
         "error": {
-          "message": "Fehler beim Speichern der Einstellungen."
+          "message": "Fehler beim Speichern der Einstellungen.",
+          "messageThumbnailSizeExisted": "Thumbnail-Größe existiert bereits."
         }
       },
       "labelDefaultFolder": "Medien-Standardspeicherort für",
-      "placeholderDefaultFolder": "Entität auswählen ..."
+      "placeholderDefaultFolder": "Entität auswählen ...",
+      "tooltipCanNotDeleteThumbnailSize": "Thumbnail-Größe kann nicht gelöscht werden, weil diese verwendet wird."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -592,23 +598,23 @@
       "addNewEntity": "Neue {entity} hinzufügen",
       "shortcuts": {
         "product": "G P | A P",
-        "category": "G C | ",
+        "category": "G C | &nbsp;",
         "customers": "G U | A U",
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
         "sales-channel": " | A S",
         "cms": "G E | A E",
-        "dashboard": "G H | ",
-        "product-stream": "G D | ",
-        "order": "G O | ",
-        "media": "G M E | ",
-        "promotion-v2": "G P O | ",
-        "settings": "G S | ",
-        "newsletter-recipient": "G N | ",
-        "settings-snippet": "G S | ",
-        "settings-payment": "G S P | ",
-        "settings-shipping": "G S S | "
+        "dashboard": "G H | &nbsp;",
+        "product-stream": "G D | &nbsp;",
+        "order": "G O | &nbsp;",
+        "media": "G M E | &nbsp;",
+        "promotion-v2": "G P O | &nbsp;",
+        "settings": "G S | &nbsp;",
+        "newsletter-recipient": "G N | &nbsp;",
+        "settings-snippet": "G S | &nbsp;",
+        "settings-payment": "G S P | &nbsp;",
+        "settings-shipping": "G S S | &nbsp;"
       }
     },
     "sw-search-more-results": {
@@ -659,7 +665,6 @@
           "label": "Kunden-E-Mail-Adresse",
           "placeholder": "Eindeutige E-Mail-Adresse eingeben, oder \"*\" als Platzhalterzeichen verwenden ..."
         },
-        "isNewCustomerRule": "Neukunde",
         "lastNameRule": "Kundennachname",
         "isCompanyRule": "Firmenkunde",
         "cartTaxDisplay": {
@@ -705,6 +710,7 @@
         "orderStatusRule": "Bestellstatus",
         "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
         "orderDocumentTypeRule": "Bestellung mit Dokument",
+        "orderDocumentTypeSentRule": "Bestellung mit gesendetem Dokument",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -797,6 +803,21 @@
       }
     },
     "sw-condition-generic": {
+      "customerDaysSinceLastLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceFirstLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceLastOrder": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"
@@ -847,7 +868,7 @@
         }
       },
       "promotionCodeOfType": {
-        "promotionCodeOfType": {
+        "promotionCodeType": {
           "options": {
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",
@@ -1570,13 +1591,23 @@
   "sw-ai-copilot-warning": {
     "text": "AI-Antworten können ungenau oder irreführend sein."
   },
-  "sw-usage-data": {
-    "sw-settings-usage-data-intro": {
-      "title": "Nutzungsdaten",
-      "headline": "Gemeinsam Shopware verbessern",
-      "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
-      "learnMore": "Mehr erfahren",
-      "learnMoreUrl": "https://shopware.com/de/datenschutz/"
+  "help-center": {
+    "sidebar": {
+      "title": "Hilfe",
+      "ariaLabelButtonOpen": "Hilfe öffnen",
+      "ariaLabelButtonClose": "Hilfe schließen",
+      "ariaLabelButtonShortcut": "Tastenkürzel-Übersicht öffnen",
+      "support": {
+        "title": "Support",
+        "documentation": {
+          "text": "Dokumentation",
+          "href": "https://docs.shopware.com/de"
+        },
+        "createSupportRequest": {
+          "text": "Supportanfrage erstellen",
+          "href": "https://account.shopware.com/"
+        }
+      }
     }
   }
 }

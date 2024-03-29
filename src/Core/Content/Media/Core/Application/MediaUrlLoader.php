@@ -3,10 +3,7 @@
 namespace Shopware\Core\Content\Media\Core\Application;
 
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,15 +14,14 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaUrlLoader
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly AbstractMediaUrlGenerator $generator,
-        private readonly UrlGeneratorInterface $legacyGenerator
+        private readonly AbstractMediaUrlGenerator $generator
     ) {
     }
 
@@ -37,10 +33,6 @@ class MediaUrlLoader
      */
     public function loaded(iterable $entities): void
     {
-        if (!self::newBehavior()) {
-            return;
-        }
-
         $mapping = $this->map($entities);
 
         if (empty($mapping)) {
@@ -69,99 +61,6 @@ class MediaUrlLoader
                 $thumbnail->assign(['url' => $urls[$thumbnail->getUniqueIdentifier()]]);
             }
         }
-    }
-
-    /**
-     * @param iterable<MediaEntity> $entities
-     *
-     * @deprecated tag:v6.6.0 - reason:remove-subscriber - Will be removed, this function is only used to fall back to legacy media url generation. With 6.6, all media paths should be stored in the database.
-     */
-    public function legacyPath(iterable $entities): void
-    {
-        if (self::newBehavior()) {
-            return;
-        }
-
-        foreach ($entities as $media) {
-            if (!$media->hasFile()) {
-                continue;
-            }
-
-            if (!empty($media->getPath())) {
-                continue;
-            }
-
-            // legacy generator has a check for empty filename, previously prevent by the hasFile function
-            if (empty($media->getFileName())) {
-                continue;
-            }
-            $media->setPath($this->legacyGenerator->getRelativeMediaUrl($media));
-
-            if ($media->getThumbnails() === null) {
-                continue;
-            }
-
-            foreach ($media->getThumbnails() as $thumbnail) {
-                if (!empty($thumbnail->getPath())) {
-                    continue;
-                }
-
-                $thumbnail->setPath(
-                    $this->legacyGenerator->getRelativeThumbnailUrl($media, $thumbnail)
-                );
-            }
-        }
-    }
-
-    /**
-     * @param iterable<MediaEntity> $entities
-     *
-     * @deprecated tag:v6.6.0 - reason:remove-subscriber - Will be removed, this function is only used to fall back to legacy media url generation. With 6.6, all media paths should be stored in the database.
-     */
-    public function legacy(iterable $entities): void
-    {
-        if (self::newBehavior()) {
-            return;
-        }
-
-        foreach ($entities as $media) {
-            if (!$media instanceof MediaEntity) {
-                continue;
-            }
-            if (!$media->hasFile() || $media->isPrivate()) {
-                continue;
-            }
-
-            if (!empty($media->getUrl())) {
-                continue;
-            }
-
-            // legacy generator has a check for empty filename, previously prevent by the hasFile function
-            if (empty($media->getFileName())) {
-                continue;
-            }
-
-            $media->setUrl($this->legacyGenerator->getAbsoluteMediaUrl($media));
-
-            if ($media->getThumbnails() === null) {
-                continue;
-            }
-
-            foreach ($media->getThumbnails() as $thumbnail) {
-                if (!empty($thumbnail->getUrl())) {
-                    continue;
-                }
-
-                $thumbnail->setUrl(
-                    $this->legacyGenerator->getAbsoluteThumbnailUrl($media, $thumbnail)
-                );
-            }
-        }
-    }
-
-    private static function newBehavior(): bool
-    {
-        return Feature::isActive('v6.6.0.0') || Feature::isActive('media_path');
     }
 
     /**

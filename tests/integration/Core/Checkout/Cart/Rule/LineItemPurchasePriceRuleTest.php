@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -24,10 +26,9 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[Group('rules')]
 class LineItemPurchasePriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -85,9 +86,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItemPurchasePriceGross(
         string $operator,
         ?float $amount,
@@ -114,9 +113,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItemPurchasePriceNet(
         string $operator,
         ?float $amount,
@@ -185,9 +182,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         yield 'match / operator empty / with only empty rule price' => [Rule::OPERATOR_EMPTY, null, 100, false];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopePurchasePrice(
         string $operator,
         float $amount,
@@ -227,9 +222,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopePurchasePriceNested(
         string $operator,
         float $amount,

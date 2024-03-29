@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
@@ -20,10 +21,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class CustomerRecoveryRouteTest extends TestCase
 {
     use CustomerTestTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Elasticsearch;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -12,9 +13,8 @@ use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Elasticsearch
  */
+#[CoversClass(Elasticsearch::class)]
 class ElasticsearchTest extends TestCase
 {
     public function testTemplatePriority(): void

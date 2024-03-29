@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Cms\Type;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
@@ -117,9 +118,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         static::assertNull($productBoxStruct->getProduct());
     }
 
-    /**
-     * @dataProvider enrichWithStaticConfigProvider
-     */
+    #[DataProvider('enrichWithStaticConfigProvider')]
     public function testEnrichWithStaticConfig(bool $closeout, bool $hidden, int $availableStock): void
     {
         if ($hidden) {

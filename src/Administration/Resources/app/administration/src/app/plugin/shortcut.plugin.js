@@ -3,20 +3,12 @@
  */
 
 const util = Shopware.Utils;
-const { warn } = Shopware.Utils.debug;
-
-let pluginInstalled = false;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     install(Vue) {
-        if (pluginInstalled) {
-            warn('Shortcut', 'This plugin is already installed');
-            return false;
-        }
-
         let activeShortcuts = [];
 
         // Register component shortcuts
@@ -136,8 +128,6 @@ export default {
                 }, 200),
             },
         });
-
-        pluginInstalled = true;
 
         return true;
     },

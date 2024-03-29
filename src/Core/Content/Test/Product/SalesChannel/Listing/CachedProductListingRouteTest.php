@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Listing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingRouteCacheTagsEvent;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -31,10 +33,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedProductListingRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -60,9 +61,7 @@ class CachedProductListingRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @dataProvider criteriaProvider
-     */
+    #[DataProvider('criteriaProvider')]
     public function testCriteria(Criteria $criteria): void
     {
         $ids = new IdsCollection();
@@ -105,9 +104,7 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
-    /**
-     * @dataProvider stateProvider
-     */
+    #[DataProvider('stateProvider')]
     public function testStates(array $current, array $config): void
     {
         $ids = new IdsCollection();
@@ -155,9 +152,7 @@ class CachedProductListingRouteTest extends TestCase
         yield 'Has multiple states' => [['logged-in', 'cart-filled'], ['logged-in', 'cart-filled']];
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\Store;
 
 use GuzzleHttp\Handler\MockHandler;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -10,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\System\User\UserCollection;
@@ -23,14 +25,6 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('services-settings')]
 trait StoreClientBehaviour
 {
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed, use ::getStoreRequestHandler() instead
-     */
-    public function getRequestHandler(): MockHandler
-    {
-        return $this->getStoreRequestHandler();
-    }
-
     public function getStoreRequestHandler(): MockHandler
     {
         /** @var MockHandler $handler */
@@ -47,21 +41,15 @@ trait StoreClientBehaviour
         return $handler;
     }
 
-    /**
-     * @after
-     *
-     * @before
-     */
+    #[After]
+    #[Before]
     public function resetStoreMock(): void
     {
         $this->getStoreRequestHandler()->reset();
     }
 
-    /**
-     * @after
-     *
-     * @before
-     */
+    #[After]
+    #[Before]
     public function resetFrwMock(): void
     {
         $this->getFrwRequestHandler()->reset();
@@ -175,9 +163,9 @@ trait StoreClientBehaviour
 
     protected function getShopwareVersion(): string
     {
-        $version = $this->getContainer()->getParameter('kernel.shopware_version');
+        $instanceService = $this->getContainer()->get(InstanceService::class);
 
-        return $version === Kernel::SHOPWARE_FALLBACK_VERSION ? '___VERSION___' : $version;
+        return $instanceService->getShopwareVersion();
     }
 
     protected function getUserRepository(): EntityRepository

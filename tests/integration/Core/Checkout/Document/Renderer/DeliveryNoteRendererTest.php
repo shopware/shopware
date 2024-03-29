@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
@@ -58,9 +59,7 @@ class DeliveryNoteRendererTest extends TestCase
         $this->cartService = $this->getContainer()->get(CartService::class);
     }
 
-    /**
-     * @dataProvider deliveryNoteRendererDataProvider
-     */
+    #[DataProvider('deliveryNoteRendererDataProvider')]
     public function testRender(string $deliveryNoteNumber, \Closure $assertionCallback): void
     {
         $cart = $this->generateDemoCart(3);

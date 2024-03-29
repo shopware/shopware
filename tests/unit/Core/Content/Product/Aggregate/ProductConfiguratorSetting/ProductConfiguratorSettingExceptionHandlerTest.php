@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductConfiguratorSetting;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler;
 use Shopware\Core\Content\Product\ProductException;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler
  */
+#[CoversClass(ProductConfiguratorSettingExceptionHandler::class)]
 class ProductConfiguratorSettingExceptionHandlerTest extends TestCase
 {
     public function testMatching(): void

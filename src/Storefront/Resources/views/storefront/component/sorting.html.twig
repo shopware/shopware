@@ -4,8 +4,7 @@
 {% if showSorting and sortings|length > 0 %}
     <div class="sorting"
          data-listing-sorting="true"
-         {# ludtwig-ignore html-string-quotation #}
-         data-listing-sorting-options='{{ config|json_encode }}'>
+         data-listing-sorting-options="{{ config|json_encode }}">
         <select class="sorting form-select" aria-label="{{ 'general.sortingLabel'|trans|striptags }}">
             {% for sorting in sortings %}
                 {% set key = sorting.key %}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator
  */
+#[CoversClass(ComposerGenerator::class)]
 class ComposerGeneratorTest extends TestCase
 {
     public function testCommandOptions(): void

@@ -1,72 +1,62 @@
 /**
  * @package content
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
-import SwMediaUrlForm from 'src/app/asyncComponent/media/sw-media-url-form';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/context-menu/sw-context-menu';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/base/sw-button-group';
-
-Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
-Shopware.Component.register('sw-media-url-form', SwMediaUrlForm);
+import { mount } from '@vue/test-utils';
+import FileValidationService from 'src/app/service/file-validation.service';
 
 async function createWrapper(customOptions = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('droppable', {});
-
-    return shallowMount(await Shopware.Component.build('sw-media-upload-v2'), {
-        localVue,
-        stubs: {
-            'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-context-button': await Shopware.Component.build('sw-context-button'),
-            'sw-button-group': await Shopware.Component.build('sw-button-group'),
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-media-url-form': await Shopware.Component.build('sw-media-url-form'),
-            'sw-media-preview-v2': true,
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-            'sw-popover': true,
-        },
-        provide: {
-            validationService: {},
-            repositoryFactory: {
-                create: () => ({
-                    create: () => ({}),
-                    save: () => Promise.resolve({}),
-                    saveAll: () => Promise.resolve({}),
-                }),
-            },
-            mediaService: {
-                addListener: () => {},
-                addUploads: () => Promise.resolve(),
-                addUpload: () => Promise.resolve(),
-                removeByTag: () => {},
-                removeListener: () => null,
-            },
-            configService: {
-                getConfig: () => Promise.resolve({
-                    settings: {
-                        enableUrlFeature: true,
-                    },
-                }),
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
+        attachTo: document.body,
+        props: {
             uploadTag: 'my-upload',
             addFilesOnMultiselect: true,
+        },
+        global: {
+            renderStubDefaultSlot: true,
+            directives: {
+                droppable: {},
+            },
+            stubs: {
+                'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-button-group': await wrapTestComponent('sw-button-group'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
+                'sw-media-preview-v2': true,
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                'sw-popover': true,
+            },
+            provide: {
+                fileValidationService: new FileValidationService(),
+                validationService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => ({}),
+                        save: () => Promise.resolve({}),
+                        saveAll: () => Promise.resolve({}),
+                    }),
+                },
+                mediaService: {
+                    addListener: () => {},
+                    addUploads: () => Promise.resolve(),
+                    addUpload: () => Promise.resolve(),
+                    removeByTag: () => {},
+                    removeListener: () => null,
+                },
+                configService: {
+                    getConfig: () => Promise.resolve({
+                        settings: {
+                            enableUrlFeature: true,
+                        },
+                    }),
+                },
+            },
         },
         ...customOptions,
     });
@@ -83,6 +73,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
 
         fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
@@ -149,6 +140,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setData({
             isUploadUrlFeatureEnabled: true,
         });
+        await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
         expect(uploadButton.exists()).toBeTruthy();
@@ -162,9 +154,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setData({
             isUploadUrlFeatureEnabled: true,
         });
+        await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
-        expect(uploadButton.attributes().disabled).toBeTruthy();
+        expect(uploadButton.attributes().disabled).toBe('');
     });
 
     it('context button switch mode should be enabled', async () => {
@@ -183,9 +176,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await wrapper.setData({
             isUploadUrlFeatureEnabled: true,
         });
+        await flushPromises();
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
-        expect(switchModeButton.attributes().class).toBe('sw-context-button sw-media-upload-v2__switch-mode is--disabled');
+        expect(switchModeButton.attributes().class).toBe('sw-context-button is--disabled sw-media-upload-v2__switch-mode');
     });
 
     it('remove icon should be enabled', async () => {
@@ -222,26 +216,118 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('open media sidebar button should be enabled', async () => {
-        wrapper = await createWrapper({
-            listeners: {
-                'media-upload-sidebar-open': jest.fn(),
+        wrapper = mount({
+            template: '<sw-media-upload-v2 uploadTag="jest-upload" :addFilesOnMultiselect="true" @media-upload-sidebar-open="()=>{}"/>',
+        }, {
+            attachTo: document.body,
+            global: {
+                renderStubDefaultSlot: true,
+                directives: {
+                    droppable: {},
+                },
+                stubs: {
+                    'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
+                    'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-button-group': await wrapTestComponent('sw-button-group'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
+                    'sw-media-preview-v2': true,
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-popover': true,
+                },
+                provide: {
+                    validationService: {},
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => ({}),
+                            save: () => Promise.resolve({}),
+                            saveAll: () => Promise.resolve({}),
+                        }),
+                    },
+                    mediaService: {
+                        addListener: () => {},
+                        addUploads: () => Promise.resolve(),
+                        addUpload: () => Promise.resolve(),
+                        removeByTag: () => {},
+                        removeListener: () => null,
+                    },
+                    configService: {
+                        getConfig: () => Promise.resolve({
+                            settings: {
+                                enableUrlFeature: true,
+                            },
+                        }),
+                    },
+                },
             },
         });
+        await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.open-media-sidebar');
         expect(uploadButton.attributes().disabled).toBeUndefined();
     });
 
     it('open media sidebar button should be disabled', async () => {
-        wrapper = await createWrapper({
-            listeners: {
-                'media-upload-sidebar-open': jest.fn(),
+        wrapper = mount({
+            template: '<sw-media-upload-v2 uploadTag="jest-upload" :disabled="true" :addFilesOnMultiselect="true" @media-upload-sidebar-open="()=>{}"/>',
+        }, {
+            attachTo: document.body,
+            global: {
+                renderStubDefaultSlot: true,
+                directives: {
+                    droppable: {},
+                },
+                stubs: {
+                    'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2'),
+                    'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-context-button': await wrapTestComponent('sw-context-button'),
+                    'sw-button-group': await wrapTestComponent('sw-button-group'),
+                    'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                    'sw-media-url-form': await wrapTestComponent('sw-media-url-form'),
+                    'sw-media-preview-v2': true,
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                    'sw-popover': true,
+                },
+                provide: {
+                    validationService: {},
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => ({}),
+                            save: () => Promise.resolve({}),
+                            saveAll: () => Promise.resolve({}),
+                        }),
+                    },
+                    mediaService: {
+                        addListener: () => {},
+                        addUploads: () => Promise.resolve(),
+                        addUpload: () => Promise.resolve(),
+                        removeByTag: () => {},
+                        removeListener: () => null,
+                    },
+                    configService: {
+                        getConfig: () => Promise.resolve({
+                            settings: {
+                                enableUrlFeature: true,
+                            },
+                        }),
+                    },
+                },
             },
         });
-
-        await wrapper.setProps({
-            disabled: true,
-        });
+        await flushPromises();
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button.open-media-sidebar');
         expect(uploadButton.attributes().disabled).toBeDefined();
@@ -256,11 +342,12 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         expect(switchModeButton.exists()).toBeTruthy();
 
-        // const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
+        fileInput = wrapper.find('.sw-media-upload-v2__file-input');
         expect(fileInput.exists()).toBeTruthy();
 
         let contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
         await contextButton.trigger('click');
+        await flushPromises();
 
         let switchToUrlModeBtn = switchModeButton.find('.sw-media-upload-v2__button-url-upload');
         expect(switchToUrlModeBtn.exists()).toBeTruthy();
@@ -295,39 +382,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         const contextButton = wrapper.find('.sw-media-upload-v2__switch-mode button');
         await contextButton.trigger('click');
+        await flushPromises();
 
         const uploadOption = wrapper.find('.sw-context-menu-item');
         expect(uploadOption.text()).toBe('global.sw-media-upload-v2.buttonUrlUpload');
-    });
-
-    it('open media button should have normal style shade when variant is regular', async () => {
-        wrapper = await createWrapper({
-            listeners: {
-                'media-upload-sidebar-open': jest.fn(),
-            },
-        });
-
-        const openMediaButton = wrapper.find('.open-media-sidebar');
-
-        expect(openMediaButton.find('.sw-icon').exists()).toBeFalsy();
-        expect(openMediaButton.text()).toBe('global.sw-media-upload-v2.buttonOpenMedia');
-    });
-
-    it('open media button should have square shade when variant is compact', async () => {
-        wrapper = await createWrapper({
-            listeners: {
-                'media-upload-sidebar-open': jest.fn(),
-            },
-        });
-
-        await wrapper.setProps({
-            variant: 'small',
-        });
-
-        const openMediaButton = wrapper.find('.open-media-sidebar');
-
-        expect(openMediaButton.classes()).toContain('sw-button--square');
-        expect(openMediaButton.find('.sw-icon').exists()).toBeTruthy();
     });
 
     it('should show error notification able file type is not suitable', async () => {
@@ -348,7 +406,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-upload-v2.notification.invalidFileType.message',
-            title: 'global.default.error',
         });
     });
 
@@ -371,7 +428,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-upload-v2.notification.invalidFileSize.message',
-            title: 'global.default.error',
         });
     });
 
@@ -494,8 +550,10 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         await flushPromises();
 
         // enable uploads via url
-        const contextMenuItem = await wrapper.find('.sw-media-upload-v2__button-url-upload');
-        await contextMenuItem.trigger('click');
+        const contextMenuItem = document.body.querySelector('.sw-media-upload-v2__button-url-upload');
+        expect(contextMenuItem).toBeInstanceOf(HTMLElement);
+        contextMenuItem.click();
+        await flushPromises();
 
         const urlInput = wrapper.find('#sw-field--url');
         await urlInput.setValue('https://example.com/image.jpg');
@@ -544,6 +602,38 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         const isFileAccepted = wrapper.vm.checkFileType(file);
         expect(isFileAccepted).toBe(false);
+    });
+
+    it('should override file when call extension check in case file does not belong to `File`', async () => {
+        const media = new Shopware.Data.EntityCollection(
+            '/media',
+            'media',
+            null,
+            null,
+            [{
+                id: '123',
+                fileName: 'media',
+                mimeType: 'application/pdf',
+            }],
+            1,
+            null,
+        );
+
+        const file = media.first();
+
+        await wrapper.setProps({
+            fileAccept: 'image/*, application/pdf',
+        });
+
+        await wrapper.vm.checkFileType(file);
+
+        expect(file).toEqual({
+            id: '123',
+            fileName: 'media',
+            mimeType: 'application/pdf',
+            type: 'application/pdf',
+            name: 'media',
+        });
     });
 });
 

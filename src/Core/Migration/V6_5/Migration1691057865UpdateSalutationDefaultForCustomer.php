@@ -48,9 +48,4 @@ class Migration1691057865UpdateSalutationDefaultForCustomer extends MigrationSte
             );
         } while ($updatedRowCount === $limit);
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

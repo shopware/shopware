@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Finder\Finder;
@@ -61,17 +60,6 @@ abstract class AbstractAppLoader
         $configPath = $this->locatePath($app->getPath(), 'Resources/flow.xml');
 
         if ($configPath !== null) {
-            return Action::createFromXmlFile($configPath);
-        }
-
-        $configPath = $this->locatePath($app->getPath(), 'Resources/flow-action.xml');
-
-        if (!Feature::isActive('v6.6.0.0') && $configPath !== null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.6.0.0',
-                'The flow-action.xml is deprecated and will be removed in v6.6.0.0. Use flow.xml instead.'
-            );
-
             return Action::createFromXmlFile($configPath);
         }
 

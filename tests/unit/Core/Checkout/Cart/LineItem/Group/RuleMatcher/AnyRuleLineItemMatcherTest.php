@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\RuleMatcher;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AbstractAnyRuleLineItemMatcher;
@@ -15,10 +17,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher
- *
  * @internal
  */
+#[CoversClass(AnyRuleLineItemMatcher::class)]
 class AnyRuleLineItemMatcherTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
@@ -34,9 +35,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
         $this->context = Generator::createSalesChannelContext();
     }
 
-    /**
-     * @dataProvider lineItemProvider
-     */
+    #[DataProvider('lineItemProvider')]
     public function testMatching(bool $withRules, bool $diffrentId, bool $expected): void
     {
         $lineItem = $this->createProductItem(50, 10);

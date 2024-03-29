@@ -46,6 +46,7 @@ import UserActivityService from 'src/app/service/user-activity.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
 import addUsageDataConsentListener from 'src/core/service/usage-data-consent-listener.service';
+import FileValidationService from 'src/app/service/file-validation.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -212,5 +213,8 @@ Application
     })
     .addServiceProvider('userActivityService', () => {
         return new UserActivityService();
+    })
+    .addServiceProvider('fileValidationService', () => {
+        return FileValidationService();
     });
 

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -40,7 +39,7 @@ class SeoUrlUpdater
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     public function update(string $routeName, array $ids): void
     {
@@ -59,10 +58,7 @@ class SeoUrlUpdater
         $languageChains = $this->fetchLanguageChains($context);
 
         $criteria = new Criteria();
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $criteria->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
-        }
+        $criteria->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
 
         $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
 
@@ -103,10 +99,8 @@ class SeoUrlUpdater
                AND sales_channel.active = 1';
         $parameters = [];
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $query .= ' AND sales_channel.type_id != :apiTypeId';
-            $parameters['apiTypeId'] = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
-        }
+        $query .= ' AND sales_channel.type_id != :apiTypeId';
+        $parameters['apiTypeId'] = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_API);
 
         $domains = $this->connection->fetchAllAssociative($query, $parameters);
 

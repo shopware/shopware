@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory
  */
+#[CoversClass(GoogleStorageFactory::class)]
 class GoogleStorageFactoryTest extends TestCase
 {
     public function testCreateGoogleStorageFromConfigString(): void

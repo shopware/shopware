@@ -7,8 +7,8 @@
 {% block page_checkout_container %}
     {% if page.cart.lineItems.count is same as(0) %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-            type: "info",
-            content: "checkout.cartEmpty"|trans|sw_sanitize
+            type: 'info',
+            content: 'checkout.cartEmpty'|trans|sw_sanitize
         } %}
 
         {% set messages = app.flashes %}
@@ -27,7 +27,7 @@
     {% block page_checkout_cart %}
         {% block page_checkout_cart_header %}
             <h1 class="cart-main-header">
-                {{ "checkout.cartHeader"|trans|sw_sanitize }}
+                {{ 'checkout.cartHeader'|trans|sw_sanitize }}
             </h1>
         {% endblock %}
 
@@ -75,7 +75,7 @@
                                 <div class="input-group">
                                     {% block page_checkout_cart_add_product_label %}
                                         <label class="visually-hidden" for="addProductInput">
-                                            {{ "checkout.addProductLabel"|trans|sw_sanitize }}
+                                            {{ 'checkout.addProductLabel'|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
 
@@ -84,8 +84,8 @@
                                                name="number"
                                                class="form-control"
                                                id="addProductInput"
-                                               placeholder="{{ "checkout.addProductPlaceholder"|trans|striptags }}"
-                                               aria-label="{{ "checkout.addProductLabel"|trans|striptags }}"
+                                               placeholder="{{ 'checkout.addProductPlaceholder'|trans|striptags }}"
+                                               aria-label="{{ 'checkout.addProductLabel'|trans|striptags }}"
                                                aria-describedby="addProductButton"
                                                required="required">
                                     {% endblock %}
@@ -93,6 +93,7 @@
                                     {% block page_checkout_cart_add_product_submit %}
                                         <button class="btn btn-secondary"
                                                 type="submit"
+                                                aria-labelledby="addProductInput"
                                                 id="addProductButton">
                                             {% sw_icon 'checkmark' %}
                                         </button>
@@ -118,9 +119,10 @@
                                        role="button"
                                        aria-expanded="false"
                                        aria-controls="collapseExample">
-                                        {{ "checkout.shippingCosts"|trans|sw_sanitize }}
+                                        {{ 'checkout.shippingCosts'|trans|sw_sanitize }}
+
                                         {% block page_checkout_cart_shipping_costs_trigger_icon %}
-                                            {% sw_icon 'arrow-medium-right' style { 'pack':'solid', 'size': 'sm' } %}
+                                            {% sw_icon 'arrow-medium-right' style { pack:'solid', size: 'sm' } %}
                                         {% endblock %}
                                     </a>
                                 {% endif %}
@@ -131,7 +133,7 @@
                                     {% block page_checkout_cart_shipping_costs_form_group_country %}
                                         {% if not context.customer %}
                                             <div class="form-group">
-                                                <label for="countryId">{{ "checkout.shippingCountry"|trans|sw_sanitize }}</label>
+                                                <label for="countryId">{{ 'checkout.shippingCountry'|trans|sw_sanitize }}</label>
                                                 <select class="form-select" type="text" id="countryId" name="countryId">
                                                     {% for country in page.countries %}
                                                         <option value="{{ country.id }}"
@@ -146,13 +148,13 @@
 
                                     {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
                                         <div class="form-group">
-                                            <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans|sw_sanitize }}</label>
+                                            <label for="paymentMethodId">{{ 'checkout.paymentMethod'|trans|sw_sanitize }}</label>
                                             <select class="form-select" type="text" id="paymentMethodId" name="paymentMethodId">
                                                 {% if context.paymentMethod.id not in page.paymentMethods.ids %}
                                                     <option value="{{ context.paymentMethod.id }}"
                                                             selected="selected"
                                                             disabled="disabled">
-                                                        {{ context.paymentMethod.translated.name }} {{ "checkout.notAvailableSuffix"|trans|sw_sanitize }}
+                                                        {{ context.paymentMethod.translated.name }} {{ 'checkout.notAvailableSuffix'|trans|sw_sanitize }}
                                                     </option>
                                                 {% endif %}
                                                 {% for payment in page.paymentMethods %}
@@ -167,13 +169,13 @@
 
                                     {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
                                         <div class="form-group">
-                                            <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans|sw_sanitize }}</label>
+                                            <label for="shippingMethodId">{{ 'checkout.shippingMethod'|trans|sw_sanitize }}</label>
                                             <select class="form-select" type="text" id="shippingMethodId" name="shippingMethodId">
                                                 {% if context.shippingMethod.id not in page.shippingMethods.ids %}
                                                     <option value="{{ context.shippingMethod.id }}"
                                                             selected="selected"
                                                             disabled="disabled">
-                                                        {{ context.shippingMethod.translated.name }} {{ "checkout.notAvailableSuffix"|trans|sw_sanitize }}
+                                                        {{ context.shippingMethod.translated.name }} {{ 'checkout.notAvailableSuffix'|trans|sw_sanitize }}
                                                     </option>
                                                 {% endif %}
                                                 {% for shipping in page.shippingMethods %}
@@ -185,6 +187,7 @@
                                             </select>
                                         </div>
                                     {% endblock %}
+
                                     <input type="hidden" name="redirectTo" value="frontend.checkout.cart.page">
                                 </div>
                             {% endblock %}
@@ -209,10 +212,10 @@
                 {% endblock %}
 
                 {% block page_checkout_cart_add_promotion_input_group %}
-                    <div class="input-group checkout-aside-add-code">
+                    <div class="input-group checkout-aside-add-code mt-3">
                         {% block page_checkout_cart_add_promotion_label %}
                             <label class="visually-hidden" for="addPromotionInput">
-                                {{ "checkout.addPromotionLabel"|trans|sw_sanitize }}
+                                {{ 'checkout.addPromotionLabel'|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
 
@@ -221,8 +224,8 @@
                                    name="code"
                                    class="form-control"
                                    id="addPromotionInput"
-                                   placeholder="{{ "checkout.addPromotionPlaceholder"|trans|striptags }}"
-                                   aria-label="{{ "checkout.addPromotionLabel"|trans|striptags }}"
+                                   placeholder="{{ 'checkout.addPromotionPlaceholder'|trans|striptags }}"
+                                   aria-label="{{ 'checkout.addPromotionLabel'|trans|striptags }}"
                                    aria-describedby="addPromotion"
                                    required="required">
                         {% endblock %}
@@ -230,6 +233,7 @@
                         {% block page_checkout_cart_add_promotion_submit %}
                             <button class="btn btn-secondary"
                                     type="submit"
+                                    aria-labelledby="addPromotionInput"
                                     id="addPromotion">
                                 {% sw_icon 'checkmark' %}
                             </button>
@@ -244,8 +248,8 @@
         <div class="checkout-aside-action d-grid">
             <a href="{{ path('frontend.checkout.confirm.page') }}"
                class="btn btn-primary btn-lg begin-checkout-btn"
-               title="{{ "checkout.proceedLink"|trans|striptags }}">
-                {{ "checkout.proceedLink"|trans|sw_sanitize }}
+               title="{{ 'checkout.proceedLink'|trans|striptags }}">
+                {{ 'checkout.proceedLink'|trans|sw_sanitize }}
             </a>
         </div>
     {% endblock %}

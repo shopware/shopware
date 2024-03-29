@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -25,7 +26,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class BillingStreetRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -186,9 +187,7 @@ class BillingStreetRuleTest extends TestCase
         static::assertFalse($this->rule->match(new CheckoutRuleScope($salesChannelContext)));
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $billingStreet, bool $noCustomer = false, bool $noAddress = false): void
     {
         $streetName = 'kyln123';

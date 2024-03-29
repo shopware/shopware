@@ -1,4 +1,4 @@
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import template from './sw-order-create-general.html.twig';
 import type {
     CalculatedTax,
@@ -78,7 +78,7 @@ export default Component.wrapComponentConfig({
                     taxRate: item.taxRate,
                     tax: format.currency(
                         item.tax,
-                        this.currency.shortName,
+                        this.currency.isoCode,
                         // eslint-disable-next-line max-len
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
                         (this.currency.totalRounding as any)?.decimals,
@@ -130,7 +130,7 @@ export default Component.wrapComponentConfig({
     methods: {
         createdComponent(): void {
             if (!this.customer) {
-                this.$nextTick(() => {
+                void this.$nextTick(() => {
                     void this.$router.push({ name: 'sw.order.create.initial' });
                 });
 
@@ -139,7 +139,7 @@ export default Component.wrapComponentConfig({
 
             this.isLoading = true;
 
-            this.loadCart().finally(() => {
+            void this.loadCart().finally(() => {
                 this.isLoading = false;
             });
         },

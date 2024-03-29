@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
@@ -18,11 +20,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemQuantitySplitter::class)]
 class LineItemQuantitySplitterTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -38,9 +39,7 @@ class LineItemQuantitySplitterTest extends TestCase
         $this->salesChannelContext = $context;
     }
 
-    /**
-     * @dataProvider splitProvider
-     */
+    #[DataProvider('splitProvider')]
     public function testSplit(int $itemQty, int $splitterQty, int $calcExpects): void
     {
         $splitter = $this->createQtySplitter($calcExpects);

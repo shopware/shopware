@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,15 +14,12 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Command\ThemeCompileCommand
  */
 #[Package('storefront')]
+#[CoversClass(ThemeCompileCommand::class)]
 class ThemeCompileCommandTest extends TestCase
 {
-    /**
-     * @dataProvider getOptionsValue
-     */
+    #[DataProvider('getOptionsValue')]
     public function testItNegatesKeepAssetsOptionWhenPassed(bool $keepAssetsOption): void
     {
         $salesChannelId = 'sales-channel-id';
@@ -43,9 +42,7 @@ class ThemeCompileCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    /**
-     * @dataProvider getOptionsValue
-     */
+    #[DataProvider('getOptionsValue')]
     public function testItPassesActiveOnlyFlagCorrectly(bool $activeOnly): void
     {
         $themeService = static::createMock(ThemeService::class);

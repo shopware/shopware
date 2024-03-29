@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
+use Shopware\Core\Content\Flow\Dispatching\TransactionFailedException;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,7 +29,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -128,7 +128,6 @@ class SetOrderStateActionTest extends TestCase
 
         $subscriber = new SetOrderStateAction(
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get('logger'),
             $this->getContainer()->get(OrderService::class),
         );
 
@@ -137,51 +136,12 @@ class SetOrderStateActionTest extends TestCase
         $flow = $flowFactory->create($event);
         $flow->setConfig(['order_delivery' => 'cancelled']);
 
-        static::expectException(StateMachineException::class);
-        static::expectExceptionMessage('The StateMachine named "order_delivery" was not found.');
+        static::expectException(TransactionFailedException::class);
+        static::expectExceptionMessage('Transaction failed because an exception occurred');
 
         $this->connection->transactional(function () use ($subscriber, $flow): void {
             $subscriber->handleFlow($flow);
         });
-    }
-
-    public function testDoesNotThrowWhenEntityNotFoundAndInsideATransactionWithSavepointNesting(): void
-    {
-        // Because this test needs to change savepoint nesting we need to commit the current transaction, as we cannot
-        // change this property inside a running transaction.
-        $this->connection->commit();
-        $this->connection->setNestTransactionsWithSavepoints(true);
-        $this->connection->beginTransaction();
-
-        $orderId = Uuid::randomHex();
-        $context = Context::createDefaultContext();
-
-        $orderData = $this->getOrderData($orderId, $context);
-        $orderData[0]['deliveries'] = [];
-        $this->orderRepository->create($orderData, $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
-
-        static::assertInstanceOf(OrderEntity::class, $order);
-
-        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
-
-        $subscriber = new SetOrderStateAction(
-            $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get('logger'),
-            $this->getContainer()->get(OrderService::class),
-        );
-
-        /** @var FlowFactory $flowFactory */
-        $flowFactory = $this->getContainer()->get(FlowFactory::class);
-        $flow = $flowFactory->create($event);
-        $flow->setConfig(['order_delivery' => 'cancelled']);
-
-        $this->connection->transactional(function () use ($subscriber, $flow): void {
-            $subscriber->handleFlow($flow);
-        });
-
-        // No exception was thrown
-        static::addToAssertionCount(1);
     }
 
     private function prepareFlowSequences(string $orderState, string $orderDeliveryState, string $orderTransactionState): void
@@ -305,8 +265,8 @@ class SetOrderStateActionTest extends TestCase
                         'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(\DATE_ISO8601),
-                        'shippingDateLatest' => date(\DATE_ISO8601),
+                        'shippingDateEarliest' => date(\DATE_ATOM),
+                        'shippingDateLatest' => date(\DATE_ATOM),
                         'shippingOrderAddress' => [
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',

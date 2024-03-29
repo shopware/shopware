@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -20,13 +23,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule
- *
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemDimensionWidthRule::class)]
+#[Group('rules')]
 class LineItemDimensionWidthRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -51,9 +52,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         float $amount,
@@ -115,9 +114,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
         yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         float $amount,
@@ -157,9 +154,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         float $amount,
@@ -251,10 +246,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getDataWithMatchAllLineItemsRule
-     *
      * @param array<LineItem> $lineItems
      */
+    #[DataProvider('getDataWithMatchAllLineItemsRule')]
     public function testIfMatchesWithMatchAllLineItemsRule(
         array $lineItems,
         string $operator,
@@ -385,6 +379,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         static::assertInstanceOf(NotBlank::class, $result['operator'][0]);
         static::assertInstanceOf(Choice::class, $result['operator'][1]);
+        static::assertIsArray($result['operator'][1]->choices);
         static::assertContains(Rule::OPERATOR_EMPTY, $result['operator'][1]->choices);
     }
 
@@ -398,8 +393,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
         $expectedOperators[] = Rule::OPERATOR_EMPTY;
 
         static::assertSame($expectedOperators, $result->getData()['operatorSet']['operators']);
-        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields'][0]['config']['unit']);
-        static::assertSame('amount', $result->getData()['fields'][0]['name']);
+        static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
+        static::assertSame('amount', $result->getData()['fields']['amount']['name']);
     }
 
     private static function createLineItemWithWidth(?float $width): LineItem

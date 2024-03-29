@@ -28,6 +28,13 @@ export default class ShippingMethodPageObject {
     }
 
     createShippingMethodPriceRule() {
+        // Activate second currency
+        cy.get('.sw-settings-shipping-price-matrix [aria-label="List settings"]').scrollIntoView();
+        cy.get('.sw-settings-shipping-price-matrix [aria-label="List settings"]').click();
+        cy.contains('.sw-data-grid__settings-item--3', 'Czech koruna');
+        cy.get('.sw-data-grid__settings-item--3 input[type="checkbox"').click();
+        cy.get('.sw-settings-shipping-price-matrix [aria-label="List settings"]').click();
+
         cy.get('.sw-settings-shipping-price-matrices').then(($el) => {
             if ($el.find('.sw-settings-shipping-price-matrix').length <= 0) {
                 cy.get('.sw-settings-shipping-price-matrices__actions').scrollIntoView();

@@ -8,6 +8,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -27,8 +28,8 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
-use Shopware\Core\Test\CollectingMessageBus;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -36,9 +37,8 @@ use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\WebhookDispatcher
  */
+#[CoversClass(WebhookDispatcher::class)]
 class WebhookDispatcherTest extends TestCase
 {
     private EventDispatcherInterface&MockObject $dispatcher;

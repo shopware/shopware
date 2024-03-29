@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
@@ -14,10 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Api\PromotionActionController
  */
 #[Package('buyers-experience')]
+#[CoversClass(PromotionActionController::class)]
 class PromotionActionControllerTest extends TestCase
 {
     private MockObject&FilterServiceRegistry $filterServiceRegistry;

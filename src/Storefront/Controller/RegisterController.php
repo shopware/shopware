@@ -33,7 +33,7 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -283,11 +283,13 @@ class RegisterController extends StorefrontController
     {
         $affiliateCode = $session->get(AffiliateTrackingListener::AFFILIATE_CODE_KEY);
         $campaignCode = $session->get(AffiliateTrackingListener::CAMPAIGN_CODE_KEY);
-        if ($affiliateCode !== null && $campaignCode !== null) {
-            $data->add([
-                AffiliateTrackingListener::AFFILIATE_CODE_KEY => $affiliateCode,
-                AffiliateTrackingListener::CAMPAIGN_CODE_KEY => $campaignCode,
-            ]);
+
+        if ($affiliateCode !== null) {
+            $data->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
+        }
+
+        if ($campaignCode !== null) {
+            $data->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
         }
 
         return $data;

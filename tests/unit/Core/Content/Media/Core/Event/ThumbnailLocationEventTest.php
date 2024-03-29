@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\ThumbnailLocationEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
@@ -9,9 +10,8 @@ use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Event\ThumbnailLocationEvent
  */
+#[CoversClass(ThumbnailLocationEvent::class)]
 class ThumbnailLocationEventTest extends TestCase
 {
     public function testGetIterator(): void

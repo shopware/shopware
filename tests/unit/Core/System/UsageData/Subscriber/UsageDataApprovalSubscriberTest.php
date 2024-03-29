@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
@@ -12,10 +13,9 @@ use Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
+#[CoversClass(UsageDataApprovalSubscriber::class)]
 class UsageDataApprovalSubscriberTest extends TestCase
 {
     public function testItSubscribesToSystemConfigChanged(): void

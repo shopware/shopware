@@ -28,11 +28,6 @@ Shopware.Component.register('sw-error-boundary', {
     },
 
     errorCaptured(err, vm) {
-        // TODO: NEXT-18182 - Remove this check when all modules are migrated to Vue 3
-        if (Shopware.Service('feature').isActive('VUE3')) {
-            return true;
-        }
-
         // Show more detailed error messages in development mode
         if (process.env.NODE_ENV === 'development') {
             return true;

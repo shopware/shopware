@@ -4,11 +4,18 @@
 
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
+const { existsSync } = require('fs');
 const { join, resolve } = require('path');
 
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '.';
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
+
+// Check if ADMIN_PATH/test/_helper_/component-imports.js exists
+if (!existsSync(join(process.env.ADMIN_PATH, '/test/_helper_/componentWrapper/component-imports.js'))) {
+    // eslint-disable-next-line max-len
+    throw new Error('Missing required /test/_helper_/componentWrapper/component-imports.js file to run tests. Run `npm run unit-setup` before executing tests, or use `composer run admin:unit`.');
+}
 
 process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache';
 
@@ -42,7 +49,6 @@ module.exports = {
         'src/**/*.js',
         'src/**/*.ts',
         '!src/**/*.spec.js',
-        '!src/**/*.spec.vue3.js',
     ],
 
     coverageReporters: [
@@ -61,14 +67,15 @@ module.exports = {
     },
 
     transformIgnorePatterns: [
-        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|other)/)',
+        '/node_modules/(?!(@shopware-ag/meteor-icon-kit|uuidv7|@vue/compat|other)/)',
     ],
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
-        vue$: 'vue/dist/vue.common.dev.js',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
+        '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^lodash-es$': 'lodash',
+        vue$: '@vue/compat/dist/vue.cjs.js',
     },
 
     reporters: isCi ? [
@@ -88,4 +95,13 @@ module.exports = {
     ] : [
         'default',
     ],
+
+    testMatch: [
+        '<rootDir>/src/**/*.spec.js',
+        '!<rootDir>/src/**/*.spec.vue2.js',
+    ],
+
+    testEnvironmentOptions: {
+        customExportConditions: ['node', 'node-addons'],
+    },
 };

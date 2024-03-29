@@ -1,9 +1,12 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+{# Extend `src/Storefront/Resources/views/storefront/component/review/review.html.twig` instead #}
+
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_content %}
 	{% block page_product_detail_review_container %}
 
-		{# TODO NEXT-16993 - replace items per list config value #}
+		{# TODO NEXT-16994 - replace items per list config value #}
 		{% set reviewsPerListPage = 10 %}
 
 		{# TODO NEXT-16994 - replace current list page value #}
@@ -34,18 +37,18 @@
 							{% block page_product_detail_review_alert %}
 								{% if ratingSuccess == 1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-										type: "success",
-										content: "detail.reviewFormSuccessAlert"|trans|sw_sanitize
+										type: 'success',
+										content: 'detail.reviewFormSuccessAlert'|trans|sw_sanitize
 									} %}
                                 {% elseif ratingSuccess == 2 %}
                                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                        type: "success",
-                                        content: "detail.reviewFormSuccessUpdateAlert"|trans|sw_sanitize
+                                        type: 'success',
+                                        content: 'detail.reviewFormSuccessUpdateAlert'|trans|sw_sanitize
                                     } %}
 								{% elseif ratingSuccess == -1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-										type: "danger",
-										content: "detail.reviewFormErrorAlert"|trans|sw_sanitize
+										type: 'danger',
+										content: 'detail.reviewFormErrorAlert'|trans|sw_sanitize
 									} %}
 								{% endif %}
 							{% endblock %}
@@ -68,12 +71,11 @@
 							{% block page_product_detail_review_list_container %}
 								<div id="review-list"
 									 class="collapse multi-collapse product-detail-review-list{% if ratingSuccess != -1 %} show{% endif %}">
-
                                     {% block page_product_detail_review_list %}
                                         {% block page_product_detail_review_list_actions %}
                                             <div class="row align-items-center product-detail-review-actions">
                                                 {% set formAjaxSubmitOptions = {
-                                                    replaceSelectors: [".js-review-container"],
+                                                    replaceSelectors: ['.js-review-container'],
                                                     submitOnChange: true
                                                 } %}
 
@@ -84,8 +86,7 @@
                                                                   action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                                   method="post"
                                                                   data-form-ajax-submit="true"
-                                                                  {# ludtwig-ignore html-string-quotation #}
-                                                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+                                                                  data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
                                                                 {% if app.request.get('limit') %}
                                                                     <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
@@ -105,7 +106,7 @@
                                                                            {% if app.request.get('language') %}checked="checked"{% endif %}>
                                                                     <label class="custom-control-label form-label"
                                                                            for="showForeignReviews">
-                                                                        <small>{{ "detail.reviewLanguageFilterLabel"|trans|sw_sanitize }}</small>
+                                                                        <small>{{ 'detail.reviewLanguageFilterLabel'|trans|sw_sanitize }}</small>
                                                                     </label>
                                                                 </div>
                                                             </form>
@@ -118,9 +119,9 @@
                                                         <div class="col-12 col-md-auto product-detail-review-sortby">
                                                             {% set formAjaxSubmitOptions = {
                                                                 replaceSelectors: [
-                                                                    ".js-review-info",
-                                                                    ".js-review-teaser",
-                                                                    ".js-review-content"
+                                                                    '.js-review-info',
+                                                                    '.js-review-teaser',
+                                                                    '.js-review-content'
                                                                 ],
                                                                 submitOnChange: true
                                                             } %}
@@ -130,8 +131,7 @@
                                                                       action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                                       method="post"
                                                                       data-form-ajax-submit="true"
-                                                                      {# ludtwig-ignore html-string-quotation #}
-                                                                      data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+                                                                      data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
                                                                     {% if app.request.get('limit') %}
                                                                         <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                                                                     {% endif %}
@@ -149,7 +149,7 @@
                                                                     {% block page_product_detail_review_list_action_sortby_label %}
                                                                         <label class="form-label product-detail-review-sortby-label"
                                                                                for="reviewsSortby">
-                                                                            <small>{{ "detail.reviewSortLabel"|trans|sw_sanitize }}</small>
+                                                                            <small>{{ 'detail.reviewSortLabel'|trans|sw_sanitize }}</small>
                                                                         </label>
                                                                     {% endblock %}
 
@@ -158,10 +158,10 @@
                                                                                 name="sort"
                                                                                 id="reviewsSortby">
                                                                             <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
-                                                                                {{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
+                                                                                {{ 'detail.reviewSortNewLabel'|trans|sw_sanitize }}
                                                                             </option>
                                                                             <option value="points"{% if reviews.criteria.sorting.0.field == 'points' %} selected{% endif %}>
-                                                                                {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
+                                                                                {{ 'detail.reviewSortTopRatedLabel'|trans|sw_sanitize }}
                                                                             </option>
                                                                         </select>
                                                                     {% endblock %}
@@ -183,9 +183,9 @@
 
                                             <p class="text-right product-detail-review-counter">
                                                 {% if (listReviewsCount > 1 and listReviewsCount > reviewsPerListPage) %}
-                                                    <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ "detail.reviewCountBefore"|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
+                                                    <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ 'detail.reviewCountBefore'|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
                                                 {% elseif listReviewsCount > 0 %} {# TODO (NEXT-16994) fix detail.reviewCountAfter snippet for listReviewsCount = 0 #}
-                                                    <small><strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
+                                                    <small><strong>{{ listReviewsCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
                                                 {% endif %}
                                             </p>
                                         {% endblock %}
@@ -200,11 +200,11 @@
 
                                         {% block page_product_detail_review_list_paging %}
                                             {% set criteria = reviews.criteria %}
-                                            {% set totalPages = (productReviewCount/criteria.limit)|round(0,'ceil') %}
+                                            {% set totalPages = (productReviewCount/(criteria.limit ?: 1))|round(0,'ceil') %}
 
                                             {% if totalPages > 1 %}
                                                 {% set formAjaxSubmitOptions = {
-                                                    replaceSelectors: ".js-review-container",
+                                                    replaceSelectors: '.js-review-container',
                                                     submitOnChange: true
                                                 } %}
 
@@ -214,8 +214,7 @@
                                                               action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
                                                               method="post"
                                                               data-form-ajax-submit="true"
-                                                              {# ludtwig-ignore html-string-quotation #}
-                                                              data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+                                                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
                                                             {% if app.request.get('limit') %}
                                                                 <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                                                             {% endif %}
@@ -234,11 +233,16 @@
                                                                 {% endfor %}
                                                             {% endif %}
 
-                                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                                                entities: reviews,
-                                                                criteria: criteria,
-                                                                total: productReviewCount,
-                                                            } %}
+                                                            {# @deprecated tag:v6.7.0 - variable `productReviewCount` will not be considered anymore, change `totalPages` if needed #}
+                                                            {% if feature('v6.7.0.0') %}
+                                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: reviews}  %}
+                                                            {% else %}
+                                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                                                    entities: reviews,
+                                                                    criteria: criteria,
+                                                                    total: productReviewCount,
+                                                                }  %}
+                                                            {% endif %}
                                                         </form>
                                                     </div>
                                                 {% endblock %}
@@ -249,8 +253,8 @@
                                     {% if productReviewCount <= 0 %}
                                         {% block page_product_detail_review_list_empty %}
                                             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                                type: "info",
-                                                content: "detail.reviewListEmpty"|trans|sw_sanitize
+                                                type: 'info',
+                                                content: 'detail.reviewListEmpty'|trans|sw_sanitize
                                             } %}
                                         {% endblock %}
                                     {% endif %}

@@ -40,11 +40,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_decimals %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="itemRounding.decimals"
-            {% else %}
-            v-model="itemRounding.decimals"
-            {% endif %}
             :label="$tc('sw-settings-currency.price-rounding.labelDecimals')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextDecimals')"
             required
@@ -52,22 +48,14 @@
             :step="1"
             :min="0"
             :max="20"
-            {% if VUE3 %}
             @update:value="onChangeDecimals($event, 'itemRounding')"
-            {% else %}
-            @change="onChangeDecimals($event, 'itemRounding')"
-            {% endif %}
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_interval %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="itemRounding.interval"
-            {% else %}
-            v-model="itemRounding.interval"
-            {% endif %}
             v-tooltip="{
                 message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
                 disabled: !itemIntervalDisabled,
@@ -78,7 +66,6 @@
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextInterval')"
             :disabled="itemIntervalDisabled"
             required
-            show-clearable-button
             :options="intervalOptions"
         />
         {% endblock %}
@@ -86,11 +73,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_items_round_for_net %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="itemRounding.roundForNet"
-            {% else %}
-            v-model="itemRounding.roundForNet"
-            {% endif %}
             class="sw-settings-price-rounding__round-for-net-checkbox"
             :label="$tc('sw-settings-currency.price-rounding.labelRoundForNet')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextRoundForNet')"
@@ -143,11 +126,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_decimals %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="totalRounding.decimals"
-            {% else %}
-            v-model="totalRounding.decimals"
-            {% endif %}
             :label="$tc('sw-settings-currency.price-rounding.labelDecimals')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextDecimals')"
             required
@@ -155,22 +134,14 @@
             :step="1"
             :min="0"
             :max="20"
-            {% if VUE3 %}
             @update:value="onChangeDecimals($event, 'totalRounding')"
-            {% else %}
-            @change="onChangeDecimals($event, 'totalRounding')"
-            {% endif %}
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_interval %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="totalRounding.interval"
-            {% else %}
-            v-model="totalRounding.interval"
-            {% endif %}
             v-tooltip="{
                 message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
                 disabled: !totalIntervalDisabled,
@@ -180,7 +151,6 @@
             :label="$tc('sw-settings-currency.price-rounding.labelInterval')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextInterval')"
             required
-            show-clearable-button
             :disabled="totalIntervalDisabled"
             :options="intervalOptions"
         />
@@ -189,11 +159,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_price_rounding_container_grand_round_for_net %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="totalRounding.roundForNet"
-            {% else %}
-            v-model="totalRounding.roundForNet"
-            {% endif %}
             class="sw-settings-price-rounding__round-for-net-checkbox"
             :label="$tc('sw-settings-currency.price-rounding.labelRoundForNet')"
             :help-text="$tc('sw-settings-currency.price-rounding.helpTextRoundForNet')"

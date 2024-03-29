@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -9,9 +10,8 @@ use Shopware\Core\Checkout\Cart\Facade\ErrorsFacade;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ErrorsFacade
  */
+#[CoversClass(ErrorsFacade::class)]
 class ErrorsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -22,7 +22,7 @@ class ErrorsFacadeTest extends TestCase
         $facade->error('error');
         $facade->notice('notice');
 
-        static::assertCount(3, $facade);
+        static::assertCount(3, iterator_to_array($facade));
         static::assertTrue($facade->has('warning'));
         static::assertTrue($facade->has('error'));
         static::assertTrue($facade->has('notice'));
@@ -30,10 +30,10 @@ class ErrorsFacadeTest extends TestCase
         $facade->warning('duplicate');
         $facade->warning('duplicate');
         static::assertTrue($facade->has('duplicate'));
-        static::assertCount(4, $facade);
+        static::assertCount(4, iterator_to_array($facade));
         $facade->remove('duplicate');
         static::assertFalse($facade->has('duplicate'));
-        static::assertCount(3, $facade);
+        static::assertCount(3, iterator_to_array($facade));
 
         static::assertInstanceOf(Error::class, $facade->get('error'));
         static::assertEquals(Error::LEVEL_ERROR, $facade->get('error')->getLevel());

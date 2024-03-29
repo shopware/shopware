@@ -56,7 +56,7 @@ class CartTotalPurchasePriceRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
-            ->selectField('type', ['gross', 'net'], false, ['class' => 'is--max-content'])
+            ->selectField('type', ['gross', 'net'], false)
             ->numberField('amount');
     }
 }

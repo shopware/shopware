@@ -1,53 +1,48 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderCreate from 'src/module/sw-order/page/sw-order-create';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button-process';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/structure/sw-page';
+import { mount } from '@vue/test-utils';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const remindPaymentMock = jest.fn(() => {
     return Promise.resolve();
 });
 
-Shopware.Component.register('sw-order-create', swOrderCreate);
-
 describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
     let stubs;
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-order-create'), {
-            stubs,
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        get: () => Promise.resolve(
-                            {
-                                translated: {
-                                    distinguishableName: 'Cash on Delivery',
+        return mount(await wrapTestComponent('sw-order-create', { sync: true }), {
+            global: {
+                stubs,
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => Promise.resolve(
+                                {
+                                    translated: {
+                                        distinguishableName: 'Cash on Delivery',
+                                    },
                                 },
-                            },
-                        ),
-                    }),
+                            ),
+                        }),
+                    },
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
                 },
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
-                },
-            },
-            mocks: {
-                $route: {
-                    meta: {
-                        $module: {
-                            routes: {
-                                detail: {
-                                    children: {
-                                        base: {},
-                                        other: {},
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                routes: {
+                                    detail: {
+                                        children: {
+                                            base: {},
+                                            other: {},
+                                        },
                                     },
                                 },
                             },
@@ -68,13 +63,22 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-help-center': true,
             'sw-search-bar': true,
             'sw-language-switch': true,
-            'sw-card-view': true,
-            'sw-tabs': true,
+            'sw-card-view': await wrapTestComponent('sw-card-view', { sync: true }),
+            'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
             'sw-tabs-item': true,
-            'sw-page': await Shopware.Component.build('sw-page'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-modal': await Shopware.Component.build('sw-modal'),
+            'sw-page': await wrapTestComponent('sw-page', { sync: true }),
+            'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+            'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal">
+                        <slot></slot>
+                        <footer class="sw-modal__footer">
+                            <slot name="modal-footer"></slot>
+                        </footer>
+                    </div>
+                `,
+            },
         };
     });
 
@@ -124,10 +128,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         });
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -137,7 +137,6 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showRemindPaymentModal).toBeTruthy();
-
         const modal = wrapper.find('.sw-modal');
         expect(modal.isVisible).toBeTruthy();
     });

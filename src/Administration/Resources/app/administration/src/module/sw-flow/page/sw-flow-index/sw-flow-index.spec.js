@@ -1,72 +1,75 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import swFlowIndex from 'src/module/sw-flow/page/sw-flow-index';
 
 Shopware.Component.register('sw-flow-index', swFlowIndex);
 
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-flow-index'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-            },
-        },
-
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '44de136acf314e7184401d36406c1e90',
-                                eventName: 'checkout.order.placed',
-                            },
-                        ]);
+    return mount(await wrapTestComponent('sw-flow-index', {
+        sync: true,
+    }), {
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
                     },
-
-                    searchIds: () => Promise.resolve({
-                        total: 20,
-                    }),
-                }),
-            },
-
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
                 },
             },
-
-            searchRankingService: {},
-        },
-
-        stubs: {
-            'sw-page': {
-                template: `
-                    <div class="sw-page">
-                        <slot name="search-bar"></slot>
-                        <slot name="smart-bar-back"></slot>
-                        <slot name="smart-bar-header"></slot>
-                        <slot name="language-switch"></slot>
-                        <slot name="smart-bar-actions"></slot>
-                        <slot name="side-content"></slot>
-                        <slot name="content"></slot>
-                        <slot name="sidebar"></slot>
-                        <slot></slot>
-                    </div>
-                `,
+            stubs: {
+                'sw-page': {
+                    template: `
+                <div class="sw-page">
+                    <slot name="search-bar"></slot>
+                    <slot name="smart-bar-back"></slot>
+                    <slot name="smart-bar-header"></slot>
+                    <slot name="language-switch"></slot>
+                    <slot name="smart-bar-actions"></slot>
+                    <slot name="side-content"></slot>
+                    <slot name="content"></slot>
+                    <slot name="sidebar"></slot>
+                    <slot></slot>
+                </div>
+            `,
+                },
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-search-bar': true,
+                'sw-card-view': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
             },
-            'sw-icon': true,
-            'sw-button': true,
-            'sw-search-bar': true,
-            'sw-card-view': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    id: '44de136acf314e7184401d36406c1e90',
+                                    eventName: 'checkout.order.placed',
+                                },
+                            ]);
+                        },
+
+                        searchIds: () => Promise.resolve({
+                            total: 20,
+                        }),
+                    }),
+
+                },
+
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+
+                searchRankingService: {},
+            },
         },
     });
 }

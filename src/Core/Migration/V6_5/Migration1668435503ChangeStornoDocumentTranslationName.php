@@ -51,8 +51,4 @@ class Migration1668435503ChangeStornoDocumentTranslationName extends MigrationSt
             ]
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

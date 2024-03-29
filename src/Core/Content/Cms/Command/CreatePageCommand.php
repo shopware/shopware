@@ -49,8 +49,10 @@ class CreatePageCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $context = Context::createCLIContext();
+
         if ($input->getOption('reset')) {
-            $this->resetPages();
+            $this->resetPages($context);
         }
 
         $faker = Factory::create();
@@ -63,7 +65,7 @@ class CreatePageCommand extends Command
                 [
                     'type' => 'image-text',
                     'slots' => [
-                        ['type' => 'product-box', 'slot' => 'left', 'config' => ['productId' => $this->getRandomProductId()]],
+                        ['type' => 'product-box', 'slot' => 'left', 'config' => ['productId' => $this->getRandomProductId($context)]],
                         ['type' => 'image', 'slot' => 'right', 'config' => ['url' => $this->getRandomImageUrl()]],
                     ],
                 ],
@@ -71,38 +73,37 @@ class CreatePageCommand extends Command
                     'type' => 'image-text',
                     'slots' => [
                         ['type' => 'text', 'slot' => 'left', 'config' => ['content' => $faker->realText()]],
-                        ['type' => 'product-box', 'slot' => 'right', 'config' => ['productId' => $this->getRandomProductId()]],
+                        ['type' => 'product-box', 'slot' => 'right', 'config' => ['productId' => $this->getRandomProductId($context)]],
                     ],
                 ],
                 [
                     'type' => 'image-text',
                     'slots' => [
                         ['type' => 'text', 'slot' => 'right', 'config' => ['content' => $faker->realText()]],
-                        ['type' => 'image', 'slot' => 'left', 'config' => ['mediaId' => $this->getRandomMediaId()]],
+                        ['type' => 'image', 'slot' => 'left', 'config' => ['mediaId' => $this->getRandomMediaId($context)]],
                     ],
                 ],
                 [
                     'type' => 'listing',
                     'slots' => [
-                        ['type' => 'product-listing', 'slot' => 'listing', 'config' => ['categoryId' => $this->getRandomCategoryId()]],
+                        ['type' => 'product-listing', 'slot' => 'listing', 'config' => ['categoryId' => $this->getRandomCategoryId($context)]],
                     ],
                 ],
             ],
         ];
 
-        $this->cmsPageRepository->create([$page], Context::createDefaultContext());
+        $this->cmsPageRepository->create([$page], $context);
 
         $output->writeln('ID: ' . $page['id']);
 
         return self::SUCCESS;
     }
 
-    private function resetPages(): void
+    private function resetPages(Context $context): void
     {
         $criteria = new Criteria();
         $criteria->setLimit(999);
 
-        $context = Context::createDefaultContext();
         $pages = $this->cmsPageRepository->searchIds($criteria, $context);
 
         if ($pages->getTotal() === 0) {
@@ -119,42 +120,42 @@ class CreatePageCommand extends Command
         return 'https://source.unsplash.com/random?t=' . random_int(1, 9999);
     }
 
-    private function getRandomProductId(): string
+    private function getRandomProductId(Context $context): string
     {
         if (empty($this->products)) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
             /** @var list<string> $productIds */
-            $productIds = $this->productRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $productIds = $this->productRepository->searchIds($criteria, $context)->getIds();
             $this->products = $productIds;
         }
 
         return $this->products[array_rand($this->products)];
     }
 
-    private function getRandomCategoryId(): string
+    private function getRandomCategoryId(Context $context): string
     {
         if (empty($this->categories)) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
             /** @var list<string> $categoryIds */
-            $categoryIds = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $categoryIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
             $this->categories = $categoryIds;
         }
 
         return $this->categories[array_rand($this->categories)];
     }
 
-    private function getRandomMediaId(): string
+    private function getRandomMediaId(Context $context): string
     {
         if (empty($this->media)) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
             /** @var list<string> $mediaIds */
-            $mediaIds = $this->mediaRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+            $mediaIds = $this->mediaRepository->searchIds($criteria, $context)->getIds();
             $this->media = $mediaIds;
         }
 

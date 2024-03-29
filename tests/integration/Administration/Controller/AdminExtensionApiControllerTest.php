@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Administration\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdminExtensionApiController;
@@ -52,10 +53,9 @@ class AdminExtensionApiControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider providerRunAction
-     *
      * @param list<string> $hosts
      */
+    #[DataProvider('providerRunAction')]
     public function testRunAction(string $appName, ?string $targetUrl = null, array $hosts = []): void
     {
         $this->appRepository->create([
@@ -133,9 +133,7 @@ class AdminExtensionApiControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providerSignUri
-     */
+    #[DataProvider('providerSignUri')]
     public function testSignUri(RequestDataBag $requestDataBag, bool $expectAppNotFoundError): void
     {
         $this->appRepository->create([

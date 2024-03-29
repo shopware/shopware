@@ -2,35 +2,30 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
 class DataAbstractionLayerException extends HttpException
 {
     public const INVALID_FIELD_SERIALIZER_CODE = 'FRAMEWORK__INVALID_FIELD_SERIALIZER';
-
     public const INVALID_CRON_INTERVAL_CODE = 'FRAMEWORK__INVALID_CRON_INTERVAL_FORMAT';
-
     public const INVALID_DATE_INTERVAL_CODE = 'FRAMEWORK__INVALID_DATE_INTERVAL_FORMAT';
-
     public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
-
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
-
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
-
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
-
-    final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
+    public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
@@ -38,13 +33,19 @@ class DataAbstractionLayerException extends HttpException
     public const DATABASE_PLATFORM_INVALID = 'FRAMEWORK__DATABASE_PLATFORM_INVALID';
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
+    public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
+    public const INVALID_RANGE_FILTER_PARAMS = 'FRAMEWORK__INVALID_RANGE_FILTER_PARAMS';
+    public const INVALID_SORT_QUERY = 'FRAMEWORK__INVALID_SORT_QUERY';
+    public const UNABLE_TO_FETCH_FOREIGN_KEY = 'FRAMEWORK__UNABLE_TO_FETCH_FOREIGN_KEY';
+    public const REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND';
+    public const INCONSISTENT_PRIMARY_KEY = 'FRAMEWORK__INCONSISTENT_PRIMARY_KEY';
+    public const FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__FIELD_BY_STORAGE_NAME_NOT_FOUND';
+    public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
+    public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
+    public const DECODE_HANDLED_BY_HYDRATOR = 'FRAMEWORK__DECODE_HANDLED_BY_HYDRATOR';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidSerializerFieldException($expectedClass, $field);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_FIELD_SERIALIZER_CODE,
@@ -99,15 +100,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
-     */
-    public static function invalidLanguageId(?string $languageId): HttpException
+    public static function invalidLanguageId(?string $languageId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new LanguageNotFoundException($languageId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_LANGUAGE_ID,
@@ -116,12 +110,31 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
-     */
-    public static function invalidFilterQuery(string $message, string $path = ''): ShopwareHttpException
+    public static function invalidFilterQuery(string $message, string $path = ''): self
     {
-        return new InvalidFilterQueryException($message, $path);
+        return new InvalidFilterQueryException(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_FILTER_QUERY,
+            $message,
+            ['path' => $path]
+        );
+    }
+
+    public static function invalidRangeFilterParams(string $message): self
+    {
+        return new InvalidRangeFilterParamException(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_RANGE_FILTER_PARAMS,
+            $message,
+        );
+    }
+
+    public static function invalidSortQuery(string $message, string $path = ''): self
+    {
+        return new InvalidSortQueryException(
+            $message,
+            ['path' => $path]
+        );
     }
 
     public static function cannotCreateNewVersion(string $entity, string $id): self
@@ -136,10 +149,6 @@ class DataAbstractionLayerException extends HttpException
 
     public static function versionMergeAlreadyLocked(string $versionId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new VersionMergeAlreadyLockedException($versionId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,
@@ -215,5 +224,161 @@ class DataAbstractionLayerException extends HttpException
             'Plugin {{ fieldName }} not be found',
             ['pluginName' => $pluginName]
         );
+    }
+
+    /**
+     * @param array<string> $primaryKey
+     */
+    public static function unableToFetchForeignKey(string $entity, array $primaryKey): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNABLE_TO_FETCH_FOREIGN_KEY,
+            'Unable to fetch foreign key for {{ entity }} with primary key {{ primaryKey }}',
+            ['entity' => $entity, 'primaryKey' => implode(', ', $primaryKey)]
+        );
+    }
+
+    public static function missingParentForeignKey(string $entity): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_PARENT_FOREIGN_KEY,
+            sprintf('Can not detect foreign key for parent definition %s', $entity)
+        );
+    }
+
+    public static function fieldByStorageNameNotFound(string $entity, string $storageName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Field by storage name %s not found in entity %s', $storageName, $entity)
+        );
+    }
+
+    public static function inconsistentPrimaryKey(string $entity, string $primaryKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INCONSISTENT_PRIMARY_KEY,
+            sprintf('Inconsistent primary key %s for entity %s', $primaryKey, $entity)
+        );
+    }
+
+    public static function referenceFieldByStorageNameNotFound(string $entity, string $storageName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Can not detect reference field with storage name %s in definition %s', $storageName, $entity)
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     *
+     * @param class-string $definitionClass
+     */
+    public static function fkFieldByStorageNameNotFound(string $definitionClass, string $storageName): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \RuntimeException(
+                sprintf(
+                    'Could not find FK field "%s" from definition "%s"',
+                    $storageName,
+                    $definitionClass,
+                )
+            );
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Can not detect FK field with storage name %s in definition %s', $storageName, $definitionClass)
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     *
+     * @param class-string $definitionClass
+     */
+    public static function languageFieldByStorageNameNotFound(string $definitionClass, string $storageName): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \RuntimeException(
+                sprintf(
+                    'Could not find language field "%s" in definition "%s"',
+                    $storageName,
+                    $definitionClass
+                )
+            );
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Can not detect language field with storage name %s in definition %s', $storageName, $definitionClass)
+        );
+    }
+
+    public static function invalidWriteInput(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_WRITE_INPUT,
+            $message,
+        );
+    }
+
+    public static function expectedArray(string $path): self
+    {
+        return new ExpectedArrayException($path);
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
+     */
+    public static function decodeHandledByHydrator(Field $field): self|DecodeByHydratorException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new DecodeByHydratorException($field);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DECODE_HANDLED_BY_HYDRATOR,
+            'Decoding of {{ fieldClass }} is handled by the entity hydrator.',
+            ['fieldClass' => $field::class]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:remove-exception - Use self::referenceFieldByStorageNameNotFound instead
+     *
+     * @param class-string $definitionClass
+     */
+    public static function definitionFieldDoesNotExist(string $definitionClass, string $field): self|\RuntimeException
+    {
+        if (!Feature::isActive('v6.7.0.0')) {
+            return new \RuntimeException(sprintf(
+                'Could not find reference field "%s" from definition "%s"',
+                $field,
+                $definitionClass
+            ));
+        }
+
+        return self::referenceFieldByStorageNameNotFound($definitionClass, $field);
+    }
+
+    public static function missingSystemTranslation(string $path): self
+    {
+        return new MissingSystemTranslationException($path);
+    }
+
+    public static function missingTranslation(string $path, int $index): self
+    {
+        return new MissingTranslationLanguageException($path, $index);
     }
 }

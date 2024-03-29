@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,10 +35,6 @@ class ThemeException extends HttpException
 
     public static function couldNotFindThemeByName(string $themeName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidThemeException($themeName);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_THEME_BY_NAME,
@@ -50,10 +45,6 @@ class ThemeException extends HttpException
 
     public static function couldNotFindThemeById(string $themeId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidThemeException($themeId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_THEME_BY_ID,

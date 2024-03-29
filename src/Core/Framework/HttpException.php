@@ -28,4 +28,9 @@ abstract class HttpException extends ShopwareHttpException
     {
         return $this->statusCode;
     }
+
+    public function is(string ...$code): bool
+    {
+        return \in_array($this->errorCode, $code, true);
+    }
 }

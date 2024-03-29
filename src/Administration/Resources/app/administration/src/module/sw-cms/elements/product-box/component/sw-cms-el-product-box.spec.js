@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElProductBox from 'src/module/sw-cms/elements/product-box/component';
-
-Shopware.Component.register('sw-cms-el-product-box', swCmsElProductBox);
 
 const defaultElementConfig = {
     product: {
@@ -28,8 +25,10 @@ const defaultElementConfig = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-product-box'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-product-box', {
+        sync: true,
+    }), {
+        props: {
             element: {
                 config: { ...defaultElementConfig },
             },
@@ -51,15 +50,17 @@ async function createWrapper() {
                 },
             };
         },
-        provide: {
-            cmsService: {
-                getCmsElementRegistry: () => {
-                    return { 'product-box': {
-                        defaultData: {
-                            boxLayout: 'standard',
-                            product: null,
-                        },
-                    } };
+        global: {
+            provide: {
+                cmsService: {
+                    getCmsElementRegistry: () => {
+                        return { 'product-box': {
+                            defaultData: {
+                                boxLayout: 'standard',
+                                product: null,
+                            },
+                        } };
+                    },
                 },
             },
         },

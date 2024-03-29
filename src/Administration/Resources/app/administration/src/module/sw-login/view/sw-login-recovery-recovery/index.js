@@ -8,7 +8,7 @@ const { Component, Mixin, State } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-login-recovery-recovery', {
     template,

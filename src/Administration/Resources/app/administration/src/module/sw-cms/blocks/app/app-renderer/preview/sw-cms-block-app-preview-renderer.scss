@@ -1,0 +1,9 @@
+.sw-cms-block-app-preview-renderer {
+    .sw-cms-block-app-preview-renderer__fallback-preview {
+        display: flex;
+        aspect-ratio: 2/1;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+}

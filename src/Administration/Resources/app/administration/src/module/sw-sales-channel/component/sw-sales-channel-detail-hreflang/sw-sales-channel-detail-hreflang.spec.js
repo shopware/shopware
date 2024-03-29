@@ -2,19 +2,20 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swSalesChannelDetailHreflang from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang';
-
-Shopware.Component.register('sw-sales-channel-detail-hreflang', swSalesChannelDetailHreflang);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-hreflang'), {
-        stubs: {
-            'sw-card': true,
-            'sw-switch-field': true,
-            'sw-entity-single-select': true,
+    return mount(await wrapTestComponent('sw-sales-channel-detail-hreflang', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-switch-field': true,
+                'sw-entity-single-select': true,
+            },
         },
-        propsData: {
+        props: {
             salesChannel: {
                 hreflangActive: true,
             },
@@ -24,45 +25,25 @@ async function createWrapper(customProps = {}) {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should enable the sw-switch-field', async () => {
+    it('should enable the sw-switch-field and the sw-entity-single-select', async () => {
         const wrapper = await createWrapper();
 
         const switchField = wrapper.find('sw-switch-field-stub');
-
         expect(switchField.attributes().disabled).toBeUndefined();
-    });
-
-    it('should disable the sw-switch-field', async () => {
-        const wrapper = await createWrapper({
-            disabled: true,
-        });
-
-        const switchField = wrapper.find('sw-switch-field-stub');
-
-        expect(switchField.attributes().disabled).toBe('true');
-    });
-
-    it('should enable the sw-entity-single-select', async () => {
-        const wrapper = await createWrapper();
 
         const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
-
         expect(entitySingleSelect.attributes().disabled).toBeUndefined();
     });
 
-    it('should disable the sw-entity-single-select', async () => {
+    it('should disable the sw-switch-field and the sw-entity-single-select', async () => {
         const wrapper = await createWrapper({
             disabled: true,
         });
 
-        const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
+        const switchField = wrapper.find('sw-switch-field-stub');
+        expect(switchField.attributes().disabled).toBe('true');
 
+        const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
         expect(entitySingleSelect.attributes().disabled).toBe('true');
     });
 });

@@ -66,7 +66,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
@@ -130,7 +129,7 @@ class ProductDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
@@ -155,6 +154,8 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited()),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
+            (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
+            (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name'])),
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
@@ -247,29 +248,17 @@ class ProductDefinition extends EntityDefinition
 
             (new ManyToManyAssociationField('properties', PropertyGroupOptionDefinition::class, ProductPropertyDefinition::class, 'product_id', 'property_group_option_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
 
-            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited()),
 
             (new ManyToManyAssociationField('streams', ProductStreamDefinition::class, ProductStreamMappingDefinition::class, 'product_id', 'product_stream_id'))->addFlags(new ApiAware(), new CascadeDelete()),
 
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))->addFlags(new ApiAware(), new CascadeDelete(false), new WriteProtected()),
 
-            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new CascadeDelete(), new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING), new ApiAware()),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))->addFlags(new CascadeDelete(), new Inherited(), new ApiAware()),
 
             (new ManyToManyAssociationField('customFieldSets', CustomFieldSetDefinition::class, ProductCustomFieldSetDefinition::class, 'product_id', 'custom_field_set_id'))->addFlags(new CascadeDelete(), new Inherited()),
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
-
-        if (Feature::isActive('STOCK_HANDLING')) {
-            $fields->add((new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()));
-        } else {
-            /**
-             * @deprecated tag:v6.6.0 availableStock will become write protected amd mirror stock from v6.6.0. It will not be removed for BC reasons.
-             */
-            $fields->add((new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware()));
-        }
-        $fields->add((new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()));
-
-        return $fields;
     }
 }

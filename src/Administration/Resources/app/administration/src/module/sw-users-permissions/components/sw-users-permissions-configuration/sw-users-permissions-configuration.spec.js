@@ -1,15 +1,16 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swUsersPermissionsConfiguration from 'src/module/sw-users-permissions/components/sw-users-permissions-configuration';
-
-Shopware.Component.register('sw-users-permissions-configuration', swUsersPermissionsConfiguration);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-configuration'), {
-        stubs: {
-            'sw-system-config': true,
+    return mount(await wrapTestComponent('sw-users-permissions-configuration', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-system-config': true,
+            },
         },
     });
 }

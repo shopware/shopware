@@ -8,11 +8,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_width %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="width"
-            {% else %}
-            v-model="width"
-            {% endif %}
             class="sw-media-add-thumbnail-form__input-width"
             :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
             :min="1"
@@ -39,11 +35,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_height %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="height"
-            {% else %}
-            v-model="height"
-            {% endif %}
             class="sw-media-add-thumbnail-form__input-height"
             :min="1"
             :validation="height > 0"

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
@@ -10,9 +11,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector
  */
+#[CoversClass(TemplateScopeDetector::class)]
 class TemplateScopeDetectorTest extends TestCase
 {
     public function testDetectWithNoRequest(): void

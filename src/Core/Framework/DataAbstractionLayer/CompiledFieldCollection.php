@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
@@ -128,18 +127,6 @@ class CompiledFieldCollection extends FieldCollection
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement as it is unused
-     *
-     * @return list<string>
-     */
-    public function getMappedByStorageName()
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        return array_keys($this->mappedByStorageName);
-    }
-
     public function getByStorageName(string $storageName): ?Field
     {
         return $this->mappedByStorageName[$storageName] ?? null;
@@ -168,8 +155,8 @@ class CompiledFieldCollection extends FieldCollection
         return Field::class;
     }
 
-    protected function createNew(iterable $elements = []): CompiledFieldCollection
+    protected function createNew(iterable $elements = []): static
     {
-        return new self($this->registry, $elements);
+        return new static($this->registry, $elements);
     }
 }

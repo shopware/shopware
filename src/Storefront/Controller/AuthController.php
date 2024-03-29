@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -34,7 +34,7 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -95,8 +95,10 @@ class AuthController extends StorefrontController
         /** @var string|null $redirect */
         $redirect = $request->get('redirectTo');
         if (!$redirect) {
-            // page was probably called directly, instead of deeplink url
-            throw CustomerException::guestAccountInvalidAuth();
+            // page was probably called directly
+            $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
+
+            return $this->redirectToRoute('frontend.account.login.page');
         }
 
         $customer = $context->getCustomer();
@@ -163,7 +165,7 @@ class AuthController extends StorefrontController
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $token,
-                    $context->getLanguageIdChain()[0],
+                    $context->getLanguageId(),
                     $context->getCurrencyId(),
                     $context->getDomainId(),
                     $context->getContext()
@@ -178,17 +180,19 @@ class AuthController extends StorefrontController
 
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException|UnauthorizedHttpException|CustomerOptinNotCompletedException|CustomerAuthThrottledException $e) {
-            if ($e instanceof CustomerOptinNotCompletedException) {
-                $errorSnippet = $e->getSnippetKey();
-            }
+        } catch (CustomerOptinNotCompletedException $e) {
+            $errorSnippet = $e->getSnippetKey();
+        } catch (CustomerAuthThrottledException $e) {
+            $waitTime = $e->getWaitTime();
+            // @deprecated tag:v6.7.0 - Remove catch for UnauthorizedHttpException
+        } catch (BadCredentialsException|CustomerNotFoundException|UnauthorizedHttpException) {
+        } catch (PasswordPoliciesUpdatedException $e) {
+            $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
-            if ($e instanceof CustomerAuthThrottledException) {
-                $waitTime = $e->getWaitTime();
-            }
+            return $this->forwardToRoute('frontend.account.recover.page');
+        } finally {
+            $data->set('password', null);
         }
-
-        $data->set('password', null);
 
         return $this->forwardToRoute(
             'frontend.account.login.page',

@@ -26,7 +26,7 @@ const modalSizeMapping = {
 const IFRAME_KEY = 'app.action_button.iframe';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-app-actions', {
     template,
@@ -113,11 +113,7 @@ Component.register('sw-app-actions', {
         $route: {
             immediate: true,
             handler() {
-                if (this.feature.isActive('VUE3')) {
-                    this.matchedRoutes = this.$router.currentRoute.value.matched;
-                } else {
-                    this.matchedRoutes = this.$router.currentRoute.matched;
-                }
+                this.matchedRoutes = this.$router.currentRoute.value.matched;
                 this.loadActions();
             },
         },

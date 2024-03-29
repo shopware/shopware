@@ -35,43 +35,36 @@ export default {
             this.initElementConfig('form');
         },
 
-        getShopMail() {
-            return new Promise(resolve => {
-                this.systemConfigApiService
-                    .getValues('core.basicInformation')
-                    .then(response => {
-                        resolve(response['core.basicInformation.email']);
-                    });
-            });
+        async getShopMail() {
+            const response = await this.systemConfigApiService.getValues('core.basicInformation');
+            return response['core.basicInformation.email'];
         },
 
-        setShopMail() {
-            this.getShopMail().then(shopMail => {
-                if (this.element.config.defaultMailReceiver.value
-                    && !this.element.config.mailReceiver.value.includes(shopMail)) {
-                    this.element.config.mailReceiver.value.push(shopMail);
-                }
-            });
-        },
+        async setShopMail() {
+            const shopMail = await this.getShopMail();
 
-        updateMailReceiver() {
-            if (this.validateMail()) {
-                this.getShopMail().then(shopMail => {
-                    if (this.element.config.mailReceiver.value.includes(shopMail)) {
-                        this.element.config.defaultMailReceiver.value = true;
-                    } else {
-                        this.element.config.defaultMailReceiver.value = false;
-                    }
-                });
+            if (this.element.config.defaultMailReceiver.value
+                && !this.element.config.mailReceiver.value.includes(shopMail)) {
+                this.element.config.mailReceiver.value.push(shopMail);
             }
         },
 
-        validateMail() {
-            const lastMail = this.element.config.mailReceiver.value[this.element.config.mailReceiver.value.length - 1];
-            if (lastMail) {
-                const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        async updateMailReceiver(value) {
+            this.element.config.mailReceiver.value = value;
 
-                if (lastMail.match(mailformat) == null) {
+            if (!this.validateMail()) {
+                return;
+            }
+
+            const shopMail = await this.getShopMail();
+            this.element.config.defaultMailReceiver.value = this.element.config.mailReceiver.value.includes(shopMail);
+        },
+
+        validateMail() {
+            const lastMail = this.element.config.mailReceiver.value.at(-1);
+
+            if (lastMail) {
+                if (!lastMail.includes('@')) {
                     this.element.config.mailReceiver.value.pop();
                     return false;
                 }

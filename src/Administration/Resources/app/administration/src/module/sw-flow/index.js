@@ -120,7 +120,7 @@ Module.register('sw-flow', {
         },
         create: {
             component: 'sw-flow-detail',
-            path: 'create',
+            path: 'create/:flowTemplateId?',
             meta: {
                 parentPath: 'sw.flow.index',
                 privilege: 'flow.creator',

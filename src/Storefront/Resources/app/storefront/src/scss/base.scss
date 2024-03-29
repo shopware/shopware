@@ -68,17 +68,14 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/filter-boolean';
 @import 'component/filter-range';
 @import 'component/filter-rating-select';
-/** @deprecated tag:v6.6.0 - File "_ellipsis.scss" will be removed without replacement. Corresponding JS-Plugin "ellipsis.plugin.js" is not used anymore. */
-@import 'component/ellipsis';
 @import 'component/product-feature';
 @import 'component/notification-dot';
 @import 'component/product-wishlist';
 @import 'component/quantity-selector';
-/** @deprecated tag:v6.6.0 - File "_fading-plugin.scss" will be removed without replacement. Corresponding JS-Plugin "fading.plugin.js" is not used anymore. */
-@import 'component/fading-plugin';
 @import 'component/basic-captcha';
 @import 'component/line-item';
 @import 'component/visibility';
+@import 'component/ar-overlay';
 
 /*
  * Layout-related sections
@@ -108,29 +105,22 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/product-detail/review';
 
 @import 'page/account/account';
-@import 'page/account/aside';
+@import 'page/account/address';
 @import 'page/account/overview';
 @import 'page/account/register';
-@import 'page/account/login';
-@import 'page/account/address';
-@import 'page/account/profile';
 @import 'page/account/order';
 @import 'page/account/edit-order';
 @import 'page/account/order-detail';
 
 @import 'page/checkout/checkout';
 @import 'page/checkout/aside';
-/** @deprecated tag:v6.6.0 - File "_aside-children.scss" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-@import 'page/checkout/aside-children';
 @import 'page/checkout/cart';
 @import 'page/checkout/register';
 @import 'page/checkout/confirm';
 @import 'page/checkout/finish';
 
+/** @deprecated tag:v6.7.0 - File "_breadcrumb.scss" will be removed without replacement. Bootstrap container styles are used instead. */
 @import 'page/content/breadcrumb';
-
-@import 'page/contact/contact';
-@import 'page/newsletter/newsletter';
 
 @import 'page/search/search';
 

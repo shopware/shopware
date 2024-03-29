@@ -235,7 +235,7 @@ class ThemeChangeCommandTest extends TestCase
     {
         return [
             [
-                'id' => UUID::randomHex(),
+                'id' => Uuid::randomHex(),
                 'domains' => [
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -246,7 +246,7 @@ class ThemeChangeCommandTest extends TestCase
                 ],
             ],
             [
-                'id' => UUID::randomHex(),
+                'id' => Uuid::randomHex(),
                 'domains' => [
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,

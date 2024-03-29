@@ -127,11 +127,7 @@
                         <template #column-taxRate="{ item, isInlineEdit, compact }">
                             <template v-if="isInlineEdit">
                                 <sw-number-field
-                                    {% if VUE3 %}
                                     v-model:value="item.taxRate"
-                                    {% else %}
-                                    v-model="item.taxRate"
-                                    {% endif %}
                                     :digits="3"
                                     :size="compact ? 'small' : 'default'"
                                 >
@@ -156,11 +152,7 @@
                                 {% block sw_settings_tax_list_grid_column_default_editor %}
                                 <sw-checkbox-field
                                     :value="isSelectedDefaultRate(item)"
-                                    {% if VUE3 %}
                                     @update:value="value => setSelectedDefaultRate(value, item.id)"
-                                    {% else %}
-                                    @change="value => setSelectedDefaultRate(value, item.id)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
                             </template>
@@ -299,14 +291,9 @@
                         >
                             <template
                                 v-for="taxProvider in taxProviders"
-                                {% if VUE3 %}
                                 :key="taxProvider.id"
-                                {% endif %}
                             >
                                 <div
-                                    {% if VUE2 %}
-                                    :key="taxProvider.id"
-                                    {% endif %}
                                     class="sw-tax-provider-item"
                                 >
                                     <div class="sw-tax-provider__name">
@@ -327,11 +314,7 @@
                                         :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
                                         :disabled="!acl.can('tax.editor')"
                                         :value="taxProvider.active"
-                                        {% if VUE3 %}
                                         @update:value="onChangeTaxProviderActive(taxProvider)"
-                                        {% else %}
-                                        @change="onChangeTaxProviderActive(taxProvider)"
-                                        {% endif %}
                                     />
                                 </div>
                             </template>

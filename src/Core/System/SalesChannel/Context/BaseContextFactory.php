@@ -250,7 +250,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
     private function getParentLanguageId(string $languageId): ?string
     {
         $data = $this->connection->createQueryBuilder()
-            ->select(['LOWER(HEX(language.parent_id))'])
+            ->select('LOWER(HEX(language.parent_id))')
             ->from('language')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($languageId))

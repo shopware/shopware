@@ -12,11 +12,7 @@
             <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
-                {% if VUE3 %}
                 :id="formFieldName || identification"
-                {% else %}
-                :id="identification"
-                {% endif %}
                 type="checkbox"
                 :name="formFieldName || identification"
                 :checked="inputState"
@@ -34,20 +30,14 @@
 
         <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
-            {% if VUE3 %}
             v-bind="{
                 ...$attrs,
                 ...inheritanceAttrs
             }"
             :is-inheritance-field="inheritanceAttrs.isInheritanceField"
             :is-inherited="inheritanceAttrs.isInherited"
-            {% else %}
-            v-bind="$attrs"
-            :is-inheritance-field="isInheritanceField"
-            :is-inherited="isInherited"
-            {% endif %}
             :disabled="disabled"
-            :name="identification"
+            :name="formFieldName || identification"
             :label="label"
             @inheritance-restore="$emit('inheritance-restore', $event)"
             @inheritance-remove="$emit('inheritance-remove', $event)"

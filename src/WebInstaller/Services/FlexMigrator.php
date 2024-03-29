@@ -114,7 +114,6 @@ EOT;
         $composerJson = json_decode((string) file_get_contents($composerJsonPath), true, \JSON_THROW_ON_ERROR);
 
         $composerJson['require']['symfony/flex'] = '^2';
-        $composerJson['require']['symfony/runtime'] = '^5.0|^6.0';
 
         // Remove old recovery
         unset($composerJson['require']['shopware/recovery']);

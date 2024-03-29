@@ -18,27 +18,11 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
     use ExtendableTrait;
     use JsonSerializableTrait;
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be strongly typed
-     *
-     * @var OrderTransactionEntity
-     */
-    protected $orderTransaction;
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be strongly typed
-     *
-     * @var OrderEntity
-     */
-    protected $order;
-
     public function __construct(
-        OrderTransactionEntity $orderTransaction,
-        OrderEntity $order,
+        protected OrderTransactionEntity $orderTransaction,
+        protected OrderEntity $order,
         protected ?RecurringDataStruct $recurring = null
     ) {
-        $this->orderTransaction = $orderTransaction;
-        $this->order = $order;
     }
 
     public function getOrderTransaction(): OrderTransactionEntity

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -28,9 +29,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\VersionManager
  */
+#[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

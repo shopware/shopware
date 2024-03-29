@@ -5,14 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 use AsyncAws\S3\S3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory
  */
+#[CoversClass(AwsS3v3Factory::class)]
 class AwsS3v3FactoryTest extends TestCase
 {
     public function testGetType(): void

@@ -24,7 +24,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDeleteSubscriberTest extends TestCase
 {
     use ClockSensitiveTrait;

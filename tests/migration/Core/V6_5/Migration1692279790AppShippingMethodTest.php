@@ -4,16 +4,16 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1692279790AppShippingMethod;
+use Shopware\Core\Migration\V6_6\Migration1679581138RemoveAssociationFields;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1692279790AppShippingMethod
  */
+#[CoversClass(Migration1692279790AppShippingMethod::class)]
 class Migration1692279790AppShippingMethodTest extends TestCase
 {
     private Connection $connection;
@@ -30,7 +30,9 @@ class Migration1692279790AppShippingMethodTest extends TestCase
      */
     public function testMigration(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
+        if (!$this->columnExists($this->connection, 'media_default_folder', 'association_fields')) {
+            $this->connection->executeStatement('ALTER TABLE `media_default_folder` ADD COLUMN `association_fields` JSON NOT NULL;');
+        }
 
         $sql = 'SHOW TABLES LIKE "app_shipping_method"';
 
@@ -41,6 +43,9 @@ class Migration1692279790AppShippingMethodTest extends TestCase
         $migration->update($this->connection);
 
         static::assertSame(1, $this->connection->executeQuery($sql)->rowCount());
+
+        $migration = new Migration1679581138RemoveAssociationFields();
+        $migration->updateDestructive($this->connection);
     }
 
     public function testColumns(): void
@@ -54,5 +59,15 @@ class Migration1692279790AppShippingMethodTest extends TestCase
         static::assertContains('identifier', $appShippingMethodColumns);
         static::assertContains('created_at', $appShippingMethodColumns);
         static::assertContains('updated_at', $appShippingMethodColumns);
+    }
+
+    private function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
     }
 }

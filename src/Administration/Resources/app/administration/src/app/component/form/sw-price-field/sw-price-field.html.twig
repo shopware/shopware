@@ -15,11 +15,7 @@
         {% block sw_price_field_gross %}
         {# TODO: check selectors #}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="priceForCurrency.gross"
-            {% else %}
-            v-model="priceForCurrency.gross"
-            {% endif %}
             class="sw-price-field__gross"
             :allow-empty="allowEmpty"
             :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
@@ -33,11 +29,7 @@
             :disabled="isDisabled"
             :name="grossFieldName"
             v-bind="$attrs"
-            {% if VUE3 %}
             @update:value="onPriceGrossChange"
-            {% else %}
-            @change="onPriceGrossChange"
-            {% endif %}
             @keyup="keymonitor"
             @input-change="onPriceGrossInputChange"
         >
@@ -62,17 +54,11 @@
         >
             <sw-icon
                 v-if="priceForCurrency.linked"
-                {% if VUE2 %}
-                key="price-field-locked-indicator"
-                {% endif %}
                 name="regular-lock"
                 size="16"
             />
             <sw-icon
                 v-else
-                {% if VUE2 %}
-                key="price-field-locked-indicator"
-                {% endif %}
                 name="regular-lock-open"
                 size="16"
             />
@@ -83,11 +69,7 @@
         {% block sw_price_field_net %}
         {# TODO: check selectors #}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="priceForCurrency.net"
-            {% else %}
-            v-model="priceForCurrency.net"
-            {% endif %}
             class="sw-price-field__net"
             :allow-empty="allowEmpty"
             :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
@@ -101,11 +83,7 @@
             :disabled="isInherited || disabled"
             :name="netFieldName"
             v-bind="$attrs"
-            {% if VUE3 %}
             @update:value="onPriceNetChange"
-            {% else %}
-            @change="onPriceNetChange"
-            {% endif %}
             @keyup="keymonitor"
             @input-change="onPriceNetInputChange"
         >
@@ -141,7 +119,7 @@
 
     <sw-maintain-currencies-modal
         v-if="showModal"
-        :prices="price"
+        :prices="value"
         :default-price="priceForCurrency"
         :tax-rate="taxRate"
         :disabled="false"

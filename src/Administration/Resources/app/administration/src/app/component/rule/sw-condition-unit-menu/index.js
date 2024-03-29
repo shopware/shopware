@@ -188,9 +188,7 @@ Shopware.Component.register(
 
         methods: {
             onUnitChange(unit) {
-                // convert value to new unit or set to base value if selected unit is the default unit
-                const value = unit === this.defaultUnit ? this.value :
-                    convertUnit(this.value, { from: this.defaultUnit, to: unit });
+                const value = this.getConvertedValue(unit);
 
                 this.$emit('change-unit', {
                     value,
@@ -199,6 +197,18 @@ Shopware.Component.register(
 
                 this.selectedUnit = unit;
                 this.showMenu = false;
+            },
+
+            getConvertedValue(unit) {
+                // convert value to new unit or set to base value if selected unit is the default unit
+                const value = unit === this.defaultUnit ? this.value :
+                    convertUnit(this.value, { from: this.defaultUnit, to: unit });
+
+                if (Number.isNaN(value)) {
+                    return this.value;
+                }
+
+                return value;
             },
 
             isSelected(unit) {

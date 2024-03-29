@@ -4,8 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -21,9 +24,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Util\AssetService
  */
+#[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
     public function testCopyAssetsFromBundlePluginDoesNotExists(): void
@@ -162,7 +164,17 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $adapter = $this->createMock(FilesystemAdapter::class);
+        $adapter->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) {
+                static::assertIsResource($stream);
+                // Some flysystem adapters automatically close the stream e.g. google adapter
+                fclose($stream);
+
+                return true;
+            });
+
+        $filesystem = new Filesystem($adapter);
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
@@ -172,15 +184,6 @@ class AssetServiceTest extends TestCase
             $this->createMock(AbstractAppLoader::class),
             new ParameterBag(['shopware.filesystem.asset.type' => 's3'])
         );
-
-        $filesystem->method('writeStream')
-            ->willReturnCallback(function (string $path, $stream) {
-                static::assertIsResource($stream);
-                // Some flysystem adapters automatically close the stream e.g. google adapter
-                fclose($stream);
-
-                return true;
-            });
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
     }
@@ -287,12 +290,11 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider adminFilesProvider
-     *
      * @param array<string, string> $manifest
      * @param array<string, string> $expectedWrites
      * @param array<string> $expectedDeletes
      */
+    #[DataProvider('adminFilesProvider')]
     public function testCopyAssetsFromAdminBundle(array $manifest, array $expectedWrites, array $expectedDeletes): void
     {
         ksort($manifest);

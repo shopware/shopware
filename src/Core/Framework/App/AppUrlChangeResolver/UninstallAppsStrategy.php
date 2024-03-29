@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
@@ -30,7 +29,7 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
      */
     public function __construct(
         private readonly EntityRepository $appRepository,
-        private readonly SystemConfigService $systemConfigService,
+        private readonly ShopIdProvider $shopIdProvider,
         private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {
     }
@@ -53,7 +52,7 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 
     public function resolve(Context $context): void
     {
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $this->shopIdProvider->deleteShopId();
 
         foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
             // Delete app manually, to not inform the app backend about the deactivation

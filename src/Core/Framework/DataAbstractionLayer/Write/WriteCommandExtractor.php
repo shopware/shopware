@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
@@ -49,8 +51,10 @@ class WriteCommandExtractor
     /**
      * @internal
      */
-    public function __construct(private readonly EntityWriteGatewayInterface $entityExistenceGateway)
-    {
+    public function __construct(
+        private readonly EntityWriteGatewayInterface $entityExistenceGateway,
+        private readonly DefinitionInstanceRegistry $registry
+    ) {
     }
 
     /**
@@ -349,7 +353,7 @@ class WriteCommandExtractor
         }
 
         if ($field instanceof ReferenceVersionField && $field->is(Required::class)) {
-            return new KeyValuePair($field->getPropertyName(), null, true);
+            return new KeyValuePair($field->getPropertyName(), null, true, true);
         }
 
         if ($this->skipField($field, $existence)) {
@@ -413,12 +417,18 @@ class WriteCommandExtractor
         $queue = $parameterBag->getCommandQueue();
 
         if ($existence->exists()) {
-            $queue->add($definition, new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath()));
-
-            return;
+            $command = new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath());
+        } else {
+            $command = new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath());
         }
 
-        $queue->add($definition, new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath()));
+        $identifier = WriteCommandQueue::hashedPrimary($this->registry, $command);
+
+        $queue->add(
+            $definition->getEntityName(),
+            $identifier,
+            $command
+        );
     }
 
     /**

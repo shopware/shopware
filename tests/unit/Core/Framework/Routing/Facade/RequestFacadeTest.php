@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Routing\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\Facade\RequestFacade;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Routing\Facade\RequestFacade
  */
+#[CoversClass(RequestFacade::class)]
 class RequestFacadeTest extends TestCase
 {
     public function testUrl(): void

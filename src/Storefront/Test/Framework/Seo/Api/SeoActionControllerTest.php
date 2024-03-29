@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -340,15 +339,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            // seo url does not exist.
-            static::assertCount(0, $seoUrls);
-        } else {
-            // seo url is not modified.
-            static::assertCount(1, $seoUrls);
-            $seoUrl = $seoUrls[0]['attributes'];
-            static::assertFalse($seoUrl['isModified']);
-        }
+        static::assertCount(0, $seoUrls);
 
         $newSeoPathInfo = 'my-awesome-seo-path';
         $seoUrl['foreignKey'] = $id;
@@ -365,16 +356,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            // seo url is not updated.
-            static::assertCount(0, $seoUrls);
-        } else {
-            // seo url not updated.
-            static::assertCount(1, $seoUrls);
-            $seoUrl = $seoUrls[0]['attributes'];
-            static::assertTrue($seoUrl['isModified']);
-            static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
-        }
+        static::assertCount(0, $seoUrls);
 
         $productUpdate = [
             'id' => $id,
@@ -384,16 +366,7 @@ class SeoActionControllerTest extends TestCase
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            // seo url is not updated with the product
-            static::assertCount(0, $seoUrls);
-        } else {
-            // seo url is updated with the product
-            static::assertCount(1, $seoUrls);
-            $seoUrl = $seoUrls[0]['attributes'];
-            static::assertTrue($seoUrl['isModified']);
-            static::assertEquals($newSeoPathInfo, $seoUrl['seoPathInfo']);
-        }
+        static::assertCount(0, $seoUrls);
     }
 
     /**

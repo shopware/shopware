@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -20,18 +22,16 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\CollectingMessageBus;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\File\FileSaver
  */
 #[Package('buyers-experience')]
+#[CoversClass(FileSaver::class)]
 class FileSaverTest extends TestCase
 {
     private MockObject&EntityRepository $mediaRepository;
@@ -67,9 +67,7 @@ class FileSaverTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider duplicateFileNameProvider
-     */
+    #[DataProvider('duplicateFileNameProvider')]
     public function testDuplicatedMediaFileNameInFileSystem(bool $isPrivate): void
     {
         $mediaA = new MediaEntity();
@@ -84,28 +82,30 @@ class FileSaverTest extends TestCase
         $mediaB->setPrivate(false);
 
         if ($isPrivate) {
-            $mediaWithRelatedFileName = new MediaCollection([$mediaA]);
+            $mediaCollection = new MediaCollection([$mediaA]);
         } else {
-            $mediaWithRelatedFileName = new MediaCollection([$mediaB]);
+            $mediaCollection = new MediaCollection([$mediaB]);
         }
 
+        $mediaId = Uuid::randomHex();
         $currentMedia = new MediaEntity();
-        $currentMedia->setId(Uuid::randomHex());
+        $currentMedia->setId($mediaId);
         $currentMedia->setPrivate($isPrivate);
 
+        $mediaCollection->set($mediaId, $currentMedia);
+
         $mediaSearchResult = $this->createMock(EntitySearchResult::class);
-        $mediaSearchResult->method('get')->willReturn($currentMedia);
-        $mediaSearchResult->method('getEntities')->willReturn($mediaWithRelatedFileName);
+        $mediaSearchResult->method('getEntities')->willReturn($mediaCollection);
         $this->mediaRepository->method('search')->willReturn($mediaSearchResult);
 
         $mediaFile = new MediaFile('foo', 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('A file with the name "foo.png" already exists.');
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A file with the name "foo.png" already exists.');
 
-        $this->fileSaver->persistFileToMedia($mediaFile, 'foo', Uuid::randomHex(), $context);
+        $this->fileSaver->persistFileToMedia($mediaFile, 'foo', $mediaId, $context);
     }
 
     public static function duplicateFileNameProvider(): \Generator
@@ -119,9 +119,7 @@ class FileSaverTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider uniqueFileNameProvider
-     */
+    #[DataProvider('uniqueFileNameProvider')]
     public function testFileNameUniqueInFileSystem(
         bool $isPrivate
     ): void {
@@ -137,19 +135,20 @@ class FileSaverTest extends TestCase
         $mediaB->setPrivate(false);
 
         if (!$isPrivate) {
-            $mediaWithRelatedFileName = new MediaCollection([$mediaA]);
+            $mediaCollection = new MediaCollection([$mediaA]);
         } else {
-            $mediaWithRelatedFileName = new MediaCollection([$mediaB]);
+            $mediaCollection = new MediaCollection([$mediaB]);
         }
 
+        $mediaId = Uuid::randomHex();
         $currentMedia = new MediaEntity();
-        $currentMedia->setId(Uuid::randomHex());
+        $currentMedia->setId($mediaId);
         $currentMedia->setPrivate($isPrivate);
         $currentMedia->setPath('');
+        $mediaCollection->set($mediaId, $currentMedia);
 
         $mediaSearchResult = $this->createMock(EntitySearchResult::class);
-        $mediaSearchResult->method('get')->willReturn($currentMedia);
-        $mediaSearchResult->method('getEntities')->willReturn($mediaWithRelatedFileName);
+        $mediaSearchResult->method('getEntities')->willReturn($mediaCollection);
         $this->mediaRepository->method('search')->willReturn($mediaSearchResult);
 
         $file = tmpfile();
@@ -158,16 +157,10 @@ class FileSaverTest extends TestCase
         $mediaFile = new MediaFile($tempMeta['uri'], 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
-        $mediaId = Uuid::randomHex();
 
         $message = new GenerateThumbnailsMessage();
         $message->setMediaIds([$mediaId]);
-
-        if (Feature::isActive('v6.6.0.0')) {
-            $message->setContext($context);
-        } else {
-            $message->withContext($context);
-        }
+        $message->setContext($context);
 
         $this->mediaRepository
             ->expects(static::once())

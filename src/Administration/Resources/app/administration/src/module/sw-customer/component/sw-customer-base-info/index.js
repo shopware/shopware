@@ -108,6 +108,9 @@ export default {
                 });
             },
         },
+        customer() {
+            this.createdComponent();
+        },
     },
 
     created() {

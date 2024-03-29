@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -28,10 +29,9 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ProductExport\Service\ProductExportGenerator
  */
 #[Package('inventory')]
+#[CoversClass(ProductExportGenerator::class)]
 class ProductExportGeneratorTest extends TestCase
 {
     private MockObject&ProductStreamBuilderInterface $productStreamBuilder;

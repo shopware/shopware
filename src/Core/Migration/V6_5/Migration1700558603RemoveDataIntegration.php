@@ -39,11 +39,6 @@ class Migration1700558603RemoveDataIntegration extends MigrationStep
         );
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
-
     /**
      * @return SystemConfig
      */

@@ -2,56 +2,53 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swSalesChannelDetailDomains from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/form/select/base/sw-single-select';
+import { mount } from '@vue/test-utils';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-Shopware.Component.register('sw-sales-channel-detail-domains', swSalesChannelDetailDomains);
-
 async function createWrapper(customProps = {}, domains = []) {
-    return shallowMount(await Shopware.Component.build('sw-sales-channel-detail-domains'), {
-        stubs: {
-            'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>',
-            },
-            'sw-button': true,
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-context-menu-item': true,
-            'sw-icon': true,
-            'sw-context-button': true,
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-entity-single-select': true,
-            'sw-radio-field': true,
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
-            'sw-url-field': true,
-            'sw-select-base': true,
-            'sw-select-result-list': true,
+    return mount(await wrapTestComponent('sw-sales-channel-detail-domains', { sync: true }), {
+        global: {
 
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
-                            id: '44de136acf314e7184401d36406c1e90',
-                            isNew: () => true,
-                        };
-                    },
-                }),
-            },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
-            },
+            stubs: {
+                'sw-card': {
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
+                },
+                'sw-button': true,
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-context-menu-item': true,
+                'sw-icon': true,
+                'sw-context-button': true,
+                'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
+                'sw-entity-single-select': true,
+                'sw-radio-field': true,
+                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
+                'sw-url-field': true,
+                'sw-select-base': true,
+                'sw-select-result-list': true,
 
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                id: '44de136acf314e7184401d36406c1e90',
+                                isNew: () => true,
+                            };
+                        },
+                    }),
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
+
+            },
         },
-        propsData: {
+        props: {
             salesChannel: {
                 domains: domains,
             },
@@ -100,48 +97,28 @@ function getExampleDomains() {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should have button enabled', async () => {
+    it('should have button and context menu item enabled', async () => {
         const wrapper = await createWrapper();
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
-
         expect(button.attributes().disabled).toBeUndefined();
-    });
-
-    it('should have button disabled', async () => {
-        const wrapper = await createWrapper({
-            disableEdit: true,
-        });
-
-        const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
-
-        expect(button.attributes().disabled).toBe('true');
-    });
-
-    it('should have context menu item enabled', async () => {
-        const wrapper = await createWrapper();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-
-        contextMenuItems.wrappers.forEach(item => {
+        contextMenuItems.forEach(item => {
             expect(item.attributes().disabled).toBeUndefined();
         });
     });
 
-    it('should have context menu item disabled', async () => {
+    it('should have button and context menu item disabled', async () => {
         const wrapper = await createWrapper({
             disableEdit: true,
         });
 
-        const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
+        const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
+        expect(button.attributes().disabled).toBe('true');
 
-        contextMenuItems.wrappers.forEach(item => {
+        const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
+        contextMenuItems.forEach(item => {
             expect(item.attributes().disabled).toBe('true');
         });
     });
@@ -220,8 +197,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(languages.first().id);
-        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toBe(languages);
+        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.value).toBe(languages.first().id);
+        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toStrictEqual(languages);
     });
 
     it('should only display available currencies', async () => {
@@ -247,8 +224,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(currencies.first().id);
-        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toBe(currencies);
+        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(currencies.first().id);
+        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toStrictEqual(currencies);
     });
 
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
@@ -314,5 +291,95 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         await wrapper.vm.onClickAddNewDomain();
 
         expect(wrapper.vm.verifyUrl).not.toHaveBeenCalled();
+    });
+
+    it('should delete a domain when onConfirmDeleteDomain is called', async () => {
+        const domains = new EntityCollection(
+            '/sales-channel-domain',
+            'sales_channel_domain',
+            Context.api,
+            null,
+            [
+                {
+                    id: 'domain-1',
+                    url: 'http://firstExample.com',
+                    productExports: [],
+                    language: {
+                        name: 'Deutsch',
+                    },
+                    currency: {
+                        name: 'Euro',
+                        translated: {
+                            name: 'Euro',
+                        },
+                    },
+                    snippetSet: {
+                        name: 'BASE de-DE',
+                    },
+                    isNew: () => false,
+                },
+            ],
+        );
+
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: [],
+                currencies: [],
+                domains: domains,
+            },
+        }, []);
+
+        const domainToDelete = domains.first();
+
+        await wrapper.vm.onConfirmDeleteDomain(domainToDelete);
+
+        const domainExists = wrapper.vm.salesChannel.domains.some(domain => domain.id === domainToDelete.id);
+
+        expect(domainExists).toBe(false);
+    });
+
+    it('should not delete a domain when onConfirmDeleteDomain is called and domain.productExports.length > 0', async () => {
+        const domains = new EntityCollection(
+            '/sales-channel-domain',
+            'sales_channel_domain',
+            Context.api,
+            null,
+            [
+                {
+                    id: 'domain-1',
+                    url: 'http://firstExample.com',
+                    productExports: [{}],
+                    language: {
+                        name: 'Deutsch',
+                    },
+                    currency: {
+                        name: 'Euro',
+                        translated: {
+                            name: 'Euro',
+                        },
+                    },
+                    snippetSet: {
+                        name: 'BASE de-DE',
+                    },
+                    isNew: () => false,
+                },
+            ],
+        );
+
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: [],
+                currencies: [],
+                domains: domains,
+            },
+        }, []);
+
+        const domainToDelete = domains.first();
+
+        await wrapper.vm.onConfirmDeleteDomain(domainToDelete);
+
+        const domainExists = wrapper.vm.salesChannel.domains.some(domain => domain.id === domainToDelete.id);
+
+        expect(domainExists).toBe(true);
     });
 });

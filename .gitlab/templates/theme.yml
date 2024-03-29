@@ -16,7 +16,7 @@ variables:
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_ROOT_PASSWORD: root
     DATABASE_URL: 'mysql://root:root@database:3306/root'
-    APP_SECRET: 'devsecret'
+    APP_SECRET: 'def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48'
     APP_URL: http://localhost:8000
     # cypress
     CYPRESS_baseUrl: http://localhost:8000
@@ -242,7 +242,7 @@ template filled:
         - exit 1
 
 cypress:
-    image: shopware/development:8.2-composer-2
+    image: shopware/development:8.2-node-20.10-composer-2
     stage: E2E
     needs:
         - build zip
@@ -263,6 +263,8 @@ cypress:
         - *base_install
         - *theme_install
         - *install_dependencies
+        - composer init:js
+        - composer build:js
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - bin/console e2e:dump-db
         - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}

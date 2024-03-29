@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
@@ -22,10 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedProductDetailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -42,9 +43,7 @@ class CachedProductDetailRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $closure, int $calls, bool $isTestingWithVariant = false): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

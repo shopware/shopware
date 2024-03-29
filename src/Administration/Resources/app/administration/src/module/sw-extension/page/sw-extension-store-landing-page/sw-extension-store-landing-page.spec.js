@@ -1,35 +1,19 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swExtensionStoreLandingPage from 'src/module/sw-extension/page/sw-extension-store-landing-page';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/utils/sw-loader';
+import { mount } from '@vue/test-utils';
 
 let successfulActivation = true;
 
-Shopware.Component.register('sw-extension-store-landing-page', swExtensionStoreLandingPage);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.filter('asset', v => v);
+    return mount(await wrapTestComponent('sw-extension-store-landing-page', { sync: true }), {
+        global: {
+            provide: {
+                extensionHelperService: {
+                    downloadAndActivateExtension: () => {
+                        if (successfulActivation) {
+                            return Promise.resolve();
+                        }
 
-    return shallowMount(await Shopware.Component.build('sw-extension-store-landing-page'), {
-        localVue,
-        stubs: {
-            'sw-meteor-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-icon': true,
-            'sw-label': true,
-        },
-        provide: {
-            extensionHelperService: {
-                downloadAndActivateExtension: () => {
-                    if (successfulActivation) {
-                        return Promise.resolve();
-                    }
-
-                    return Promise.reject();
+                        return Promise.reject();
+                    },
                 },
             },
         },
@@ -40,9 +24,6 @@ async function createWrapper() {
  * @package services-settings
  */
 describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     beforeAll(() => {
         delete window.location;
         window.location = { reload: jest.fn() };
@@ -53,22 +34,17 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         successfulActivation = true;
         window.location.reload.mockClear();
         Shopware.Utils.debug.error.mockClear();
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the activate button', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.find('.sw-extension-store-landing-page__activate_button').isVisible()).toBe(true);
     });
 
     it('should go through a successful activation', async () => {
+        const wrapper = await createWrapper();
+
         expect(window.location.reload).not.toHaveBeenCalled();
 
         // trigger activation
@@ -92,6 +68,8 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     });
 
     it('should go through a unsuccessful activation with an error', async () => {
+        const wrapper = await createWrapper();
+
         successfulActivation = false;
 
         expect(window.location.reload).not.toHaveBeenCalled();

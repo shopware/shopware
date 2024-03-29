@@ -55,7 +55,7 @@
                 <sw-entity-single-select
                     v-if="!isProductPageType"
                     ref="cmsProductSelection"
-                    v-model="element.config.product.value"
+                    v-model:value="element.config.product.value"
                     entity="product"
                     class="sw-cms-el-config-cross-selling__products"
                     :label="$tc('sw-cms.elements.crossSelling.config.label.selection')"
@@ -63,11 +63,7 @@
                     :criteria="productCriteria"
                     :context="productSelectContext"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="onProductChange"
-                    {% else %}
-                    @change="onProductChange"
-                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_entity_single_select_variant_selected_item %}
@@ -111,11 +107,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_box_layout %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.boxLayout.value"
-                    {% else %}
-                    v-model="element.config.boxLayout.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                 >
                     <option value="standard">
@@ -133,11 +125,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_display_mode %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.displayMode.value"
-                    {% else %}
-                    v-model="element.config.displayMode.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.general.config.label.displayMode')"
                 >
                     <option value="standard">
@@ -155,11 +143,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_config_options_min_width %}
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="element.config.elMinWidth.value"
-                    {% else %}
-                    v-model="element.config.elMinWidth.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.crossSelling.config.label.minWidth')"
                     :placeholder="$tc('sw-cms.elements.crossSelling.config.placeholder.minWidth')"
                 />

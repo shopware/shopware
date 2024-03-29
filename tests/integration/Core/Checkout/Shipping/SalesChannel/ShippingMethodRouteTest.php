@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
@@ -24,9 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @package checkout
  *
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ShippingMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

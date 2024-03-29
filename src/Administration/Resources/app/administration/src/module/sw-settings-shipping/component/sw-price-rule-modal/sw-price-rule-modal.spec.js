@@ -1,12 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swPriceRuleModal from 'src/module/sw-settings-shipping/component/sw-price-rule-modal';
-import 'src/app/component/rule/sw-rule-modal';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
-
-Shopware.Component.extend('sw-price-rule-modal', 'sw-rule-modal', swPriceRuleModal);
 
 function createRuleMock(isNew) {
     return {
@@ -28,54 +24,59 @@ function createRuleMock(isNew) {
 }
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-price-rule-modal'), {
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        create: () => {
-                            return createRuleMock(true);
-                        },
-                        get: () => Promise.resolve(createRuleMock(false)),
-                        save: () => Promise.resolve(),
-                        search: () => Promise.resolve([]),
-                    };
+    return mount(await wrapTestComponent('sw-price-rule-modal', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            create: () => {
+                                return createRuleMock(true);
+                            },
+                            get: () => Promise.resolve(createRuleMock(false)),
+                            save: () => Promise.resolve(),
+                            search: () => Promise.resolve([]),
+                        };
+                    },
+                },
+
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {},
+                    getRestrictedRuleTooltipConfig: () => ({
+                        disabled: true,
+                    }),
+                },
+
+                ruleConditionsConfigApiService: {
+                    load: () => Promise.resolve(),
                 },
             },
 
-            ruleConditionDataProviderService: {
-                getModuleTypes: () => [],
-                addScriptConditions: () => {},
-                getRestrictedRuleTooltipConfig: () => ({
-                    disabled: true,
-                }),
-            },
-
-            ruleConditionsConfigApiService: {
-                load: () => Promise.resolve(),
-            },
-        },
-
-        stubs: {
-            'sw-modal': {
-                template: `
+            stubs: {
+                'sw-modal': {
+                    template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
+                },
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-condition-tree': true,
+                'sw-container': true,
+                'sw-multi-select': true,
+                'sw-textarea-field': true,
+                'sw-number-field': true,
+                'sw-text-field': true,
+                'sw-field': true,
             },
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-condition-tree': true,
-            'sw-container': true,
-            'sw-multi-select': true,
-            'sw-textarea-field': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
-            'sw-field': true,
         },
     });
 }

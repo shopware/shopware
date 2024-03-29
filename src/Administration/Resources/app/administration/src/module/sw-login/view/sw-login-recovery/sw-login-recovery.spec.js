@@ -11,60 +11,62 @@ import 'src/app/component/base/sw-alert';
 
 async function createWrapper() {
     // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
+    delete config.global.mocks.$router;
+    delete config.global.$route;
 
     return mount(await Shopware.Component.build('sw-login-recovery'), {
-        mocks: {
-            $tc: (...args) => JSON.stringify([...args]),
-            $router: { push: jest.fn() },
-        },
-        provide: {
-            userRecoveryService: {
-                createRecovery: () => {
-                    return new Promise((resolve, reject) => {
-                        const response = {
-                            config: {
-                                url: 'test.test.de',
-                            },
-                            response: {
-                                data: {
-                                    errors: {
-                                        status: 429,
-                                        meta: {
-                                            parameters: {
-                                                seconds: 1,
+        global: {
+            mocks: {
+                $tc: (...args) => JSON.stringify([...args]),
+                $router: { push: jest.fn() },
+            },
+            provide: {
+                userRecoveryService: {
+                    createRecovery: () => {
+                        return new Promise((resolve, reject) => {
+                            const response = {
+                                config: {
+                                    url: 'test.test.de',
+                                },
+                                response: {
+                                    data: {
+                                        errors: {
+                                            status: 429,
+                                            meta: {
+                                                parameters: {
+                                                    seconds: 1,
+                                                },
                                             },
                                         },
                                     },
                                 },
-                            },
-                        };
+                            };
 
-                        reject(response);
-                    });
-                },
-            },
-            userService: {},
-            licenseViolationService: {},
-        },
-        stubs: {
-            'router-view': true,
-            'sw-loader': true,
-            'sw-text-field': {
-                props: {
-                    value: {
-                        required: true,
-                        type: String,
+                            reject(response);
+                        });
                     },
                 },
-                template: '<div><input id="email" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>',
+                userService: {},
+                licenseViolationService: {},
             },
-            'sw-contextual-field': true,
-            'router-link': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-alert': await Shopware.Component.build('sw-alert'),
-            'sw-icon': true,
+            stubs: {
+                'router-view': true,
+                'sw-loader': true,
+                'sw-text-field': {
+                    props: {
+                        value: {
+                            required: true,
+                            type: String,
+                        },
+                    },
+                    template: '<div><input id="email" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>',
+                },
+                'sw-contextual-field': true,
+                'router-link': true,
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-alert': await Shopware.Component.build('sw-alert'),
+                'sw-icon': true,
+            },
         },
     });
 }
@@ -74,10 +76,6 @@ describe('module/sw-login/recovery.spec.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

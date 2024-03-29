@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -15,11 +16,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\LineItemValidator
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemValidator::class)]
 class LineItemValidatorTest extends TestCase
 {
     public function testValidateEmptyCart(): void

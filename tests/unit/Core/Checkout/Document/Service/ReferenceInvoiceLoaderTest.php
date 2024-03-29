@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
@@ -13,10 +15,9 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeQu
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader
  */
 #[Package('checkout')]
+#[CoversClass(ReferenceInvoiceLoader::class)]
 class ReferenceInvoiceLoaderTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -26,9 +27,7 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
     }
 
-    /**
-     * @dataProvider invoicesDataProvider
-     */
+    #[DataProvider('invoicesDataProvider')]
     public function testInvoiceLoader(string $orderVersionId, string $versionId, \Closure $expectsClosure): void
     {
         $orderId = Uuid::randomHex();

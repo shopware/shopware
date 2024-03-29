@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -18,10 +19,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\LineItemFactoryRegistry
  */
 #[Package('checkout')]
+#[CoversClass(LineItemFactoryRegistry::class)]
 class LineItemFactoryRegistryTest extends TestCase
 {
     private LineItemFactoryRegistry $service;

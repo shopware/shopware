@@ -22,6 +22,24 @@ Component.register('sw-product-image', {
             required: true,
         },
 
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isSpatial: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        /**
+         * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+         */
+        isArReady: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         isCover: {
             type: Boolean,
             required: false,
@@ -48,6 +66,7 @@ Component.register('sw-product-image', {
             return {
                 'is--placeholder': this.isPlaceholder,
                 'is--cover': this.isCover && this.showCoverLabel,
+                'is--spatial': this.isSpatial,
             };
         },
     },

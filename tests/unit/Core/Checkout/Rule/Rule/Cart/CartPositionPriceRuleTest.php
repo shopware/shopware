@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartPositionPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -13,11 +15,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartPositionPriceRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(CartPositionPriceRule::class)]
 class CartPositionPriceRuleTest extends TestCase
 {
     public function testRuleWithExactAmountMatch(): void
@@ -150,9 +151,7 @@ class CartPositionPriceRuleTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider unsupportedOperators
-     */
+    #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
         $this->expectException(UnsupportedOperatorException::class);
@@ -202,6 +201,6 @@ class CartPositionPriceRuleTest extends TestCase
         $data = (new CartPositionPriceRule())->getConfig()->getData();
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $data['operatorSet']['operators']);
-        static::assertSame('amount', $data['fields'][0]['name']);
+        static::assertSame('amount', $data['fields']['amount']['name']);
     }
 }

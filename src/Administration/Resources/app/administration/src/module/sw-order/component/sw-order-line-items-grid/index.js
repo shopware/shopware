@@ -265,12 +265,8 @@ export default {
             Object.values(this.selectedItems).forEach((item) => {
                 if (item.isNew()) {
                     const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem?.id);
-                    if (this.feature.isActive('VUE3')) {
-                        this.order.lineItems.splice(itemIndex, 1);
-                        return;
-                    }
+                    this.order.lineItems.splice(itemIndex, 1);
 
-                    this.$delete(this.order.lineItems, itemIndex);
                     return;
                 }
 
@@ -292,11 +288,8 @@ export default {
 
         onDeleteItem(item, itemIndex) {
             if (item.isNew()) {
-                if (this.feature.isActive('VUE3')) {
-                    this.order.lineItems.splice(itemIndex, 1);
-                    return;
-                }
-                this.$delete(this.order.lineItems, itemIndex);
+                this.order.lineItems.splice(itemIndex, 1);
+
                 return;
             }
 
@@ -337,6 +330,10 @@ export default {
             return item.type === this.lineItemTypes.PROMOTION;
         },
 
+        isContainerItem(item) {
+            return item.type === this.lineItemTypes.CONTAINER;
+        },
+
         getMinItemPrice(id) {
             if (this.isCreditItem(id)) {
                 return null;
@@ -367,7 +364,7 @@ export default {
             const decorateTaxes = sortTaxes.map((taxItem) => {
                 return this.$tc('sw-order.detailBase.taxDetail', 0, {
                     taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.order.currency.shortName),
+                    tax: format.currency(taxItem.tax, this.order.currency.isoCode),
                 });
             });
 

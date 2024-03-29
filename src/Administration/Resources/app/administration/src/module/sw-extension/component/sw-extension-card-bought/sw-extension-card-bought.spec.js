@@ -1,25 +1,11 @@
 /* eslint-disable max-len */
-import { shallowMount } from '@vue/test-utils';
-import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-card-base';
-import swExtensionCardBought from 'src/module/sw-extension/component/sw-extension-card-bought';
-import swExtensionRemovalModal from 'src/module/sw-extension/component/sw-extension-removal-modal';
-import swExtensionAddingFailed from 'src/module/sw-extension/component/sw-extension-adding-failed';
-import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 
 import ExtensionErrorService from 'src/module/sw-extension/service/extension-error.service';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 import ExtensionStoreActionService from 'src/module/sw-extension/service/extension-store-action.service';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
-
-Shopware.Component.register('sw-extension-card-base', swExtensionCardBase);
-Shopware.Component.extend('sw-extension-card-bought', 'sw-extension-card-base', swExtensionCardBought);
-Shopware.Component.register('sw-extension-removal-modal', swExtensionRemovalModal);
-Shopware.Component.register('sw-extension-adding-failed', swExtensionAddingFailed);
-Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 Shopware.Application.addServiceProvider('loginService', () => {
     return {
@@ -62,45 +48,58 @@ Shopware.Application.addServiceProvider('extensionErrorService', () => {
 
 
 async function createWrapper(extension) {
-    return shallowMount(await Shopware.Component.build('sw-extension-card-bought'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
+        global: {
+            mocks: {
+                $tc: (v1, v2, v3) => (v1 || v2 ? v1 : JSON.stringify([v1, v2, v3])),
+            },
+            mixins: [
+                Shopware.Mixin.getByName('sw-extension-error'),
+            ],
+            stubs: {
+
+                'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
+                'sw-loader': await wrapTestComponent('sw-loader', { sync: true }),
+                'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
+                'router-link': {
+                    template: '<div class="sw-router-link"><slot></slot></div>',
+                    props: ['to'],
+                },
+                'sw-extension-removal-modal': await wrapTestComponent('sw-extension-removal-modal', { sync: true }),
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal">
+                          <slot name="modal-header"></slot>
+                          <slot></slot>
+                          <slot name="modal-footer"></slot>
+                        </div>
+                    `,
+                },
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-extension-adding-failed': await wrapTestComponent('sw-extension-adding-failed', { sync: true }),
+                'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
+                'sw-extension-rating-modal': true,
+            },
+            provide: {
+                extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
+                shopwareExtensionService: Shopware.Service('shopwareExtensionService'),
+                extensionErrorService: Shopware.Service('extensionErrorService'),
+                cacheApiService: {},
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
+            },
+        },
+        props: {
             extension,
-        },
-        mocks: {
-            $tc: (v1, v2, v3) => (v1 || v2 ? v1 : JSON.stringify([v1, v2, v3])),
-        },
-        mixins: [
-            Shopware.Mixin.getByName('sw-extension-error'),
-        ],
-        stubs: {
-            'sw-meteor-card': true,
-            'sw-switch-field': true,
-            'sw-context-button': true,
-            'sw-context-menu': true,
-            'sw-loader': true,
-            'sw-icon': true,
-            'sw-circle-icon': true,
-            'router-link': {
-                template: '<div class="sw-router-link"><slot></slot></div>',
-                props: ['to'],
-            },
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-extension-removal-modal': await Shopware.Component.build('sw-extension-removal-modal'),
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-extension-adding-failed': await Shopware.Component.build('sw-extension-adding-failed'),
-            'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
-            'sw-extension-rating-modal': true,
-        },
-        provide: {
-            extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
-            shopwareExtensionService: Shopware.Service('shopwareExtensionService'),
-            extensionErrorService: Shopware.Service('extensionErrorService'),
-            cacheApiService: {},
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
-            },
         },
     });
 }
@@ -118,44 +117,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             Shopware.State.unregisterModule('shopwareExtensions');
         }
         Shopware.State.registerModule('shopwareExtensions', extensionStore);
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper({
-            id: 1,
-            name: 'Sample Extension',
-            label: 'Sample Extension Label',
-            languages: [],
-            rating: 3,
-            numberOfRatings: 10,
-            installedAt: {
-                date: '2021-02-01T03:30:35+01:00',
-            },
-            storeLicense: {
-                id: 1095324,
-                creationDate: '2021-02-08T15:47:59.000+01:00',
-                variant: 'rent',
-                netPrice: 23.75,
-                nextBookingDate: '2021-03-08T15:47:59.000+01:00',
-                licensedExtension: null,
-                extensions: [],
-                expirationDate: null,
-                subscription: null,
-                trialPhaseIncluded: true,
-                discountInformation: null,
-            },
-            permissions: {},
-            images: [{
-                remoteLink: 'https://example.com',
-                raw: null,
-                extensions: [],
-            }],
-            icon: null,
-            iconRaw: null,
-            active: false,
-            type: 'plugin',
-        });
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display the extension information', async () => {
@@ -258,7 +219,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             type: 'plugin',
         });
 
-        expect(wrapper.find('.sw-extension-card-bought__detail-link').props().routerLink)
+        const detailLink = wrapper.getComponent('.sw-extension-card-bought__detail-link');
+
+        expect(detailLink.props('routerLink'))
             .toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '1' } });
     });
 
@@ -287,10 +250,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             type: 'plugin',
         });
 
-        expect(wrapper.find('.sw-extension-card-bought__detail-link')
-            .text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel');
-        expect(wrapper.find('.sw-extension-card-bought__detail-link')
-            .props().routerLink).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '5' } });
+        const detailLink = wrapper.getComponent('.sw-extension-card-bought__detail-link');
+
+        expect(detailLink.text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.seeDetailsLabel');
+        expect(detailLink.props('routerLink')).toStrictEqual({ name: 'sw.extension.store.detail', params: { id: '5' } });
     });
 
     it('should open the rating modal', async () => {
@@ -325,9 +288,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         });
         expect(wrapper.vm.showRatingModal).toBe(false);
 
-        expect(wrapper.find('.sw-extension-card-bought__rate-link')
-            .text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel');
-        await wrapper.find('.sw-extension-card-bought__rate-link').trigger('click');
+        const rateLink = wrapper.getComponent('.sw-extension-card-bought__rate-link');
+
+        expect(rateLink.text()).toBe('sw-extension-store.component.sw-extension-card-base.contextMenu.rateLabel');
+        await rateLink.trigger('click');
 
         expect(wrapper.vm.showRatingModal).toBe(true);
     });
@@ -366,27 +330,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             source: 'local',
         });
 
-        // Click remove to open remove modal
         await wrapper.get('.sw-extension-card-base__remove-link').trigger('click');
-
-        // Wait for modal to appear
-        await wrapper.vm.$nextTick();
-
-        // Check if modal exists
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        // Perform remove action
         await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
-
-        await flushPromises();
-
-        // Wait for modal to close again
-        await wrapper.vm.$nextTick();
-
-        // Modal should be closed again
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
-
-        // Canceling the license should NOT be called, remove extension should always always called
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(0);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
         expect(httpClient.delete).toHaveBeenCalledTimes(1);
@@ -427,27 +375,11 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             type: 'plugin',
         });
 
-        // Click remove to open remove modal
         await wrapper.get('.sw-extension-card-base__cancel-and-remove-link').trigger('click');
-
-        // Wait for modal to appear
-        await wrapper.vm.$nextTick();
-
-        // Check if modal exists
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(true);
 
-        // Perform remove action
         await wrapper.get('.sw-extension-removal-modal .sw-button--danger').trigger('click');
-
-        await flushPromises();
-
-        // Wait for modal to close again
-        await wrapper.vm.$nextTick();
-
-        // Modal should be closed again
         expect(wrapper.find('.sw-extension-removal-modal').exists()).toBe(false);
-
-        // Canceling the license should be called, remove extension should always always called
         expect(cancelLicenceSpy).toHaveBeenCalledTimes(1);
         expect(removeExtensionSpy).toHaveBeenCalledTimes(1);
         expect(httpClient.delete).toHaveBeenCalledTimes(2);
@@ -499,16 +431,9 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             type: 'app',
         });
 
-        // Click install
         await wrapper.get('.sw-extension-card-base__open-extension').trigger('click');
 
-        // Wait for error notification and modal render
-        await flushPromises();
-
-        // Ensure error modal is displayed
         expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal').exists()).toBe(true);
-
-        // Ensure error from server is processed correctly and applied to data prop
         expect(wrapper.vm.installationFailedError).toEqual({
             title: 'Download not allowed',
             message: 'The download of the extension is not allowed, please purchase a corresponding license or contact the customer service',
@@ -518,7 +443,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             },
         });
 
-        // Ensure error is rendered correctly in modal DOM
         expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3').text()).toBe('Download not allowed');
         expect(wrapper.find('.sw-extension-card-bought__installation-failed-modal h3 + p').text())
             .toBe('The download of the extension is not allowed, please purchase a corresponding license or contact the customer service');
@@ -526,7 +450,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     });
 
     describe('test display of rent and trail phase information', () => {
-        const testCases = [{
+        it.each([{
             testCaseName: 'should display when a rent will expire',
             storeLicense: {
                 variant: 'rent',
@@ -560,41 +484,38 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             },
             expectedTextSnippet: 'sw-extension-store.component.sw-extension-card-bought.testPhaseExpiredAt',
             expectedIcon: 'solid-exclamation-circle',
-        }];
-
-        testCases.forEach(({ testCaseName, storeLicense, expectedTextSnippet, expectedIcon }) => {
-            it(`${testCaseName}`, async () => {
-                const wrapper = await createWrapper({
-                    id: 555,
-                    name: 'Test extension',
-                    label: 'Test extension label',
-                    languages: [],
-                    rating: null,
-                    numberOfRatings: 0,
-                    installedAt: null,
-                    storeLicense: storeLicense,
-                    storeExtension: null,
-                    permissions: {},
-                    images: [],
-                    icon: null,
-                    iconRaw: null,
-                    active: false,
-                    source: 'store',
-                    type: 'app',
-                });
-
-                // Ensure the correct message is rendered
-                expect(wrapper.get('.sw-extension-card-bought__info-subscription-expiry').text()).toBe(expectedTextSnippet);
-
-                // Ensure the correct icon is rendered
-                if (expectedIcon) {
-                    // eslint-disable-next-line jest/no-conditional-expect
-                    expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').attributes().name).toBe(expectedIcon);
-                } else {
-                    // eslint-disable-next-line jest/no-conditional-expect
-                    expect(wrapper.find('.sw-extension-card-bought__info-subscription-expiry sw-icon-stub').exists()).toBe(false);
-                }
+        }])('$testCaseName', async ({ storeLicense, expectedTextSnippet, expectedIcon }) => {
+            const wrapper = await createWrapper({
+                id: 555,
+                name: 'Test extension',
+                label: 'Test extension label',
+                languages: [],
+                rating: null,
+                numberOfRatings: 0,
+                installedAt: null,
+                storeLicense: storeLicense,
+                storeExtension: null,
+                permissions: {},
+                images: [],
+                icon: null,
+                iconRaw: null,
+                active: false,
+                source: 'store',
+                type: 'app',
             });
+
+            const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
+            expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
+
+            const icon = infoSubscriptionExpiry.findComponent('.sw-icon');
+
+            if (expectedIcon) {
+                // eslint-disable-next-line jest/no-conditional-expect
+                expect(icon.props('name')).toBe(expectedIcon);
+            } else {
+                // eslint-disable-next-line jest/no-conditional-expect
+                expect(icon.exists()).toBe(false);
+            }
         });
     });
 });

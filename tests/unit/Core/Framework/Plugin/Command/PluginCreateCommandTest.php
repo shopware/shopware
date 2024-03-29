@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
@@ -14,18 +16,16 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Command\PluginCreateCommand
  */
+#[CoversClass(PluginCreateCommand::class)]
 class PluginCreateCommandTest extends TestCase
 {
     /**
      * @param array<string, string> $arguments
      * @param array<string, string> $inputs
      * @param array<int, array<string, mixed>> $generators
-     *
-     * @dataProvider commandProvider
      */
+    #[DataProvider('commandProvider')]
     public function testSuccessfulCreateCommandWithArguments(
         array $arguments,
         array $inputs,
@@ -106,9 +106,8 @@ class PluginCreateCommandTest extends TestCase
 
     /**
      * @param array<int, string>  $inputs
-     *
-     * @dataProvider invalidInputsProvider
      */
+    #[DataProvider('invalidInputsProvider')]
     public function testInvalidInputs(array $inputs, string $expectedErrorMessage): void
     {
         $commandTester = $this->getCommandTester();

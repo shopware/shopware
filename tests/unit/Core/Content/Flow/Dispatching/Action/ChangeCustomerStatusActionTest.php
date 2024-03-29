@@ -2,35 +2,32 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction
  */
+#[Package('services-settings')]
+#[CoversClass(ChangeCustomerStatusAction::class)]
 class ChangeCustomerStatusActionTest extends TestCase
 {
     private MockObject&EntityRepository $repository;
 
     private ChangeCustomerStatusAction $action;
 
-    private MockObject&StorableFlow $flow;
-
     protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new ChangeCustomerStatusAction($this->repository);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -48,33 +45,36 @@ class ChangeCustomerStatusActionTest extends TestCase
 
     public function testActionExecuted(): void
     {
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getConfig')->willReturn(['active' => true]);
+        $customerId = Uuid::randomHex();
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            CustomerAware::CUSTOMER_ID => $customerId,
+        ]);
+        $flow->setConfig(['active' => true]);
 
         $this->repository->expects(static::once())
             ->method('update')
-            ->with([['id' => $this->flow->getData('customerId'), 'active' => true]]);
+            ->with([['id' => $customerId, 'active' => true]]);
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
+        $flow = new StorableFlow('foo', Context::createDefaultContext());
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::exactly(1))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
+        ]);
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 }

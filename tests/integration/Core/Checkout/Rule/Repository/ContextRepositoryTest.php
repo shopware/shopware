@@ -18,7 +18,7 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class ContextRepositoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

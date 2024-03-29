@@ -19,7 +19,7 @@ trait LineItemTestFixtureBehaviour
      */
     private function createProductItem(float $netPrice, float $taxRate, ?float $listPriceNet = null): LineItem
     {
-        $product = new LineItem(Uuid::randomBytes(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         // allow quantity change
         $product->setStackable(true);

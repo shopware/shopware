@@ -7,7 +7,7 @@
 const { Application } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @memberOf module:core/service/shortcut
  * @constructor
  * @method createShortcutService
@@ -42,7 +42,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
 
         const key = event.key.toUpperCase();
         const currentTime = Date.now();
-        const router = window._features_.VUE3 ? Application.view.router : Application.getApplicationRoot().$router;
+        const router = Application.view.router;
 
         let buffer = [];
 

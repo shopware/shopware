@@ -133,7 +133,7 @@ class SyncService implements SyncServiceInterface
             }
 
             if ($operation->getAction() === SyncOperation::ACTION_UPSERT) {
-                $resolved = $this->syncFkResolver->resolve($operation->getEntity(), $operation->getPayload());
+                $resolved = $this->syncFkResolver->resolve($operation->getKey(), $operation->getEntity(), $operation->getPayload());
 
                 $operation->replacePayload($resolved);
             }

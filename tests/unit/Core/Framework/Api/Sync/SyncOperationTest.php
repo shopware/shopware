@@ -2,14 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Sync\SyncOperation
  */
+#[CoversClass(SyncOperation::class)]
 class SyncOperationTest extends TestCase
 {
     public function testWithValidOperation(): void
@@ -30,59 +32,138 @@ class SyncOperationTest extends TestCase
     public static function invalidOperationProvider(): \Generator
     {
         yield 'Invalid entity argument' => [
-            'invalid-entity',
-            '',
-            'upsert',
-            [
-                ['id' => 'id1', 'name' => 'first manufacturer'],
-                ['id' => 'id2', 'name' => 'second manufacturer'],
+            'operations' => [
+                [
+                    'key' => 'invalid-entity',
+                    'entity' => '',
+                    'action' => 'upsert',
+                    'payload' => [['id' => 'id1', 'name' => 'first manufacturer']],
+                ],
             ],
-            'entity',
+            'errors' => [
+                'Missing "entity" argument for operation with key "invalid-entity". It needs to be a non-empty string.',
+            ],
         ];
 
         yield 'Missing action argument' => [
-            'missing-action',
-            'entity-name',
-            '',
-            [
-                ['id' => 'id1', 'name' => 'first manufacturer'],
-                ['id' => 'id2', 'name' => 'second manufacturer'],
+            'operations' => [
+                [
+                    'key' => 'missing-action',
+                    'entity' => 'entity-name',
+                    'action' => '',
+                    'payload' => [
+                        ['id' => 'id1', 'name' => 'first manufacturer'],
+                        ['id' => 'id2', 'name' => 'second manufacturer'],
+                    ],
+                ],
             ],
-            'action',
+            'errors' => [
+                'Missing or invalid "action" argument for operation with key "missing-action". Supported actions are [upsert, delete]',
+            ],
         ];
 
         yield 'Invalid action argument' => [
-            'missing-action',
-            'entity-name',
-            'invalid-action',
-            [
-                ['id' => 'id1', 'name' => 'first manufacturer'],
-                ['id' => 'id2', 'name' => 'second manufacturer'],
+            'operations' => [
+                [
+                    'key' => 'invalid-action',
+                    'entity' => 'entity-name',
+                    'action' => 'invalid-action',
+                    'payload' => [
+                        ['id' => 'id1', 'name' => 'first manufacturer'],
+                        ['id' => 'id2', 'name' => 'second manufacturer'],
+                    ],
+                ],
             ],
-            'action',
+            'errors' => [
+                'Missing or invalid "action" argument for operation with key "invalid-action". Supported actions are [upsert, delete]',
+            ],
         ];
 
         yield 'Missing payload argument' => [
-            'missing-action',
-            'entity-name',
-            'upsert',
-            [],
-            'payload',
+            'operations' => [
+                [
+                    'key' => 'missing-payload',
+                    'entity' => 'entity-name',
+                    'action' => 'upsert',
+                    'payload' => [],
+                ],
+            ],
+            'errors' => [
+                'Missing "payload"|"criteria" argument for operation with key "missing-payload". It needs to be a non-empty array.',
+            ],
+        ];
+
+        yield 'Missing entity and action arguments' => [
+            'operations' => [
+                [
+                    'key' => 'missing-both',
+                    'entity' => '',
+                    'action' => '',
+                    'payload' => [['id' => 'id1', 'name' => 'first manufacturer']],
+                ],
+            ],
+            'errors' => [
+                'Missing "entity" argument for operation with key "missing-both". It needs to be a non-empty string.; Missing or invalid "action" argument for operation with key "missing-both". Supported actions are [upsert, delete]',
+            ],
+        ];
+    }
+
+    public static function validOperationProvider(): \Generator
+    {
+        yield 'Valid Operation with Key' => [
+            [
+                'key' => 'test-key',
+                'entity' => 'product',
+                'action' => 'upsert',
+                'payload' => [['id' => '123', 'name' => 'Test Product']],
+                'criteria' => [],
+            ],
+            'test-key',
+        ];
+
+        yield 'Valid Operation with Fallback Key' => [
+            [
+                'entity' => 'product',
+                'action' => 'upsert',
+                'payload' => [['id' => '123', 'name' => 'Test Product']],
+                'criteria' => [],
+            ],
+            'fallback-key',
         ];
     }
 
     /**
-     * @dataProvider invalidOperationProvider
-     *
-     * @param array<mixed> $payload
+     * @param array<string, mixed> $operation
      */
-    public function testWithInvalidOperation(string $key, string $entity, string $action, array $payload, string $actor): void
+    #[DataProvider('validOperationProvider')]
+    public function testCreateFromArrayWithValidInput(array $operation, string $expectedKey): void
     {
-        $operation = new SyncOperation($key, $entity, $action, $payload);
+        $syncOperation = SyncOperation::createFromArray($operation, 'fallback-key');
 
-        $errors = $operation->validate();
-        static::assertNotEmpty($errors);
-        static::assertCount(1, $errors);
-        static::assertStringContainsString($actor, $errors[0]);
+        static::assertSame($expectedKey, $syncOperation->getKey());
+    }
+
+    /**
+     * @param array<mixed> $operations
+     * @param array<string> $expectedErrors
+     */
+    #[DataProvider('invalidOperationProvider')]
+    public function testCreateFromArrayThrowsExceptionForInvalidInput(array $operations, array $expectedErrors): void
+    {
+        $caughtExceptions = 0;
+
+        foreach ($operations as $index => $operation) {
+            try {
+                SyncOperation::createFromArray($operation, $operation['key'] ?? 'fallback-key');
+            } catch (ApiException $exception) {
+                static::assertContains($exception->getMessage(), $expectedErrors, "Error mismatch for operation index {$index}");
+                ++$caughtExceptions;
+
+                continue;
+            }
+            static::fail("Expected an exception for operation index {$index} but none was thrown.");
+        }
+
+        static::assertSame(\count($expectedErrors), $caughtExceptions, 'The number of caught exceptions does not match the expected number of errors.');
     }
 }

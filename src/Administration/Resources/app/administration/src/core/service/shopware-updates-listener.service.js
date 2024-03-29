@@ -63,7 +63,7 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
             autoClose: false,
         };
 
-        getApplicationRootReference().$store.dispatch(
+        Shopware.State.dispatch(
             'notification/createNotification',
             notification,
         );

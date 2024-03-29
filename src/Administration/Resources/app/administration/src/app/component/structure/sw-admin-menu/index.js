@@ -198,10 +198,7 @@ The admin menu only supports up to three levels of nesting.`,
             return this.extensionMenuItems.map((extensionMenuItem) => {
                 return {
                     id: Shopware.Utils.createId(),
-                    label: {
-                        translated: true,
-                        label: extensionMenuItem.label,
-                    },
+                    label: extensionMenuItem.label,
                     position: extensionMenuItem.position ?? 110,
                     parent: extensionMenuItem.parent ?? 'sw-extension',
                     moduleType: 'plugin',
@@ -389,8 +386,10 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         openKeyboardShortcutOverview() {
-            this.$refs.swShortcutOverview.onOpenShortcutOverviewModal();
         },
 
         addScrollbarOffset() {

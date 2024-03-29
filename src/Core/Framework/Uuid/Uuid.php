@@ -19,6 +19,9 @@ class Uuid
 
     private static ?UnixTimeGenerator $generator = null;
 
+    /**
+     * @return non-empty-string
+     */
     public static function randomHex(): string
     {
         return bin2hex(self::randomBytes());
@@ -26,6 +29,8 @@ class Uuid
 
     /**
      * same as Ramsey\Uuid\UuidFactory->uuidFromBytesAndVersion without using a transfer object
+     *
+     * @return non-empty-string
      */
     public static function randomBytes(): string
     {
@@ -34,24 +39,28 @@ class Uuid
         }
         $bytes = self::$generator->generate();
 
-        /** @var array<int> $unpackedTime */
         $unpackedTime = unpack('n*', substr($bytes, 6, 2));
+        \assert(\is_array($unpackedTime));
         $timeHi = (int) $unpackedTime[1];
         $timeHiAndVersion = pack('n*', BinaryUtils::applyVersion($timeHi, 7));
 
-        /** @var array<int> $unpackedClockSeq */
         $unpackedClockSeq = unpack('n*', substr($bytes, 8, 2));
+        \assert(\is_array($unpackedClockSeq));
         $clockSeqHi = (int) $unpackedClockSeq[1];
         $clockSeqHiAndReserved = pack('n*', BinaryUtils::applyVariant($clockSeqHi));
 
         $bytes = substr_replace($bytes, $timeHiAndVersion, 6, 2);
+        $bytes = substr_replace($bytes, $clockSeqHiAndReserved, 8, 2);
+        \assert($bytes !== '');
 
-        return substr_replace($bytes, $clockSeqHiAndReserved, 8, 2);
+        return $bytes;
     }
 
     /**
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
+     *
+     * @return non-empty-string
      */
     public static function fromBytesToHex(string $bytes): string
     {
@@ -64,9 +73,16 @@ class Uuid
             throw new InvalidUuidException($uuid);
         }
 
+        \assert($uuid !== '');
+
         return $uuid;
     }
 
+    /**
+     * @param array<string> $bytesList
+     *
+     * @return array<non-empty-string>
+     */
     public static function fromBytesToHexList(array $bytesList): array
     {
         $converted = [];
@@ -77,6 +93,11 @@ class Uuid
         return $converted;
     }
 
+    /**
+     * @param array<array-key, string> $uuids
+     *
+     * @return array<array-key, non-empty-string>
+     */
     public static function fromHexToBytesList(array $uuids): array
     {
         $converted = [];
@@ -89,6 +110,8 @@ class Uuid
 
     /**
      * @throws InvalidUuidException
+     *
+     * @return non-empty-string
      */
     public static function fromHexToBytes(string $uuid): string
     {

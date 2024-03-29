@@ -118,6 +118,9 @@ export default {
                 disabled: true,
             };
         },
+        modalVariant() {
+            return this.element.type === 'html' ? 'full' : 'large';
+        },
     },
 
     mounted() {

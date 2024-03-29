@@ -64,9 +64,7 @@
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
-            <argument type="service" id="theme.repository"/>
-            <argument type="service" id="Shopware\Storefront\Theme\SeedingThemePathBuilder"/>
-            <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
@@ -117,7 +115,7 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider">
-            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader">
@@ -295,7 +293,7 @@
         <!-- Twig -->
         <service id="Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
-            <argument type="service" id="Shopware\Storefront\Theme\SalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
 
             <tag name="kernel.event_subscriber" />
             <tag name="kernel.reset" method="reset"/>
@@ -337,10 +335,18 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\SalesChannelThemeLoader" public="true">
+        <service id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.object"/>
 
             <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoaderInvalidator">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler">

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
@@ -12,9 +13,8 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass
  */
+#[CoversClass(TwigLoaderConfigCompilerPass::class)]
 class TwigLoaderConfigCompilerPassTest extends TestCase
 {
     public function testDevModeNoPluginsOrApps(): void

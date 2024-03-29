@@ -16,14 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('services-settings')]
 class RuleCollection extends EntityCollection
 {
-    /**
-     * @deprecated tag:v6.6.0 return type will be native
-     *
-     * @phpstan-ignore-next-line
-     *
-     * @return RuleCollection
-     */
-    public function filterMatchingRules(Cart $cart, SalesChannelContext $context)
+    public function filterMatchingRules(Cart $cart, SalesChannelContext $context): self
     {
         return $this->filter(
             function (RuleEntity $rule) use ($cart, $context) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -63,9 +64,8 @@ class PromotionExtensionCodesTest extends TestCase
      * add our code to the cart within the extension.
      * We do not assert the final price here, only that the code is
      * correctly added
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAddLineItemAddsToExtension(): void
     {
         $productId = Uuid::randomHex();
@@ -99,9 +99,8 @@ class PromotionExtensionCodesTest extends TestCase
      * We add a product and promotion code, then we grab the promotion
      * line item id and remove it.
      * After that we verify that our code array is empty in our extension.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDeleteLineItemRemovesExtension(): void
     {
         $productId = Uuid::randomHex();
@@ -137,9 +136,8 @@ class PromotionExtensionCodesTest extends TestCase
      * This test verifies that we successfully block any promotion
      * that does not have a code but gets removed by the user.
      * In this case the promotion must not be added automatically again and again.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAutoPromotionGetsBlockedWhenDeletingItem(): void
     {
         $productId = Uuid::randomHex();
@@ -171,9 +169,8 @@ class PromotionExtensionCodesTest extends TestCase
      * This test verifies that we can remove a line item
      * and then add that promotion again. In this case we
      * should have the code again in our extension.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDeleteLineItemAndAddItAgainWorks(): void
     {
         $productId = Uuid::randomHex();
@@ -209,9 +206,7 @@ class PromotionExtensionCodesTest extends TestCase
         static::assertCount(1, $extension->getCodes());
     }
 
-    /**
-     * @group promotions
-     */
+    #[Group('promotions')]
     public function testResetCodesAfterOrder(): void
     {
         $productId = Uuid::randomHex();
@@ -322,9 +317,8 @@ class PromotionExtensionCodesTest extends TestCase
      * line item id and remove it.
      * After that we verify that our code array is empty in our extension (both discounts on the
      * two products are removed).
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDeleteLineItemFixedDiscountByCode(): void
     {
         $productId = Uuid::randomHex();
@@ -373,9 +367,8 @@ class PromotionExtensionCodesTest extends TestCase
      * a change in our product line items, it should be added automatically
      * again if the product conditions are back.
      * This improves the UX because the user doesn't have to re-enter a code.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAutoAddingOfPreviousCodes(): void
     {
         $productId = Uuid::randomHex();

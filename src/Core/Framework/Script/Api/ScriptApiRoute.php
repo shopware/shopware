@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal

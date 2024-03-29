@@ -1,15 +1,9 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionRatingsCard from 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card';
-
-Shopware.Component.register('sw-extension-ratings-card', swExtensionRatingsCard);
+import { mount } from '@vue/test-utils';
 
 /**
  * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     async function createWrapper(noReviews = false) {
         const reviewsAndSummary = noReviews ? { reviews: [], summary: {} } : {
             reviews: [
@@ -40,50 +34,28 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
             },
         };
 
-        return shallowMount(await Shopware.Component.build('sw-extension-ratings-card'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-extension-ratings-card', { sync: true }), {
+            global: {
+                computed: {
+                    extensionStoreDataService: () => ({
+                        getReviews() {
+                            return Promise.resolve(reviewsAndSummary);
+                        },
+                    }),
+                },
+            },
+            props: {
                 isInstalledAndLicensed: false,
                 producerName: 'Sir Robert Bryson Hall II',
                 extension: {
                     id: 'extension-id',
                 },
             },
-            stubs: {
-                'sw-meteor-card': {
-                    template: `<div>
-    <slot name="default"></slot>
-    <slot name="footer"></slot>
-</div>`,
-                },
-                'sw-extension-ratings-summary': true,
-                'sw-extension-review': true,
-                'sw-extension-review-creation': true,
-                'sw-extension-review-creation-inputs': true,
-                'sw-gtc-checkbox': true,
-                'sw-button': true,
-                'sw-button-process': true,
-            },
-            computed: {
-                extensionStoreDataService: () => ({
-                    getReviews() {
-                        return Promise.resolve(reviewsAndSummary);
-                    },
-                }),
-            },
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display empty state when there are no ratings', async () => {
-        wrapper = await createWrapper(true);
+        const wrapper = await createWrapper(true);
 
         expect(wrapper.text())
             .toBe(

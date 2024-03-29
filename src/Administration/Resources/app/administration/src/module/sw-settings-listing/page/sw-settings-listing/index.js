@@ -199,7 +199,7 @@ export default {
         onDeleteProductSorting(item) {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('configurationKey', 'core.listing.defaultSorting'));
-            criteria.addFilter(Criteria.equals('configurationValue', item.key));
+            criteria.addFilter(Criteria.equals('configurationValue', item.id));
 
             this.systemConfigRepository.search(criteria).then((result) => {
                 const actualConfigData = {};
@@ -212,9 +212,9 @@ export default {
                 this.systemConfigApiService.batchSave(actualConfigData);
             });
 
-            Object.keys(this.$refs.systemConfig.actualConfigData).forEach(key => {
-                const configData = this.$refs.systemConfig.actualConfigData[key];
-                if (configData && configData['core.listing.defaultSorting'] === item.key) {
+            Object.keys(this.$refs.systemConfig.actualConfigData).forEach(id => {
+                const configData = this.$refs.systemConfig.actualConfigData[id];
+                if (configData && configData['core.listing.defaultSorting'] === item.id) {
                     configData['core.listing.defaultSorting'] = null;
                 }
             });
@@ -356,25 +356,25 @@ export default {
         },
 
         setDefaultSortingActive() {
-            const defaultSortingKey = this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
+            const defaultSortingId = this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
 
-            if (defaultSortingKey) {
+            if (defaultSortingId) {
                 Object.entries(this.productSortingOptions).forEach(([, productSorting]) => {
-                    if (productSorting.key === defaultSortingKey) {
+                    if (productSorting.id === defaultSortingId) {
                         productSorting.active = true;
                     }
                 });
             }
         },
 
-        isItemDefaultSorting(sortingKey) {
+        isItemDefaultSorting(sortingId) {
             const systemSettingAvailable = !!this.$refs.systemConfig.actualConfigData.null;
 
             if (!systemSettingAvailable) {
                 return null;
             }
 
-            return sortingKey === this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
+            return sortingId === this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
         },
 
         onLoadingChanged(loading) {

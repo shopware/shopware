@@ -100,11 +100,7 @@
                     {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="item.active"
-                            {% else %}
-                            v-model="item.active"
-                            {% endif %}
                         />
                     </template>
                     {% endblock %}
@@ -136,11 +132,7 @@
                     {% block sw_settings_shipping_list_grid_columns_tax_type_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-single-select
-                            {% if VUE3 %}
                             v-model:value="item.taxType"
-                            {% else %}
-                            v-model="item.taxType"
-                            {% endif %}
                             required
                             show-clearable-button
                             size="small"

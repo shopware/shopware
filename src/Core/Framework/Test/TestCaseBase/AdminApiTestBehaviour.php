@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -34,9 +35,7 @@ trait AdminApiTestBehaviour
 
     private ?TestBrowser $integrationBrowser = null;
 
-    /**
-     * @after
-     */
+    #[After]
     public function resetAdminApiTestCaseTrait(): void
     {
         if (!$this->kernelBrowser) {
@@ -181,7 +180,7 @@ trait AdminApiTestBehaviour
             $authPayload['scope'] = $scopes;
         }
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
@@ -189,13 +188,13 @@ trait AdminApiTestBehaviour
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
-                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
+                'No token returned from API: ' . ($data['errors'][0]['title'] ?? 'unknown error' . print_r($data, true))
             );
         }
 
         if (!\array_key_exists('refresh_token', $data)) {
             throw new \RuntimeException(
-                'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
+                'No refresh_token returned from API: ' . ($data['errors'][0]['title'] ?? 'unknown error')
             );
         }
 
@@ -247,7 +246,7 @@ trait AdminApiTestBehaviour
             'client_secret' => 'shopware',
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();

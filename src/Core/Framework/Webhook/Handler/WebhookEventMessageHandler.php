@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Handler;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendEx
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -114,10 +116,14 @@ final class WebhookEventMessageHandler
 
             if ($e instanceof RequestException && $e->getResponse() !== null) {
                 $response = $e->getResponse();
+                $body = $response->getBody()->getContents();
+                if (json_validate($body)) {
+                    $body = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+                }
                 $payload = array_merge($payload, [
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
+                        'body' => $body,
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
@@ -126,7 +132,11 @@ final class WebhookEventMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
-            throw new \RuntimeException(\sprintf('Message %s failed with error: %s', static::class, $e->getMessage()), $e->getCode(), $e);
+            if ($e instanceof BadResponseException && $message->getAppId()) {
+                throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $e);
+            }
+
+            throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
         }
     }
 }

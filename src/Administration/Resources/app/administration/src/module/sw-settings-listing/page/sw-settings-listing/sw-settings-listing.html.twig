@@ -47,11 +47,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click="onSave"
         >
             {{ $tc('sw-settings-listing.general.buttonSave') }}
@@ -102,11 +98,7 @@
                         {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
                         <sw-inherit-wrapper
                             v-if="config && index === 0"
-                            {% if VUE3 %}
                             v-model:value="config['core.listing.defaultSorting']"
-                            {% else %}
-                            v-model="config['core.listing.defaultSorting']"
-                            {% endif %}
                             :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
                             :has-parent="isNotDefaultSalesChannel"
                             :inherited-value="inheritance['core.listing.defaultSorting']"
@@ -121,12 +113,8 @@
                                     :options="productSortingOptions"
                                     :error="hasDefaultSortingError ? salesChannelDefaultSortingError : null"
                                     label-property="label"
-                                    value-property="key"
-                                    {% if VUE3 %}
+                                    value-property="id"
                                     @update:value="updateCurrentValue"
-                                    {% else %}
-                                    @change="updateCurrentValue"
-                                    {% endif %}
                                 />
                             </template>
                         </sw-inherit-wrapper>
@@ -160,11 +148,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_listing_content_card_view_options_card_toolbar_search_field %}
                             <sw-simple-search-field
-                                {% if VUE3 %}
                                 v-model:value="productSortingOptionsSearchTerm"
-                                {% else %}
-                                v-model="productSortingOptionsSearchTerm"
-                                {% endif %}
                                 variant="form"
                                 size="small"
                                 class="sw-settings-listing-index__sorting-options-search-field"
@@ -235,7 +219,7 @@
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
                             <sw-context-menu-item
                                 variant="danger"
-                                :disabled="item.locked || isItemDefaultSorting(item.key)"
+                                :disabled="item.locked || isItemDefaultSorting(item.id)"
                                 @click="toBeDeletedProductSortingOption = item"
                             >
                                 {{ $tc('global.default.delete') }}

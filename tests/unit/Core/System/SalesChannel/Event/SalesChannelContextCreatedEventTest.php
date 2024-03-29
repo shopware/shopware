@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -10,10 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent
  */
 #[Package('buyers-experience')]
+#[CoversClass(SalesChannelContextCreatedEvent::class)]
 class SalesChannelContextCreatedEventTest extends TestCase
 {
     public function testEventReturnsAllNeededData(): void

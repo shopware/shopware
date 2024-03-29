@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule;
@@ -18,10 +20,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 
 /**
  * @internal
- *
- * @group rules
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[Group('rules')]
 class CartHasFreeDeliveryItemRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -151,9 +152,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    /**
-     * @dataProvider getLineItemFreeDeliveryTestData
-     */
+    #[DataProvider('getLineItemFreeDeliveryTestData')]
     public function testLineItemIsFreeDelivery(bool $ruleActive, bool $isFreeDelivery, bool $expected): void
     {
         $lineItem = $this->createLineItemWithDeliveryInfo($isFreeDelivery);

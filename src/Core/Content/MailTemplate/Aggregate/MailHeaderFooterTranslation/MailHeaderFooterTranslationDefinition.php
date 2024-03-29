@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'mail_header_footer_translation';
@@ -47,9 +47,9 @@ class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('description', 'description'))->addFlags(new ApiAware()),
-            (new LongTextField('header_html', 'headerHtml'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('header_html', 'headerHtml'))->addFlags(new ApiAware(), new AllowHtml(false)),
             (new LongTextField('header_plain', 'headerPlain'))->addFlags(new ApiAware()),
-            (new LongTextField('footer_html', 'footerHtml'))->addFlags(new ApiAware(), new AllowHtml()),
+            (new LongTextField('footer_html', 'footerHtml'))->addFlags(new ApiAware(), new AllowHtml(false)),
             (new LongTextField('footer_plain', 'footerPlain'))->addFlags(new ApiAware()),
         ]);
     }

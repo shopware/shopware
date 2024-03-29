@@ -6,14 +6,9 @@
 >
     <template
         v-for="(child, index) in condition[childAssociationField]"
-        {% if VUE3 %}
         :key="`condition-all-line-items-child--${index}`"
-        {% endif %}
     >
         <sw-condition-tree-node
-            {% if VUE2 %}
-            :key="`condition-all-line-items-child--${index}`"
-            {% endif %}
             :parent-condition="condition"
             :condition="child"
             :disabled="disabled"

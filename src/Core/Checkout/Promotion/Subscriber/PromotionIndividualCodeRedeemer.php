@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Subscriber;
 
@@ -8,11 +7,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
-use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -26,6 +23,8 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionIndividualCodeCollection> $codesRepository
      */
     public function __construct(private readonly EntityRepository $codesRepository)
     {
@@ -38,10 +37,6 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @throws CodeAlreadyRedeemedException
-     * @throws InconsistentCriteriaIdsException
-     */
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
         foreach ($event->getOrder()->getLineItems() ?? [] as $item) {
@@ -57,7 +52,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 // first try if its an individual
                 // if not, then it might be a global promotion
                 $individualCode = $this->getIndividualCode($code, $event->getContext());
-            } catch (PromotionCodeNotFoundException) {
+            } catch (PromotionException) {
                 $individualCode = null;
             }
 
@@ -93,12 +88,6 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         }
     }
 
-    /**
-     * Gets all individual code entities for the provided code value.
-     *
-     * @throws PromotionCodeNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     */
     private function getIndividualCode(string $code, Context $context): PromotionIndividualCodeEntity
     {
         $criteria = new Criteria();
@@ -106,14 +95,13 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             new EqualsFilter('code', $code)
         );
 
-        /** @var PromotionIndividualCodeCollection $result */
-        $result = $this->codesRepository->search($criteria, $context)->getEntities();
+        /** @var PromotionIndividualCodeEntity|null $promotion */
+        $promotion = $this->codesRepository->search($criteria, $context)->first();
 
-        if (\count($result->getElements()) <= 0) {
-            throw new PromotionCodeNotFoundException($code);
+        if (!$promotion) {
+            throw PromotionException::promotionCodeNotFound($code);
         }
 
-        // return first element
-        return $result->first();
+        return $promotion;
     }
 }

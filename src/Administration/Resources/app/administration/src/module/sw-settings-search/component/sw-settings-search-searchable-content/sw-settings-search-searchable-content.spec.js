@@ -1,53 +1,54 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSearchSearchableContent from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content';
-import swSettingsSearchExampleModal from 'src/module/sw-settings-search/component/sw-settings-search-example-modal';
-
-Shopware.Component.register('sw-settings-search-searchable-content', swSettingsSearchSearchableContent);
-Shopware.Component.register('sw-settings-search-example-modal', swSettingsSearchExampleModal);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-settings-search-searchable-content'), {
-        localVue,
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-search-searchable-content', {
+        sync: true,
+    }), {
+        props: {
             searchConfigId: '',
         },
 
-        provide: {
-            repositoryFactory: {
-                create() {
-                    return Promise.resolve();
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create() {
+                        return Promise.resolve();
+                    },
                 },
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
+
             },
 
-        },
-
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-icon': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+                'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot></div>',
+                },
+                'router-link': true,
             },
-            'sw-icon': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'sw-settings-search-example-modal': await Shopware.Component.build('sw-settings-search-example-modal'),
-            'sw-modal': true,
-            'router-link': true,
         },
     });
 }
@@ -72,6 +73,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         expect(wrapper.vm.showExampleModal).toBe(true);
 
         await wrapper.vm.onShowExampleModal();
+        await flushPromises();
         const modalElement = wrapper.find('.sw-settings-search-example-modal');
         expect(modalElement.isVisible()).toBe(true);
     });
@@ -80,10 +82,10 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         const wrapper = await createWrapper([
             'product_search_config.viewer',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const resetButton = wrapper.find('.sw-settings-search__searchable-content-reset-button');
-        expect(resetButton.attributes().disabled).toBeTruthy();
+        expect(resetButton.attributes().disabled).toBeDefined();
     });
 
     it('Should able to reset to default if having editor privilege', async () => {

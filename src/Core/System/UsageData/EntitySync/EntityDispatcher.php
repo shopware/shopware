@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpClient\Exception\ServerException;
@@ -21,16 +20,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDispatcher
 {
     public function __construct(
         private readonly HttpClientInterface $client,
-        private readonly ShopIdProvider $shopIdProvider,
         private readonly InstanceService $instanceService,
         private readonly SystemConfigService $systemConfigService,
         private readonly ClockInterface $clock,
         private readonly string $environment,
+        private readonly bool $dispatchEnabled,
     ) {
     }
 
@@ -42,7 +41,16 @@ class EntityDispatcher
         array $entities,
         Operation $operation,
         \DateTimeImmutable $runDate,
+        string $shopId
     ): void {
+        if (!$this->dispatchEnabled) {
+            return;
+        }
+
+        if (empty($entities)) {
+            return;
+        }
+
         $payload = json_encode([
             'batch_id' => Uuid::randomHex(),
             'dispatch_date' => $this->clock->now()->format(\DateTimeInterface::ATOM),
@@ -52,7 +60,7 @@ class EntityDispatcher
             'license_host' => $this->systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN),
             'operation' => $operation,
             'run_date' => $runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'shop_id' => $this->shopIdProvider->getShopId(),
+            'shop_id' => $shopId,
             'shopware_version' => $this->instanceService->getShopwareVersion(),
         ], \JSON_THROW_ON_ERROR);
 
@@ -64,7 +72,7 @@ class EntityDispatcher
         $headers = [
             'Content-Encoding' => 'gzip',
             'Content-Type' => 'application/json',
-            'Shopware-Shop-Id' => $this->shopIdProvider->getShopId(),
+            'Shopware-Shop-Id' => $shopId,
         ];
 
         try {

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Address;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
@@ -20,15 +22,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Address\AddressValidator
  */
 #[Package('checkout')]
+#[CoversClass(AddressValidator::class)]
 class AddressValidator2Test extends TestCase
 {
-    /**
-     * @dataProvider validationProvider
-     */
+    #[DataProvider('validationProvider')]
     public function testValidation(bool $active, bool $shippingAvailable, bool $assigned): void
     {
         $id = Uuid::randomHex();
@@ -78,7 +77,7 @@ class AddressValidator2Test extends TestCase
     private function getSearchResultStub(?bool $assigned = true, ?string $id = null): IdSearchResult
     {
         if ($assigned) {
-            return new IdSearchResult(0, [['primaryKey' => $id ?? Uuid::randomHex(), 'data' => []]], new Criteria(), Context::createDefaultContext());
+            return new IdSearchResult(1, [['primaryKey' => $id ?? Uuid::randomHex(), 'data' => []]], new Criteria(), Context::createDefaultContext());
         }
 
         return new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());

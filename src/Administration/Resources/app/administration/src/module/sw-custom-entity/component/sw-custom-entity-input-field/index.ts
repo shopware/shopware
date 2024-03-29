@@ -10,11 +10,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: [Object, String, Number, Boolean] as PropType<unknown>,
@@ -48,6 +43,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         currentValue: {
+            // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
             get(): string | number | unknown {
                 return this.value;
             },
@@ -60,11 +56,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onChange(eventInput: string | number): void {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', eventInput);
-
-                return;
-            }
+            this.$emit('update:value', eventInput);
+            return;
 
             this.$emit('change', eventInput);
         },

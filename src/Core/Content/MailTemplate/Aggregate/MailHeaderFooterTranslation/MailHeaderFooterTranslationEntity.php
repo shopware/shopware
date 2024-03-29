@@ -6,7 +6,7 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFoot
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailHeaderFooterTranslationEntity extends TranslationEntity
 {
     /**

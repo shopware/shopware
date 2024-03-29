@@ -43,11 +43,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-mail-template.detail.buttonSave') }}
@@ -94,11 +90,7 @@
                     {% block sw_mail_template_basic_form_mail_type_field %}
                     <sw-entity-single-select
                         id="mailTemplateTypes"
-                        {% if VUE3 %}
                         v-model:value="mailTemplate.mailTemplateTypeId"
-                        {% else %}
-                        v-model="mailTemplate.mailTemplateTypeId"
-                        {% endif %}
                         name="sw-field--mailTemplate-mailTemplateTypeId"
                         entity="mail_template_type"
                         required
@@ -107,22 +99,14 @@
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
                         :disabled="!acl.can('mail_templates.editor')"
                         :error="mailTemplateMailTemplateTypeIdError"
-                        {% if VUE3 %}
                         @update:value="onChangeType"
-                        {% else %}
-                        @change="onChangeType"
-                        {% endif %}
                     />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_basic_form_description_field %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="mailTemplate.description"
-                        {% else %}
-                        v-model="mailTemplate.description"
-                        {% endif %}
                         name="sw-field--mailTemplate-description"
                         :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
@@ -148,11 +132,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_mail_template_options_form_subject_field %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="mailTemplate.subject"
-                                {% else %}
-                                v-model="mailTemplate.subject"
-                                {% endif %}
                                 name="sw-field--mailTemplate-subject"
                                 required
                                 :label="$tc('sw-mail-template.detail.options.labelSubject')"
@@ -166,11 +146,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_mail_template_options_form_sender_name_field %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="mailTemplate.senderName"
-                            {% else %}
-                            v-model="mailTemplate.senderName"
-                            {% endif %}
                             name="sw-field--mailTemplate-senderName"
                             :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                             :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
@@ -278,7 +254,7 @@
                     <sw-code-editor
                         ref="plainEditor"
                         :key="`${mailTemplate.mailTemplateTypeId}plain`"
-                        v-model="mailTemplate.contentPlain"
+                        v-model:value="mailTemplate.contentPlain"
                         name="content_plain"
                         completion-mode="entity"
                         :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
@@ -296,7 +272,7 @@
                     <sw-code-editor
                         ref="htmlEditor"
                         :key="`${mailTemplate.mailTemplateTypeId}html`"
-                        v-model="mailTemplate.contentHtml"
+                        v-model:value="mailTemplate.contentHtml"
                         name="content_html"
                         completion-mode="entity"
                         :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
@@ -362,11 +338,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_mail_field %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="testerMail"
-                        {% else %}
-                        v-model="testerMail"
-                        {% endif %}
                         name="sw-field--testerMail"
                         :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
                         :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
@@ -377,11 +349,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
                     <sw-entity-single-select
-                        {% if VUE3 %}
                         v-model:value="testMailSalesChannelId"
-                        {% else %}
-                        v-model="testMailSalesChannelId"
-                        {% endif %}
                         name="sw-field--testMailSalesChannelId"
                         entity="sales_channel"
                         :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
@@ -393,7 +361,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_mail_button %}
                     <sw-button
-                        :disabled="isLoading || !testMailRequirementsMet"
+                        :disabled="isSendButtonDisabled"
                         class="sw-mail-template-detail__send-test-mail"
                         @click="onClickTestMailTemplate"
                     >

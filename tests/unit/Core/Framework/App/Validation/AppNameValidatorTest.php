@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\AppNameValidator;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Validation\AppNameValidator
  */
+#[CoversClass(AppNameValidator::class)]
 class AppNameValidatorTest extends TestCase
 {
     private AppNameValidator $appNameValidator;

@@ -94,8 +94,6 @@
         </service>
 
         <service id="Shopware\Core\Installer\Controller\SelectLanguagesController" public="true">
-            <argument type="service" id="Shopware\Core\Installer\Finish\Notifier"/>
-
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -157,7 +155,6 @@
 
         <service id="Shopware\Core\Installer\Controller\FinishController" public="true">
             <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
-            <argument type="service" id="Shopware\Core\Installer\Finish\Notifier"/>
             <argument type="service" id="GuzzleHttp\Client"/>
             <argument>%env(string:APP_URL)%</argument>
 

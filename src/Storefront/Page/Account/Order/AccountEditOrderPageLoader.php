@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -25,6 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\PaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,6 +38,8 @@ class AccountEditOrderPageLoader
 {
     /**
      * @internal
+     *
+     * @deprecated tag:v6.7.0 - translator will be mandatory from 6.7
      */
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
@@ -44,7 +48,8 @@ class AccountEditOrderPageLoader
         private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
         private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
         private readonly OrderConverter $orderConverter,
-        private readonly OrderService $orderService
+        private readonly OrderService $orderService,
+        private readonly ?AbstractTranslator $translator = null
     ) {
     }
 
@@ -64,10 +69,7 @@ class AccountEditOrderPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountEditOrderPage::createFrom($page);
-
-        if ($page->getMetaInformation()) {
-            $page->getMetaInformation()->setRobots('noindex,follow');
-        }
+        $this->setMetaInformation($page);
 
         $orderRouteResponse = $this->getOrder($request, $salesChannelContext);
 
@@ -90,10 +92,27 @@ class AccountEditOrderPageLoader
         return $page;
     }
 
+    protected function setMetaInformation(AccountEditOrderPage $page): void
+    {
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
+        if ($this->translator !== null && $page->getMetaInformation() === null) {
+            $page->setMetaInformation(new MetaInformation());
+        }
+
+        if ($this->translator !== null) {
+            $page->getMetaInformation()?->setMetaTitle(
+                $this->translator->trans('account.completePaymentMetaTitle') . ' | ' . $page->getMetaInformation()->getMetaTitle()
+            );
+        }
+    }
+
     private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponse
     {
         $criteria = $this->createCriteria($request, $context);
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
         $apiRequest->query->set('checkPromotion', 'true');
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
@@ -141,7 +160,7 @@ class AccountEditOrderPageLoader
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
 
-        $routeRequest = new Request();
+        $routeRequest = $request->duplicate();
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $routeRequest->query->set('onlyAvailable', '1');
 

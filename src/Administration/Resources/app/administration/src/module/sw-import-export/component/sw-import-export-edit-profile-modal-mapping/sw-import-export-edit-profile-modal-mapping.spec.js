@@ -1,19 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
-
-import swImportExportEditProfileModalMapping from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping';
-import 'src/app/component/base/sw-simple-search-field';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-
-Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', swImportExportEditProfileModalMapping);
+import { mount } from '@vue/test-utils';
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-mapping', () => {
     let wrapper;
@@ -62,31 +50,34 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     }
 
     async function createWrapper(profile) {
-        return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal-mapping'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-import-export-edit-profile-modal-mapping', {
+            sync: true,
+        }), {
+            props: {
                 profile,
             },
-            provide: {
-                validationService: {},
-            },
-            stubs: {
-                'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-import-export-entity-path-select': true,
-                'sw-context-menu-item': true,
-                'sw-context-button': true,
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-switch-field': true,
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-button-group': {
-                    template: '<div class="sw-button-group"><slot></slot></div>',
+            global: {
+                provide: {
+                    validationService: {},
                 },
-                'sw-field-error': true,
-                'sw-icon': true,
+                stubs: {
+                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-import-export-entity-path-select': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-switch-field': true,
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-button-group': {
+                        template: '<div class="sw-button-group"><slot></slot></div>',
+                    },
+                    'sw-field-error': true,
+                    'sw-icon': true,
+                },
             },
         });
     }
@@ -122,12 +113,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -136,10 +124,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
 
         const mappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        mappings.wrappers.forEach((currentWrapper, index) => {
+        mappings.forEach((currentWrapper, index) => {
             const key = currentWrapper.find('sw-import-export-entity-path-select-stub').attributes('value');
 
             expect(key).toBe(mappingsInCorrectOrder[index].key);
@@ -151,10 +140,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
 
         const mappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        mappings.wrappers.forEach((currentWrapper, index) => {
+        mappings.forEach((currentWrapper, index) => {
             const key = currentWrapper.find('sw-import-export-entity-path-select-stub').attributes('value');
 
             expect(key).toBe(mappingsInCorrectOrder[index].key);
@@ -196,10 +186,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const mappingsInCorrectOrder = getDefaultMappingOrder();
 
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
 
         const mappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        mappings.wrappers.forEach((currentWrapper, index) => {
+        mappings.forEach((currentWrapper, index) => {
             const key = currentWrapper.find('sw-import-export-entity-path-select-stub').attributes('value');
 
             expect(key).toBe(mappingsInCorrectOrder[index].key);
@@ -244,10 +235,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         profileMock.systemDefault = false;
 
         wrapper = await createWrapper(profileMock);
+        await flushPromises();
 
         const upwardsButton = wrapper.find(selector);
 
-        expect(upwardsButton.attributes('disabled')).toBe('disabled');
+        expect(upwardsButton.classes()).toContain('sw-button--disabled');
     });
 
     it('should add a mapping', async () => {
@@ -255,14 +247,16 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         profileMock.systemDefault = false;
 
         wrapper = await createWrapper(profileMock);
+        await flushPromises();
 
-        const amountBeforeCreation = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').wrappers.length;
+        const amountBeforeCreation = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').length;
         expect(amountBeforeCreation).toBe(3);
 
         const addButton = wrapper.find('.sw-import-export-edit-profile-modal-mapping__add-action');
         await addButton.trigger('click');
+        await flushPromises();
 
-        const amountAfterCreation = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').wrappers.length;
+        const amountAfterCreation = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').length;
         expect(amountAfterCreation).toBe(4);
     });
 
@@ -271,25 +265,28 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         profileMock.systemDefault = false;
 
         wrapper = await createWrapper(profileMock);
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-import-export-edit-profile-modal-mapping__add-action');
         await addButton.trigger('click');
 
         const firstMapping = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:first-of-type');
-        expect(firstMapping.attributes('disabled')).toBe('disabled');
+        expect(firstMapping.classes()).toContain('sw-button--disabled');
 
         // check that the up button for the second mapping is not disabled
         const secondMapping = wrapper.find('.sw-data-grid__row--1 .sw-button-group .sw-button:first-of-type');
         expect(secondMapping.attributes('disabled')).toBeUndefined();
+        expect(secondMapping.classes()).not.toContain('sw-button--disabled');
     });
 
     it('should have disabled buttons when searching', async () => {
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
 
         const enabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button:not([disabled])');
 
-        expect(enabledPositionButtons.wrappers).toHaveLength(4);
-        enabledPositionButtons.wrappers.forEach(button => {
+        expect(enabledPositionButtons).toHaveLength(4);
+        enabledPositionButtons.forEach(button => {
             expect(button.attributes('disabled')).toBeUndefined();
         });
 
@@ -299,26 +296,29 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button');
 
-        expect(disabledPositionButtons.wrappers).toHaveLength(6);
-        disabledPositionButtons.wrappers.forEach(button => {
-            expect(button.attributes('disabled')).toBe('disabled');
+        expect(disabledPositionButtons).toHaveLength(6);
+        disabledPositionButtons.forEach(button => {
+            expect(button.classes()).toContain('sw-button--disabled');
         });
     });
 
     it('should always use the direct neighbour when swapping items', async () => {
         wrapper = await createWrapper(getProfileMock());
+        await flushPromises();
 
         const addButton = wrapper.find('.sw-import-export-edit-profile-modal-mapping__add-action');
         await addButton.trigger('click');
+        await flushPromises();
 
         const newItemCsvInput = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--csvName input');
         await newItemCsvInput.setValue('custom_value');
+        await flushPromises();
 
         // assert structure
         const orderedItems = wrapper.findAll('.sw-data-grid__row .sw-data-grid__cell--csvName input');
 
         const expectedOrder = ['custom_value', 'id', 'parent_id', 'product_number'];
-        const actualOrder = orderedItems.wrappers.map(input => {
+        const actualOrder = orderedItems.map(input => {
             return input.element.value;
         });
 

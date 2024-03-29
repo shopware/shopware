@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
@@ -30,14 +32,9 @@ trait SalesChannelApiTestBehaviour
      */
     protected array $salesChannelIds = [];
 
-    /**
-     * @var KernelBrowser|null
-     */
-    private $salesChannelApiBrowser;
+    private ?KernelBrowser $salesChannelApiBrowser = null;
 
-    /**
-     * @after
-     */
+    #[After]
     public function resetSalesChannelApiTestCaseTrait(): void
     {
         if (!$this->salesChannelApiBrowser) {
@@ -166,6 +163,57 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
+     * @param array<string, mixed> $salesChannelOverride
+     *
+     * @return array<string, mixed>
+     */
+    protected function createSalesChannel(array $salesChannelOverride = []): array
+    {
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+        $paymentMethod = $this->getAvailablePaymentMethod();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
+        $salesChannelIds = $salesChannelRepository->searchIds($criteria, Context::createDefaultContext());
+
+        if (!isset($salesChannelOverride['domains']) && $salesChannelIds->firstId() !== null) {
+            $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
+        }
+
+        $salesChannel = array_replace_recursive([
+            'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'name' => 'API Test case sales channel',
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'currencyId' => Defaults::CURRENCY,
+            'paymentMethodId' => $paymentMethod->getId(),
+            'paymentMethods' => [['id' => $paymentMethod->getId()]],
+            'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'countryId' => $this->getValidCountryId(null),
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost',
+                ],
+            ],
+            'countries' => [['id' => $this->getValidCountryId(null)]],
+        ], $salesChannelOverride);
+
+        $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
+
+        return $salesChannel;
+    }
+
+    /**
      * @param array<string, mixed> $customerOverride
      */
     private function createCustomer(?string $email = null, ?bool $guest = false, array $customerOverride = []): string
@@ -177,7 +225,7 @@ trait SalesChannelApiTestBehaviour
             $email = Uuid::randomHex() . '@example.com';
         }
 
-        $customer = array_merge([
+        $customer = array_replace_recursive([
             'id' => $customerId,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
@@ -229,7 +277,7 @@ trait SalesChannelApiTestBehaviour
 
         $customerId = $customer['id'];
 
-        $this->getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
+        static::getContainer()->get('customer.repository')->create([$customer], Context::createDefaultContext());
 
         return $customerId;
     }
@@ -240,10 +288,10 @@ trait SalesChannelApiTestBehaviour
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
-        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $factory->create(Uuid::randomHex(), $salesChannel['id'], $options);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), $salesChannel['id'], $options);
 
-        $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
+        $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;
@@ -263,64 +311,14 @@ trait SalesChannelApiTestBehaviour
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
 
-    /**
-     * @param array<mixed> $salesChannelOverride
-     *
-     * @return array<mixed>
-     */
-    private function createSalesChannel(array $salesChannelOverride = []): array
-    {
-        /** @var EntityRepository $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $paymentMethod = $this->getAvailablePaymentMethod();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
-        $salesChannelIds = $salesChannelRepository->searchIds($criteria, Context::createDefaultContext());
-
-        if (!isset($salesChannelOverride['domains']) && $salesChannelIds->firstId() !== null) {
-            $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
-        }
-
-        $salesChannel = array_merge([
-            'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
-            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'name' => 'API Test case sales channel',
-            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-            'currencyId' => Defaults::CURRENCY,
-            'paymentMethodId' => $paymentMethod->getId(),
-            'paymentMethods' => [['id' => $paymentMethod->getId()]],
-            'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
-            'navigationCategoryId' => $this->getValidCategoryId(),
-            'countryId' => $this->getValidCountryId(null),
-            'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'domains' => [
-                [
-                    'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'currencyId' => Defaults::CURRENCY,
-                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'http://localhost',
-                ],
-            ],
-            'countries' => [['id' => $this->getValidCountryId(null)]],
-        ], $salesChannelOverride);
-
-        $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
-
-        return $salesChannel;
-    }
-
     private function assignSalesChannelContext(?KernelBrowser $customBrowser = null): void
     {
         $browser = $customBrowser ?: $this->getSalesChannelBrowser();
         $browser->request('GET', '/store-api/context');
-        $response = $browser->getResponse();
-        /** @var string $content */
-        $content = $response->getContent();
+        $content = $browser->getResponse()->getContent();
+        if (!\is_string($content)) {
+            throw new \RuntimeException('Response content is not a string');
+        }
         $content = json_decode($content, true);
         if (isset($content['errors'])) {
             throw new \RuntimeException($content['errors'][0]['detail']);
@@ -330,7 +328,7 @@ trait SalesChannelApiTestBehaviour
 
     private function getRandomId(string $table): string
     {
-        return (string) $this->getContainer()->get(Connection::class)
+        return (string) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
     }
 }

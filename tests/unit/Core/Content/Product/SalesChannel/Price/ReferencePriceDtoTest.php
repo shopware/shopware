@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -10,10 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Price\ReferencePriceDto
  */
 #[Package('inventory')]
+#[CoversClass(ReferencePriceDto::class)]
 class ReferencePriceDtoTest extends TestCase
 {
     public function testCreateFromEntity(): void

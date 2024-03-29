@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ * @internal
  */
 #[Package('core')]
 class HookableBusinessEvent implements Hookable
@@ -38,7 +39,7 @@ class HookableBusinessEvent implements Hookable
         return $this->flowEventAware->getName();
     }
 
-    public function getWebhookPayload(): array
+    public function getWebhookPayload(?AppEntity $app = null): array
     {
         return $this->businessEventEncoder->encode($this->flowEventAware);
     }

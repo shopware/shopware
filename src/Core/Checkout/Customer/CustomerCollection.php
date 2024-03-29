@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class CustomerCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getGroupIds(): array
     {
@@ -29,7 +29,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getDefaultPaymentMethodIds(): array
     {
@@ -42,7 +42,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getSalesChannelIds(): array
     {
@@ -55,7 +55,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLastPaymentMethodIds(): array
     {
@@ -68,7 +68,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getDefaultBillingAddressIds(): array
     {
@@ -81,7 +81,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getDefaultShippingAddressIds(): array
     {
@@ -136,7 +136,7 @@ class CustomerCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getListVatIds(): array
     {

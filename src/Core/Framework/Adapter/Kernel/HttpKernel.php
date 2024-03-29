@@ -22,10 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class HttpKernel extends SymfonyHttpKernel
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $dispatcher;
+    protected EventDispatcherInterface $dispatcher;
 
     public function __construct(
         EventDispatcherInterface $dispatcher,

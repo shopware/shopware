@@ -156,6 +156,7 @@ export const baseUnits = {
 /**
  * This is the actual function that can be used to convert units.
  *
+ * @package services-settings
  * @private
  * @example
  * const convertedValue = convertUnit(1, { from: 'kg', to: 'g' }); // return value: 1000

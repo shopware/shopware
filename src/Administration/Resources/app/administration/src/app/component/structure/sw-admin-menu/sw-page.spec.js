@@ -1,30 +1,30 @@
-import { shallowMount, config } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import 'src/app/component/structure/sw-page';
 
-const testColor = 'red';
-
 async function createWrapper() {
-    config.mocks.$route = {
-        meta: {
-            $module: {
-                color: testColor,
+    return mount(await wrapTestComponent('sw-page', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-search-bar': true,
+                'sw-notification-center': true,
+                'router-link': true,
+                'sw-icon': true,
+                'sw-app-actions': true,
+                'sw-help-center': true,
             },
-        },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-page'), {
-        stubs: {
-            'sw-search-bar': true,
-            'sw-notification-center': true,
-            'router-link': true,
-            'sw-icon': true,
-            'sw-app-actions': true,
-            'sw-help-center': true,
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            color: 'red',
+                        },
+                    },
+                },
+            },
         },
     });
 }
-
 
 describe('src/app/component/structure/sw-page', () => {
     it('should be a Vue.JS component', async () => {

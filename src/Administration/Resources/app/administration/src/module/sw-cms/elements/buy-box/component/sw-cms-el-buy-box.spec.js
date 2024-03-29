@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElBuyBox from 'src/module/sw-cms/elements/buy-box/component';
-
-Shopware.Component.register('sw-cms-el-buy-box', swCmsElBuyBox);
 
 const productMock = {
     name: 'Lorem Ipsum dolor',
@@ -20,12 +17,11 @@ const productMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-el-buy-box'), {
-        localVue,
+    return mount(await wrapTestComponent('sw-cms-el-buy-box', {
+        sync: true,
+    }), {
         sync: false,
-        propsData: {
+        props: {
             element: {
                 data: {},
                 config: {},
@@ -45,17 +41,19 @@ async function createWrapper() {
                 },
             };
         },
-        stubs: {
-            'sw-block-field': true,
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'buy-box': {} };
+        global: {
+            stubs: {
+                'sw-block-field': true,
+                'sw-icon': true,
+            },
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'buy-box': {} };
+                    },
                 },
             },
         },

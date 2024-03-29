@@ -4,7 +4,7 @@
             {% block page_account_sidebar_header %}
                 {% if not headerWidget %}
                     <div class="card-header account-aside-header">
-                        {{ "account.greetings"|trans|sw_sanitize }}
+                        {{ 'account.greetings'|trans|sw_sanitize }}
                         {{ context.customer.title }}
                         {{ context.customer.firstName }}
                         {{ context.customer.lastName }}
@@ -18,41 +18,41 @@
                         {% block page_account_sidebar_menu_inner %}
                             {% block page_account_sidebar_link_home %}
                                 <a href="{{ path('frontend.account.home.page') }}"
-                                   title="{{ "account.overviewLink"|trans|striptags }}"
+                                   title="{{ 'account.overviewLink'|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.home.page') %} is-active{% endif %}">
-                                    {{ "account.overviewLink"|trans|sw_sanitize }}
+                                    {{ 'account.overviewLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_profile %}
                                 <a href="{{ path('frontend.account.profile.page') }}"
-                                   title="{{ "account.profileLink"|trans|striptags }}"
+                                   title="{{ 'account.profileLink'|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.profile.page') %} is-active{% endif %}">
-                                    {{ "account.profileLink"|trans|sw_sanitize }}
+                                    {{ 'account.profileLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_address %}
                                 <a href="{{ path('frontend.account.address.page') }}"
-                                   title="{{ "account.addressLink"|trans|striptags }}"
+                                   title="{{ 'account.addressLink'|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.address.page') %} is-active{% endif %}">
-                                    {{ "account.addressLink"|trans|sw_sanitize }}
+                                    {{ 'account.addressLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_payment %}
                                 <a href="{{ path('frontend.account.payment.page') }}"
-                                   title="{{ "account.paymentLink"|trans|striptags }}"
+                                   title="{{ 'account.paymentLink'|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.payment.page') %} is-active{% endif %}">
-                                    {{ "account.paymentLink"|trans|sw_sanitize }}
+                                    {{ 'account.paymentLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
 
                             {% block page_account_sidebar_link_orders %}
                                 <a href="{{ path('frontend.account.order.page') }}"
-                                   title="{{ "account.ordersLink"|trans|striptags }}"
+                                   title="{{ 'account.ordersLink'|trans|striptags }}"
                                    class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.order.page') %} is-active{% endif %}">
-                                    {{ "account.ordersLink"|trans|sw_sanitize }}
+                                    {{ 'account.ordersLink'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         {% endblock %}
@@ -68,7 +68,7 @@
                                 <a href="{{ path('frontend.account.logout.page') }}"
                                    class="btn btn-link account-aside-btn">
                                     {% sw_icon 'log-out' %}
-                                    {{ "account.logout"|trans|sw_sanitize }}
+                                    {{ 'account.logout'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         </div>
@@ -79,7 +79,7 @@
                                    data-account-guest-abort-button="true"
                                    class="btn btn-link account-aside-btn">
                                     {% sw_icon 'log-out' %}
-                                    {{ "account.guestAbort"|trans|sw_sanitize }}
+                                    {{ 'account.guestAbort'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
                         </div>

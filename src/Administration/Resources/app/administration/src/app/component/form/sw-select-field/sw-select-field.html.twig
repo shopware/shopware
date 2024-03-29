@@ -3,14 +3,10 @@
 <sw-block-field
     class="sw-field--select"
     :class="swFieldSelectClasses"
-    {% if VUE3 %}
     v-bind="{
         ...$attrs,
         ...inheritanceAttrs
     }"
-    {% else %}
-    v-bind="$attrs"
-    {% endif %}
     :name="formFieldName"
 >
     <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
@@ -29,7 +25,7 @@
             <option
                 v-if="placeholder"
                 class="sw-field--select__placeholder-option"
-                :value="null"
+                :value="''"
             >
                 {{ placeholder }}
             </option>

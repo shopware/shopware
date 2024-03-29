@@ -4,11 +4,9 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
- */
-#[Package('business-ops')]
-interface CustomerAware extends FlowEventAware
+#[Package('services-settings')]
+#[IsFlowEventAware]
+interface CustomerAware
 {
     public const CUSTOMER_ID = 'customerId';
 

@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper
  */
 #[Package('core')]
+#[CoversClass(SqlHelper::class)]
 class SqlHelperTest extends TestCase
 {
     public function testObject(): void

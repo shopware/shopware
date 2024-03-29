@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
@@ -24,10 +26,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\File\DownloadResponseGenerator
  */
 #[Package('buyers-experience')]
+#[CoversClass(DownloadResponseGenerator::class)]
 class DownloadResponseGeneratorTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
@@ -89,9 +90,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
     }
 
-    /**
-     * @dataProvider filesystemProvider
-     */
+    #[DataProvider('filesystemProvider')]
     public function testGetResponse(bool $private, string $privateType, string $publicType, Response $expectedResponse, ?string $strategy = null): void
     {
         $privateFilesystem = $privateType === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
@@ -116,7 +115,7 @@ class DownloadResponseGeneratorTest extends TestCase
         );
 
         $streamInterface = $this->createMock(StreamInterface::class);
-        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'rb'));
+        $streamInterface->method('detach')->willReturn(fopen('php://temp', 'r'));
         $this->mediaService->method('loadFileStream')->willReturn($streamInterface);
 
         $response = $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);

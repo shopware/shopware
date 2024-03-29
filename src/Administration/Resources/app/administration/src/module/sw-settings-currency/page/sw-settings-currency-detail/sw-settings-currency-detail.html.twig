@@ -26,21 +26,13 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_currency_detail_actions_save %}
         <sw-button-process
-            {% if VUE3 %}
             v-model:processSuccess="isSaveSuccessful"
-            {% else %}
-            v-model="isSaveSuccessful"
-            {% endif %}
             v-tooltip.bottom="tooltipSave"
             class="sw-settings-currency-detail__save-action"
             :is-loading="isLoading"
             :disabled="isLoading || !acl.can('currencies.editor')"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-currency.detail.buttonSave') }}
@@ -94,11 +86,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="currency.name"
-                            {% else %}
-                            v-model="currency.name"
-                            {% endif %}
                             name="sw-field--currency-name"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -111,11 +99,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_iso_code %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="currency.isoCode"
-                            {% else %}
-                            v-model="currency.isoCode"
-                            {% endif %}
                             name="sw-field--currency-isoCode"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -128,11 +112,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_short_name %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="currency.shortName"
-                            {% else %}
-                            v-model="currency.shortName"
-                            {% endif %}
                             name="sw-field--currency-shortName"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -145,11 +125,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_symbol %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="currency.symbol"
-                            {% else %}
-                            v-model="currency.symbol"
-                            {% endif %}
                             name="sw-field--currency-symbol"
                             required
                             :disabled="!acl.can('currencies.editor')"
@@ -162,11 +138,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_factor %}
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="currency.factor"
-                            {% else %}
-                            v-model="currency.factor"
-                            {% endif %}
                             name="sw-field--currency-factor"
                             required
                             :digits="14"
@@ -180,11 +152,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_field_tax_free_from %}
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="currency.taxFreeFrom"
-                            {% else %}
-                            v-model="currency.taxFreeFrom"
-                            {% endif %}
                             name="sw-field--currency-taxFreeFrom"
                             :min="0"
                             :label="$tc('sw-settings-currency.detail.taxFreeFrom')"
@@ -303,14 +271,14 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_net_column %}
                         <template #column-itemRounding.roundForNet="{ item }">
-                            <sw-data-grid-column-boolean v-model="item.itemRounding.roundForNet" />
+                            <sw-data-grid-column-boolean v-model:value="item.itemRounding.roundForNet" />
                         </template>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_net_column %}
                         <template #column-totalRounding.roundForNet="{ item }">
-                            <sw-data-grid-column-boolean v-model="item.totalRounding.roundForNet" />
+                            <sw-data-grid-column-boolean v-model:value="item.totalRounding.roundForNet" />
                         </template>
                         {% endblock %}
 

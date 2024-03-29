@@ -101,6 +101,9 @@
                 },
                 "usage_data": {
                   "$ref": "#/definitions/usage_data"
+                },
+                "staging": {
+                    "$ref": "#/definitions/staging"
                 }
             },
             "title": "Shopware"
@@ -135,6 +138,9 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "enable_dispatch": {
+                            "type": "boolean"
+                        },
                         "base_uri": {
                             "type": "string"
                         },
@@ -145,6 +151,78 @@
                 }
             },
             "title": "Usage data"
+        },
+        "staging": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "mailing": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "disable_delivery": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "storefront": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "show_banner": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "administration": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "show_banner": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                "sales_channel": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "domain_rewrite": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "match": {
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": ["equal", "regex", "prefix"]
+                                    },
+                                    "replace": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "elasticsearch": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "check_for_existence": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                }
+            },
+            "title": "Staging"
         },
         "twig": {
             "type": "object",
@@ -328,6 +406,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "use_app_secret": {
+                    "type": "boolean",
+                    "default": false
+                },
                 "private_key_path": {
                     "type": "string",
                     "description": "Path to the private key file."
@@ -541,6 +623,27 @@
                 },
                 "strategy": {
                     "type": "string"
+                },
+                "fastly": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "api_key": {
+                            "type": "string",
+                            "title": "Fastly API key. Configuring this api key, will lead to purge media urls via fast purge requests"
+                        },
+                        "soft_purge": {
+                            "type": "string",
+                            "enum": ["1", "0"],
+                            "default": "0",
+                            "Title": "Soft purge parameter will be passed to fastly API"
+                        },
+                        "max_parallel_invalidations": {
+                            "type": "integer",
+                            "default": 2,
+                            "title": "Max parallel requests to the external server"
+                        }
+                    }
                 }
             },
             "title": "CDN"
@@ -638,7 +741,8 @@
                         },
                         "redis_url": {
                             "type": "string",
-                            "title": "Redis URL"
+                            "title": "Redis URL",
+                            "deprecationMessage": "Using Varnish with Redis is deprecated, consider switching to Varnish with xkeys support"
                         },
                         "purge_all": {
                             "type": [
@@ -981,125 +1085,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "reverse_proxy": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "default": false
-                        },
-                        "ban_method": {
-                            "type": "string",
-                            "default": "BAN",
-                            "title": "HTTP method used to purge the cache at the remote server"
-                        },
-                        "ban_headers": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "title": "The headers that should be send on a single purge"
-                        },
-                        "hosts": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "title": "List of reverse proxy servers"
-                        },
-                        "max_parallel_invalidations": {
-                            "type": "integer",
-                            "default": 2,
-                            "title": "Max parallel requests to the external server"
-                        },
-                        "use_varnish_xkey": {
-                            "type": "boolean",
-                            "default": false,
-                            "title": "Use the XKey Varnish feature"
-                        },
-                        "redis_url": {
-                            "type": "string",
-                            "title": "Redis URL"
-                        },
-                        "purge_all": {
-                            "type": [
-                                "object",
-                                "null"
-                            ],
-                            "additionalProperties": false,
-                            "properties": {
-                                "ban_method": {
-                                    "type": "string",
-                                    "default": "BAN",
-                                    "title": "HTTP method used to purge the cache at the remote server"
-                                },
-                                "ban_headers": {
-                                    "type": [
-                                        "object",
-                                        "null"
-                                    ],
-                                    "title": "The headers that should be send on a single purge"
-                                },
-                                "urls": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "fastly": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                                "enabled": {
-                                    "type": "boolean",
-                                    "default": false
-                                },
-                                "instance_tag": {
-                                    "type": "string",
-                                    "default": ""
-                                },
-                                "api_key": {
-                                    "type": "string",
-                                    "title": "Fastly API key"
-                                },
-                                "service_id": {
-                                    "type": "string",
-                                    "title": "Fastly service ID"
-                                },
-                                "soft_purge": {
-                                    "type": "string",
-                                    "enum": ["1", "0"],
-                                    "default": "0"
-                                }
-                            }
-                        }
-                    },
-                    "title": "Reverse proxy configuration"
-                },
-                "http_cache": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "ignored_url_parameters": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "stale_while_revalidate": {
-                            "type": ["integer", "null"],
-                            "default": null
-                        },
-                        "stale_if_error": {
-                            "type": ["integer", "null"],
-                            "default": null
-                        }
-                    },
-                    "title": "Http cache configuration"
-                },
                 "theme": {
                     "type": "object",
                     "additionalProperties": false,

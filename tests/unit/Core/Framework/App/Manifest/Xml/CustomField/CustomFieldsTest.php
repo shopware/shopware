@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\CustomField;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields
  */
+#[CoversClass(CustomFields::class)]
 class CustomFieldsTest extends TestCase
 {
     public function testFromXml(): void

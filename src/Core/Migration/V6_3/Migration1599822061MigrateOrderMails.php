@@ -82,19 +82,19 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
      * @return array<string, array<string, string>>
      */
     private function fetchMails(Connection $connection, array $ids): array
     {
         $mails = $connection->createQueryBuilder()
-            ->select([
+            ->select(
                 'LOWER(HEX(mail_template.id)) as mail_template_id',
                 'NULL as sales_channel_id',
                 'mail_template_type.technical_name',
                 'LOWER(HEX(mail_template_type.id)) as mail_template_type_id',
-            ])
+            )
             ->from('mail_template')
             ->innerJoin(
                 'mail_template',
@@ -114,12 +114,12 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         }
 
         $mails = $connection->createQueryBuilder()
-            ->select([
+            ->select(
                 'LOWER(HEX(mail_template_sales_channel.mail_template_id)) as mail_template_id',
                 'mail_template_sales_channel.sales_channel_id',
                 'mail_template_type.technical_name',
                 'LOWER(HEX(mail_template_type.id)) as mail_template_type_id',
-            ])
+            )
             ->from('mail_template_sales_channel')
             ->innerJoin(
                 'mail_template_sales_channel',
@@ -144,7 +144,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
     /**
      * @param list<string> $names
      *
-     * @return list<string>
+     * @return array<string>
      */
     private function getTypeIds(Connection $connection, array $names): array
     {

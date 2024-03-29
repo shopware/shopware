@@ -1,19 +1,9 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import swOrderCustomerAddressSelect from 'src/module/sw-order/component/sw-order-customer-address-select';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-select-result-list';
-
-import Vuex from 'vuex';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-customer-address-select', swOrderCustomerAddressSelect);
 
 const addresses = [
     {
@@ -67,59 +57,58 @@ const customerData = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
+    return mount(await wrapTestComponent('sw-order-customer-address-select', { sync: true }), {
 
-    return shallowMount(await Shopware.Component.build('sw-order-customer-address-select'), {
-        localVue,
-        propsData: {
+        props: {
             customer: { ...customerData },
             value: '1',
             sameAddressLabel: 'Same address',
             sameAddressValue: '2',
         },
-        stubs: {
-            'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>',
-            },
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-highlight-text': true,
-            'sw-loader': true,
-            'sw-icon': true,
-            'sw-field-error': true,
-            'sw-select-result': {
-                props: ['item', 'index'],
-                template: `<li class="sw-select-result" @click.stop="onClickResult">
-                                <slot></slot>
-                           </li>`,
-                methods: {
-                    onClickResult() {
-                        this.$parent.$parent.$emit('item-select', this.item);
+        global: {
+            stubs: {
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
+                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
+                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-highlight-text': true,
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-select-result': {
+                    props: ['item', 'index'],
+                    template: `<li class="sw-select-result" @click.stop="onClickResult">
+                                    <slot></slot>
+                            </li>`,
+                    methods: {
+                        onClickResult() {
+                            this.$parent.$parent.$emit('item-select', this.item);
+                        },
                     },
                 },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: (criteria) => {
-                            const collection = new EntityCollection(
-                                '/customer-address',
-                                'customer-address',
-                                null,
-                                null,
-                                criteria.term !== null ? [addresses[0]] : addresses,
-                            );
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: (criteria) => {
+                                const collection = new EntityCollection(
+                                    '/customer-address',
+                                    'customer-address',
+                                    null,
+                                    null,
+                                    criteria.term !== null ? [addresses[0]] : addresses,
+                                );
 
-                            return Promise.resolve(collection);
-                        },
-                        get: () => Promise.resolve(),
-                    };
+                                return Promise.resolve(collection);
+                            },
+                            get: () => Promise.resolve(),
+                        };
+                    },
                 },
             },
         },
@@ -128,9 +117,6 @@ async function createWrapper() {
 
 
 describe('src/module/sw-order/component/sw-order-customer-address-select', () => {
-    beforeAll(() => {
-    });
-
     it('should show address option correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -139,7 +125,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
-        expect(wrapper.find('li[selected="selected"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
+        expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
         expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
     });
 
@@ -157,12 +143,26 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
     });
 
     it('should filter entries correctly', async () => {
+        jest.useFakeTimers();
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.searchAddress('test');
+        const singleSelect = wrapper.findComponent('.sw-single-select');
+        await singleSelect.find('.sw-select__selection').trigger('click');
 
-        expect(wrapper.vm.addressCriteria.term).toBe('test');
+        const initialResultItems = singleSelect.findAll('.sw-select-result');
+        expect(initialResultItems).toHaveLength(2);
+
+        const input = wrapper.find('.sw-single-select__selection-input');
+        await input.setValue('Eb');
+        await input.trigger('input');
+
+        jest.advanceTimersByTime(100);
+
+        await flushPromises();
+        await wrapper.vm.$nextTick();
+
         expect(addresses[0].hidden).toBe(false);
         expect(addresses[1].hidden).toBe(true);
     });

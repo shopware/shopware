@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Shopware\Core\Framework\Log\Package;
 
-if (class_exists('\\' . \Doctrine\DBAL\Schema\AbstractAsset::class, false)) {
+if (class_exists('\\' . AbstractAsset::class, false)) {
     return;
 }
 

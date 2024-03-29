@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Processor;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -39,9 +40,8 @@ class DiscountProcessorTest extends TestCase
 
     /**
      * @param array<LineItem> $items
-     *
-     * @dataProvider processorProvider
      */
+    #[DataProvider('processorProvider')]
     public function testProcessor(array $items, ?CalculatedPrice $expected): void
     {
         $processor = $this->getContainer()->get(DiscountCartProcessor::class);

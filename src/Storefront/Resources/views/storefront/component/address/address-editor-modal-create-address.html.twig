@@ -1,95 +1,116 @@
 {% block component_address_address_editor_modal_create_address %}
-    <div id="{{ typePrefix }}{% if address %}address-create-edit{% else %}address-create-new{% endif %}"
-         class="collapse"
-         data-parent="#{{ typePrefix }}addressEditorAccordion">
-        {% block component_address_address_editor_modal_create_address_wrapper %}
-            <div class="card address-editor-create-address-wrapper">
-                {% block component_address_address_editor_modal_create_address_title %}
-                    <div class="card-title create-address-title">
-                        {% block component_address_address_editor_modal_create_address_title_text %}
-                            {% if address %}
-                                {{ "account.addressEditWelcome"|trans|sw_sanitize }}
-                            {% else %}
-                                {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
-                            {% endif %}
-                        {% endblock %}
-                    </div>
-                {% endblock %}
+    {% if not feature('v6.7.0.0') %}
+        <div
+            id="{{ typePrefix }}{% if address %}address-create-edit{% else %}address-create-new{% endif %}"
+            class="collapse"
+            data-bs-parent="#{{ typePrefix }}addressEditorAccordion"
+        >
+    {% endif %}
+    {% block component_address_address_editor_modal_create_address_wrapper %}
+        <div class="card address-editor-create-address-wrapper">
+            {% block component_address_address_editor_modal_create_address_title %}
+                <div class="card-title create-address-title{% if feature('v6.7.0.0') %} border-0{% endif %}">
+                    {% block component_address_address_editor_modal_create_address_title_text %}
+                        {% if address %}
+                            {{ "account.addressEditWelcome"|trans|sw_sanitize }}
+                        {% else %}
+                            {{ "account.addressCreateWelcome"|trans|sw_sanitize }}
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            {% endblock %}
 
-                {% set mode = address ? "-edit" : "-new" %}
-                {% set formAjaxSubmitOptions = {
-                    replaceSelectors: "##{typePrefix}address-create#{mode}" ,
-                } %}
+            {% set mode = address ? "-edit" : "-new" %}
+            {% set formAjaxSubmitOptions = {
+                replaceSelectors: "##{typePrefix}address-create#{mode}" ,
+            } %}
 
-                {% block component_address_address_editor_modal_create_address_card_body %}
-                    <div class="card-body">
-                        {% block component_address_address_editor_modal_create_address_form %}
-                            <form method="post"
-                                  action="{{ path('frontend.account.addressbook') }}"
-                                  class="js-close-address-editor"
-                                  data-form-ajax-submit="true"
-                                  {# ludtwig-ignore html-string-quotation #}
-                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+            {% block component_address_address_editor_modal_create_address_card_body %}
+                <div class="card-body">
+                    {% block component_address_address_editor_modal_create_address_form %}
+                        <form method="post"
+                              action="{{ path('frontend.account.addressbook') }}"
+                              class="js-close-address-editor"
+                              data-form-ajax-submit="true"
+                              data-form-validation="true"
+                              data-form-ajax-submit-options="{{ formAjaxSubmitOptions|json_encode }}">
 
-                                {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}
-                                    <input type="hidden"
-                                           name="changeableAddresses[changeBilling]"
-                                           value="{{ changeBilling }}">
-                                    <input type="hidden"
-                                           name="addressId"
-                                           value="{{ postedData ? postedData.id : address.id }}">
-                                    <input type="hidden"
-                                           name="changeableAddresses[changeShipping]"
-                                           value="{{ changeShipping }}">
-                                {% endblock %}
+                            {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}
+                                <input type="hidden"
+                                       name="changeableAddresses[changeBilling]"
+                                       value="{{ changeBilling }}">
+                                <input type="hidden"
+                                       name="addressId"
+                                       value="{{ postedData ? postedData.id : address.id }}">
+                                <input type="hidden"
+                                       name="changeableAddresses[changeShipping]"
+                                       value="{{ changeShipping }}">
+                            {% endblock %}
 
-                                {% block component_address_address_editor_modal_create_address_form_fields_include %}
-                                    {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        'data': postedData ?? address,
-                                        'prefix': 'address',
-                                        'idPrefix': typePrefix,
-                                        'scope': 'parent',
-                                        'parentSelector': 'form'
-                                    } %}
+                            {% block component_address_address_editor_modal_create_address_form_fields_include %}
+                                {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
+                                    'data': postedData ?? address,
+                                    'prefix': 'address',
+                                    'idPrefix': typePrefix,
+                                    'scope': 'parent',
+                                    'parentSelector': 'form'
+                                } %}
 
-                                    {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                        'data': postedData ?? address,
-                                        'prefix': 'address',
-                                        'idPrefix': typePrefix,
-                                        'scope': 'parent',
-                                        'parentSelector': 'form',
-                                        'showFormCompany': true,
-                                        'showNoShippingPostfix': true,
-                                        'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false
-                                    } %}
-                                {% endblock %}
+                                {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
+                                    'data': postedData ?? address,
+                                    'prefix': 'address',
+                                    'idPrefix': typePrefix,
+                                    'scope': 'parent',
+                                    'parentSelector': 'form',
+                                    'showFormCompany': true,
+                                    'showNoShippingPostfix': true,
+                                    'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false
+                                } %}
+                            {% endblock %}
 
-                                {% block component_address_address_editor_modal_create_address_required_hint %}
-                                    <p class="address-required-info required-fields">
-                                        {% block component_address_address_editor_modal_create_address_required_hint_text %}
-                                            {{ "general.requiredFields"|trans|sw_sanitize }}
-                                        {% endblock %}
-                                    </p>
-                                {% endblock %}
+                            {% block component_address_address_editor_modal_create_address_required_hint %}
+                                <p class="address-required-info required-fields">
+                                    {% block component_address_address_editor_modal_create_address_required_hint_text %}
+                                        {{ "general.requiredFields"|trans|sw_sanitize }}
+                                    {% endblock %}
+                                </p>
+                            {% endblock %}
 
-                                {% block component_address_address_editor_modal_create_address_form_actions %}
-                                    <div class="address-form-actions">
-                                        {% block component_address_address_editor_modal_create_address_form_actions_submit %}
-                                            <button type="submit"
-                                                    class="address-form-submit btn btn-primary"
-                                                    title="{{ "account.addressSaveChange"|trans|striptags }}">
-                                                {% block component_address_address_editor_modal_create_address_form_actions_submit_text %}
-                                                    {{ "account.addressSaveChange"|trans|sw_sanitize }}
-                                                {% endblock %}
+                            {% block component_address_address_editor_modal_create_address_form_actions %}
+                                <div class="address-form-actions{% if feature('v6.7.0.0') %} text-end{% endif %}">
+                                    {% if feature('v6.7.0.0') %}
+                                        {% block component_address_address_editor_modal_create_address_form_actions_cancel %}
+                                            <button
+                                                type="button"
+                                                class="btn btn-light"
+                                                title="{{ "general.cancel"|trans|sw_sanitize }}"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#{{ typePrefix }}address-list"
+                                            >
+                                                {{ "general.cancel"|trans|sw_sanitize }}
                                             </button>
                                         {% endblock %}
-                                    </div>
-                                {% endblock %}
-                            </form>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
-        {% endblock %}
-    </div>
+                                    {% endif %}
+                                    {% block component_address_address_editor_modal_create_address_form_actions_submit %}
+                                        <button
+                                            type="submit"
+                                            class="address-form-submit btn btn-primary"
+                                            title="{{ "account.addressSaveChange"|trans|striptags }}"
+                                        >
+                                            {% block component_address_address_editor_modal_create_address_form_actions_submit_text %}
+                                                {{ "account.addressSaveChange"|trans|sw_sanitize }}
+                                            {% endblock %}
+                                        </button>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </form>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+    {% if not feature('v6.7.0.0') %}
+        </div>
+    {% endif %}
 {% endblock %}

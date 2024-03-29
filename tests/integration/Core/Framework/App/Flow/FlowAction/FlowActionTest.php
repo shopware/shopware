@@ -15,14 +15,10 @@ class FlowActionTest extends TestCase
 {
     public function testCreateFromXmlWithFlowAction(): void
     {
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/_fixtures/valid/major/flow.xml' : '/_fixtures/valid/minor/flow-action.xml';
+        $flowActionsFile = '/_fixtures/valid/major/flow.xml';
         $flowActions = Action::createFromXmlFile(__DIR__ . $flowActionsFile);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            static::assertSame(__DIR__ . '/_fixtures/valid/major', $flowActions->getPath());
-        } else {
-            static::assertSame(__DIR__ . '/_fixtures/valid/minor', $flowActions->getPath());
-        }
+        static::assertSame(__DIR__ . '/_fixtures/valid/major', $flowActions->getPath());
 
         static::assertNotNull($flowActions->getActions());
         static::assertCount(1, $flowActions->getActions()->getActions());
@@ -38,7 +34,7 @@ class FlowActionTest extends TestCase
 
         $this->expectExceptionMessage('[ERROR 1871] Element \'flow-actions\': Missing child element(s). Expected is ( flow-action ).');
 
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/_fixtures/invalid/FlowActionsWithoutFlowActionMajor/flow.xml' : '/_fixtures/invalid/FlowActionsWithoutFlowAction/flow-action.xml';
+        $flowActionsFile = '/_fixtures/invalid/FlowActionsWithoutFlowActionMajor/flow.xml';
         Action::createFromXmlFile(__DIR__ . $flowActionsFile);
     }
 
@@ -52,7 +48,7 @@ class FlowActionTest extends TestCase
 
         $this->expectExceptionMessage('[ERROR 1871] Element \'flow-action\': Missing child element(s). Expected is one of ( headers, parameters, config ).');
 
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/_fixtures/invalid/FlowActionWithoutRequiredChildMajor/flow.xml' : '/_fixtures/invalid/FlowActionWithoutRequiredChild/flow-action.xml';
+        $flowActionsFile = '/_fixtures/invalid/FlowActionWithoutRequiredChildMajor/flow.xml';
         Action::createFromXmlFile(__DIR__ . $flowActionsFile);
     }
 
@@ -66,7 +62,7 @@ class FlowActionTest extends TestCase
 
         $this->expectExceptionMessage('Message: [ERROR 1871] Element \'config\': Missing child element(s). Expected is ( input-field ).');
 
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/_fixtures/invalid/FlowActionConfigWithoutRequiredChildMajor/flow.xml' : '/_fixtures/invalid/FlowActionConfigWithoutRequiredChild/flow-action.xml';
+        $flowActionsFile = '/_fixtures/invalid/FlowActionConfigWithoutRequiredChildMajor/flow.xml';
         Action::createFromXmlFile(__DIR__ . $flowActionsFile);
     }
 
@@ -80,7 +76,7 @@ class FlowActionTest extends TestCase
 
         $this->expectExceptionMessage('[ERROR 1840] Element \'input-field\', attribute \'type\': [facet \'enumeration\'] The value \'shopware\' is not an element of the set {\'text\', \'textarea\', \'text-editor\', \'url\', \'password\', \'int\', \'float\', \'bool\', \'checkbox\', \'datetime\', \'date\', \'time\', \'colorpicker\', \'single-select\', \'multi-select\'}.');
 
-        $flowActionsFile = Feature::isActive('v6.6.0.0') ? '/_fixtures/invalid/FlowActionInputFieldTypeMajor/flow.xml' : '/_fixtures/invalid/FlowActionInputFieldType/flow-action.xml';
+        $flowActionsFile = '/_fixtures/invalid/FlowActionInputFieldTypeMajor/flow.xml';
         Action::createFromXmlFile(__DIR__ . $flowActionsFile);
     }
 }

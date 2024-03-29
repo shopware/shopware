@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Payment\Cart\Token;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\UnencryptedToken;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -14,18 +15,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**
-     * @var Configuration
-     */
-    protected $configuration;
-
-    /**
      * @internal
      */
     public function __construct(
-        Configuration $configuration,
+        private Configuration $configuration,
         private readonly Connection $connection
     ) {
-        $this->configuration = $configuration;
     }
 
     public function generateToken(TokenStruct $tokenStruct): string
@@ -43,22 +38,32 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             );
         }
 
-        $jwtToken = $this->configuration->builder()
+        $jwtTokenBuilder = $this->configuration->builder()
             ->identifiedBy(Uuid::randomHex())
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->canOnlyBeUsedAfter(new \DateTimeImmutable('@' . time()))
             ->expiresAt($expires)
-            ->relatedTo($tokenStruct->getTransactionId() ?? '')
             ->withClaim('pmi', $tokenStruct->getPaymentMethodId())
             ->withClaim('ful', $tokenStruct->getFinishUrl())
-            ->withClaim('eul', $tokenStruct->getErrorUrl())
-            ->getToken($this->configuration->signer(), $this->configuration->signingKey());
+            ->withClaim('eul', $tokenStruct->getErrorUrl());
 
-        $this->write($jwtToken->toString(), $expires);
+        $transactionId = $tokenStruct->getTransactionId();
+        if ($transactionId !== '' && $transactionId !== null) {
+            $jwtTokenBuilder = $jwtTokenBuilder->relatedTo($transactionId);
+        }
 
-        return $jwtToken->toString();
+        $token = $jwtTokenBuilder->getToken($this->configuration->signer(), $this->configuration->signingKey())->toString();
+        $this->write(
+            $token,
+            $expires
+        );
+
+        return $token;
     }
 
+    /**
+     * @param non-empty-string $token
+     */
     public function parseToken(string $token): TokenStruct
     {
         try {
@@ -68,7 +73,10 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             throw PaymentException::invalidToken($token, $e);
         }
 
-        if (!$this->configuration->validator()->validate($jwtToken, ...$this->configuration->validationConstraints())) {
+        // Remove LooseValidAt constraint, as we want to check it manually and throw a more specific exception
+        $constraints = array_filter($this->configuration->validationConstraints(), fn ($constraint) => !$constraint instanceof LooseValidAt);
+
+        if (!$this->configuration->validator()->validate($jwtToken, ...$constraints)) {
             throw PaymentException::invalidToken($token);
         }
 

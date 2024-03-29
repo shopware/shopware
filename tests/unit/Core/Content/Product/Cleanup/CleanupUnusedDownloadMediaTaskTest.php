@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cleanup;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask
  */
+#[CoversClass(CleanupUnusedDownloadMediaTask::class)]
 class CleanupUnusedDownloadMediaTaskTest extends TestCase
 {
     public function testGetTaskName(): void

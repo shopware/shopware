@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -29,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -52,11 +52,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group slow
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('slow')]
+#[Group('store-api')]
 class OrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -671,11 +670,7 @@ class OrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);
-        } else {
-            static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
-        }
+        static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection
@@ -753,8 +748,8 @@ class OrderRouteTest extends TestCase
                         'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'shippingDateEarliest' => date(\DATE_ISO8601),
-                        'shippingDateLatest' => date(\DATE_ISO8601),
+                        'shippingDateEarliest' => date(\DATE_ATOM),
+                        'shippingDateLatest' => date(\DATE_ATOM),
                         'shippingOrderAddress' => [
                             'salutationId' => $salutation,
                             'firstName' => 'Floy',

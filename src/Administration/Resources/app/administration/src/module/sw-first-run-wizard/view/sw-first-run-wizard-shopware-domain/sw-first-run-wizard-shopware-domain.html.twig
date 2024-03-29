@@ -10,41 +10,25 @@
     ></p>
 
     <sw-switch-field
-        {% if VUE3 %}
         v-model:value="createShopDomain"
-        {% else %}
-        v-model="createShopDomain"
-        {% endif %}
         :label="$tc('sw-first-run-wizard.shopwareDomain.labelCreateDomain')"
     />
 
     <div v-if="createShopDomain">
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="newShopDomain"
-            {% else %}
-            v-model="newShopDomain"
-            {% endif %}
             name="newShopDomain"
             validation="required"
             :label="'Shop domain'"
         />
         <sw-checkbox-field
-            {% if VUE3 %}
             v-model:value="testEnvironment"
-            {% else %}
-            v-model="testEnvironment"
-            {% endif %}
             :label="$tc('sw-first-run-wizard.shopwareDomain.testEnvironment')"
         />
     </div>
     <div v-else-if="licenceDomains.length > 0">
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="selectedShopDomain"
-            {% else %}
-            v-model="selectedShopDomain"
-            {% endif %}
             label="Shop domain"
             placeholder=""
         >

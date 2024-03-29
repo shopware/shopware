@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -66,10 +65,6 @@ class ShippingMethodRepositoryTest extends TestCase
 
     public function testCreateShippingMethodWithoutAvailabilityRule(): void
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::markTestSkipped('Availability rule can be nullable as of v6.6.0.0');
-        }
-
         $defaultContext = Context::createDefaultContext();
 
         $shippingMethod = $this->createShippingMethodDummyArray();
@@ -80,10 +75,7 @@ class ShippingMethodRepositoryTest extends TestCase
         $resultSet = $this->shippingRepository->search(new Criteria([$this->shippingMethodId]), $defaultContext)->getEntities()->first();
 
         static::assertNotNull($resultSet);
-        /**
-         * @deprecated tag:v6.6.0 - The expected return value has to be changed from empty string to null as of v6.6.0.0
-         */
-        static::assertSame('', $resultSet->getAvailabilityRuleId());
+        static::assertNull($resultSet->getAvailabilityRuleId());
     }
 
     public function testUpdateShippingMethod(): void
@@ -166,7 +158,7 @@ class ShippingMethodRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<array{id: string, bindShippingfree: boolean, name: string, tax_type: null, availabilityRule: array<string, mixed>, deliveryTime: DeliveryTimeData}>
+     * @return array<array{id: string, bindShippingfree: bool, name: string, tax_type: null, availabilityRule: array<string, mixed>, deliveryTime: DeliveryTimeData}>
      */
     private function createShippingMethodDummyArray(): array
     {

@@ -24,11 +24,7 @@
             :is-loading="isLoading || isUserLoading"
             :process-success="isSaveSuccessful"
             :disabled="isLoading || isUserLoading || !acl.can('user.update_profile')"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-profile.index.buttonSaveLabel') }}
@@ -73,7 +69,6 @@
             </template>
 
             <template v-else>
-                {% if VUE3 %}
                 <router-view
                     v-slot="{ Component }"
                 >
@@ -98,27 +93,6 @@
                         @media-open="openMediaModal"
                     />
                 </router-view>
-                {% else %}
-                <router-view
-                    v-bind="{
-                        user,
-                        timezoneOptions,
-                        languages,
-                        newPassword,
-                        newPasswordConfirm,
-                        avatarMediaItem,
-                        isUserLoading,
-                        languageId,
-                        isDisabled,
-                        userRepository,
-                    }"
-                    @new-password-change="onChangeNewPassword"
-                    @new-password-confirm-change="onChangeNewPasswordConfirm"
-                    @media-upload="setMediaItem"
-                    @media-remove="onUnlinkAvatar"
-                    @media-open="openMediaModal"
-                />
-                {% endif %}
             </template>
             {% endblock %}
         </sw-card-view>
@@ -130,27 +104,6 @@
             @verified="onVerifyPasswordFinished"
             @close="onCloseConfirmPasswordModal"
         />
-
-        {# @deprecated tag:v6.6.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_profile_index_content_confirm_password_modal_input__confirm_password %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.6.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_profile_index_content_confirm_password_modal_footer %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.6.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_profile_index_content_confirm_password_modal_actions_cancel %}
-        {% endblock %}
-
-        {# @deprecated tag:v6.6.0 - will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_profile_index_content_confirm_password_modal_actions_change %}
-        {% endblock %}
-
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

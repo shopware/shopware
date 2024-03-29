@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemsInCartCountRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -193,6 +193,6 @@ class LineItemsInCartCountRuleTest extends TestCase
         $rule = new LineItemsInCartCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        static::assertFalse($rule->match($this->getMockForAbstractClass(RuleScope::class)));
+        static::assertFalse($rule->match($this->createMock(RuleScope::class)));
     }
 }

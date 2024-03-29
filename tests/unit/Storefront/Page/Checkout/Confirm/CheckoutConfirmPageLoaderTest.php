@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Confirm;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -29,7 +30,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
@@ -43,9 +44,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader
  */
+#[CoversClass(CheckoutConfirmPageLoader::class)]
 class CheckoutConfirmPageLoaderTest extends TestCase
 {
     public function testRobotsMetaSetIfGiven(): void

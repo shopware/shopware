@@ -38,10 +38,6 @@ Component.register('sw-cms-el-preview-location-renderer', {
 
     methods: {
         createdComponent() {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            this.initElementConfig(this.elementData.name);
-
             Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
                 path: 'element',

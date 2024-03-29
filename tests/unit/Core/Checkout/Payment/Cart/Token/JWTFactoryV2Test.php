@@ -8,23 +8,22 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2
  */
+#[CoversClass(JWTFactoryV2::class)]
 class JWTFactoryV2Test extends TestCase
 {
     private JWTFactoryV2 $tokenFactory;
@@ -37,14 +36,13 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory = new JWTFactoryV2($configuration, $connection);
     }
 
-    /**
-     * @dataProvider dataProviderExpiration
-     */
+    #[DataProvider('dataProviderExpiration')]
     public function testGenerateAndGetToken(int $expiration, bool $expired): void
     {
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, $expiration);
         $token = $this->tokenFactory->generateToken($tokenStruct);
+        static::assertNotEmpty($token);
         $tokenStruct = $this->tokenFactory->parseToken($token);
 
         static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
@@ -57,34 +55,30 @@ class JWTFactoryV2Test extends TestCase
     public function testGetInvalidFormattedToken(): void
     {
         $token = Uuid::randomHex();
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidTokenException::class);
-        }
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+
+        static::assertNotEmpty($token);
 
         $this->tokenFactory->parseToken($token);
     }
 
     /**
      * NEXT-21735 - Sometimes produces invalid base64 and returns early (but same exception)
-     *
-     * @group not-deterministic
      */
+    #[Group('not-deterministic')]
     public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId());
         $token = $this->tokenFactory->generateToken($tokenStruct);
-        $invalidToken = mb_substr($token, 0, -3);
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidTokenException::class);
-        }
+        $invalidToken = substr($token, 0, -5);
 
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The provided token ' . $invalidToken . ' is invalid and the payment could not be processed.');
+
+        static::assertNotEmpty($invalidToken);
 
         $this->tokenFactory->parseToken($invalidToken);
     }
@@ -107,12 +101,10 @@ class JWTFactoryV2Test extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidTokenException::class);
-        }
-
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+
+        static::assertNotEmpty($token);
 
         $tokenFactory->parseToken($token);
     }
@@ -132,11 +124,10 @@ class JWTFactoryV2Test extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(TokenInvalidatedException::class);
-        }
         static::expectException(PaymentException::class);
         static::expectExceptionMessage('The provided token ' . $token . ' is invalidated and the payment could not be processed.');
+
+        static::assertNotEmpty($token);
 
         $tokenFactory->parseToken($token);
     }

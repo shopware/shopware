@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -20,13 +19,11 @@ class Migration1686817968AddRecurringAppPaymentMethodUrl extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!EntityDefinitionQueryHelper::columnExists($connection, 'app_payment_method', 'recurring_url')) {
-            $connection->executeStatement('ALTER TABLE `app_payment_method` ADD COLUMN `recurring_url` VARCHAR(255) NULL');
-        }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
+        $this->addColumn(
+            connection: $connection,
+            table: 'app_payment_method',
+            column: 'recurring_url',
+            type: 'VARCHAR(255)'
+        );
     }
 }

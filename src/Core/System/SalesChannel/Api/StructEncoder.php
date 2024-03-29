@@ -32,7 +32,7 @@ class StructEncoder
     }
 
     /**
-     * @return array<mixed>
+     * @return array<array<string, mixed>|mixed>
      */
     public function encode(Struct $struct, ResponseFields $fields): array
     {
@@ -46,9 +46,9 @@ class StructEncoder
     }
 
     /**
-     * @param array<mixed> $array
+     * @param array<array-key, mixed>          $array
      *
-     * @return array<mixed>
+     * @return array<array<string, mixed>|mixed>
      */
     private function loop(Struct $struct, ResponseFields $fields, array $array): array
     {
@@ -99,7 +99,10 @@ class StructEncoder
         if ($struct instanceof Collection) {
             $new = [];
             foreach ($data as $index => $value) {
-                $new[] = $this->encodeStruct($struct->getAt($index), $fields, $value);
+                $structItem = $struct->getAt($index);
+                if ($structItem instanceof Struct) {
+                    $new[] = $this->encodeStruct($structItem, $fields, $value);
+                }
             }
 
             return $new;
@@ -109,9 +112,9 @@ class StructEncoder
     }
 
     /**
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function encodeStruct(Struct $struct, ResponseFields $fields, array $data, ?string $alias = null): array
     {
@@ -174,9 +177,9 @@ class StructEncoder
     }
 
     /**
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
     {
@@ -317,10 +320,7 @@ class StructEncoder
         return $value;
     }
 
-    /**
-     * @param array|mixed $object
-     */
-    private function isStructArray($object): bool
+    private function isStructArray(mixed $object): bool
     {
         if (!\is_array($object)) {
             return false;

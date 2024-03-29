@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -14,18 +16,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule
- *
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
+#[CoversClass(LineItemDimensionHeightRule::class)]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
 
-    /**
-     * @dataProvider matchTestDataProvider
-     */
+    #[DataProvider('matchTestDataProvider')]
     public function testMatch(string $operator, float $amount, bool $expectedResult): void
     {
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule($operator, $amount);
@@ -183,9 +182,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
         static::assertFalse($lineItemDimensionHeightRule->match($cartRuleScope));
     }
 
-    /**
-     * @dataProvider matchWithoutDeliveryInformationTestDataProvider
-     */
+    #[DataProvider('matchWithoutDeliveryInformationTestDataProvider')]
     public function testMatchWithoutDeliveryInformation(string $operator, bool $expectedResult): void
     {
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule($operator, 10.0);
@@ -264,6 +261,6 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $result = $lineItemDimensionHeightRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('dimension', $result['fields'][0]['config']['unit']);
+        static::assertSame('dimension', $result['fields']['amount']['config']['unit']);
     }
 }

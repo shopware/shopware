@@ -2,17 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
- *
- * @coversDefaultClass \Shopware\Core\Framework\Feature
  */
+#[CoversClass(Feature::class)]
 class FeatureTest extends TestCase
 {
     /**
@@ -45,9 +47,6 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($this->featureConfigBackup);
     }
 
-    /**
-     * @covers ::fake
-     */
     public function testFakeFeatureFlagsAreClean(): void
     {
         $_SERVER['FEATURE_ALL'] = true;
@@ -59,6 +58,25 @@ class FeatureTest extends TestCase
             static::assertFalse(Feature::isActive('FEATURE_ALL'));
             static::assertFalse(Feature::isActive('FEATURE_NEXT_0000'));
             static::assertFalse(Feature::isActive('v6.4.5.0'));
+        });
+
+        Feature::fake([], function (): void {
+            $_SERVER['FEATURE_ALL'] = true;
+            Feature::registerFeature('FEATURE_ONE', [
+                'name' => 'Feature 1',
+                'default' => true,
+                'active' => true,
+                'description' => 'This is a test feature',
+            ]);
+            Feature::registerFeature('FEATURE_TWO', [
+                'name' => 'Feature 1',
+                'default' => true,
+                'active' => false,
+                'description' => 'This is a test feature',
+            ]);
+
+            static::assertFalse(Feature::isActive('FEATURE_TWO'));
+            static::assertTrue(Feature::isActive('FEATURE_ONE'));
         });
 
         static::assertArrayHasKey('FEATURE_ALL', $_SERVER);
@@ -74,9 +92,24 @@ class FeatureTest extends TestCase
         static::assertTrue($_SERVER['V6_4_5_0']);
     }
 
-    /**
-     * @covers ::fake
-     */
+    public function testNonMajorIsNotActiveIfSet(): void
+    {
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures([
+            'FEATURE_ONE' => [
+                'name' => 'Feature 1',
+                'default' => true,
+                'active' => false,
+                'major' => false,
+                'description' => 'This is a test feature',
+            ],
+        ]);
+
+        $_ENV['FEATURE_ONE'] = true;
+
+        static::assertFalse(Feature::isActive('FEATURE_ONE'));
+    }
+
     public function testFakeRestoresFeatureConfigAndEnv(): void
     {
         $beforeFeatureFlagConfig = Feature::getRegisteredFeatures();
@@ -92,9 +125,6 @@ class FeatureTest extends TestCase
         static::assertSame($beforeServerEnv, $_SERVER);
     }
 
-    /**
-     * @covers ::fake
-     */
     public function testFakeSetsFeatures(): void
     {
         static::assertArrayNotHasKey('FEATURE_NEXT_0000', $_SERVER);
@@ -114,9 +144,6 @@ class FeatureTest extends TestCase
         static::assertArrayNotHasKey('v6.4.5.0', $_SERVER);
     }
 
-    /**
-     * @covers ::triggerDeprecationOrThrow
-     */
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {
@@ -128,14 +155,94 @@ class FeatureTest extends TestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @covers \Shopware\Core\Framework\Feature
-     */
+    public function testSetActive(): void
+    {
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures([
+            'FEATURE_ONE' => [
+                'name' => 'Feature 1',
+                'default' => true,
+                'active' => true,
+                'description' => 'This is a test feature',
+            ],
+        ]);
+
+        static::assertTrue(Feature::isActive('FEATURE_ONE'));
+
+        Feature::setActive('FEATURE_ONE', false);
+
+        static::assertFalse(Feature::isActive('FEATURE_ONE'));
+
+        Feature::setActive('FEATURE_ONE', true);
+
+        static::assertTrue(Feature::isActive('FEATURE_ONE'));
+    }
+
+    public function testSetActiveOnUnregisteredFeature(): void
+    {
+        static::expectException(FeatureException::class);
+        static::expectExceptionMessage('Feature "FEATURE_TWO" is not registered.');
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeatures([
+            'FEATURE_ONE' => [
+                'name' => 'Feature 1',
+                'default' => true,
+                'active' => true,
+                'description' => 'This is a test feature',
+            ],
+        ]);
+
+        static::assertFalse(Feature::has('FEATURE_TWO'));
+        Feature::setActive('FEATURE_TWO', false);
+    }
+
     public function testTriggerDeprecationOrThrowThrows(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(FeatureException::class);
 
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+    }
+
+    #[DisabledFeatures(['v6.5.0.0'])]
+    #[DataProvider('callSilentIfInactiveProvider')]
+    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
+    {
+        $errorMessage = null;
+        set_error_handler(static function (int $errno, string $error) use (&$errorMessage): bool {
+            $errorMessage = $error;
+
+            return true;
+        });
+
+        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
+            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
+        });
+        $assertion($deprecatedMessage, $errorMessage);
+
+        restore_error_handler();
+    }
+
+    #[DataProvider('deprecatedMethodMessageProvider')]
+    public function testDeprecatedMethodMessage(string $expectedMessage, string $className, string $methodName): void
+    {
+        $message = Feature::deprecatedMethodMessage($className, $methodName, 'v6.7.0.0');
+        static::assertSame($expectedMessage, $message);
+    }
+
+    public static function deprecatedMethodMessageProvider(): \Generator
+    {
+        yield 'message with class and method string' => [
+            'Method "Shopware\Tests\Unit\Core\Framework\FeatureTest::deprecatedMethodMessageProvider()" is deprecated and will be removed in v6.7.0.0.',
+            __CLASS__,
+            'deprecatedMethodMessageProvider',
+        ];
+
+        yield 'message with class and method magic constant' => [
+            'Method "Shopware\Tests\Unit\Core\Framework\FeatureTest::deprecatedMethodMessageProvider()" is deprecated and will be removed in v6.7.0.0.',
+            __CLASS__,
+            __METHOD__,
+        ];
     }
 
     public static function callSilentIfInactiveProvider(): \Generator
@@ -152,28 +259,5 @@ class FeatureTest extends TestCase
                 static::assertFalse(strpos($deprecatedMessage, (string) $errorMessage));
             },
         ];
-    }
-
-    /**
-     * @covers \Shopware\Core\Framework\Feature
-     *
-     * @dataProvider callSilentIfInactiveProvider
-     */
-    #[DisabledFeatures(['v6.5.0.0'])]
-    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
-    {
-        $errorMessage = null;
-        set_error_handler(static function (int $errno, string $error) use (&$errorMessage): bool {
-            $errorMessage = $error;
-
-            return true;
-        });
-
-        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
-            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
-        });
-        $assertion($deprecatedMessage, $errorMessage);
-
-        restore_error_handler();
     }
 }

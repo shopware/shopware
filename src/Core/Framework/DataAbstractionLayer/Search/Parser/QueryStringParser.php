@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type SuffixFilterType array{type: 'suffix', field: string, value: mixed}
  * @phpstan-type RangeFilterType array{type: 'range'|'until'|'since', field: string, value?: mixed, parameters: array<string, mixed>}
  * @phpstan-type EqualsAnyFilterType array{type: 'equalsAny', field: string, value: mixed}
+ * @phpstan-type Query array{type: string, field?: string, value?: mixed, parameters?: array{operator: RangeFilter::*}, queries?: list<array{type: string, field?: string, value?: mixed}>}
  */
 #[Package('core')]
 class QueryStringParser
@@ -124,7 +126,16 @@ class QueryStringParser
                 return new SuffixFilter(self::buildFieldName($definition, $query['field']), $query['value']);
 
             case 'range':
-                return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
+                $parameters = $query['parameters'] ?? [];
+                if ($parameters === []) {
+                    throw DataAbstractionLayerException::invalidFilterQuery('Parameter "parameters" for range filter is missing.', $path . '/parameters');
+                }
+
+                try {
+                    return new RangeFilter(self::buildFieldName($definition, $query['field']), $parameters);
+                } catch (InvalidRangeFilterParamException $e) {
+                    throw DataAbstractionLayerException::invalidFilterQuery($e->getMessage(), $path . '/parameters');
+                }
             case 'until':
             case 'since':
                 return self::getFilterByRelativeTime(self::buildFieldName($definition, $query['field']), $query, $path);
@@ -236,9 +247,9 @@ class QueryStringParser
     }
 
     /**
-     * @param array<string, mixed> $queries
+     * @param list<Query> $queries
      *
-     * @return array<Filter>
+     * @return list<Filter>
      */
     private static function parseQueries(EntityDefinition $definition, string $path, SearchRequestException $exception, array $queries): array
     {
@@ -248,7 +259,7 @@ class QueryStringParser
             try {
                 $parsed[] = self::fromArray($definition, $subQuery, $exception, $path . '/queries/' . $index);
             } catch (InvalidFilterQueryException $ex) {
-                $exception->add($ex, $ex->getPath());
+                $exception->add($ex, $ex->getParameters()['path']);
             }
         }
 
@@ -256,7 +267,7 @@ class QueryStringParser
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param Query $query
      */
     private static function getFilterByRelativeTime(string $fieldName, array $query, string $path): MultiFilter
     {
@@ -280,7 +291,7 @@ class QueryStringParser
             $dateInterval->invert = 1;
         }
         $thresholdDate = $now->add($dateInterval);
-        $operator = (string) $query['parameters']['operator'];
+        $operator = $query['parameters']['operator'];
 
         // if we're matching for time until, date must be in the future
         // if we're matching for time since, date must be in the past
@@ -313,6 +324,11 @@ class QueryStringParser
         return new MultiFilter(MultiFilter::CONNECTION_AND, [$primaryFilter, $secondaryFilter]);
     }
 
+    /**
+     * @param RangeFilter::* $operator
+     *
+     * @return RangeFilter::*
+     */
     private static function negateOperator(string $operator): string
     {
         return match ($operator) {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -39,9 +40,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

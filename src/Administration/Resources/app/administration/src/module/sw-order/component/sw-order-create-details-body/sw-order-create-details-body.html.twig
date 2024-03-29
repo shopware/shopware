@@ -9,11 +9,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_body_email %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="email"
-            {% else %}
-            v-model="email"
-            {% endif %}
             disabled
             size="small"
             class="sw-order-create-details-body__item"
@@ -53,11 +49,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_details_body_phone_number %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="phoneNumber"
-            {% else %}
-            v-model="phoneNumber"
-            {% endif %}
             disabled
             size="small"
             class="sw-order-create-details-body__item"

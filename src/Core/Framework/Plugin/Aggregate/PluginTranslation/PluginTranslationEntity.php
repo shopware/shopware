@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
@@ -39,11 +38,6 @@ class PluginTranslationEntity extends TranslationEntity
      * @var string|null
      */
     protected $supportLink;
-
-    /**
-     * @var array<string, list<string>>|null
-     */
-    protected $changelog;
 
     /**
      * @var PluginEntity|null
@@ -98,30 +92,6 @@ class PluginTranslationEntity extends TranslationEntity
     public function setSupportLink(string $supportLink): void
     {
         $this->supportLink = $supportLink;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - will be removed without a replacement
-     *
-     * @return array<string, list<string>>|null
-     */
-    public function getChangelog(): ?array
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        return $this->changelog;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - will be removed without a replacement
-     *
-     * @param array<string, list<string>> $changelog
-     */
-    public function setChangelog(array $changelog): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        $this->changelog = $changelog;
     }
 
     public function getPlugin(): ?PluginEntity

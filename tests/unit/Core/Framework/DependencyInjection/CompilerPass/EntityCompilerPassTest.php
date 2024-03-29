@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -14,9 +15,8 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass
  */
+#[CoversClass(EntityCompilerPass::class)]
 class EntityCompilerPassTest extends TestCase
 {
     public function testEntityRepositoryAutowiring(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -17,9 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute
  */
+#[CoversClass(CartItemAddRoute::class)]
 class CartItemAddRouteTest extends TestCase
 {
     public function testRateLimitationWithoutIp(): void

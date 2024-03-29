@@ -4,17 +4,13 @@
 >
     <template
         v-for="modal in modals"
-        {% if VUE3 %}
         :key="modal.locationId"
-        {% endif %}
     >
         <sw-modal
-            {% if VUE2 %}
-            :key="modal.locationId"
-            {% endif %}
-            :title="modal.title"
+            :title="$tc(modal.title ?? '')"
             :closable="modal.closable"
             :show-header="modal.showHeader"
+            :show-footer="modal.showFooter"
             :variant="modal.variant"
             @modal-close="closeModal(modal.locationId)"
         >
@@ -32,7 +28,7 @@
                     :square="buttonProps(button).square"
                     @click="() => buttonProps(button).method()"
                 >
-                    {{ button.label }}
+                    {{ $tc(button.label ?? '') }}
                 </sw-button>
             </template>
         </sw-modal>

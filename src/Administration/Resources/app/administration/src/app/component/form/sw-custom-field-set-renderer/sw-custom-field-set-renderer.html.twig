@@ -18,14 +18,9 @@
             <template #default="{ active }">
                 <template
                     v-for="set in visibleCustomFieldSets"
-                    {% if VUE3 %}
                     :key="`sw-tab--${set.id}`"
-                    {% endif %}
                 >
                     <sw-tabs-item
-                        {% if VUE2 %}
-                        :key="`sw-tab--${set.id}`"
-                        {% endif %}
                         variant="minimal"
                         :name="set.id"
                         :class="'sw-tab--name-' + set.name"
@@ -44,15 +39,10 @@
             >
                 <template
                     v-for="set in visibleCustomFieldSets"
-                    {% if VUE3 %}
                     :key="set.id"
-                    {% endif %}
                 >
                     <div
                         v-show="active === set.id"
-                        {% if VUE2 %}
-                        :key="set.id"
-                        {% endif %}
                         :class="'sw-custom-field-set-renderer-tab-content__' + set.name"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -64,20 +54,11 @@
                         <template v-else>
                             <template
                                 v-for="customField in set.customFields"
-                                {% if VUE3 %}
                                 :key="customField.name"
-                                {% endif %}
                             >
                                 <sw-inherit-wrapper
                                     v-if="entity && customField.config"
-                                    {% if VUE2 %}
-                                    :key="customField.name"
-                                    {% endif %}
-                                    {% if VUE3 %}
                                     v-model:value="customFields[customField.name]"
-                                    {% else %}
-                                    v-model="customFields[customField.name]"
-                                    {% endif %}
                                     v-bind="getInheritWrapperBind(customField)"
                                     :class="'sw-form-field-renderer-field__' + customField.name"
                                     :has-parent="hasParent"
@@ -91,8 +72,7 @@
                                             :class="'sw-form-field-renderer-input-field__' + customField.name"
                                             :disabled="disabled || props.isInherited"
                                             :value="props.currentValue"
-                                            @input="props.updateCurrentValue"
-                                            @change="props.updateCurrentValue"
+                                            @update:value="props.updateCurrentValue"
                                         />
                                     </template>
                                 </sw-inherit-wrapper>
@@ -111,33 +91,23 @@
         <template v-else-if="variant === 'media-collapse'">
             <template
                 v-for="set in visibleCustomFieldSets"
-                {% if VUE3 %}
                 :key="`sw-media-collapse--${set.id}`"
-                {% endif %}
             >
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <sw-media-collapse
                     v-if="set.customFields && set.customFields.length > 0"
-                    {% if VUE2 %}
-                    :key="`sw-media-collapse--${set.id}`"
-                    {% endif %}
                     :expand-on-loading="false"
                     :title="getInlineSnippet(set.config.label) || set.name"
                 >
                     <template #content>
                         <template
                             v-for="customField in set.customFields"
-                            {% if VUE3 %}
                             :key="customField.name"
-                            {% endif %}
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
                             <sw-form-field-renderer
-                                {% if VUE2 %}
-                                :key="customField.name"
-                                {% endif %}
-                                v-model="customFields[customField.name]"
+                                v-model:value="customFields[customField.name]"
                                 v-bind="customField"
                                 :disabled="disabled"
                                 :required="customField.config.validation === 'required'"
@@ -152,11 +122,7 @@
                             :disabled="isLoading || disabled"
                             variant="primary"
                             size="small"
-                            {% if VUE3 %}
                             @update:process-success="$emit('process-finish')"
-                            {% else %}
-                            @process-finish="$emit('process-finish')"
-                            {% endif %}
                             @click="$emit('save')"
                         >
                             {{ $tc('global.default.save') }}

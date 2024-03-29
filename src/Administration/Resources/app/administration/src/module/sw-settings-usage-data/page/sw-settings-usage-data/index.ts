@@ -1,5 +1,4 @@
 import template from './sw-settings-usage-data.html.twig';
-import './sw-settings-usage-data.scss';
 
 /**
  * @private

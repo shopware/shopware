@@ -1,26 +1,7 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSearchLiveSearch from 'src/module/sw-settings-search/component/sw-settings-search-live-search';
-import swSettingsSearchLiveSearchKeyword from 'src/module/sw-settings-search/component/sw-settings-search-live-search-keyword';
-import 'src/app/component/base/sw-simple-search-field';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-product-variant-info';
-import 'src/app/component/base/sw-highlight-text';
-
-Shopware.Component.register('sw-settings-search-live-search', swSettingsSearchLiveSearch);
-Shopware.Component.register('sw-settings-search-live-search-keyword', swSettingsSearchLiveSearchKeyword);
+import { mount } from '@vue/test-utils';
 
 const salesChannels = [
     {
@@ -90,68 +71,72 @@ const mockResults = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-    localVue.directive('tooltip', {});
+    return mount(await wrapTestComponent('sw-settings-search-live-search', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-card': true,
+                'sw-container': true,
+                'sw-button': true,
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': {
+                    props: ['popoverClass'],
+                    template: `
+                    <div class="sw-popover" :class="popoverClass">
+                        <slot></slot>
+                    </div>`,
+                },
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
+                'sw-settings-search-live-search-keyword': await wrapTestComponent('sw-settings-search-live-search-keyword'),
+            },
 
-    return shallowMount(await Shopware.Component.build('sw-settings-search-live-search'), {
-        localVue,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve(salesChannels);
+                        },
+                    }),
+                },
+                validationService: {},
+                liveSearchService: {
+                    search: jest.fn(({ terms }) => {
+                        if (terms === mockResults.nothing.terms) {
+                            return Promise.resolve(mockResults.nothing.result);
+                        }
 
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-button': true,
-            'sw-icon': true,
-            'sw-field-error': true,
-            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
-            'sw-settings-search-live-search-keyword': await Shopware.Component.build('sw-settings-search-live-search-keyword'),
+                        if (terms === mockResults.oneResult.terms) {
+                            return Promise.resolve(mockResults.oneResult.result);
+                        }
+
+                        if (terms === mockResults.multipleResults.terms) {
+                            return Promise.resolve(mockResults.multipleResults.result);
+                        }
+
+                        return Promise.resolve({});
+                    }),
+                },
+            },
         },
 
-        propsData: {
+        props: {
             currentSalesChannelId: null,
             searchTerms: '',
             searchResults: {},
-        },
-
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve(salesChannels);
-                    },
-                }),
-            },
-            validationService: {},
-            liveSearchService: {
-                search: jest.fn(({ terms }) => {
-                    if (terms === mockResults.nothing.terms) {
-                        return Promise.resolve(mockResults.nothing.result);
-                    }
-
-                    if (terms === mockResults.oneResult.terms) {
-                        return Promise.resolve(mockResults.oneResult.result);
-                    }
-
-                    if (terms === mockResults.multipleResults.terms) {
-                        return Promise.resolve(mockResults.multipleResults.result);
-                    }
-
-                    return Promise.resolve({});
-                }),
-            },
         },
     });
 }
@@ -161,10 +146,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
+        await flushPromises();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -177,16 +159,17 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
 
     it('should show the search box disabled on no sales channel selected', async () => {
         const searchBox = wrapper.find('.sw-simple-search-field input');
-        expect(searchBox.attributes().disabled).toBeTruthy();
+        expect(searchBox.attributes().disabled).toBeDefined();
     });
 
     it('should enable the search box after set the sales channel id', async () => {
         const searchBox = wrapper.find('.sw-simple-search-field input');
-        expect(searchBox.attributes().disabled).toBeTruthy();
+        expect(searchBox.attributes().disabled).toBeDefined();
 
         const salesChannelSwitch = wrapper
             .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
+        await flushPromises();
         await wrapper.find('.sw-select-option--0').trigger('click');
         expect(searchBox.attributes().disabled).toBeFalsy();
     });
@@ -195,9 +178,12 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const salesChannelSwitch = wrapper
             .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
+        await flushPromises();
         await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.nothing.terms);
+        await flushPromises();
 
         await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
@@ -205,6 +191,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await wrapper.setData({
             liveSearchResults: mockResults.nothing.result,
         });
+        await flushPromises();
         const resultText = wrapper.find('.sw-settings-search-live-search__no-result');
         expect(resultText.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
         wrapper.vm.liveSearchService.search.mockReset();
@@ -214,9 +201,12 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const salesChannelSwitch = wrapper
             .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
+        await flushPromises();
         await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.oneResult.terms);
+        await flushPromises();
 
         await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
@@ -224,6 +214,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await wrapper.setData({
             liveSearchResults: mockResults.oneResult.result,
         });
+        await flushPromises();
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
         expect(firstRow.find('.sw-product-variant-info').exists()).toBeTruthy();
@@ -240,9 +231,12 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const salesChannelSwitch = wrapper
             .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
+        await flushPromises();
         await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
         const searchBox = wrapper.find('.sw-settings-search-live-search__search_box input');
         await searchBox.setValue(mockResults.oneResult.terms);
+        await flushPromises();
 
         const searchIcon = wrapper.find('.sw-settings-search-live-search__search-icon');
         await searchIcon.trigger('click');
@@ -251,6 +245,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await wrapper.setData({
             liveSearchResults: mockResults.oneResult.result,
         });
+        await flushPromises();
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
         expect(firstRow.find('.sw-product-variant-info').exists()).toBeTruthy();
@@ -261,9 +256,12 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         const salesChannelSwitch = wrapper
             .find('.sw-settings-search-live-search__sales-channel-select .sw-select__selection');
         await salesChannelSwitch.trigger('click');
+        await flushPromises();
         await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
         const searchBox = wrapper.find('.sw-simple-search-field input');
         await searchBox.setValue(mockResults.multipleResults.terms);
+        await flushPromises();
 
         await searchBox.trigger('keypress', { key: 'Enter' });
         await flushPromises();
@@ -271,6 +269,7 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         await wrapper.setData({
             liveSearchResults: mockResults.multipleResults.result,
         });
+        await flushPromises();
 
         const tableBody = wrapper.find('.sw-data-grid__body');
         const firstRow = wrapper.find('.sw-data-grid__row--0');

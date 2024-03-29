@@ -1,11 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swCustomerCard from 'src/module/sw-customer/component/sw-customer-card';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
-
-Shopware.Component.register('sw-customer-card', swCustomerCard);
 
 const customer = {
     id: '1',
@@ -17,29 +14,31 @@ const customer = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-customer-card'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-customer-card', { sync: true }), {
+        props: {
             customer: {},
             title: '',
         },
-        stubs: {
-            'sw-card': true,
-            'sw-avatar': true,
-            'sw-entity-single-select': true,
-            'sw-text-field': true,
-            'sw-page': true,
-            'sw-button': true,
-            'sw-language-switch': true,
-            'sw-customer-address-form': true,
-            'sw-customer-base-form': true,
-            'sw-card-view': true,
-            'sw-button-process': true,
-            'sw-email-field': true,
-            'sw-password-field': true,
-            'sw-entity-tag-select': true,
-            'sw-card-section': true,
-            'sw-container': true,
-            'sw-single-select': true,
+        global: {
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-avatar': true,
+                'sw-entity-single-select': true,
+                'sw-text-field': true,
+                'sw-page': true,
+                'sw-button': true,
+                'sw-language-switch': true,
+                'sw-customer-address-form': true,
+                'sw-customer-base-form': true,
+                'sw-card-view': true,
+                'sw-button-process': true,
+                'sw-email-field': true,
+                'sw-password-field': true,
+                'sw-entity-tag-select': true,
+                'sw-card-section': await wrapTestComponent('sw-card-section'),
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-single-select': true,
+            },
         },
     });
 }

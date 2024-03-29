@@ -25,7 +25,6 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -343,7 +342,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $payload = [
             'isCloseout' => $product->getIsCloseout(),
-            'customFields' => $product->getCustomFields(),
+            'customFields' => $product->getTranslation('customFields'),
             'createdAt' => $product->getCreatedAt() ? $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
@@ -363,16 +362,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         ];
 
         $lineItem->replacePayload($payload, ['purchasePrices' => true]);
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            // replace all array values to not have a recursive replace of a numeric-key array
-            $lineItem->setPayloadValue('categoryIds', $payload['categoryIds']);
-            $lineItem->setPayloadValue('customFields', $payload['customFields']);
-            $lineItem->setPayloadValue('optionIds', $payload['optionIds']);
-            $lineItem->setPayloadValue('propertyIds', $payload['propertyIds']);
-            $lineItem->setPayloadValue('streamIds', $payload['streamIds']);
-            $lineItem->setPayloadValue('tagIds', $payload['tagIds']);
-        }
     }
 
     private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition

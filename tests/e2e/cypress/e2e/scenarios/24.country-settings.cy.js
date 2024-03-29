@@ -147,15 +147,12 @@ describe('Storefront: test registration with country settings & invalid inputs',
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.featureIsActive('v6.5.0.0').then(isActive => {
-            if (isActive) {
-                // Country handling tab
-                cy.get('.sw-settings-country__address-handling-tab').click();
-                cy.get('[name="sw-field--country-postalCodeRequired"]').check();
-                cy.get('[name="sw-field--country-checkPostalCodePattern"]').check();
-                cy.get('[name="sw-field--country-checkAdvancedPostalCodePattern"]').check();
-            }
-        });
+        // Country handling tab
+        cy.get('.sw-settings-country__address-handling-tab').click();
+        cy.get('[name="sw-field--country-postalCodeRequired"]').check();
+        cy.get('[name="sw-field--country-checkPostalCodePattern"]').check();
+        cy.get('[name="sw-field--country-checkAdvancedPostalCodePattern"]').check();
+
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);

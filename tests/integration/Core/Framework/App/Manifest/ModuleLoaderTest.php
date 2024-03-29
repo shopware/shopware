@@ -7,16 +7,22 @@ use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type AppModule from ModuleLoader
  */
 class ModuleLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $appRepository;
 
@@ -125,6 +131,7 @@ class ModuleLoaderTest extends TestCase
 
         $loadedModules = $this->getSortedModules();
 
+        static::assertTrue(isset($loadedModules[0]['mainModule']['source']));
         $this->validateSource($loadedModules[0]['mainModule']['source'], 'http://main-module-1', $this->defaultSecret);
         static::assertNull($loadedModules[1]['mainModule']);
     }
@@ -152,7 +159,6 @@ class ModuleLoaderTest extends TestCase
             'appSecret' => $this->defaultSecret,
             'integration' => [
                 'label' => $name,
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -223,7 +229,7 @@ class ModuleLoaderTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return array<AppModule>
      */
     private function getSortedModules(): array
     {
@@ -235,16 +241,19 @@ class ModuleLoaderTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $loadedModules
+     * @param array<AppModule> $loadedModules
+     *
+     * @param-out array<array{name: string, label: array<string, string|null>, modules: array<int, array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}>, mainModule: array{source: string}|null}> $loadedModules
      */
     private function validateSources(array &$loadedModules): void
     {
-        $this->validateSource($loadedModules[0]['modules'][0]['source'], 'https://first.app.com', $this->defaultSecret);
+        $this->validateSource($loadedModules[0]['modules'][0]['source'] ?? '', 'https://first.app.com', $this->defaultSecret);
         unset($loadedModules[0]['modules'][0]['source']);
 
-        $this->validateSource($loadedModules[0]['modules'][1]['source'], 'https://first.app.com/second', $this->defaultSecret);
+        $this->validateSource($loadedModules[0]['modules'][1]['source'] ?? '', 'https://first.app.com/second', $this->defaultSecret);
         unset($loadedModules[0]['modules'][1]['source']);
 
+        static::assertArrayHasKey('source', $loadedModules[1]['modules'][0]);
         static::assertNull($loadedModules[1]['modules'][0]['source']);
         unset($loadedModules[1]['modules'][0]['source']);
     }
@@ -276,9 +285,7 @@ class ModuleLoaderTest extends TestCase
         static::assertArrayHasKey('shopware-shop-signature', $query);
 
         $signature = $query['shopware-shop-signature'];
-
         static::assertIsString($signature);
-
         $signedQuery = str_replace('&shopware-shop-signature=' . $signature, '', $queryString);
 
         static::assertSame(hash_hmac('sha256', $signedQuery, $secret), $signature);

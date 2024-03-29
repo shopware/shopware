@@ -1,4 +1,3 @@
-import type { MetaInfo } from 'vue-meta';
 import type Repository from '../../../../core/data/repository.data';
 import type CriteriaType from '../../../../core/data/criteria.data';
 import template from './sw-flow-index.html.twig';
@@ -30,7 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    metaInfo(): MetaInfo {
+    metaInfo() {
         return {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             title: this.$createTitle(),

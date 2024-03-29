@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\VerificationHashController;
@@ -9,9 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\VerificationHashController
  */
+#[CoversClass(VerificationHashController::class)]
 class VerificationHashControllerTest extends TestCase
 {
     public function testGetVerificationHash(): void

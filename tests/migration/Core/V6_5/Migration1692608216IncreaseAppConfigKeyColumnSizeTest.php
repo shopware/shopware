@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1692608216IncreaseAppConfigKeyColumnSize;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1692608216IncreaseAppConfigKeyColumnSize
  */
+#[CoversClass(Migration1692608216IncreaseAppConfigKeyColumnSize::class)]
 class Migration1692608216IncreaseAppConfigKeyColumnSizeTest extends TestCase
 {
     public function testMigrationReturnsCorrectTimeStamp(): void

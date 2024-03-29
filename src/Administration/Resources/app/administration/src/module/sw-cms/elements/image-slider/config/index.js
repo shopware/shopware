@@ -79,8 +79,15 @@ export default {
                 criteria.setIds(mediaIds);
 
                 const searchResult = await this.mediaRepository.search(criteria);
+
                 this.mediaItems = mediaIds.map((mediaId) => {
                     return searchResult.get(mediaId);
+                }).filter((mediaItem) => mediaItem !== null);
+
+                this.element.config.sliderItems.value.forEach((item, i) => {
+                    if (searchResult.get(item.mediaId) === null) {
+                        this.onItemRemove({ id: item.mediaId }, i);
+                    }
                 });
             }
         },
@@ -90,6 +97,22 @@ export default {
             if (sliderItems.source === 'default') {
                 sliderItems.value = [];
                 sliderItems.source = 'static';
+            }
+
+            // Check if mediaItem already exists in mediaItems
+            const mediaItemExists = this.mediaItems.find((item) => {
+                return item.id === mediaItem.id;
+            });
+
+            // Remove previous mediaItem if it already exists
+            if (mediaItemExists) {
+                this.mediaItems = this.mediaItems.filter((item) => {
+                    return item.id !== mediaItem.id;
+                });
+
+                sliderItems.value = sliderItems.value.filter((item) => {
+                    return item.mediaId !== mediaItem.id;
+                });
             }
 
             sliderItems.value.push({

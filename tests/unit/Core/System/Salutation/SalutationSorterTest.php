@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Salutation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -11,10 +12,9 @@ use Shopware\Core\System\Salutation\SalutationSorter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Salutation\SalutationSorter
  */
 #[Package('buyers-experience')]
+#[CoversClass(SalutationSorter::class)]
 class SalutationSorterTest extends TestCase
 {
     public function testSort(): void

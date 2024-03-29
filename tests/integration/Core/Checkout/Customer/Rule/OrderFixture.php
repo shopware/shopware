@@ -22,13 +22,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 trait OrderFixture
 {
     use BasicTestDataBehaviour;
-    use ContainerAwareTrait;
     use EntityFixturesBase;
 
     /**
@@ -44,6 +42,7 @@ trait OrderFixture
         $countryStateId = Uuid::randomHex();
         $customerId = Uuid::randomHex();
         $orderNumber = Uuid::randomHex();
+        $deliveryId = Uuid::randomHex();
 
         /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -76,6 +75,7 @@ trait OrderFixture
                 'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 'deliveries' => [
                     [
+                        'id' => $deliveryId,
                         'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $shippingMethodId,
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),

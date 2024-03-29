@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
@@ -10,9 +12,8 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Snippet\SnippetFinder
  */
+#[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
@@ -41,12 +42,11 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @dataProvider validateAppSnippetsExceptionDataProvider
-     *
      * @param array<string, mixed> $existingSnippets
      * @param array<string, mixed> $appSnippets
      * @param list<string> $duplicatedSnippets
      */
+    #[DataProvider('validateAppSnippetsExceptionDataProvider')]
     public function testValidateSnippets(array $existingSnippets, array $appSnippets, array $duplicatedSnippets): void
     {
         $exceptionWasThrown = false;
@@ -74,11 +74,10 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @dataProvider sanitizeAppSnippetDataProvider
-     *
      * @param array<string, mixed> $before
      * @param array<string, mixed> $after
      */
+    #[DataProvider('sanitizeAppSnippetDataProvider')]
     public function testSanitizeAppSnippets(array $before, array $after): void
     {
         $snippetFinder = new SnippetFinder(

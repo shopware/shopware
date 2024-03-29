@@ -1,55 +1,52 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swSeoUrl from 'src/module/sw-settings-seo/component/sw-seo-url';
-
-Shopware.Component.register('sw-seo-url', swSeoUrl);
+import { mount } from '@vue/test-utils';
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-seo-url'), {
-        localVue,
-        stubs: {
-            'sw-card': {
-                template: '<div><slot name="toolbar"></slot></div>',
+    return mount(await wrapTestComponent('sw-seo-url', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-card': {
+                    template: '<div><slot name="toolbar"></slot></div>',
+                },
+                'sw-sales-channel-switch': true,
             },
-            'sw-sales-channel-switch': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: (entity) => ({
-                    search: () => {
-                        if (entity === 'sales_channel') {
-                            return Promise.resolve(createEntityCollection([
-                                {
-                                    name: 'Storefront',
-                                    translated: { name: 'Storefront' },
-                                    id: '863137935ecf48999d69096de547b090',
-                                },
-                                {
-                                    name: 'Headless',
-                                    translated: { name: 'Headless' },
-                                    id: '123456789',
-                                },
-                            ]));
-                        }
+            provide: {
+                repositoryFactory: {
+                    create: (entity) => ({
+                        search: () => {
+                            if (entity === 'sales_channel') {
+                                return Promise.resolve(createEntityCollection([
+                                    {
+                                        name: 'Storefront',
+                                        translated: { name: 'Storefront' },
+                                        id: '863137935ecf48999d69096de547b090',
+                                    },
+                                    {
+                                        name: 'Headless',
+                                        translated: { name: 'Headless' },
+                                        id: '123456789',
+                                    },
+                                ]));
+                            }
 
-                        return Promise.resolve([]);
-                    },
-                    create: () => ({}),
-                    schema: {
-                        entity: {},
-                    },
-                }),
+                            return Promise.resolve([]);
+                        },
+                        create: () => ({}),
+                        schema: {
+                            entity: {},
+                        },
+                    }),
+                },
             },
         },
     });
@@ -61,10 +58,6 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         Shopware.State.commit('swSeoUrl/setCurrentSeoUrl', '');
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

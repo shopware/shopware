@@ -48,9 +48,4 @@ class Migration1673946817FixMediaFolderAssociationFields extends MigrationStep
             ['id' => $data['id'], 'association_fields' => \json_encode(\array_keys($fields))]
         );
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

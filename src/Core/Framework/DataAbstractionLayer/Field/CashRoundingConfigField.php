@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CashRoundingConfigFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
@@ -14,9 +15,9 @@ class CashRoundingConfigField extends JsonField
         string $propertyName
     ) {
         parent::__construct($storageName, $propertyName, [
-            new IntField('decimals', 'decimals', 0),
-            new FloatField('interval', 'interval'),
-            new BoolField('roundForNet', 'roundForNet'),
+            (new IntField('decimals', 'decimals', 0))->addFlags(new Required()),
+            (new FloatField('interval', 'interval'))->addFlags(new Required()),
+            (new BoolField('roundForNet', 'roundForNet'))->addFlags(new Required()),
         ]);
     }
 

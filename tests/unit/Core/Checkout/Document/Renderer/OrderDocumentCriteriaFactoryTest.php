@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -9,11 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @covers \Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(OrderDocumentCriteriaFactory::class)]
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {
     public function testCreate(): void

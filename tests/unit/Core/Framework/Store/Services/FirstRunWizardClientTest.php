@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Store\Services\InstanceService;
@@ -15,12 +17,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package merchant-services
- *
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\FirstRunWizardClient
  */
+#[Package('services-settings')]
+#[CoversClass(FirstRunWizardClient::class)]
 class FirstRunWizardClientTest extends TestCase
 {
     private Context $context;

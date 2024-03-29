@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -105,18 +104,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            static::assertCount(0, $urls);
-        } else {
-            static::assertCount(1, $urls);
-            $url = $urls->first();
-
-            static::assertNotNull($url);
-            static::assertSame($s1, $url->getSalesChannelId());
-            static::assertSame($id, $url->getForeignKey());
-            static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
-            static::assertSame('test', $url->getSeoPathInfo());
-        }
+        static::assertCount(0, $urls);
     }
 
     public function testUrlsAreNotWrittenWhenRegistrationIsDisabled(): void

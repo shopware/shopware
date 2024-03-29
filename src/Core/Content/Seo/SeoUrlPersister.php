@@ -5,12 +5,12 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,8 +31,8 @@ class SeoUrlPersister
     }
 
     /**
-     * @param list<string> $foreignKeys
-     * @param iterable<array<mixed>|Entity> $seoUrls
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
      */
     public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
     {
@@ -49,7 +49,7 @@ class SeoUrlPersister
         $salesChannelId = $salesChannel->getId();
         $updates = [];
         foreach ($seoUrls as $seoUrl) {
-            if ($seoUrl instanceof \JsonSerializable) {
+            if ($seoUrl instanceof SeoUrlEntity) {
                 $seoUrl = $seoUrl->jsonSerialize();
             }
             $updates[] = $seoUrl;
@@ -68,14 +68,15 @@ class SeoUrlPersister
             $processed[$fk][$salesChannelId] = true;
 
             $updatedFks[] = $fk;
-            if (isset($seoUrl['error'])) {
+
+            if (!empty($seoUrl['error'])) {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
 
             if ($existing) {
                 // entity has override or does not change
-                /** @var array{isModified: bool, seoPathInfo: string, salesChannelId: string} $seoUrl */
+                /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
                 if ($this->skipUpdate($existing, $seoUrl)) {
                     continue;
                 }
@@ -120,7 +121,7 @@ class SeoUrlPersister
 
     /**
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
-     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
      */
     private function skipUpdate(array $existing, array $seoUrl): bool
     {
@@ -133,7 +134,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param list<string> $foreignKeys
+     * @param array<string> $foreignKeys
      *
      * @return array<string, mixed>
      */
@@ -143,13 +144,13 @@ class SeoUrlPersister
         $languageId = Uuid::fromHexToBytes($languageId);
 
         $query = $this->connection->createQueryBuilder();
-        $query->select([
+        $query->select(
             'LOWER(HEX(seo_url.id)) as id',
             'LOWER(HEX(seo_url.foreign_key)) foreignKey',
             'LOWER(HEX(seo_url.sales_channel_id)) salesChannelId',
             'seo_url.is_modified as isModified',
             'seo_url.seo_path_info seoPathInfo',
-        ]);
+        );
         $query->from('seo_url', 'seo_url');
 
         $query->andWhere('seo_url.route_name = :routeName');
@@ -206,7 +207,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {

@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElImage from 'src/module/sw-cms/elements/image/component';
-
-Shopware.Component.register('sw-cms-el-image', swCmsElImage);
 
 const mediaDataMock = {
     id: '1',
@@ -13,26 +10,25 @@ const mediaDataMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.filter('asset', Shopware.Filter.getByName('asset'));
-
-    return shallowMount(await Shopware.Component.build('sw-cms-el-image'), {
-        localVue,
-        sync: false,
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { image: {} };
-                },
-                getPropertyByMappingPath: () => {
-                    return {};
+    return mount(await wrapTestComponent('sw-cms-el-image', {
+        sync: true,
+    }), {
+        global: {
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { image: {} };
+                    },
+                    getPropertyByMappingPath: () => {
+                        return {};
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             element: {
                 config: {},
                 data: {},

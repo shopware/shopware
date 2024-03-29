@@ -24,8 +24,4 @@ class Migration1692608216IncreaseAppConfigKeyColumnSize extends MigrationStep
             MODIFY COLUMN `key` VARCHAR(255);
         ');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

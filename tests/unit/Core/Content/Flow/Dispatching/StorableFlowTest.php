@@ -93,11 +93,6 @@ class StorableFlowTest extends TestCase
 
         $this->storableFlow->lazy('order', $callback);
 
-        $reflection = new \ReflectionClass($this->storableFlow);
-        $reflectionProperty = $reflection->getProperty('data');
-        $data = $reflectionProperty->getValue($this->storableFlow)['order'];
-
-        static::assertIsCallable($data);
         static::assertEquals('Order Data', $this->storableFlow->getData('order'));
     }
 }

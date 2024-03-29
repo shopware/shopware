@@ -19,6 +19,8 @@ class ElasticsearchException extends HttpException
     public const PARENT_FILTER_ERROR = 'ELASTICSEARCH__PARENT_FILTER_ERROR';
     public const SERVER_NOT_AVAILABLE = 'ELASTICSEARCH__SERVER_NOT_AVAILABLE';
 
+    public const EMPTY_QUERY = 'ELASTICSEARCH__EMPTY_QUERY';
+
     public static function definitionNotFound(string $definition): self
     {
         return new self(
@@ -110,6 +112,15 @@ class ElasticsearchException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::SERVER_NOT_AVAILABLE,
             'Elasticsearch server is not available'
+        );
+    }
+
+    public static function emptyQuery(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::EMPTY_QUERY,
+            'Empty query provided'
         );
     }
 }

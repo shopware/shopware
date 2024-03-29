@@ -96,4 +96,13 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame('Elasticsearch server is not available', $exception->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
+
+    public function testEmptyQueryError(): void
+    {
+        $exception = ElasticsearchException::emptyQuery();
+
+        static::assertSame('ELASTICSEARCH__EMPTY_QUERY', $exception->getErrorCode());
+        static::assertSame('Empty query provided', $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
 }

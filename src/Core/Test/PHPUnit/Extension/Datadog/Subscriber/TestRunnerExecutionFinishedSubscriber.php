@@ -24,8 +24,8 @@ class TestRunnerExecutionFinishedSubscriber implements ExecutionFinishedSubscrib
 
     public function notify(ExecutionFinished $event): void
     {
-        $failedTests = $this->failedTests->map(fn (DatadogPayload $payload) => $payload->serialize());
-        $slowTests = $this->slowTests->map(fn (DatadogPayload $payload) => $payload->serialize());
+        $failedTests = array_values($this->failedTests->map(fn (DatadogPayload $payload) => $payload->serialize()));
+        $slowTests = array_values($this->slowTests->map(fn (DatadogPayload $payload) => $payload->serialize()));
 
         $this->gateway->sendLogs(array_merge($failedTests, $slowTests));
     }

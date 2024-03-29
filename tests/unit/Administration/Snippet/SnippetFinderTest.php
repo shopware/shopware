@@ -43,32 +43,26 @@ class SnippetFinderTest extends TestCase
 
     /**
      * @param array<string, mixed> $existingSnippets
-     * @param array<string, mixed> $appSnippets
      * @param list<string> $duplicatedSnippets
      */
     #[DataProvider('validateAppSnippetsExceptionDataProvider')]
-    public function testValidateSnippets(array $existingSnippets, array $appSnippets, array $duplicatedSnippets): void
+    public function testValidateSnippets(array $existingSnippets, array $duplicatedSnippets): void
     {
         $exceptionWasThrown = false;
         $expectedExceptionMessage = 'The following keys on the first level are duplicated and can not be overwritten: ' . implode(', ', $duplicatedSnippets);
 
         $snippetFinder = new SnippetFinder(
             $this->createMock(Kernel::class),
-            $this->createMock(Connection::class)
+            $this->getConnectionMock('en-GB', $existingSnippets)
         );
 
-        $reflectionClass = new \ReflectionClass(SnippetFinder::class);
-        $reflectionMethod = $reflectionClass->getMethod('validateAppSnippets');
-
         try {
-            $reflectionMethod->invoke($snippetFinder, $existingSnippets, $appSnippets);
-            /** @phpstan-ignore-next-line does not check that a SnippetException will be thrown */
+            $snippetFinder->findSnippets('en-GB');
         } catch (SnippetException $exception) {
             static::assertEquals($expectedExceptionMessage, $exception->getMessage());
 
             $exceptionWasThrown = true;
         } finally {
-            /** @phpstan-ignore-next-line does not check that $exceptionWasThrown might change */
             static::assertTrue($exceptionWasThrown, 'Expected exception with the following message to be thrown: ' . $expectedExceptionMessage);
         }
     }
@@ -82,33 +76,26 @@ class SnippetFinderTest extends TestCase
     {
         $snippetFinder = new SnippetFinder(
             $this->createMock(Kernel::class),
-            $this->createMock(Connection::class)
+            $this->getConnectionMock('en-GB', $before)
         );
 
-        $reflectionClass = new \ReflectionClass(SnippetFinder::class);
-        $reflectionMethod = $reflectionClass->getMethod('sanitizeAppSnippets');
-        $result = $reflectionMethod->invoke($snippetFinder, $before);
+        $result = $snippetFinder->findSnippets('en-GB');
+        $result = array_intersect_key($result, $before); // filter out all others snippets
 
         static::assertEquals($after, $result);
     }
 
     /**
-     * @return array<string, array{existingSnippets: array<string, mixed>, appSnippets: array<string, mixed>, duplicatedSnippets: list<string>}>
+     * @return array<string, array{existingSnippets: array<string, mixed>, duplicatedSnippets: list<string>}>
      */
     public static function validateAppSnippetsExceptionDataProvider(): iterable
     {
         yield 'Throw exception if existing snippets will be overwritten' => [
             'existingSnippets' => [
-                'core' => [],
-            ],
-            'appSnippets' => [
-                'my-app-snippets' => [],
-                'core' => [
-                    'foo' => 'this will extend or overwrite the core',
-                ],
+                'sw-wizard' => [],
             ],
             'duplicatedSnippets' => [
-                'core',
+                'sw-wizard',
             ],
         ];
     }

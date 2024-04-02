@@ -19,7 +19,7 @@ export default {
     isEmptyOrSpaces,
     isUrl,
     isValidIp,
-    isValidCidr
+    isValidCidr,
 };
 
 /**

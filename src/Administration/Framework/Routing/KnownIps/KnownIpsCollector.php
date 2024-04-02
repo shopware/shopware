@@ -25,25 +25,44 @@ class KnownIpsCollector implements KnownIpsCollectorInterface
         $result = [];
         $clientIp = $request->getClientIp();
 
-        if ($clientIp) {
-            $result[$clientIp] = 'global.sw-multi-tag-ip-select.knownIps.you';
+        if (!\is_string($clientIp)) {
+            return $result;
+        }
 
-            $isIpV6 = \str_contains($clientIp, ':') && \filter_var($clientIp, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+        $result[$clientIp] = 'global.sw-multi-tag-ip-select.knownIps.you';
 
-            if ($isIpV6 && $this->canPhpIpv6()) {
-                // replace last half (and slightly more for /56)
-                $cidr64 = \inet_ntop(\hex2bin(\substr(\bin2hex(\inet_pton($clientIp)), 0, 16) . \str_repeat('0', 16))) . '/64';
-                $cidr56 = \inet_ntop(\hex2bin(\substr(\bin2hex(\inet_pton($clientIp)), 0, 14) . \str_repeat('0', 18))) . '/56';
+        $isIpV6 = \str_contains($clientIp, ':') && \filter_var($clientIp, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+        if (!$isIpV6) {
+            return $result;
+        }
 
-                $result[$cidr64] = 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block64';
-                $result[$cidr56] = 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block56';
-            }
+        if (!$this->isIPv6SupportAvailable()) {
+            return $result;
+        }
+
+        $packedInAddrRepresentation = \inet_pton($clientIp);
+        if (!\is_string($packedInAddrRepresentation)) {
+            return $result;
+        }
+
+        $binaryRepresentation64 = \hex2bin(\substr(\bin2hex($packedInAddrRepresentation), 0, 16) . \str_repeat('0', 16));
+        $binaryRepresentation56 = \hex2bin(\substr(\bin2hex($packedInAddrRepresentation), 0, 14) . \str_repeat('0', 18));
+
+        // replace last half (and slightly more for /56)
+        if (\is_string($binaryRepresentation64)) {
+            $cidr64 = \inet_ntop($binaryRepresentation64) . '/64';
+            $result[$cidr64] = 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block64';
+        }
+
+        if (\is_string($binaryRepresentation56)) {
+            $cidr56 = \inet_ntop($binaryRepresentation56) . '/56';
+            $result[$cidr56] = 'global.sw-multi-tag-ip-select.knownIps.youIPv6Block56';
         }
 
         return $result;
     }
 
-    private function canPhpIpv6(): bool
+    private function isIPv6SupportAvailable(): bool
     {
         if (!((\extension_loaded('sockets') && \defined('AF_INET6')) || @\inet_pton('::1'))) {
             return false;

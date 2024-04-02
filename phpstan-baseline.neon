@@ -21,16 +21,6 @@ parameters:
 			path: src/Administration/Controller/UserConfigController.php
 
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Framework\\\\Routing\\\\KnownIps\\\\KnownIpsCollector\\:\\:collectIps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Framework/Routing/KnownIps/KnownIpsCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Framework\\\\Routing\\\\KnownIps\\\\KnownIpsCollectorInterface\\:\\:collectIps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Framework/Routing/KnownIps/KnownIpsCollectorInterface.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Notification\\\\NotificationService\\:\\:createNotification\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Notification/NotificationService.php

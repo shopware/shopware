@@ -234,7 +234,6 @@ const missingTests = [
     'src/core/service/utils/debug.utils.ts',
     'src/core/service/utils/object.utils.ts',
     'src/core/service/utils/sort.utils.ts',
-    'src/core/service/utils/string.utils.ts',
     'src/core/service/validation.service.js',
     'src/core/worker/admin-notification-worker.js',
     'src/core/worker/worker-notification-listener.js',

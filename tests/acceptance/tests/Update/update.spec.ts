@@ -16,12 +16,7 @@ test('@update: Update a shop', async ({ page, adminApiContext }) => {
 
     const config = await ((await adminApiContext.get(`./_info/config`)).json()) as { version: string };
 
-    // hack for the RCs, can be removed after NEXT-34218 is fixed in the final is released
-    if (config.version.match(/6.6.0.0-RC[1-4]/)) {
-        await page.goto(`${process.env.ADMIN_URL}/#/sw/settings/shopware/updates/wizard`);
-    } else {
-        await page.getByRole('button', { name: 'Open update' }).click();
-    }
+    await page.getByRole('button', { name: 'Open update' }).click();
 
     await page.getByRole('button', { name: 'Start update' }).click();
 

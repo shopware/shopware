@@ -120,6 +120,7 @@ class SystemInstallCommand extends Command
         if ($application->has('theme:compile')) {
             $commands[] = [
                 'command' => 'theme:compile',
+                '--sync' => true,
                 'allowedToFail' => true,
             ];
         }
@@ -146,6 +147,7 @@ class SystemInstallCommand extends Command
                     'command' => 'theme:change',
                     'allowedToFail' => true,
                     '--all' => true,
+                    '--sync' => true,
                     'theme-name' => 'Storefront',
                 ];
             }

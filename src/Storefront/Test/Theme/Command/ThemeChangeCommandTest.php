@@ -202,6 +202,43 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
+    public function testThemeChangeCommandSync(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(ThemeService::STATE_NO_QUEUE);
+
+        $salesChannel = $this->getSalesChannelData()[0];
+        $themes = $this->getThemeData();
+
+        $this->createSalesChannel($salesChannel);
+
+        $this->themeRepository->create($themes, $context);
+
+        $this->pluginRegistry = $this->getPluginRegistryMock();
+
+        $themeService = $this->createMock(ThemeService::class);
+        $themeService->expects(static::exactly(1))
+            ->method('assignTheme')
+            ->with($themes[0]['id'], $salesChannel['id'], $context, false);
+
+        $themeChangeCommand = new ThemeChangeCommand(
+            $themeService,
+            $this->pluginRegistry,
+            $this->salesChannelRepository,
+            $this->themeRepository
+        );
+
+        $commandTester = new CommandTester($themeChangeCommand);
+        $application = new Application();
+        $application->add($themeChangeCommand);
+
+        $commandTester->execute([
+            'theme-name' => $themes[0]['technicalName'],
+            '--sales-channel' => $salesChannel['id'],
+            '--sync' => true,
+        ]);
+    }
+
     private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');

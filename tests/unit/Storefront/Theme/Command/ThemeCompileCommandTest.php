@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
@@ -56,6 +57,31 @@ class ThemeCompileCommandTest extends TestCase
         $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
 
         $commandTester->execute(['--active-only' => $activeOnly]);
+        $commandTester->assertCommandIsSuccessful();
+    }
+
+    public function testItSetsSyncThemeCompileContextState(): void
+    {
+        $salesChannelId = 'sales-channel-id';
+        $themeId = 'theme-id';
+
+        $context = Context::createDefaultContext();
+        $context->addState(ThemeService::STATE_NO_QUEUE);
+
+        $themeService = static::createMock(ThemeService::class);
+        $themeService->expects(static::once())
+            ->method('compileTheme')
+            ->with($salesChannelId, $themeId, $context);
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects(static::once())
+            ->method('load')
+            ->with(static::anything(), false)
+            ->willReturn([$salesChannelId => $themeId]);
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
+
+        $commandTester->execute(['--sync' => true]);
         $commandTester->assertCommandIsSuccessful();
     }
 

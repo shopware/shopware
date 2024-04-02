@@ -110,6 +110,13 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
+        <service id="Shopware\Administration\Framework\Routing\NotFound\AdministrationNotFoundSubscriber">
+            <argument>%shopware_administration.path_name%</argument>
+            <argument type="service" id="Symfony\Bundle\FrameworkBundle\Controller\TemplateController" />
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
             <argument>%shopware_administration.path_name%</argument>
             <tag name="shopware.route_scope"/>

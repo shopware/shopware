@@ -1,0 +1,49 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-error-404 {
+    padding: 4rem 2rem;
+    display: grid;
+    place-items: center;
+    width: 100vw;
+
+    // added duplicated height property, to center content vertically on iOS
+    height: 100vh;
+    height: 100svh;
+    background-color: $color-white;
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    &__hero {
+        position: relative;
+        isolation: isolate;
+    }
+
+    &__title {
+        color: $color-darkgray-800;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10.75rem;
+    }
+
+    &__description {
+        color: $color-darkgray-800;
+        text-wrap: balance;
+        max-width: 60ch;
+        text-align: center;
+        padding-block: 2rem;
+        line-height: $line-height-md;
+    }
+
+    &__icon {
+        @include size(0.75rem);
+
+        fill: $color-white;
+    }
+}

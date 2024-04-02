@@ -1,24 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-        Shopware Administration (c) shopware AG
-    </title>
+{% extends '@Administration/administration/layout/base.html.twig' %}
 
-    {% block administration_favicons %}
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('static/img/favicon/favicon-16x16.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
-        <meta name="msapplication-TileImage" content="{{ asset('static/img/favicon/mstile-150x150.png', '@Administration') }}">
-        <meta name="msapplication-TileColor" content="#189eff">
-        <meta name="theme-color" content="#189eff">
-        <meta name="referrer" content="always">
-    {% endblock %}
-
+{% block administration_head_scripts %}
     <script nonce="{{ cspNonce }}" type="text/javascript">
         window._features_ = {{ features|json_encode|raw }};
 
@@ -26,20 +8,17 @@
             assetPath: '{{ asset('', 'asset') }}',
         };
     </script>
+{% endblock %}
 
-    <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
+{% block administration_content %}
+    <div id="app"></div>
 
-</head>
-<body>
+    {% block administration_templates %}{% endblock %}
 
-<div id="app"></div>
+    <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
-{% block administration_templates %}{% endblock %}
-
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
-
-<script nonce="{{ cspNonce }}">
-    {#
+    <script nonce="{{ cspNonce }}">
+        {#
         root-level domain configuration
 
         host:               shopware.next
@@ -61,32 +40,30 @@
         uri:                http://localhost/next/web/admin
         basePath:           /next/web
         pathInfo:           /admin
-    #}
-    Shopware.Application.start({
-        apiContext: {
-            host: '{{ app.request.host }}',
-            port: {{ app.request.port }},
-            scheme: '{{ app.request.scheme }}',
-            schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
-            uri: '{{ app.request.uri }}',
-            basePath: '{{ app.request.basePath }}',
-            pathInfo: '{{ app.request.pathInfo }}',
-            liveVersionId: '{{ liveVersionId }}',
-            systemLanguageId: '{{ systemLanguageId }}',
-            apiVersion: {{ apiVersion }},
-            assetPath: '{{ asset('', 'asset') }}'
-        },
-        appContext: {
-            features: window._features_,
-            firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
-            systemCurrencyId: '{{ systemCurrencyId }}',
-            systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
-            disableExtensions: {{ disableExtensions ? 'true' : 'false' }},
-            adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
-            storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},
-        }
-    });
-</script>
-
-</body>
-</html>
+        #}
+        Shopware.Application.start({
+            apiContext: {
+                host: '{{ app.request.host }}',
+                port: {{ app.request.port }},
+                scheme: '{{ app.request.scheme }}',
+                schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
+                uri: '{{ app.request.uri }}',
+                basePath: '{{ app.request.basePath }}',
+                pathInfo: '{{ app.request.pathInfo }}',
+                liveVersionId: '{{ liveVersionId }}',
+                systemLanguageId: '{{ systemLanguageId }}',
+                apiVersion: {{ apiVersion }},
+                assetPath: '{{ asset('', 'asset') }}'
+            },
+            appContext: {
+                features: window._features_,
+                firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
+                systemCurrencyId: '{{ systemCurrencyId }}',
+                systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
+                disableExtensions: {{ disableExtensions ? 'true' : 'false' }},
+                adminEsEnable: {{ adminEsEnable ? 'true' : 'false' }},
+                storefrontEsEnable: {{ storefrontEsEnable ? 'true' : 'false' }},
+            }
+        });
+    </script>
+{% endblock %}

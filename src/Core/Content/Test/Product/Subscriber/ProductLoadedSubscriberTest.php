@@ -184,7 +184,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ->search($criteria, $salesChannelContext)
             ->first();
 
-        $sortedProperties = \array_values($productEntity->get('sortedProperties')->getElements());
+        $sortedProperties = $productEntity->get('sortedProperties')->getElements();
 
         foreach ($expected as $expectedGroupKey => $expectedGroup) {
             $optionElements = $sortedProperties[$expectedGroupKey]->get('options')->getElements();
@@ -253,7 +253,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 [
-                    [
+                    $ids->get('taste') => [
                         'id' => $ids->get('taste'),
                         'name' => 'taste',
                         'options' => [
@@ -313,7 +313,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     ],
                 ]),
                 [
-                    [
+                    $ids->get('color') => [
                         'id' => $ids->get('color'),
                         'name' => 'color',
                         'options' => [
@@ -323,7 +323,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             ],
                         ],
                     ],
-                    [
+                    $ids->get('material') => [
                         'id' => $ids->get('material'),
                         'name' => 'material',
                         'options' => [
@@ -333,7 +333,7 @@ class ProductLoadedSubscriberTest extends TestCase
                             ],
                         ],
                     ],
-                    [
+                    $ids->get('taste') => [
                         'id' => $ids->get('taste'),
                         'name' => 'taste',
                         'options' => [

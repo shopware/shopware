@@ -46,8 +46,6 @@
                 <sw-text-editor
                     :value="element.config.content.value"
                     :allow-inline-data-mapping="true"
-                    sanitize-input
-                    sanitize-field-name="app_cms_block.template"
                     enable-transparent-background
                     @update:value="onInput"
                     @blur="onBlur"

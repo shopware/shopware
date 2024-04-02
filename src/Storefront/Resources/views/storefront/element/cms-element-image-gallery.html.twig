@@ -347,7 +347,7 @@
                                 {% endblock %}
 
                                 {% block element_image_gallery_slider_dots %}
-                                    {% if imageCount > 1 and navigationDots %}
+                                    {% if imageCount > 1 and navigationDots != 'Keine' %}
                                         <div class="base-slider-dots {% if imageCount > maxItemsToShowNav %} hide-dots{% elseif imageCount > maxItemsToShowMobileNav %} hide-dots-mobile{% endif %}">
                                             {% block element_image_gallery_slider_dots_buttons %}
                                                 {% for image in mediaItems %}

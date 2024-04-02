@@ -321,7 +321,7 @@
             "@php bin/console feature:dump",
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
-            "@php bin/console theme:compile"
+            "@php bin/console theme:compile --sync"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
         "e2e:cypress": [
@@ -490,7 +490,7 @@
         "reset": [
             "@init:db",
             "@build:js",
-            "@php bin/console theme:change --all Storefront",
+            "@php bin/console theme:change --sync --all Storefront",
             "@php bin/console assets:install"
         ],
         "setup": [
@@ -500,7 +500,7 @@
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:change --all Storefront",
+            "@php bin/console theme:change --sync --all Storefront",
             "@php bin/console assets:install"
         ],
         "static-analyze": [

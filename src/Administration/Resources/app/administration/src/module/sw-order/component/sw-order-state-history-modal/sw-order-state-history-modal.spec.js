@@ -120,6 +120,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-data-grid-skeleton': true,
                     'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                     'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-icon': true,
                     'sw-time-ago': true,
                     'sw-label': {

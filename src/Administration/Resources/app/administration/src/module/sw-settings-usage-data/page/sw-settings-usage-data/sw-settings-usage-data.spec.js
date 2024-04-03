@@ -33,6 +33,7 @@ async function createWrapper() {
                 'sw-card-view': true,
                 'sw-external-link': true,
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-internal-link': true,
                 'sw-help-text': true,
                 'i18n-t': true,

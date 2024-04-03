@@ -249,6 +249,15 @@ export default class VueAdapter extends ViewAdapter {
             'MtSkeletonBar',
         ];
 
+        // Disable instance listeners for meteor components
+        if (Shopware.Feature.isActive('v6.7.0.0')) {
+            // Remove INSTANCE_LISTENERS from MtButton
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            MeteorImport.MtButton.compatConfig = {
+                INSTANCE_LISTENERS: false,
+            };
+        }
+
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

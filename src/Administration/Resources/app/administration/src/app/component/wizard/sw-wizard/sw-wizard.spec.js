@@ -25,6 +25,7 @@ async function createWrapper(options = {}) {
                 'sw-wizard-dot-navigation': await wrapTestComponent('sw-wizard-dot-navigation'),
                 'sw-icon': true,
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
             },
             provide: {
                 shortcutService: {

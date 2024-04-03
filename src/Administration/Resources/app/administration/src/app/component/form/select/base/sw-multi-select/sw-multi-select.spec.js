@@ -22,6 +22,7 @@ const createMultiSelect = async (customOptions) => {
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
             },
         },
         props: {

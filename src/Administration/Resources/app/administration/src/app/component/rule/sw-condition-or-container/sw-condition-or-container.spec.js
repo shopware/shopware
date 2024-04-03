@@ -24,6 +24,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
             ...config.global,
             stubs: {
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-condition-tree-node': true,
             },
             provide: {
@@ -73,7 +74,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
 
         expect(buttons.length).toBeGreaterThan(0);
         buttons.forEach(button => {
-            expect(button.props('disabled')).toBe(false);
+            expect(button.attributes('disabled')).toBeUndefined();
         });
     });
 
@@ -89,7 +90,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
 
         expect(buttons.length).toBeGreaterThan(0);
         buttons.forEach(button => {
-            expect(button.props('disabled')).toBe(true);
+            expect(button.attributes('disabled')).toBeDefined();
         });
     });
 

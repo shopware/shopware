@@ -65,6 +65,7 @@ async function createWrapper(buttonConfig) {
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-category-tree-field': await wrapTestComponent('sw-category-tree-field'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -272,8 +273,8 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         categoryTreeField.$emit('selection-remove');
         await flushPromises();
 
-        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').props('disabled');
-        expect(isDisabled).toBe(true);
+        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').attributes('disabled');
+        expect(isDisabled).toBeDefined();
     });
 
     it('should clear the state if the link category is changed', async () => {
@@ -291,8 +292,8 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
 
         expect(wrapper.vm.linkCategory).toBe('email');
 
-        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').props('disabled');
-        expect(isDisabled).toBe(true);
+        const isDisabled = wrapper.findComponent('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').attributes('disabled');
+        expect(isDisabled).toBeDefined();
     });
 
     it('should clear the linkTarget when the remove button is pressed', async () => {

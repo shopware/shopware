@@ -76,6 +76,7 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-media-media-item': true,
                 },
             },

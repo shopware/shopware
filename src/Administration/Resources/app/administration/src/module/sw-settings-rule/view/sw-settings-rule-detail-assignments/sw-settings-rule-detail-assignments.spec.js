@@ -130,6 +130,7 @@ async function createWrapper(props = defaultProps, entitiesWithResults = ['produ
                 'sw-card': await wrapTestComponent('sw-card'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                 'sw-empty-state': await wrapTestComponent('sw-empty-state'),

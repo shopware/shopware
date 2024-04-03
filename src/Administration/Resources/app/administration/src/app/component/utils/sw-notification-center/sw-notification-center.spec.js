@@ -15,6 +15,7 @@ async function createWrapper() {
                 'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                 'sw-time-ago': await wrapTestComponent('sw-time-ago'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
             },
         },

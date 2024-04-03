@@ -9,6 +9,7 @@ async function createWrapper(propsData) {
             },
             stubs: {
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-modal': {
                     props: ['title'],
                     // eslint-disable-next-line max-len

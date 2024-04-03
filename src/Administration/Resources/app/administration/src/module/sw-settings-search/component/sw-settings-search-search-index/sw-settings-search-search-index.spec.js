@@ -85,7 +85,7 @@ async function createWrapper(privileges = []) {
             stubs: {
                 'sw-card': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-progress-bar': {
                     template: '<div class="sw-progress-bar"><slot></slot></div>',
                 },

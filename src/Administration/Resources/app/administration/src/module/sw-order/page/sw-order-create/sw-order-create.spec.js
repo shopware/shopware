@@ -68,6 +68,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-tabs-item': true,
             'sw-page': await wrapTestComponent('sw-page', { sync: true }),
             'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
             'sw-modal': {
                 template: `

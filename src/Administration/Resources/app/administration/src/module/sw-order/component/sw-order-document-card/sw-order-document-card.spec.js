@@ -103,6 +103,7 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-context-button': await wrapTestComponent('sw-button', { sync: true }),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', { sync: true }),
                 'sw-order-send-document-modal': true,
                 'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', { sync: true }),
@@ -211,7 +212,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
         const createNewButton = wrapper.findComponent('.sw-order-document-grid-button');
-        expect(createNewButton.props('disabled')).toBe(true);
+        expect(createNewButton.attributes('disabled')).toBeDefined();
     });
 
     it('should not have an disabled create new button', async () => {

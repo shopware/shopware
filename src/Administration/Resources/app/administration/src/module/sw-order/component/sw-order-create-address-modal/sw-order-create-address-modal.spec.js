@@ -14,6 +14,7 @@ async function createWrapper() {
                     template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                 },
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-customer-address-form': await wrapTestComponent('sw-customer-address-form'),
                 'sw-customer-address-form-options': await wrapTestComponent('sw-customer-address-form-options'),

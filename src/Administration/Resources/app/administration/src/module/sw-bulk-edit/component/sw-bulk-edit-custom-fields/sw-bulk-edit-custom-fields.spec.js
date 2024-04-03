@@ -13,6 +13,7 @@ async function createWrapper(customProps = {}) {
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),

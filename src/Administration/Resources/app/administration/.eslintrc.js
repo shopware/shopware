@@ -5,7 +5,8 @@
 const path = require('path');
 
 const baseRules = {
-    'file-progress/activate': 1,
+    // Disabled because it hides some warnings
+    'file-progress/activate': 0,
     // Match the max line length with the phpstorm default settings
     'max-len': ['error', 125, { ignoreRegExpLiterals: true }],
     // Warn about useless path segment in import statements
@@ -181,6 +182,10 @@ module.exports = {
                 'vue/no-deprecated-slot-attribute': ['error'],
                 'vue/no-deprecated-slot-scope-attribute': ['error'],
                 'sw-deprecation-rules/no-twigjs-blocks': 'error',
+                // @deprecated v.6.7.0.0 - will be error in v.6.7
+                'sw-deprecation-rules/no-deprecated-components': ['warn', 'disableFix'],
+                // @deprecated v.6.7.0.0 - will be error in v.6.7
+                'sw-deprecation-rules/no-deprecated-component-usage': ['warn', 'disableFix'],
                 'vue/no-useless-template-attributes': 'error',
                 'vue/no-lone-template': 'error',
 

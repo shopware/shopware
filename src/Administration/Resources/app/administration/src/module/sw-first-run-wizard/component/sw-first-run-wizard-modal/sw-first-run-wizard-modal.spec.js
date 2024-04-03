@@ -24,6 +24,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-icon': {
                     template: '<div />',

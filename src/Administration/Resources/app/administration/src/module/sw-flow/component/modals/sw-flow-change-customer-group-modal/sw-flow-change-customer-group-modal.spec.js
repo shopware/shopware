@@ -40,6 +40,7 @@ async function createWrapper() {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),

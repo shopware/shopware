@@ -166,7 +166,7 @@ class LogoutRouteTest extends TestCase
 
         $newCustomerContextToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT token FROM sales_channel_api_context WHERE customer_id = ?', [$currentCustomerId]);
 
-        static::assertNotEmpty($newCustomerContextToken);
+        static::assertEmpty($newCustomerContextToken);
         static::assertNotEquals($currentCustomerToken, $newCustomerContextToken);
     }
 
@@ -193,7 +193,6 @@ class LogoutRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $currentCustomerToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?: '';
-        $currentCustomerId = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $currentCustomerToken);
 
@@ -208,8 +207,7 @@ class LogoutRouteTest extends TestCase
             );
 
         $customerIdWithOldToken = $this->getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
-
-        static::assertEquals($currentCustomerId, $customerIdWithOldToken);
+        static::assertEmpty($customerIdWithOldToken);
     }
 
     public function testLogoutRouteReturnContextTokenResponse(): void

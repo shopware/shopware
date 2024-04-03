@@ -299,7 +299,9 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_cms_list_listing_list_data_grid_column_assignment_list %}
                                     <template #column-assignedPages="{ item }">
-                                        <div v-tooltip="getPagesTooltip(item)">{{ getPagesString(item) }}</div>
+                                        <div v-tooltip="getPagesTooltip(item)">
+                                            {{ getPagesString(item) }}
+                                        </div>
                                     </template>
                                     {% endblock %}
 

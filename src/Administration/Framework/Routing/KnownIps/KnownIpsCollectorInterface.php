@@ -8,5 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('administration')]
 interface KnownIpsCollectorInterface
 {
+    /**
+     * @return array<string, string>
+     */
     public function collectIps(Request $request): array;
 }

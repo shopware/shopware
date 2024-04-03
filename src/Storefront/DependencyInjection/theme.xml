@@ -337,16 +337,6 @@
 
         <service id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="cache.object"/>
-
-            <tag name="kernel.reset" method="reset"/>
-        </service>
-
-        <service id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoaderInvalidator">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
-            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
-
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeExceptionHandler">

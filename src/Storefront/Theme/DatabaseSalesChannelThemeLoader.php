@@ -3,11 +3,9 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 #[Package('storefront')]
 /**
@@ -15,19 +13,16 @@ use Symfony\Contracts\Cache\ItemInterface;
  */
 final class DatabaseSalesChannelThemeLoader
 {
-    final public const CACHE_KEY = 'sales-channel-themes';
-
     /**
-     * @var array<string, array<int, string>>
+     * @deprecated tag:v6.7.0 - Will be removed in 6.7.0 as the cache key is not used anymore
      */
-    private array $themes = [];
+    final public const CACHE_KEY = 'sales-channel-themes';
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly ?CacheInterface $cache = null
+        private readonly Connection $connection
     ) {
     }
 
@@ -35,38 +30,6 @@ final class DatabaseSalesChannelThemeLoader
      * @return array<int, string>
      */
     public function load(string $salesChannelId): array
-    {
-        if (!empty($this->themes[$salesChannelId])) {
-            return $this->themes[$salesChannelId];
-        }
-
-        if ($this->cache === null) {
-            return $this->readFromDB($salesChannelId);
-        }
-
-        $value = $this->cache->get(
-            self::CACHE_KEY,
-            fn (ItemInterface $item) => CacheValueCompressor::compress(
-                $this->readFromDB($salesChannelId)
-            )
-        );
-
-        /** @var array<int, string> $value */
-        $value = CacheValueCompressor::uncompress($value);
-
-        return $value ?? [];
-    }
-
-    public function reset(): void
-    {
-        $this->themes = [];
-        $this->cache?->delete(self::CACHE_KEY);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function readFromDB(string $salesChannelId): array
     {
         $themes = $this->connection->fetchAssociative('
             SELECT LOWER(HEX(theme.id)) themeId, theme.technical_name as themeName, parentTheme.technical_name as parentThemeName, LOWER(HEX(parentTheme.parent_theme_id)) as grandParentThemeId
@@ -92,7 +55,18 @@ final class DatabaseSalesChannelThemeLoader
             $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
         }
 
-        return $this->themes[$salesChannelId] = $usedThemes ?: [];
+        return $usedThemes;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed in 6.7.0 as it does not do anything anymore
+     */
+    public function reset(): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0')
+        );
     }
 
     /**

@@ -166,6 +166,10 @@
                                                                                 {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
                                                                             {% endif %}
 
+                                                                            {% if loop.first %}
+                                                                                {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
+                                                                            {% endif %}
+
                                                                             {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
                                                                             {% block element_image_gallery_inner_item_spatial %}
                                                                                 {% if image.isSpatialObject() %}

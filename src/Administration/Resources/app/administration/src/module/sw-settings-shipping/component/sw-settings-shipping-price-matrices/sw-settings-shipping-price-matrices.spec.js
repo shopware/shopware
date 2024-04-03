@@ -28,6 +28,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     'sw-popover': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-context-button': await wrapTestComponent('sw-context-button', {
                         sync: true,
                     }),

@@ -29,6 +29,7 @@ async function createWrapper() {
                 'sw-pagination': await wrapTestComponent('sw-pagination'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

@@ -31,6 +31,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-sales-channel-switch': await wrapTestComponent('sw-sales-channel-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),

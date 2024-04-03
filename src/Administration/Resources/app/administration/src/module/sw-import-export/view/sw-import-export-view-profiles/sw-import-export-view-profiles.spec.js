@@ -41,6 +41,7 @@ async function createWrapper(profiles = null) {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-simple-search-field': true,
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-import-export-edit-profile-modal': {

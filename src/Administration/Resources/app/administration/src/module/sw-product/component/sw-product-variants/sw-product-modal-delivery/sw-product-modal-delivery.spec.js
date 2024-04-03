@@ -29,6 +29,7 @@ async function createWrapper() {
                 'sw-tabs-item': true,
                 'sw-product-variants-delivery-order': true,
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': true,
             },
         },

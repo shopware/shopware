@@ -95,6 +95,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                     'sw-plugin-card': await wrapTestComponent('sw-plugin-card'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-select-field': await wrapTestComponent('sw-select-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),

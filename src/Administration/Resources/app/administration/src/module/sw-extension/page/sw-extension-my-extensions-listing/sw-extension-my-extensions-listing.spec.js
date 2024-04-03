@@ -37,6 +37,7 @@ async function createWrapper() {
                     props: ['extension'],
                 },
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-meteor-card': true,
                 'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                 'sw-icon': true,

@@ -22,6 +22,7 @@ async function createWrapper(activeTab = 'singleProducts') {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot></slot><slot name="content"></slot><slot name="modal-footer"></slot></div>',
                 },

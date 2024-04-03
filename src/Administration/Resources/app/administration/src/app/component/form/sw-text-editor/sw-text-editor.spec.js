@@ -42,6 +42,7 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,

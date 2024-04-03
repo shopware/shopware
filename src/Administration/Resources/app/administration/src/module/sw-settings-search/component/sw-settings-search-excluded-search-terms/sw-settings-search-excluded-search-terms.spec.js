@@ -55,6 +55,7 @@ async function createWrapper(privileges = [], resetError = false) {
                 },
                 'sw-empty-state': true,
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-container': true,
                 'sw-card-filter': true,
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),

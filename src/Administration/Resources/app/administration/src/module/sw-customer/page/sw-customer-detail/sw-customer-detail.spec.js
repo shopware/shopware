@@ -19,6 +19,7 @@ async function createWrapper(privileges = [], editMode = false) {
                     </div>`,
                 },
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-language-switch': true,
                 'sw-card-view': {

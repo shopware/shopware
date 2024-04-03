@@ -128,7 +128,8 @@ async function createWrapper(privileges = []) {
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-button-process': true,
                 'sw-language-info': true,
                 'sw-entity-single-select': true,
@@ -375,7 +376,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toBe(true);
+        expect(sendTestMail.attributes().disabled).toBeDefined();
     });
 
     it('should be able to send test mails when values are filled', async () => {
@@ -397,7 +398,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toBe(false);
+        expect(sendTestMail.attributes().disabled).toBeUndefined();
 
         await sendTestMail.trigger('click');
 
@@ -435,7 +436,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toBe(false);
+        expect(sendTestMail.attributes().disabled).toBeUndefined();
 
         await sendTestMail.trigger('click');
 
@@ -660,7 +661,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toBe(false);
+        expect(sendTestMail.attributes().disabled).toBeUndefined();
         wrapper.vm.mailService.testMailTemplate = jest.fn(() => Promise.resolve({ size: 0 }));
 
         wrapper.vm.createNotificationError = jest.fn();
@@ -719,6 +720,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
-        expect(sendTestMail.props().disabled).toBe(true);
+        expect(sendTestMail.attributes().disabled).toBeDefined();
     });
 });

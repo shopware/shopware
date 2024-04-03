@@ -22,6 +22,7 @@ async function createWrapper(back = null, push = jest.fn()) {
                 'sw-iframe-renderer': true,
                 'sw-language-switch': true,
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'router-link': {
                     props: {
                         to: { type: String, required: true },

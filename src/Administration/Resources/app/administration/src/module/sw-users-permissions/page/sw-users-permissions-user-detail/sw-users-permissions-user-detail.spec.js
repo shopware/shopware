@@ -111,7 +111,7 @@ async function createWrapper(privileges = []) {
     </div>
     `,
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-text-field': await wrapTestComponent('sw-text-field', {
                     sync: true,

@@ -42,6 +42,7 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-language-info': await wrapTestComponent('sw-language-info'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),

@@ -210,6 +210,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 plugins: [router],
                 stubs: {
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),

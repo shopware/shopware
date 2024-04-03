@@ -1,0 +1,77 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_button %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_button_router_link %}
+<router-link
+    v-if="routerLink"
+    :to="routerLink"
+    class="sw-button"
+    :event="!disabled ? 'click' : ''"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_button_router_link_content %}
+    <span class="sw-button__content">
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_router_link_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</router-link>
+{% endblock %}
+
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_button_link %}
+<a
+    v-else-if="link"
+    :href="!disabled ? link : ''"
+    target="_blank"
+    rel="noopener"
+    class="sw-button"
+    :class="buttonClasses"
+    v-bind="$attrs"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_button_link_content %}
+    <span class="sw-button__content">
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_link_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</a>
+{% endblock %}
+
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_button_button %}
+<button
+    v-else
+    class="sw-button"
+    :class="buttonClasses"
+    :disabled="disabled || isLoading"
+    v-bind="$attrs"
+    v-on="disabled ? null : $listeners"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_button_button_content %}
+    <sw-loader
+        v-if="isLoading"
+        class="sw-button_loader"
+        size="20px"
+    />
+    <span
+        class="sw-button__content"
+        :class="contentVisibilityClass"
+    >
+        <slot>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_button_button_slot_default %}{% endblock %}
+        </slot>
+    </span>
+    {% endblock %}
+</button>
+    {% endblock %}
+{% endblock %}

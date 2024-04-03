@@ -108,6 +108,7 @@ async function createWrapper() {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-group': await wrapTestComponent('sw-button-group'),
                 'sw-context-menu-item': true,
                 'sw-upload-listener': true,
@@ -374,7 +375,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
 
     it('should disable create button if there is no selected invoice', async () => {
         const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
-        expect(createButton.props('disabled')).toBe(true);
+        expect(createButton.attributes('disabled')).toBeDefined();
 
         const createContextMenu = wrapper.findComponent('.sw-context-button');
         expect(createContextMenu.attributes('disabled')).toBe('true');

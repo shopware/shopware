@@ -40,6 +40,7 @@ async function createWrapper() {
                 'sw-ignore-class': true,
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-checkbox-field': true,
                 'sw-loader': true,
                 'sw-extension-component-section': true,

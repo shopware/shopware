@@ -48,6 +48,10 @@ class FeatureFlagController
     {
         $featureFlags = Feature::getRegisteredFeatures();
 
+        foreach ($featureFlags as $featureKey => $feature) {
+            $featureFlags[$featureKey]['active'] = Feature::isActive($featureKey);
+        }
+
         return new JsonResponse($featureFlags);
     }
 }

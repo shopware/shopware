@@ -262,7 +262,7 @@ class AuthControllerTest extends TestCase
         $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         static::assertNotEquals($firstTimeLoginSessionId, $secondTimeLoginSessionId);
-        static::assertEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
+        static::assertNotEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
     }
 
     public function testMergedHintIsAdded(): void

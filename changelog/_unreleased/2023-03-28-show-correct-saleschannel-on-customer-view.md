@@ -1,9 +1,9 @@
 ---
 title:          show-correct-saleschannel-on-customer-view.md
-issue:          null
+issue:          NEXT-34787
 author:         Fabian Blechschmidt
 author_email:   fabian@winkelwagen.de
 author_github:  Schrank
 ---
-# Admin
+# Administration
 * Changed customer field to show what sales channel the customer is bound to

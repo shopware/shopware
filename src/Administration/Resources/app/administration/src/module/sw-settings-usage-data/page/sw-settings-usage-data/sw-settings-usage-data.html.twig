@@ -1,5 +1,4 @@
 <sw-page class="sw-settings-usage-data">
-
     <template #search-bar>
         <sw-search-bar />
     </template>
@@ -22,7 +21,27 @@
 
     <template #content>
         <sw-card-view>
-            <sw-usage-data-consent-banner />
+            <sw-tabs
+                position-identifier="sw-settings-usage-data"
+                default-item="general"
+            >
+                <sw-tabs-item
+                    name="general"
+                    :route="{ name: 'sw.settings.usage.data.index.general' }"
+                >
+                    {{ $tc('sw-settings-usage-data-general.tabHeadline') }}
+                </sw-tabs-item>
+
+                <template #content>
+                    <router-view
+                        v-slot="{ Component }"
+                    >
+                        <component
+                            :is="Component"
+                        />
+                    </router-view>
+                </template>
+            </sw-tabs>
         </sw-card-view>
     </template>
 </sw-page>

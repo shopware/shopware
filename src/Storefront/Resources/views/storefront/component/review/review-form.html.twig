@@ -92,7 +92,8 @@
                                        name="title"
                                        value="{{ data.get('title') }}"
                                        required="required"
-                                       minlength="5">
+                                       minlength="5"
+                                       maxlength="255">
                             {% endblock %}
 
                             {% block component_review_form_title_violation %}

@@ -264,7 +264,7 @@
             {% block sw_customer_base_metadata_bound_saleschannel_content %}
             <dd class="sw-customer-base__label-bound-sales-channel">
                 <template v-if="customer.boundSalesChannelId">
-                    {{ customer.salesChannel.translated.name }}
+                    {{ customer.boundSalesChannel.translated.name }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyBoundSalesChannel') }}

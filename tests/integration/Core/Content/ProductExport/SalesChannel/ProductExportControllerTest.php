@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -93,7 +92,6 @@ class ProductExportControllerTest extends TestCase
         $salesChannelDomainId = Uuid::randomHex();
 
         $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class)->reset();
 
         $client = $this->createSalesChannelBrowser(null, false, [
             'id' => $salesChannelId,
@@ -124,7 +122,6 @@ class ProductExportControllerTest extends TestCase
         static::assertNotNull($themeId);
 
         $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class)->reset();
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
 
@@ -160,7 +157,6 @@ class ProductExportControllerTest extends TestCase
         ]);
 
         $this->getContainer()->get(Translator::class)->reset();
-        $this->getContainer()->get(DatabaseSalesChannelThemeLoader::class)->reset();
 
         $themeService->assignTheme($themeId, $deSalesChannelId, $context);
         $productExportDe = $this->createCsvExport(

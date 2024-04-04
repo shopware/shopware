@@ -6,10 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
@@ -17,26 +15,19 @@ use Symfony\Contracts\Cache\CacheInterface;
 #[CoversClass(DatabaseSalesChannelThemeLoader::class)]
 class DatabaseSalesChannelThemeLoaderTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private Connection $connection;
+    private Connection&MockObject $connection;
 
     private DatabaseSalesChannelThemeLoader $themeLoader;
-
-    private CacheInterface&MockObject $cache;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->cache = $this->createMock(CacheInterface::class);
         $this->themeLoader = new DatabaseSalesChannelThemeLoader(
             $this->connection,
-            null
         );
     }
 
-    public function testLoad(): void
+    public function testLoadWithDifferentSalesChannel(): void
     {
         $expectedDB = [
             'themeName' => 'Storefront',
@@ -58,83 +49,10 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
         static::assertEquals([], $secondAttempt);
-
-        $themePropertyReflection = new \ReflectionProperty(DatabaseSalesChannelThemeLoader::class, 'themes');
-        $themePropertyReflection->setAccessible(true);
-        $themes = $themePropertyReflection->getValue($this->themeLoader);
-
-        static::assertSame([
-            $salesChannelId => $expectedTheme,
-            $otherSalesChannelId => [],
-        ], $themes);
-    }
-
-    public function testLoadPropertyCached(): void
-    {
-        $expectedTheme = [
-            'Storefront',
-        ];
-        $salesChannelId = Uuid::randomHex();
-
-        $themePropertyReflection = new \ReflectionProperty(DatabaseSalesChannelThemeLoader::class, 'themes');
-        $themePropertyReflection->setAccessible(true);
-        $themePropertyReflection->setValue($this->themeLoader, [
-            $salesChannelId => $expectedTheme,
-        ]);
-
-        $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
-    }
-
-    public function testLoadCached(): void
-    {
-        $cachedThemeLoader = new DatabaseSalesChannelThemeLoader(
-            $this->connection,
-            $this->cache
-        );
-
-        $expectedTheme = [
-            'Storefront',
-        ];
-        $salesChannelId = Uuid::randomHex();
-
-        $this->cache->expects(static::once())->method('get')->willReturn(CacheValueCompressor::compress($expectedTheme));
-
-        $this->connection->expects(static::never())->method('fetchAssociative');
-
-        $actualTheme = $cachedThemeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
-    }
-
-    public function testReset(): void
-    {
-        $expectedDB = [
-            'themeName' => 'Storefront',
-            'parentThemeName' => null,
-            'themeId' => Uuid::randomHex(),
-        ];
-
-        $expectedTheme = [
-            'Storefront',
-        ];
-
-        $this->connection->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
-
-        $salesChannelId = Uuid::randomHex();
-
-        $this->themeLoader->load($salesChannelId);
-        $this->themeLoader->reset();
-        $themePropertyReflection = new \ReflectionProperty(DatabaseSalesChannelThemeLoader::class, 'themes');
-        $themePropertyReflection->setAccessible(true);
-        $actualThemes = $themePropertyReflection->getValue($this->themeLoader);
-
-        static::assertEquals([], $actualThemes);
     }
 
     public function testLoadMultiple(): void
     {
-        $this->themeLoader->reset();
-
         $expectedDB1 = [
             'themeName' => 'Extended thrice',
             'parentThemeName' => 'Extended twice',
@@ -171,14 +89,5 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
         static::assertEquals([], $secondAttempt);
-
-        $themePropertyReflection = new \ReflectionProperty(DatabaseSalesChannelThemeLoader::class, 'themes');
-        $themePropertyReflection->setAccessible(true);
-        $themes = $themePropertyReflection->getValue($this->themeLoader);
-
-        static::assertSame([
-            $salesChannelId => $expectedTheme,
-            $otherSalesChannelId => [],
-        ], $themes);
     }
 }

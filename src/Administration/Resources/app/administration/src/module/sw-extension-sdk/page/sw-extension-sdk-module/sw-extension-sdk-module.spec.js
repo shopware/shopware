@@ -1,9 +1,13 @@
+/**
+ * @package admin
+ */
 import { mount } from '@vue/test-utils';
 
-const module = {
+const mockModule = {
     heading: 'jest',
     locationId: 'jest',
     displaySearchBar: true,
+    displaySmartBar: true,
     displayLanguageSwitch: true,
     baseUrl: 'http://example.com',
 };
@@ -11,7 +15,7 @@ const module = {
 async function createWrapper(back = null, push = jest.fn()) {
     return mount(await wrapTestComponent('sw-extension-sdk-module', { sync: true }), {
         props: {
-            id: Shopware.Utils.format.md5(JSON.stringify(module)),
+            id: Shopware.Utils.format.md5(JSON.stringify(mockModule)),
             back,
         },
         global: {
@@ -66,7 +70,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('@slow should not time out with menu item', async () => {
-        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', module);
+        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
         expect(typeof moduleId).toBe('string');
         expect(moduleId).toBe(wrapper.vm.id);
 
@@ -77,7 +81,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('should show language switch', async () => {
-        await Shopware.State.dispatch('extensionSdkModules/addModule', module);
+        await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
 
         expect(wrapper.findComponent('sw-language-switch-stub').exists()).toBe(true);
     });
@@ -85,7 +89,7 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     it('should show smart bar button', async () => {
         const spy = jest.fn();
 
-        await Shopware.State.dispatch('extensionSdkModules/addModule', module);
+        await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
         Shopware.State.commit('extensionSdkModules/addSmartBarButton', {
             locationId: 'jest',
             buttonId: 'test-button-1',
@@ -118,5 +122,17 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
         await wrapper.find('.sw-page__back-btn-container a').trigger('click');
         expect(routerPush).toHaveBeenCalledWith({ name: back });
+    });
+
+    it('should be able to toggle the smart bar on/off', async () => {
+        expect(wrapper.find('.smart-bar__content').exists()).toBeTruthy();
+
+        mockModule.displaySmartBar = false;
+        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', mockModule);
+        await wrapper.setProps({
+            id: moduleId,
+        });
+
+        expect(wrapper.find('.smart-bar__content').exists()).toBeFalsy();
     });
 });

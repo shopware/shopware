@@ -33,6 +33,7 @@ describe('src/app/init/menu-item.init.ts', () => {
             label: 'Test item',
             locationId: 'your-location-id',
             displaySearchBar: true,
+            displaySmartBar: true,
             parent: 'sw-catalogue',
         });
 
@@ -47,6 +48,7 @@ describe('src/app/init/menu-item.init.ts', () => {
                 label: 'Test item',
                 locationId: 'your-location-id',
                 displaySearchBar: true,
+                displaySmartBar: true,
                 parent: 'sw-catalogue',
             });
         }).rejects.toThrow(new Error('Extension with the origin "" not found.'));
@@ -63,6 +65,7 @@ describe('src/app/init/menu-item.init.ts', () => {
             label: 'Test item',
             locationId: 'your-location-id',
             displaySearchBar: true,
+            displaySmartBar: true,
             parent: 'sw-catalogue',
         });
 

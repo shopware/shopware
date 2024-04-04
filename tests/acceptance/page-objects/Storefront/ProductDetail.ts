@@ -23,7 +23,7 @@ export class ProductDetailPage implements PageObject {
         this.offCanvasLineItemImages = page.locator('.line-item-img-link');
         this.quantitySelect = page.getByLabel('Quantity', { exact: true });
         this.offCanvas = page.locator('offcanvas-body');
-        this.offCanvasSummaryTotalPrice = page.locator('dt:has-text("Subtotal") + dd');
+        this.offCanvasSummaryTotalPrice = page.locator('.offcanvas-summary').locator('dt:has-text("Subtotal") + dd');
 
         this.productSingleImage = page.locator('.gallery-slider-single-image');
 

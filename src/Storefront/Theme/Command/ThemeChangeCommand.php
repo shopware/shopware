@@ -51,6 +51,7 @@ class ThemeChangeCommand extends Command
         $this->addOption('sales-channel', 's', InputOption::VALUE_REQUIRED, 'Sales Channel ID. Can not be used together with --all.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
         $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
+        $this->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -107,6 +108,10 @@ class ThemeChangeCommand extends Command
             $this->io->error('Invalid theme name');
 
             return self::INVALID;
+        }
+
+        if ($input->getOption('sync')) {
+            $this->context->addState(ThemeService::STATE_NO_QUEUE);
         }
 
         /** @var SalesChannelEntity $salesChannel */

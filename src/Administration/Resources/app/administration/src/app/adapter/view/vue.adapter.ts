@@ -251,11 +251,12 @@ export default class VueAdapter extends ViewAdapter {
 
         // Disable instance listeners for meteor components
         if (Shopware.Feature.isActive('v6.7.0.0')) {
-            // Remove INSTANCE_LISTENERS from MtButton
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            MeteorImport.MtButton.compatConfig = {
-                INSTANCE_LISTENERS: false,
-            };
+            meteorComponents.forEach((componentName) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                MeteorImport[componentName].compatConfig = {
+                    INSTANCE_LISTENERS: false,
+                };
+            });
         }
 
         meteorComponents.forEach((componentName) => {

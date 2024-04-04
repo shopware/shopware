@@ -31,7 +31,7 @@ module.exports = {
             // Event handlers for <template> tags
             {
                 VElement(node) {
-                    const deprecatedComponents = ['sw-button'];
+                    const deprecatedComponents = ['sw-button', 'sw-icon'];
 
                     if (deprecatedComponents.includes(node.name)) {
                         const componentName = node.name;
@@ -44,9 +44,28 @@ module.exports = {
                             *fix(fixer) {
                                 if (context.options.includes('disableFix')) return;
 
+                                const isSelfClosing = node.startTag.selfClosing;
+
+                                // Handle self-closing tags
+                                if (isSelfClosing) {
+                                    // Replace the component name
+                                    const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
+                                    yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
+
+                                    // Save indentation of the old component
+                                    const indentation = node.loc.start.column;
+
+                                    // Add comment to the converted component
+                                    yield fixer.insertTextBeforeRange(startTagRange, `<!-- TODO Codemod: Converted from ${componentName} - please check if everything works correctly -->\n${' '.repeat(indentation)}`);
+
+                                    return;
+                                }
+
+                                // Handle non-self-closing tags
                                 const startTagRange = [node.startTag.range[0], componentName.length + node.startTag.range[0] + 1];
                                 const endTagRange = node.endTag.range;
 
+                                // Replace the component name
                                 yield fixer.replaceTextRange(startTagRange, `<${newComponentName}`);
                                 yield fixer.replaceTextRange(endTagRange, `</${newComponentName}>`);
 

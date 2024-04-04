@@ -20,6 +20,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-button>Hello</mt-button>
             </template>`
+        },
+        {
+            name: '"mt-icon" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-icon>Hello</mt-icon>
+            </template>`
         }
     ],
     invalid: [
@@ -49,6 +57,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-button" is deprecated. Please use "mt-button" instead.',
+            }]
+        },
+        {
+            name: '"sw-icon" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-icon name="regular-times-s" />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-icon - please check if everything works correctly -->
+    <mt-icon name="regular-times-s" />
+</template>`,
+            errors: [{
+                message: '"sw-icon" is deprecated. Please use "mt-icon" instead.',
+            }]
+        },
+        {
+            name: '"sw-icon" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-icon name="regular-times-s" />
+</template>`,
+            errors: [{
+                message: '"sw-icon" is deprecated. Please use "mt-icon" instead.',
             }]
         }
     ]

@@ -68,6 +68,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
             'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+            'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
             'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
             'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),

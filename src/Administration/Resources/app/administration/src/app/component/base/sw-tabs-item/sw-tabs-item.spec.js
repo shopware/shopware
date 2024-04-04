@@ -6,6 +6,7 @@ async function createWrapper(props = {}) {
         global: {
             stubs: {
                 'sw-icon': await wrapTestComponent('sw-icon'),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
             },
             directives: {
                 tooltip: {

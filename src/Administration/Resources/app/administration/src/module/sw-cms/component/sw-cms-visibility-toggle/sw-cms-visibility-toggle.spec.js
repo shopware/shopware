@@ -22,6 +22,7 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-icon': await Shopware.Component.build('sw-icon'),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'icons-regular-eye-slash': true,
                 'icons-regular-chevron-down-xs': true,
                 'icons-regular-chevron-up-xs': true,

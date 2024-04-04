@@ -53,6 +53,7 @@ shopware:
             - 'utm_medium'
             - 'utm_campaign'
             - 'utm_content'
+            - 'gad_source'
             - 'cx'
             - 'ie'
             - 'cof'

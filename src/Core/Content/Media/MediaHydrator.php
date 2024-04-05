@@ -32,17 +32,14 @@ class MediaHydrator extends EntityHydrator
         if (isset($row[$root . '.uploadedAt'])) {
             $entity->uploadedAt = new \DateTimeImmutable($row[$root . '.uploadedAt']);
         }
-        if (isset($row[$root . '.fileName'])) {
-            $entity->fileName = $row[$root . '.fileName'];
+        if (\array_key_exists($root . '.fileName', $row)) {
+            $entity->fileName = $definition->decode('fileName', self::value($row, $root, 'fileName'));
         }
         if (isset($row[$root . '.fileSize'])) {
             $entity->fileSize = (int) $row[$root . '.fileSize'];
         }
-        if (isset($row[$root . '.metaDataRaw'])) {
-            $entity->metaDataRaw = $row[$root . '.metaDataRaw'];
-        }
-        if (isset($row[$root . '.mediaTypeRaw'])) {
-            $entity->mediaTypeRaw = $row[$root . '.mediaTypeRaw'];
+        if (\array_key_exists($root . '.mediaTypeRaw', $row)) {
+            $entity->mediaTypeRaw = $definition->decode('mediaTypeRaw', self::value($row, $root, 'mediaTypeRaw'));
         }
         if (\array_key_exists($root . '.metaData', $row)) {
             $entity->metaData = $definition->decode('metaData', self::value($row, $root, 'metaData'));
@@ -56,8 +53,8 @@ class MediaHydrator extends EntityHydrator
         if (isset($row[$root . '.private'])) {
             $entity->private = (bool) $row[$root . '.private'];
         }
-        if (isset($row[$root . '.thumbnailsRo'])) {
-            $entity->thumbnailsRo = $row[$root . '.thumbnailsRo'];
+        if (\array_key_exists($root . '.thumbnailsRo', $row)) {
+            $entity->thumbnailsRo = $definition->decode('thumbnailsRo', self::value($row, $root, 'thumbnailsRo'));
         }
         if (isset($row[$root . '.createdAt'])) {
             $entity->createdAt = new \DateTimeImmutable($row[$root . '.createdAt']);
@@ -65,7 +62,6 @@ class MediaHydrator extends EntityHydrator
         if (isset($row[$root . '.updatedAt'])) {
             $entity->updatedAt = new \DateTimeImmutable($row[$root . '.updatedAt']);
         }
-
         $entity->user = $this->manyToOne($row, $root, $definition->getField('user'), $context);
         $entity->mediaFolder = $this->manyToOne($row, $root, $definition->getField('mediaFolder'), $context);
 

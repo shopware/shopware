@@ -1,6 +1,6 @@
 ---
 title: Improve hydrate performance
-issue: NEXT-00000
+issue: NEXT-34826
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

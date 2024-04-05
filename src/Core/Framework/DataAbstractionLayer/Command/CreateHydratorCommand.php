@@ -56,7 +56,7 @@ class CreateHydratorCommand extends Command
         string $rootDir
     ) {
         parent::__construct();
-        $this->dir = $rootDir . '/platform/src';
+        $this->dir = $rootDir . '/src';
     }
 
     protected function configure(): void

@@ -193,7 +193,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should update the config when product sortings changes', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual([]);
 
         await wrapper.setData({
             productSortings: [

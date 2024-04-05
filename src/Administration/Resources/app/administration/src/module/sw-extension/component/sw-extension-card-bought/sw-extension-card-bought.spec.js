@@ -67,6 +67,7 @@ async function createWrapper(extension) {
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader', { sync: true }),
                 'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',

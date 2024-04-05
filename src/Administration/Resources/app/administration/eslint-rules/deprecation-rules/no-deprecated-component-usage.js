@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const mtButtonCheck = require('./no-deprecated-component-usage-checks/mt-button.check');
+const { handleMtButton } = require('./no-deprecated-component-usage-checks/mt-button.check');
+const { handleMtIcon } = require('./no-deprecated-component-usage-checks/mt-icon.check')
 
 /* eslint-disable max-len */
 
@@ -33,7 +34,9 @@ module.exports = {
             {
                 VElement(node) {
                     // Handle mt-button component
-                    mtButtonCheck(context, node);
+                    handleMtButton(context, node);
+                    // Handle mt-icon component
+                    handleMtIcon(context, node);
                 },
             }
         )

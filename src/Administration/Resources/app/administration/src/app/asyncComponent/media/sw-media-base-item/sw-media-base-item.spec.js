@@ -16,6 +16,7 @@ const setup = async (itemChanges = {}) => {
                 'sw-context-button': true,
                 'sw-label': await wrapTestComponent('sw-label', { sync: true }),
                 'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
             },
         },
         propsData,

@@ -7,7 +7,7 @@ async function createWrapper() {
         },
         global: {
             stubs: {
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
             },
         },
     });

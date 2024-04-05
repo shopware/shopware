@@ -249,7 +249,7 @@ class ProductListingRouteTest extends TestCase
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => EntityResult::class,
-                    'propertyWhitelistIds' => [$ids->get('textile')],
+                    'propertyWhitelistIds' => [$ids->get('textile') => $ids->get('textile')],
                 ],
             ],
             [

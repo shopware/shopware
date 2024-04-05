@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.0.3
+*  [NEXT-34783 - Cache SalesChannel-themes per SalesChannel](./changelog/release-6-6-0-3/2024-04-03-cache-sales-channel-themes-per-sales-channel.md)
+*  [NEXT-30065 - Fix session access in AffiliateTrackingListener](./changelog/release-6-6-0-3/2024-04-04-next-30065.md)
+
 ## 6.6.0.2
 * [NEXT-34640 - Missing migration to change sorting key to id in CMS slots](./changelog/release-6-6-0-2/2024-03-20-missing-migration-to-change-sorting-key-to-id-in-cms-slots.md)
 

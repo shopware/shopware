@@ -162,6 +162,18 @@ class ProductSearchQueryBuilderTest extends TestCase
                             ],
                         ],
                     ],
+                    [
+                        'bool' => [
+                            'should' => [
+                                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 5000),
+                                self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 1000),
+                                self::match('ean.search', 'foo 2023', 10000),
+                                self::matchPhrasePrefix('ean.search', 'foo 2023', 2000),
+                                self::nested('tags', self::match('tags.name.search', 'foo 2023', 2500)),
+                                self::nested('tags', self::matchPhrasePrefix('tags.name.search', 'foo 2023', 500)),
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -192,6 +204,14 @@ class ProductSearchQueryBuilderTest extends TestCase
                                 self::term($prefix . 'evolvesInt', 2023, 2000),
                                 self::term($prefix . 'evolvesFloat', 2023.0, 2500),
                                 self::nested('categories', self::term('categories.childCount', 2023, 2500)),
+                            ],
+                        ],
+                    ],
+                    [
+                        'bool' => [
+                            'should' => [
+                                self::match($prefix . 'evolvesText', 'foo 2023', 2500),
+                                self::matchPhrasePrefix($prefix . 'evolvesText', 'foo 2023', 500),
                             ],
                         ],
                     ],
@@ -311,6 +331,24 @@ class ProductSearchQueryBuilderTest extends TestCase
                             ],
                         ],
                     ],
+                    [
+                        'bool' => [
+                            'should' => [
+                                self::multiMatch(fields: [
+                                    'name.' . Defaults::LANGUAGE_SYSTEM . '.search',
+                                    'name.' . self::SECOND_LANGUAGE_ID . '.search',
+                                ], query: 'foo 2023', lenient: true, boost: 5000, fuzziness: 0),
+                                self::multiMatch(fields: [
+                                    'name.' . Defaults::LANGUAGE_SYSTEM . '.search',
+                                    'name.' . self::SECOND_LANGUAGE_ID . '.search',
+                                ], query: 'foo 2023', boost: 1000, slop: 5, type: 'phrase_prefix'),
+                                self::match('ean.search', 'foo 2023', 10000),
+                                self::matchPhrasePrefix('ean.search', 'foo 2023', 2000),
+                                self::nested('tags', self::match('tags.name.search', 'foo 2023', 2500)),
+                                self::nested('tags', self::matchPhrasePrefix('tags.name.search', 'foo 2023', 500)),
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -368,6 +406,24 @@ class ProductSearchQueryBuilderTest extends TestCase
                                     self::term($prefixCfLang2 . 'evolvesFloat', 2023.0, 2500),
                                 ]),
                                 self::nested('categories', self::term('categories.childCount', 2023, 2500)),
+                            ],
+                        ],
+                    ],
+                    [
+                        'bool' => [
+                            'should' => [
+                                self::multiMatch(fields: [
+                                    $prefixCfLang1 . 'evolvesText',
+                                    $prefixCfLang2 . 'evolvesText',
+                                ], query: 'foo 2023', lenient: true, boost: 2500, fuzziness: 0),
+                                self::multiMatch(fields: [
+                                    $prefixCfLang1 . 'evolvesText',
+                                    $prefixCfLang2 . 'evolvesText',
+                                ], query: 'foo 2023', boost: 500, slop: 5, type: 'phrase_prefix'),
+                                self::multiMatch(fields: [
+                                    $prefixCfLang1 . 'evolvesText',
+                                    $prefixCfLang2 . 'evolvesText',
+                                ], query: 'foo 2023', boost: 1500, lenient: true, fuzziness: 'auto'),
                             ],
                         ],
                     ],

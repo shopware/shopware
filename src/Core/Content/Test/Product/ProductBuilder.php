@@ -180,6 +180,13 @@ class ProductBuilder
         $this->tax($taxKey);
     }
 
+    public function number(string $number): self
+    {
+        $this->productNumber = $number;
+
+        return $this;
+    }
+
     /**
      * @return array<mixed>
      */

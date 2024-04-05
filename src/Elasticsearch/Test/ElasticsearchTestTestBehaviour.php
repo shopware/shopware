@@ -71,7 +71,9 @@ trait ElasticsearchTestTestBehaviour
             $this->getDiContainer()->get(Client::class),
             $decorated,
             $this->getDiContainer()->get(AbstractElasticsearchAggregationHydrator::class),
-            $this->getDiContainer()->get('event_dispatcher')
+            $this->getDiContainer()->get('event_dispatcher'),
+            '5s',
+            'dfs_query_then_fetch'
         );
     }
 
@@ -89,7 +91,9 @@ trait ElasticsearchTestTestBehaviour
             $this->getDiContainer()->get(ElasticsearchHelper::class),
             $this->getDiContainer()->get(CriteriaParser::class),
             $this->getDiContainer()->get(AbstractElasticsearchSearchHydrator::class),
-            $this->getDiContainer()->get('event_dispatcher')
+            $this->getDiContainer()->get('event_dispatcher'),
+            '5s',
+            'dfs_query_then_fetch'
         );
     }
 

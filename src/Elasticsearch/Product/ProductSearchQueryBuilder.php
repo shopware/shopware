@@ -55,6 +55,10 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $tokens = $this->tokenizer->tokenize((string) $criteria->getTerm());
         $tokens = $this->tokenFilter->filter($tokens, $context);
+        $term = strtolower((string) $criteria->getTerm());
+        if (!\in_array($term, $tokens, true)) {
+            $tokens[] = $term;
+        }
 
         foreach ($tokens as $originalToken) {
             $tokenBool = new BoolQuery();

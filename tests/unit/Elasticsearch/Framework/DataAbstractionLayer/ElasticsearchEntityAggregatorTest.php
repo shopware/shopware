@@ -43,7 +43,9 @@ class ElasticsearchEntityAggregatorTest extends TestCase
             $client,
             $this->createMock(EntityAggregatorInterface::class),
             $this->createMock(AbstractElasticsearchAggregationHydrator::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            '10s',
+            'dfs_query_then_fetch'
         );
 
         $context = Context::createDefaultContext();
@@ -73,6 +75,7 @@ class ElasticsearchEntityAggregatorTest extends TestCase
                     'timeout' => '10s',
                     'size' => 0,
                 ],
+                'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -86,7 +89,8 @@ class ElasticsearchEntityAggregatorTest extends TestCase
             $this->createMock(EntityAggregatorInterface::class),
             $this->createMock(AbstractElasticsearchAggregationHydrator::class),
             new EventDispatcher(),
-            '10s'
+            '10s',
+            'dfs_query_then_fetch'
         );
 
         $context = Context::createDefaultContext();

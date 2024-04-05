@@ -48,7 +48,8 @@ final class ReferenceInvoiceLoader
             'orderId' => Uuid::fromHexToBytes($orderId),
         ]);
 
-        $builder->orderBy('`document`.`updated_at`', 'DESC');
+        $builder->orderBy('`document`.`sent`', 'DESC');
+        $builder->addOrderBy('`document`.`created_at`', 'DESC');
 
         if (!empty($referenceDocumentId)) {
             $builder->andWhere('`document`.`id` = :documentId');

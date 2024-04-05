@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
@@ -16,6 +17,8 @@ use Shopware\Core\Migration\V6_5\Migration1675323588ChangeEnglishLocaleTranslati
 #[CoversClass(Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale::class)]
 class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocaleTest extends TestCase
 {
+    use MigrationTestTrait;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -23,12 +26,12 @@ class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocaleTest extends Te
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function testChangeLishLocalTranslationOfUsLocale(): void
+    public function testChangeEnglishLocalTranslationOfUsLocale(): void
     {
         $migration = new Migration1675323588ChangeEnglishLocaleTranslationOfUsLocale();
         $migration->update($this->connection);
 
-        $enLangId = $this->fetchLanguageId('en-GB', $this->connection);
+        $enLangId = $this->fetchLanguageId($this->connection, 'en-GB');
 
         if ($enLangId) {
             $locale = $this->fetchLocaleTranslation($enLangId, 'en-us', $this->connection);
@@ -36,7 +39,7 @@ class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocaleTest extends Te
             static::assertEquals('English (US)', $locale);
         }
 
-        $deLangId = $this->fetchLanguageId('de-DE', $this->connection);
+        $deLangId = $this->fetchLanguageId($this->connection, 'de-DE');
 
         if ($deLangId) {
             $locale = $this->fetchLocaleTranslation($deLangId, 'en-us', $this->connection);
@@ -45,32 +48,19 @@ class Migration1675323588ChangeEnglishLocaleTranslationOfUsLocaleTest extends Te
         }
     }
 
-    private function fetchLanguageId(string $code, Connection $connection): ?string
-    {
-        $langId = $connection->fetchOne(
-            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
-            ['code' => $code]
-        );
-        if ($langId === false) {
-            return null;
-        }
-
-        return (string) $langId;
-    }
-
     private function fetchLocaleTranslation(string $languageId, string $code, Connection $connection): ?string
     {
-        $locale = $connection->fetchOne(
-            'SELECT `locale_translation`.`name` FROM `locale_translation` INNER JOIN `locale` ON `locale_translation`.`locale_id` = `locale`.`id` WHERE LOWER(code) = LOWER(:code) AND `language_id` = :languageId LIMIT 1',
+        return $connection->fetchOne(
+            'SELECT `locale_translation`.`name`
+             FROM `locale_translation`
+                 INNER JOIN `locale` ON `locale_translation`.`locale_id` = `locale`.`id`
+             WHERE LOWER(code) = LOWER(:code)
+               AND `language_id` = :languageId
+             LIMIT 1',
             [
                 'code' => $code,
                 'languageId' => $languageId,
             ]
-        );
-        if ($locale === false) {
-            return null;
-        }
-
-        return (string) $locale;
+        ) ?: null;
     }
 }

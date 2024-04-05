@@ -90,7 +90,7 @@ SQL;
         $migration->update($this->connection);
 
         $countryId = $this->getCountryId();
-        $enLanguageId = $this->getEnLanguageId();
+        $enLanguageId = $this->fetchLanguageId($this->connection, 'en-GB');
 
         $sql = <<<'SQL'
 SELECT COUNT(*)
@@ -112,7 +112,7 @@ SQL;
         $migration->update($this->connection);
 
         $countryId = $this->getCountryId();
-        $deLanguageId = $this->getDeLanguageId();
+        $deLanguageId = $this->fetchLanguageId($this->connection, 'de-DE');
 
         $sql = <<<'SQL'
 SELECT COUNT(*)
@@ -125,30 +125,6 @@ SQL;
         $countCountryStateTranslation = $this->connection->fetchOne($sql, ['countryId' => $countryId, 'languageId' => $deLanguageId]);
 
         static::assertEquals(\count(Migration1677470540AddProvincesForCanada::CANADA_STATES), $countCountryStateTranslation);
-    }
-
-    private function getEnLanguageId(): string
-    {
-        $getLanguageSql = <<<'SQL'
-            SELECT language.id
-            FROM language
-            JOIN locale ON locale.id = language.locale_id
-            WHERE locale.code = 'en-GB'
-        SQL;
-
-        return $this->connection->fetchOne($getLanguageSql);
-    }
-
-    private function getDeLanguageId(): string
-    {
-        $getLanguageSql = <<<'SQL'
-            SELECT language.id
-            FROM language
-            JOIN locale ON locale.id = language.locale_id
-            WHERE locale.code = 'de-DE'
-        SQL;
-
-        return $this->connection->fetchOne($getLanguageSql);
     }
 
     private function getCountryId(): string

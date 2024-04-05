@@ -305,11 +305,10 @@ export default class ZoomModalPlugin extends Plugin {
                     },
                 },
             },
+        }).then(() => {
+            this.gallerySliderPlugin = window.PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
+            this.$emitter.publish('initSlider');
         });
-
-        this.gallerySliderPlugin = window.PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
-
-        this.$emitter.publish('initSlider');
     }
 
     /**

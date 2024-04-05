@@ -68,8 +68,8 @@ export default class WebXrView {
         // request session
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         navigator.xr.requestSession( 'immersive-ar', {
-            requiredFeatures: ['local', 'hit-test', 'dom-overlay'],
-            optionalFeatures: ['light-estimation', 'local-floor'],
+            requiredFeatures: ['local', 'hit-test'],
+            optionalFeatures: ['light-estimation', 'local-floor', 'dom-overlay'],
             domOverlay: { root: this.overlay.element },
         } ).then( this.onSessionStarted.bind(this) );
     }

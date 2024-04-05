@@ -29,7 +29,8 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         private readonly EntityAggregatorInterface $decorated,
         private readonly AbstractElasticsearchAggregationHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $timeout = '5s'
+        private readonly string $timeout,
+        private readonly string $searchType
     ) {
     }
 
@@ -52,6 +53,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
                 'body' => $searchArray,
+                'search_type' => $this->searchType,
             ]);
 
             $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);

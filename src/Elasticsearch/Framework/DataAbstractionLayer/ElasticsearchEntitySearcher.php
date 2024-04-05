@@ -36,7 +36,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly CriteriaParser $criteriaParser,
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $timeout = '5s'
+        private readonly string $timeout,
+        private readonly string $searchType
     ) {
     }
 
@@ -68,6 +69,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 'index' => $this->helper->getIndexName($definition),
                 'track_total_hits' => true,
                 'body' => $search,
+                'search_type' => $this->searchType,
             ]);
 
             $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);

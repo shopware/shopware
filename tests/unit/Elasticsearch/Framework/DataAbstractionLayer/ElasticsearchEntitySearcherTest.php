@@ -50,6 +50,8 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $this->createMock(CriteriaParser::class),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
+            '10s',
+            'dfs_query_then_fetch'
         );
 
         $context = Context::createDefaultContext();
@@ -87,6 +89,8 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $this->createMock(CriteriaParser::class),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
+            '5s',
+            'dfs_query_then_fetch'
         );
 
         $context = Context::createDefaultContext();
@@ -118,6 +122,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
                     'from' => 0,
                     'size' => 10,
                 ],
+                'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -132,7 +137,8 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $this->createMock(CriteriaParser::class),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
-            '10s'
+            '10s',
+            'dfs_query_then_fetch'
         );
 
         $context = Context::createDefaultContext();
@@ -168,6 +174,8 @@ class ElasticsearchEntitySearcherTest extends TestCase
             new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
+            '5s',
+            'dfs_query_then_fetch'
         );
 
         $context = Context::createDefaultContext();

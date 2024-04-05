@@ -237,6 +237,10 @@ export default {
          * e.g. 'Product sorting entity' => [{ 'test-sorting': 10 }]
          */
         transformProductSortings() {
+            if (this.productSortings.length === 0) {
+                return [];
+            }
+
             const object = {};
 
             this.productSortings.forEach(currentProductSorting => {

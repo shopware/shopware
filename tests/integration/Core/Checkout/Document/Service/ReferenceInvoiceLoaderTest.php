@@ -30,6 +30,8 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    private Connection $connection;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,6 +47,8 @@ class ReferenceInvoiceLoaderTest extends TestCase
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
             ]
         );
+
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testLoadWithoutDocument(): void
@@ -59,20 +63,41 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertEmpty($invoice);
     }
 
-    public function testLoadWithoutReferenceDocumentId(): void
+    public function testLoadWithoutReferenceDocumentIdWithUnsentDocuments(): void
     {
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        // Create two documents, the latest invoice will be returned
-        $invoiceStruct1 = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
+        // Create two documents, the latest unsent invoice will be returned
         $invoiceStruct = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
+        $invoiceStructLatest = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
         static::assertNotNull($invoiceStruct);
-        static::assertNotNull($invoiceStruct1);
+        static::assertNotNull($invoiceStructLatest);
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
         static::assertNotEmpty($invoice['id']);
-        static::assertContains($invoice['id'], [$invoiceStruct->getId(), $invoiceStruct1->getId()]);
+        static::assertSame($invoice['id'], $invoiceStructLatest->getId());
+    }
+
+    public function testLoadWithoutReferenceDocumentIdWithOneSentDocument(): void
+    {
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        // Create two documents, the latest sent invoice will be returned
+        $invoiceStruct = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
+        $invoiceStructLatest = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
+        static::assertNotNull($invoiceStruct);
+        static::assertNotNull($invoiceStructLatest);
+
+        $this->connection->executeStatement(<<<'SQL'
+            UPDATE document SET sent = 1 WHERE id = :id;
+        SQL, ['id' => Uuid::fromHexToBytes($invoiceStruct->getId())]);
+
+        $invoice = $this->referenceInvoiceLoader->load($orderId);
+
+        static::assertNotEmpty($invoice['id']);
+        static::assertSame($invoice['id'], $invoiceStruct->getId());
     }
 
     public function testLoadWithReferenceDocumentId(): void
@@ -87,8 +112,8 @@ class ReferenceInvoiceLoaderTest extends TestCase
 
         $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId(), $invoiceStruct->getDeepLinkCode());
 
-        static::assertEquals($invoiceStruct->getId(), $invoice['id']);
-        static::assertEquals($orderId, $invoice['orderId']);
+        static::assertSame($invoiceStruct->getId(), $invoice['id']);
+        static::assertSame($orderId, $invoice['orderId']);
         static::assertSame(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
         static::assertNotEmpty($invoice['documentNumber']);
     }

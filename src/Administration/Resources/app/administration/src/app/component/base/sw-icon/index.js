@@ -28,9 +28,9 @@ Component.register('sw-icon', {
 
             // Throw warning when deprecated component is used
             Shopware.Utils.debug.warn(
-                'sw-button',
+                'sw-icon',
                 // eslint-disable-next-line max-len
-                'The old usage of "sw-button" is deprecated and will be removed in v6.7.0.0. Please use "mt-button" instead.',
+                'The old usage of "sw-icon" is deprecated and will be removed in v6.7.0.0. Please use "mt-icon" instead.',
             );
 
             return false;

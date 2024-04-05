@@ -28,6 +28,7 @@ async function createWrapper() {
                 'sw-notification-center': true,
                 'sw-help-center': true,
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-loader': true,
                 'sw-app-actions': true,

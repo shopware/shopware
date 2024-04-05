@@ -1,5 +1,5 @@
-import template from './sw-card.html.twig';
-import './sw-card.scss';
+import template from './sw-card-deprecated.html.twig';
+import './sw-card-deprecated.scss';
 
 const { Component } = Shopware;
 
@@ -15,7 +15,7 @@ const { Component } = Shopware;
  *     Your content
  * </sw-card>
  */
-Component.register('sw-card', {
+Component.register('sw-card-deprecated', {
     template,
     inheritAttrs: false,
 

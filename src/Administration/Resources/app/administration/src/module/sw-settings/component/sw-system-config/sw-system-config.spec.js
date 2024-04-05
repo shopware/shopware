@@ -27,6 +27,7 @@ async function createWrapper(defaultValues = {}) {
             stubs: {
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated'),
                 'sw-ignore-class': true,
                 'sw-sales-channel-switch': await wrapTestComponent('sw-sales-channel-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),

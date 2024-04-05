@@ -85,6 +85,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-empty-state': {
                     template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
                 },

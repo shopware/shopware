@@ -107,6 +107,7 @@ async function createWrapper(privileges = []) {
                 'sw-empty-state': true,
                 'router-link': true,
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-card-view': true,
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,

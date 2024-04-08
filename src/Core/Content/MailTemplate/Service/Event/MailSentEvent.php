@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('buyers-experience')]
 class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.sent';

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailTemplateTypeTranslationEntity>
  */
-#[Package('services-settings')]
+#[Package('buyers-experience')]
 class MailTemplateTypeTranslationCollection extends EntityCollection
 {
     /**

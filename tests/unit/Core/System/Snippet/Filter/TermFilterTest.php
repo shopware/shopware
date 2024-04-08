@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Filter;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\TermFilter;
@@ -10,6 +11,7 @@ use Shopware\Core\System\Snippet\Filter\TermFilter;
  * @internal
  */
 #[Package('system-settings')]
+#[CoversClass(TermFilter::class)]
 class TermFilterTest extends TestCase
 {
     public function testGetFilterName(): void
@@ -211,6 +213,63 @@ class TermFilterTest extends TestCase
         ];
 
         $result = (new TermFilter())->filter($snippets, '1_baz');
+
+        static::assertEquals($expected, $result);
+    }
+
+    public function testFilterWithValueZeroMatches(): void
+    {
+        $snippets = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar0',
+                        'translationKey' => '1.bar',
+                    ],
+                    '1.bas' => [
+                        'value' => '1_bas',
+                        'translationKey' => '1.bas',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'translationKey' => '2.bar',
+                    ],
+                    '2.baz' => [
+                        'value' => '2_baz',
+                        'translationKey' => '2.bas',
+                    ],
+                ],
+            ],
+        ];
+
+        $expected = [
+            'firstSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '1_bar0',
+                        'translationKey' => '1.bar',
+                    ],
+                ],
+            ],
+            'secondSetId' => [
+                'snippets' => [
+                    '1.bar' => [
+                        'value' => '',
+                        'origin' => '',
+                        'translationKey' => '1.bar',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => 'secondSetId',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = (new TermFilter())->filter($snippets, '0');
 
         static::assertEquals($expected, $result);
     }

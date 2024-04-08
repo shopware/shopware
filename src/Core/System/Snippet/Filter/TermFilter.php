@@ -20,7 +20,7 @@ class TermFilter extends AbstractFilter implements SnippetFilterInterface
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !\is_string($requestFilterValue)) {
+        if (!\is_string($requestFilterValue) || $requestFilterValue === '') {
             return $snippets;
         }
 
@@ -29,7 +29,7 @@ class TermFilter extends AbstractFilter implements SnippetFilterInterface
             foreach ($set['snippets'] as $translationKey => $snippet) {
                 $keyMatch = mb_stripos($snippet['translationKey'], $requestFilterValue);
                 $valueMatch = mb_stripos($snippet['value'], $requestFilterValue);
-                
+
                 if ($keyMatch === false && $valueMatch === false) {
                     continue;
                 }

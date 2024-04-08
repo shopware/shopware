@@ -18,9 +18,7 @@ jobs:
           - php-version: 8.2
             stable: true
           - php-version: 8.3
-            stable: false
-          - php-version: 8.4
-            stable: false
+            stable: true
     env:
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch unit integration migration-tests'
       APP_ENV: test
@@ -33,9 +31,10 @@ jobs:
 
     services:
       elasticsearch:
-        image: elastic/elasticsearch:7.8.0
+        image: opensearchproject/opensearch:1
         env:
           discovery.type: single-node
+          plugins.security.disabled: 'true'
         ports:
           - "9200:9200"
       database:
@@ -69,18 +68,22 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           coverage: none
+          tools: symfony-cli
 
       - name: Configure for Unstable
         run: |
-          composer config platform.php 8.2.99
-          composer config -d vendor-bin/cs-fixer platform.php 8.2.99
-          composer config -d vendor-bin/rector platform.php 8.2.99
-          composer config -d vendor-bin/roave-backward-compatibility-check platform.php 8.2.99
+          composer config platform.php 8.3.99
+          composer config -d vendor-bin/cs-fixer platform.php 8.3.99
+          composer config -d vendor-bin/rector platform.php 8.3.99
+          composer config -d vendor-bin/roave-backward-compatibility-check platform.php 8.3.99
         if: matrix.stable == false
 
       - name: Setup Composer
         run: |
           composer install -o
+
+      - name: Start Webserver
+        run: symfony server:start -d
 
       - name: Run PHPUnit
         run: |

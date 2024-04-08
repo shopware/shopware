@@ -10,6 +10,7 @@ permissions:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    if: github.repository == 'shopware/shopware'
     env:
       SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: "1"
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
@@ -66,6 +67,7 @@ jobs:
   playwright:
     name: 'Acceptance tests'
     runs-on: ubuntu-latest
+    if: github.repository == 'shopware/shopware'
     container:
       image: mcr.microsoft.com/playwright:v1.39.0-jammy
     needs: docker

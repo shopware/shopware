@@ -1,6 +1,6 @@
 ---
 title: Fix storefront webpack
-issue: NEXT-00000
+issue: NEXT-34756
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

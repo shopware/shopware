@@ -34,6 +34,7 @@ class Migration1619428555AddDefaultMailFooter extends MigrationStep
         $connection->insert(MailHeaderFooterDefinition::ENTITY_NAME, [
             'id' => $id,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'system_default' => 1,
         ]);
 
         $translations = new Translations(

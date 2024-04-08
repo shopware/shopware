@@ -36,23 +36,18 @@ class LogoutRoute extends AbstractLogoutRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
+        $newToken = Random::getAlphanumericString(32);
+
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
             $this->contextPersister->delete($context->getToken(), $context->getSalesChannelId());
-
-            $event = new CustomerLogoutEvent($context, $customer);
-            $this->eventDispatcher->dispatch($event);
-
-            return new ContextTokenResponse($context->getToken());
-        }
-
-        $newToken = Random::getAlphanumericString(32);
-        if ((bool) $data->get('replace-token')) {
+        } else {
+            $this->contextPersister->save($context->getToken(), ['customerId' => null], $context->getSalesChannelId());
             $newToken = $this->contextPersister->replace($context->getToken(), $context);
         }
 

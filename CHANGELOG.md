@@ -1,6 +1,39 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.8
+*  [NEXT-32311 - Updated validation in EntityWriter](./changelog/release-6-5-8-8/2024-01-04-updated-validation-in-entitywriter.md)
+*  [NEXT-11827 - Clean-up temp files after use of MediaService](./changelog/release-6-5-8-8/2024-01-25-clean-up-temp-files-after-use-of-mediaservice.md)
+*  [NEXT-23962 - Fix opening ajax modal within ajax modal](./changelog/release-6-5-8-8/2024-01-29-fix-opening-ajax-modal-within-ajax-modal.md)
+*  [NEXT-31040 - Add pagination in media selection](./changelog/release-6-5-8-8/2024-02-01-add-pagination-in-media-selection.md)
+*  [NEXT-32339 - Do not allow deleting connected media thumbnail size](./changelog/release-6-5-8-8/2024-02-06-do-not-allow-deleting-connected-media-thumbnail-size.md)
+*  [NEXT-33571 - Fix creating a new thumbnail size error](./changelog/release-6-5-8-8/2024-02-07-fix-creating-a-new-thumbnail-size-error.md)
+*  [NEXT-33748 - Fix sw-media-modal-v2 target-folder property](./changelog/release-6-5-8-8/2024-02-14-fix-sw-media-modal-v2-target-folder-property.md)
+*  [NEXT-33707 - Core fixes](./changelog/release-6-5-8-8/2024-02-21-core-fixes.md)
+*  [NEXT-33846 - Fixes missing setIndexer for NewsletterRecipientIndexingMessage](./changelog/release-6-5-8-8/2024-02-21-fixes-missing-setindexer-for-newsletterrecipientindexingmessage.md)
+*  [NEXT-34102 - Add new block in analytics template](./changelog/release-6-5-8-8/2024-02-23-add-new-block-in-analytics-template.md) ([Wanne Van Camp](https://github.com/wannevancamp))
+*  [NEXT-33820 - Landing page SEO template leads to infinite redirection](./changelog/release-6-5-8-8/2024-02-23-landing-page-seo-template-leads-to-infinite-redirection.md)
+*  [NEXT-34028 - Change path column in app definition to varchar(4096)](./changelog/release-6-5-8-8/2024-02-26-change-path-column-in-app-definition.md)
+*  [NEXT-34027 - Indexing results in an exception, when a inherting language is used](./changelog/release-6-5-8-8/2024-02-26-indexing-results-in-an-exception-when-a-inherting-language-is-used.md)
+*  [NEXT-34023 - Slow query with criteria term](./changelog/release-6-5-8-8/2024-02-26-slow-query-with-criteria-term.md)
+*  [NEXT-31922 - Added new API route to update order addresses](./changelog/release-6-5-8-8/2024-02-27-added-new-api-route-to-update-order-addresses.md)
+*  [NEXT-33078 - Allow integrations to manage users](./changelog/release-6-5-8-8/2024-02-29-allow-integrations-to-manage-users.md)
+*  [NEXT-34113 - Clear cookies on 404 pages](./changelog/release-6-5-8-8/2024-03-04-clear-cookies-on-404-pages.md)
+*  [NEXT-34012 - Revert using SCN Domain URL in ProductExportRenderer](./changelog/release-6-5-8-8/2024-03-04-revert-using-scn-domain-url-in-productexportrenderer.md)
+*  [NEXT-34181 - Changed type in constructor](./changelog/release-6-5-8-8/2024-03-05-fix-partial-many-to-many-criteria.md)
+*  [NEXT-34165 - Exclude remote click plugin from mobile view](./changelog/release-6-5-8-8/2024-03-06-exclude-remote-click-from-mobile.md)
+*  [NEXT-34214 - Fix plugin chunk hash](./changelog/release-6-5-8-8/2024-03-06-fix-plugin-chunk-hash.md)
+*  [NEXT-34323 - Fix CMS product-slider when assigned products are deleted](./changelog/release-6-5-8-8/2024-03-11-fix-cms-product-slider-when-assigned-products-are-deleted.md)
+*  [NEXT-31710 - Don't run delete unused media scheduled task on unsupported database versions](./changelog/release-6-5-8-8/2024-03-12-don-t-run-delete-unused-media-scheduled-task-on-unsupported-database-versions.md)
+*  [NEXT-33555 - Fixed asset path generation in plugin html files](./changelog/release-6-5-8-8/2024-03-14-fixed-asset-path-generation-in-plugin-html-files.md)
+*  [NEXT-14691 - Add pseudo modal twig blocks](./changelog/release-6-5-8-8/2024-03-18-add-pseudo-modal-twig-blocks.md) ([Elias Lackner](https://github.com/lacknere))
+*  [NEXT-34478 - Snippet cache invalidation](./changelog/release-6-5-8-8/2024-03-20-snippet-cache-invalidation.md)
+*  [NEXT-34615 - Handle empty query exception](./changelog/release-6-5-8-8/2024-03-29-handle-empty-query-exception.md)
+*  [NEXT-34608 - Improve account logout](./changelog/release-6-5-8-8/2024-04-03-improve-account-logout.md)
+
+## 6.5.8.7
+*  [NEXT-34113 - Clear cookies on 404 pages](./changelog/release-6-5-8-7/2024-03-04-clear-cookies-on-404-pages.md)
+
 ## 6.5.8.6
 *  [NEXT-31342 - Add main category](./changelog/release-6-5-8-6/2024-01-16-add-main-category.md)
 *  [NEXT-32024 - Fix customer language reset to default after login](./changelog/release-6-5-8-6/2024-01-30-fix-customer-language-reset-to-default-after-login.md)

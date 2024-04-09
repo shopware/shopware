@@ -167,80 +167,62 @@ export default {
             if (!this.languageId) {
                 Shopware.State.commit('context/resetLanguageToDefault');
                 this.language = this.languageRepository.create();
-            } else {
-                this.loadEntityData();
-                this.loadCustomFieldSets();
+
+                return;
             }
 
-            this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
-                console.log(data);
-                this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
+            this.loadEntityData().then(() => {
+                return this.loadCustomFieldSets();
+            }).then(() => {
+                this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
+                    this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
+                });
             });
         },
 
         loadEntityData() {
-            console.log(1);
-            this.isLoading = true;
-            this.languageRepository.get(this.languageId).then((language) => {
+            return this.languageRepository.get(this.languageId).then((language) => {
                 this.isLoading = false;
                 this.language = language;
-console.log('data:');
-console.log(this.language);
                 if (language.parentId) {
                     this.setParentTranslationCodeId(language.parentId);
                 }
             }).catch(() => {
                 this.isLoading = false;
             });
-            console.log(2);
         },
 
         loadCustomFieldSets() {
-            console.log(3);
-            this.customFieldDataProviderService.getCustomFieldSets('language').then((sets) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('language').then((sets) => {
                 this.customFieldSets = sets;
             });
-            console.log(4);
         },
 
         checkTranslationCodeInheritance(value) {
-            console.log(5);
             return value === this.parentTranslationCodeId;
-            console.log(6);
         },
 
         setParentTranslationCodeId(parentId) {
-            console.log(7);
             this.languageRepository.get(parentId, Shopware.Context.api).then((parentLanguage) => {
                 this.parentTranslationCodeId = parentLanguage.translationCodeId;
             });
-            console.log(8);
         },
 
         onInputLanguage(parentId) {
-            console.log(9);
             if (parentId) {
                 this.setParentTranslationCodeId(parentId);
             }
 
             const origin = this.language.getOrigin();
             if (this.language.isNew() || !origin.parentId) {
-                console.log(11);
                 return;
             }
 
             this.showAlertForChangeParentLanguage = origin.parentId !== this.language.parentId;
-            console.log(10);
         },
 
         isLocaleAlreadyUsed(itemId) {
-            console.log(itemId);
-            console.log(this.usedTranslationIds);
             return this.usedTranslationIds.some((localeId) => {
-                console.log('inner start');
-                console.log(localeId);
-                console.log(itemId);
-                console.log('inner end');
                 return itemId === localeId;
             });
         },

@@ -1066,11 +1066,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Service/AbstractFileService.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\FileService\\:\\:updateFile\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/FileService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Aggregate\\\\LandingPageTranslation\\\\LandingPageTranslationEntity\\:\\:getSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/Aggregate/LandingPageTranslation/LandingPageTranslationEntity.php
@@ -2059,51 +2054,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\FileServiceTest\\:\\:testDetectType\\(\\) has parameter \\$fileData with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:mappingInputProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:templateProfileProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:testCreateTemplateFromProfileMapping\\(\\) has parameter \\$profile with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:testGetMappingFromTemplate\\(\\) has parameter \\$data with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_exists expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function fopen expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of class Symfony\\\\Component\\\\HttpFoundation\\\\File\\\\UploadedFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Subscriber\\\\ProductCategoryPathsSubscriberTest\\:\\:provideCategoryPaths\\(\\) has no return type specified\\.$#"

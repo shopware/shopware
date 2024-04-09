@@ -106,7 +106,7 @@ export default {
             ],
             visibilityProperties: ['all', 'link', 'search'],
             notMappedItem: {
-                label: this.$tc('sw-import-export.profile.mapping.notMapped'),
+                label: this.$t('sw-import-export.profile.mapping.notMapped'),
                 relation: undefined,
                 value: '',
             },
@@ -134,6 +134,12 @@ export default {
             return {
                 'is--placeholder': !this.singleSelection,
             };
+        },
+
+        resultListClasses() {
+            return [
+                'sw-import-export-entity-path-select__result-list',
+            ];
         },
 
         singleSelection: {

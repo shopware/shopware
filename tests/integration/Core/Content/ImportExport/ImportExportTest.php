@@ -21,9 +21,11 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\UpdatedByValueNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExport;
@@ -132,7 +134,9 @@ class ImportExportTest extends AbstractImportExportTestCase
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
         $events = array_column($this->listener->getCalledListeners(), 'event');
+        static::assertContains(EnrichExportCriteriaEvent::class, $events);
         static::assertContains(ImportExportBeforeExportRecordEvent::class, $events);
+        static::assertNotContains(ImportExportExceptionExportRecordEvent::class, $events);
 
         $logfile = $this->getLogEntity($progress->getLogId())->getFile();
         static::assertInstanceOf(ImportExportFileEntity::class, $logfile);

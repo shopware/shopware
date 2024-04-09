@@ -1,21 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Service;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
-use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
-use Shopware\Core\Content\ImportExport\Exception\InvalidFileContentException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\MappingService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,6 +24,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Package('services-settings')]
+#[CoversClass(MappingService::class)]
 class MappingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,19 +50,24 @@ class MappingServiceTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, mixed>|null $profile
+     */
     #[DataProvider('templateProfileProvider')]
-    public function testCreateTemplateFromProfileMapping($profile): void
+    public function testCreateTemplateFromProfileMapping(?array $profile): void
     {
         if ($profile === null) {
             $profileId = Uuid::randomHex();
-            self::expectExceptionObject(new EntityNotFoundException('import_export_profile', $profileId));
+            self::expectExceptionObject(ImportExportException::profileNotFound($profileId));
             $this->mappingService->createTemplate(Context::createDefaultContext(), $profileId);
+
+            return;
         }
 
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
         if (empty($profile['mapping'])) {
-            static::expectException(\RuntimeException::class);
+            static::expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
         }
 
         $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
@@ -88,8 +92,11 @@ class MappingServiceTest extends TestCase
         }
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     #[DataProvider('mappingInputProvider')]
-    public function testGetMappingFromTemplate($data): void
+    public function testGetMappingFromTemplate(array $data): void
     {
         // prepare profile for lookup
         $lookupMapping = [];
@@ -113,6 +120,7 @@ class MappingServiceTest extends TestCase
 
         // prepare csv file for guessing
         $filePath = tempnam(sys_get_temp_dir(), '');
+        \assert(\gettype($filePath) === 'string');
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
             $file = fopen($filePath, 'w');
             static::assertIsResource($file);
@@ -138,7 +146,7 @@ class MappingServiceTest extends TestCase
         }
 
         $testCase = 'test case data: ' . var_export($data, true);
-        static::assertSame(is_countable($data['expectedMappings']) ? \count($data['expectedMappings']) : 0, $guessedMapping->count(), $testCase);
+        static::assertCount(is_countable($data['expectedMappings']) ? \count($data['expectedMappings']) : 0, $guessedMapping);
 
         foreach ($data['expectedMappings'] as $mappedKey => $key) {
             $mapping = $guessedMapping->getMapped($mappedKey);
@@ -183,6 +191,9 @@ class MappingServiceTest extends TestCase
         }
     }
 
+    /**
+     * @return iterable<string, mixed>
+     */
     public static function templateProfileProvider(): iterable
     {
         yield 'Import/Export profile with mapping' => [
@@ -274,6 +285,9 @@ class MappingServiceTest extends TestCase
         ];
     }
 
+    /**
+     * @return iterable<string, mixed>
+     */
     public static function mappingInputProvider(): iterable
     {
         yield 'With existing mapping' => [
@@ -296,7 +310,7 @@ class MappingServiceTest extends TestCase
 
         yield 'Invalid file type' => [
             [
-                'expectedErrorClass' => UnexpectedFileTypeException::class,
+                'expectedErrorClass' => ImportExportException::unexpectedFileType('text/json', 'text/csv')::class,
                 'fileType' => 'text/json',
                 'sourceEntity' => 'product',
                 'csvHeader' => 'id;something;nothing;width;unit_id;unit_name',
@@ -306,7 +320,7 @@ class MappingServiceTest extends TestCase
         yield 'Empty file' => [
             [
                 'emptyFile' => true,
-                'expectedErrorClass' => FileEmptyException::class,
+                'expectedErrorClass' => ImportExportException::fileEmpty('foo')::class,
                 'sourceEntity' => 'product',
                 'csvHeader' => 'id;something;nothing;width;unit_id;unit_name',
             ],
@@ -314,7 +328,7 @@ class MappingServiceTest extends TestCase
 
         yield 'Invalid file content' => [
             [
-                'expectedErrorClass' => InvalidFileContentException::class,
+                'expectedErrorClass' => ImportExportException::invalidFileContent('foo')::class,
                 'sourceEntity' => 'product',
                 'csvHeader' => '' . \PHP_EOL,
             ],

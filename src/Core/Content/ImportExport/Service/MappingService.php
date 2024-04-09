@@ -3,10 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
-use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
-use Shopware\Core\Content\ImportExport\Exception\InvalidFileContentException;
-use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
@@ -16,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -51,11 +47,11 @@ class MappingService extends AbstractMappingService
     {
         $profile = $this->profileRepository->search(new Criteria([$profileId]), $context)->getEntities()->first();
         if ($profile === null) {
-            throw new EntityNotFoundException('import_export_profile', $profileId);
+            throw ImportExportException::profileNotFound($profileId);
         }
         $mappings = $profile->getMapping();
         if (empty($mappings)) {
-            throw new \RuntimeException('ImportExportProfile "' . $profileId . '" has no mappings');
+            throw ImportExportException::profileWithoutMappings($profileId);
         }
 
         $config = new Config($mappings, [], []);
@@ -96,28 +92,28 @@ class MappingService extends AbstractMappingService
         string $escape = '\\'
     ): MappingCollection {
         if ($this->fileService->detectType($file) !== 'text/csv') {
-            throw new UnexpectedFileTypeException($file->getClientMimeType(), 'text/csv');
+            throw ImportExportException::unexpectedFileType($file->getClientMimeType(), 'text/csv');
         }
 
         if ($file->getSize() < 1) {
-            throw new FileEmptyException($file->getFilename());
+            throw ImportExportException::fileEmpty($file->getFilename());
         }
 
         $filePath = $file->getRealPath();
         if (!$filePath) {
-            throw new \RuntimeException('File does not exists');
+            throw ImportExportException::filePathNotFound();
         }
 
         $fileHandle = fopen($filePath, 'r');
         if (!$fileHandle) {
-            throw new FileNotReadableException($filePath);
+            throw ImportExportException::fileNotReadable($filePath);
         }
 
         // read the first CSV line
         $record = fgetcsv($fileHandle, 0, $delimiter, $enclosure, $escape);
         fclose($fileHandle);
         if (empty($record) || $record[0] === null) {
-            throw new InvalidFileContentException($file->getFilename());
+            throw ImportExportException::invalidFileContent($file->getFilename());
         }
 
         // construct the mapping from the given CSV line data

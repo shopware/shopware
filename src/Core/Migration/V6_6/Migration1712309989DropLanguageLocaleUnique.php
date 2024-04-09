@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_7;
+namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +21,7 @@ class Migration1712309989DropLanguageLocaleUnique extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `language` DROP INDEX `uniq.translation_code_id`');
+        $this->dropIndexIfExists($connection, 'language', 'uniq.translation_code_id');
     }
 
     public function updateDestructive(Connection $connection): void

@@ -181,9 +181,11 @@ export default {
         },
 
         loadEntityData() {
+            this.isLoading = true;
             return this.languageRepository.get(this.languageId).then((language) => {
                 this.isLoading = false;
                 this.language = language;
+
                 if (language.parentId) {
                     this.setParentTranslationCodeId(language.parentId);
                 }

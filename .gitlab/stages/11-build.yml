@@ -159,7 +159,7 @@ build image:
   variables:
     GIT_STRATEGY: none
   rules:
-    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $CI_COMMIT_BRANCH !~ /^saas\/.*/'
       variables:
         EXTRA_DEV_BUILD_TAGS: "${CI_COMMIT_BRANCH}"
     - when: always

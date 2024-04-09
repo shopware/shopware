@@ -90,7 +90,7 @@ PHP integration:
     - php vendor/bin/phpunit
       --configuration phpunit.xml.dist
       --log-junit phpunit.junit.xml
-      --exclude-group=needsWebserver,skip-paratest,not-deterministic,quarantined
+      --exclude-group=needsWebserver,skip-paratest,not-deterministic
       --testsuite integration
       --order-by default
 
@@ -139,7 +139,6 @@ PHP unit coverage:
     - php $PHP_OPTIONS vendor/bin/phpunit
       --configuration phpunit.xml.dist
       --bootstrap tests/unit/Common/UnitTestBootstrap.php
-      --exclude-group=quarantined
       --log-junit phpunit.junit.xml
       --testsuite unit
       --coverage-text
@@ -181,7 +180,6 @@ PHP migration coverage:
     - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
     - php $PHP_OPTIONS vendor/bin/phpunit
       --configuration tests/migration/phpunit.xml
-      --exclude-group=quarantined
       --log-junit phpunit.junit.xml
       --testsuite migration-tests
       --coverage-text
@@ -322,7 +320,6 @@ PHP unit per area:
       --bootstrap tests/unit/Common/UnitTestBootstrap.php
       --log-junit phpunit.junit.xml
       --testsuite unit
-      --exclude-group=quarantined
       --coverage-text
       --coverage-html phpunit/
       --coverage-cobertura coverage/php/$PRODUCT_AREA/cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines

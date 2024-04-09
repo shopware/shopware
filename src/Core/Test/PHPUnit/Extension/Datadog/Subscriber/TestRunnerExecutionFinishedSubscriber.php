@@ -18,6 +18,7 @@ class TestRunnerExecutionFinishedSubscriber implements ExecutionFinishedSubscrib
     public function __construct(
         private readonly DatadogPayloadCollection $failedTests,
         private readonly DatadogPayloadCollection $slowTests,
+        private readonly DatadogPayloadCollection $skippedTests,
         private readonly DatadogGateway $gateway
     ) {
     }
@@ -26,7 +27,8 @@ class TestRunnerExecutionFinishedSubscriber implements ExecutionFinishedSubscrib
     {
         $failedTests = array_values($this->failedTests->map(fn (DatadogPayload $payload) => $payload->serialize()));
         $slowTests = array_values($this->slowTests->map(fn (DatadogPayload $payload) => $payload->serialize()));
+        $skippedTests = array_values($this->skippedTests->map(fn (DatadogPayload $payload) => $payload->serialize()));
 
-        $this->gateway->sendLogs(array_merge($failedTests, $slowTests));
+        $this->gateway->sendLogs(array_merge($failedTests, $slowTests, $skippedTests));
     }
 }

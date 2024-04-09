@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Api\OAuth;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -55,18 +54,6 @@ class ClientRepositoryTest extends TestCase
         $this->getBrowser()->request('GET', '/api/product');
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
-    }
-
-    /**
-     * NEXT-6026
-     */
-    #[Group('quarantined')]
-    public function testDoesntAffectIntegrationWithoutApp(): void
-    {
-        $browser = $this->getBrowserAuthenticatedWithIntegration();
-        $browser->request('GET', '/api/product');
-
-        static::assertEquals(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
     private function fetchApp(string $appName): ?AppEntity

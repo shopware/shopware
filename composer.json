@@ -266,7 +266,6 @@
         "phpbench": " ",
         "phpstan": "Launches the PHP static analysis tool",
         "phpunit": "Launches the PHP unit test-suite",
-        "phpunit:quarantined": "Launches the PHP unit test-suite for quarantined tests",
         "post-install-cmd": " ",
         "post-update-cmd": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
@@ -461,7 +460,7 @@
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:storefront:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Storefront/Resources/app/storefront; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
         "paratest": [
-            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver,quarantined --processes $(getconf _NPROCESSORS_ONLN)"
+            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(getconf _NPROCESSORS_ONLN)"
         ],
         "phpbench": "phpbench run --report=compressed",
         "phpstan": [
@@ -476,10 +475,7 @@
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-v66-baseline.neon"
         ],
         "phpunit": [
-            "phpunit --exclude-group=quarantined"
-        ],
-        "phpunit:quarantined": [
-            "phpunit --group=quarantined"
+            "phpunit"
         ],
         "post-install-cmd": [
             "@composer bin all install --ansi"

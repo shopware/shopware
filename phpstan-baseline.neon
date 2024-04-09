@@ -3065,8 +3065,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Api/Exception/ResourceNotFoundException.php
 
-
-
 		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
@@ -4406,11 +4404,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/CustomField/Api/CustomFieldSetActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:getProduct\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"

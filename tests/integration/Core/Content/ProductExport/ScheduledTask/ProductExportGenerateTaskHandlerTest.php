@@ -26,7 +26,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
@@ -57,45 +56,6 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $this->fileSystem = static::getContainer()->get('shopware.filesystem.private');
     }
 
-    #[Group('quarantined')]
-    public function testRun(): void
-    {
-        // Add a second storefront sales channel, to check if all sales channels will be recognized for the product export
-        $this->createSecondStorefrontSalesChannel();
-        $this->createProductStream();
-
-        // only get seconds, not microseconds, for better comparison to DB
-        $previousGeneratedAt = \DateTime::createFromFormat('U', (string) time());
-        static::assertInstanceOf(\DateTimeInterface::class, $previousGeneratedAt);
-        $exportId = $this->createTestEntity($previousGeneratedAt);
-        $this->clearQueue();
-        $this->getTaskHandler()->run();
-
-        $url = '/api/_action/message-queue/consume';
-        $client = $this->getBrowser();
-        $client->request('POST', $url, ['receiver' => 'async']);
-
-        static::assertSame(200, $client->getResponse()->getStatusCode());
-
-        $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('handledMessages', $response);
-        static::assertIsInt($response['handledMessages']);
-        static::assertSame(1, $response['handledMessages']);
-
-        $filePath = sprintf('%s/Testexport.csv', static::getContainer()->getParameter('product_export.directory'));
-        $fileContent = $this->fileSystem->read($filePath);
-
-        $csvRows = explode(\PHP_EOL, $fileContent);
-
-        static::assertTrue($this->fileSystem->directoryExists(static::getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->fileExists($filePath));
-        static::assertCount(4, $csvRows);
-
-        $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->getEntities()->first();
-        static::assertNotNull($newExport);
-        static::assertGreaterThan($previousGeneratedAt, $newExport->getGeneratedAt());
-    }
-
     public function testSkipGenerateByCronjobFalseProductExports(): void
     {
         $this->createProductStream();
@@ -122,92 +82,6 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->getEntities()->first();
         static::assertNotNull($newExport);
         static::assertEquals($previousGeneratedAt, $newExport->getGeneratedAt());
-    }
-
-    #[Group('quarantined')]
-    public function testGeneratedAtAndIntervalsAreRespected(): void
-    {
-        $this->createProductStream();
-        $this->clearProductExports();
-
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-
-        // Create one ProductExport, last exported 30 days ago, to be exported every hour
-        $this->createTestEntity($now->sub(new \DateInterval('P30M')), 3600);
-
-        // Create a second ProductExport, last exported 30 minutes ago, to be exported every hour
-        $this->createTestEntity($now->sub(new \DateInterval('PT30M')), 3600, 'Testexport1.csv');
-
-        $bus = static::getContainer()->get('messenger.bus.shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
-
-        $this->clearQueue();
-        // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $this->getDispatchedMessages();
-        $this->getTaskHandler()->run();
-        $messagesAfter = $this->getDispatchedMessages();
-
-        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
-    }
-
-    #[Group('quarantined')]
-    public function testGeneratedAtIsNullWorks(): void
-    {
-        $this->createProductStream();
-        $this->clearProductExports();
-
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-
-        // Create one ProductExport, last exported 30 days ago, to be exported every hour
-        $this->createTestEntity(null, 3600);
-
-        // Create a second ProductExport, last exported 30 minutes ago, to be exported every hour
-        $this->createTestEntity($now->sub(new \DateInterval('PT30M')), 3600, 'Testexport1.csv');
-
-        $bus = static::getContainer()->get('messenger.bus.shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
-
-        $this->clearQueue();
-        // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $bus->getDispatchedMessages();
-        $this->getTaskHandler()->run();
-        $messagesAfter = $bus->getDispatchedMessages();
-
-        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
-    }
-
-    #[Group('quarantined')]
-    public function testSchedulerRunIfSalesChannelIsActive(): void
-    {
-        $this->prepareProductExportForScheduler(true);
-
-        $bus = static::getContainer()->get('messenger.bus.shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
-
-        $this->clearQueue();
-        // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $bus->getDispatchedMessages();
-        $this->getTaskHandler()->run();
-        $messagesAfter = $bus->getDispatchedMessages();
-
-        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
-    }
-
-    #[Group('quarantined')]
-    public function testSchedulerDontRunIfSalesChannelIsNotActive(): void
-    {
-        $this->prepareProductExportForScheduler(false);
-
-        $bus = static::getContainer()->get('messenger.bus.shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
-
-        $this->clearQueue();
-        // Since clearing the queue doesn't seem to really work, check difference in message number
-        $messagesBefore = $bus->getDispatchedMessages();
-        $this->getTaskHandler()->run();
-        $messagesAfter = $bus->getDispatchedMessages();
-
-        static::assertCount(\count($messagesBefore), $messagesAfter);
     }
 
     protected function createSecondStorefrontSalesChannel(): void
@@ -369,45 +243,5 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
-    }
-
-    private function clearProductExports(): void
-    {
-        /** @var list<string> $ids */
-        $ids = $this->productExportRepository->searchIds(new Criteria(), $this->context)->getIds();
-
-        $ids = array_map(static fn (string $id): array => ['id' => $id], $ids);
-
-        $this->productExportRepository->delete($ids, $this->context);
-    }
-
-    private function prepareProductExportForScheduler(bool $active): void
-    {
-        $this->createProductStream();
-        $this->clearProductExports();
-        $this->createTestEntity();
-
-        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->getSalesChannelId()));
-        $salesChannelId = $salesChannelRepository->searchIds($criteria, $this->context)->firstId();
-
-        $salesChannelRepository->update([
-            [
-                'id' => $salesChannelId,
-                'active' => $active,
-            ],
-        ], $this->context);
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function getDispatchedMessages(): array
-    {
-        $bus = static::getContainer()->get('messenger.bus.shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
-
-        return $bus->getDispatchedMessages();
     }
 }

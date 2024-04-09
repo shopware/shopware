@@ -99,7 +99,7 @@ export default class AddressEditorPlugin extends Plugin {
     _openModal(response) {
         const pseudoModal = new PseudoModalUtil(response);
 
-        pseudoModal.open(this._onOpen.bind(this, pseudoModal));
+        pseudoModal.open(this._onOpen.bind(this, pseudoModal), 0);
 
         const modal = pseudoModal.getModal();
 

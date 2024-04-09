@@ -1,4 +1,5 @@
 import DomAccess from 'src/helper/dom-access.helper';
+import { REMOVE_BACKDROP_DELAY } from 'src/utility/backdrop/backdrop.util';
 
 const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
 const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
@@ -27,11 +28,12 @@ export default class PseudoModalUtil {
      * opens the modal
      *
      * @param {function} cb
+     * @param {Number} delay
      */
-    open(cb) {
+    open(cb, delay = REMOVE_BACKDROP_DELAY) {
         this._hideExistingModal();
         this._create();
-        this._open(cb);
+        setTimeout(this._open.bind(this, cb), delay);
     }
 
     /**

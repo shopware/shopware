@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Filter;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\AuthorFilter;
@@ -10,6 +11,7 @@ use Shopware\Core\System\Snippet\Filter\AuthorFilter;
  * @internal
  */
 #[Package('system-settings')]
+#[CoversClass(AuthorFilter::class)]
 class AuthorFilterTest extends TestCase
 {
     public function testGetFilterName(): void
@@ -32,10 +34,20 @@ class AuthorFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -44,10 +56,20 @@ class AuthorFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -59,10 +81,16 @@ class AuthorFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
@@ -72,17 +100,23 @@ class AuthorFilterTest extends TestCase
             ],
             'secondSetId' => [
                 'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
-                    ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'author' => 'Shopware',
                     ],
                 ],
             ],
@@ -90,7 +124,7 @@ class AuthorFilterTest extends TestCase
 
         $result = (new AuthorFilter())->filter($snippets, ['Shopware']);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterDoesntRemoveSnippetInOtherSet(): void
@@ -101,14 +135,29 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '1_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '1_baz',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.bas' => [
                         'value' => '1_bas',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -117,10 +166,20 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '2_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '2_baz',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -132,10 +191,20 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '1_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '1_baz',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -144,10 +213,20 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '2_bar',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '2_baz',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -155,7 +234,7 @@ class AuthorFilterTest extends TestCase
 
         $result = (new AuthorFilter())->filter($snippets, ['Shopware']);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterWithMultipleAuthors(): void
@@ -166,14 +245,29 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '1_bar',
                         'author' => 'Test',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '1_baz',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.bas' => [
                         'value' => '1_bas',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -182,10 +276,20 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '2_bar',
                         'author' => 'Test',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '2_baz',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -197,10 +301,20 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '1_bar',
                         'author' => 'Test',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '1_baz',
                         'author' => 'Shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -209,10 +323,20 @@ class AuthorFilterTest extends TestCase
                     'foo.bar' => [
                         'value' => '2_bar',
                         'author' => 'Test',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     'foo.baz' => [
                         'value' => '2_baz',
                         'author' => 'Anonymous',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -220,6 +344,6 @@ class AuthorFilterTest extends TestCase
 
         $result = (new AuthorFilter())->filter($snippets, ['Shopware', 'Test']);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 }

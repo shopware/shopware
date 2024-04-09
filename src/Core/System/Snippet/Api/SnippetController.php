@@ -48,7 +48,7 @@ class SnippetController extends AbstractController
                 $request->request->getInt('page', 1),
                 $limit,
                 $context,
-                $request->request->all('filters'),
+                $filters,
                 $request->request->all('sort')
             )
         );

@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 
 /**
@@ -31,8 +31,7 @@ class SnippetFileCollectionTest extends TestCase
 
     public function testGetIsoList(): void
     {
-        $collection = $this->getCollection();
-        $isoList = $collection->getIsoList();
+        $isoList = $this->getCollection()->getIsoList();
 
         static::assertCount(2, $isoList);
         static::assertContains('de-DE', $isoList);
@@ -63,7 +62,8 @@ class SnippetFileCollectionTest extends TestCase
     {
         $collection = $this->getCollection();
 
-        $this->expectException(InvalidSnippetFileException::class);
+        $this->expectException(SnippetException::class);
+        $this->expectExceptionMessage('The base snippet file for locale de-AT is not registered.');
 
         $collection->getBaseFileByIso('de-AT');
     }
@@ -83,18 +83,13 @@ class SnippetFileCollectionTest extends TestCase
 
     public function testToArray(): void
     {
-        $collection = $this->getCollection();
-        $result = $collection->toArray();
+        $result = $this->getCollection()->toArray();
 
         static::assertCount(3, $result);
 
-        $resultDe = array_filter(/**
-         * @param array<string, bool|string> $item
-         */ $result, fn (array $item) => $item['iso'] === 'de-DE');
+        $resultDe = array_filter($result, static fn (array $item) => $item['iso'] === 'de-DE');
 
-        $resultEn = array_filter(/**
-         * @param array<string, bool|string> $item
-         */ $result, fn (array $item) => $item['iso'] === 'en-GB');
+        $resultEn = array_filter($result, static fn (array $item) => $item['iso'] === 'en-GB');
 
         static::assertCount(2, $resultDe);
         static::assertCount(1, $resultEn);

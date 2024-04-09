@@ -36,10 +36,20 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'translationKey' => '1.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -48,10 +58,20 @@ class TermFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'translationKey' => '2.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -63,10 +83,16 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
@@ -76,17 +102,23 @@ class TermFilterTest extends TestCase
             ],
             'secondSetId' => [
                 'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
-                    ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'translationKey' => '2.bar',
                     ],
                 ],
             ],
@@ -94,7 +126,7 @@ class TermFilterTest extends TestCase
 
         $result = (new TermFilter())->filter($snippets, '_bar');
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterWithKeyMatch(): void
@@ -105,10 +137,20 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'translationKey' => '1.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -117,10 +159,20 @@ class TermFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'translationKey' => '2.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -132,10 +184,16 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
@@ -145,17 +203,23 @@ class TermFilterTest extends TestCase
             ],
             'secondSetId' => [
                 'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
-                    ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'translationKey' => '2.bar',
                     ],
                 ],
             ],
@@ -163,7 +227,7 @@ class TermFilterTest extends TestCase
 
         $result = (new TermFilter())->filter($snippets, '.bar');
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterDoesntRemoveSnippetInOtherSet(): void
@@ -174,10 +238,20 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.baz' => [
                         'value' => '1_baz',
                         'translationKey' => '1.baz',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -186,10 +260,20 @@ class TermFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.baz' => [
                         'value' => '2_baz',
                         'translationKey' => '1.baz',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -201,6 +285,11 @@ class TermFilterTest extends TestCase
                     '1.baz' => [
                         'value' => '1_baz',
                         'translationKey' => '1.baz',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -209,6 +298,11 @@ class TermFilterTest extends TestCase
                     '1.baz' => [
                         'value' => '2_baz',
                         'translationKey' => '1.baz',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -216,7 +310,7 @@ class TermFilterTest extends TestCase
 
         $result = (new TermFilter())->filter($snippets, '1_baz');
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterWithValueZeroMatches(): void
@@ -227,10 +321,20 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar0',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'translationKey' => '1.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -239,10 +343,20 @@ class TermFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'translationKey' => '2.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -254,6 +368,11 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar0',
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -262,6 +381,7 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
@@ -273,7 +393,7 @@ class TermFilterTest extends TestCase
 
         $result = (new TermFilter())->filter($snippets, '0');
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterValueWithLongSnippet(): void
@@ -284,10 +404,20 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => self::LONG_SNIPPET,
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'translationKey' => '1.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -296,10 +426,20 @@ class TermFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'translationKey' => '2.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'translationKey' => '2.bas',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -311,6 +451,11 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => self::LONG_SNIPPET,
                         'translationKey' => '1.bar',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -319,6 +464,7 @@ class TermFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
@@ -330,6 +476,6 @@ class TermFilterTest extends TestCase
 
         $result = (new TermFilter())->filter($snippets, 'consetetur');
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 }

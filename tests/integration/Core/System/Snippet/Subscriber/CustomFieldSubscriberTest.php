@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Subscriber;
+namespace Shopware\Tests\Integration\Core\System\Snippet\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -9,8 +9,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 
 /**
  * @internal
@@ -18,34 +22,27 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('system-settings')]
 class CustomFieldSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomFieldSetCollection>
      */
-    private $customFieldSetRepository;
+    private EntityRepository $customFieldSetRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomFieldCollection>
      */
-    private $customFieldRepository;
+    private EntityRepository $customFieldRepository;
 
     private Context $context;
 
-    /**
-     * @var array
-     */
-    private $customFieldSet;
+    private Connection $connection;
 
     /**
-     * @var Connection
+     * @var EntityRepository<SnippetSetCollection>
      */
-    private $connection;
-
-    /**
-     * @var EntityRepository
-     */
-    private $snippetSetRepository;
+    private EntityRepository $snippetSetRepository;
 
     protected function setUp(): void
     {
@@ -56,8 +53,13 @@ class CustomFieldSubscriberTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    #[DataProvider('dataProvider')]
-    public function testCustomFieldWrittenWithProvider($snippetSets, $customFieldSets, $expectedSnippets, $expectedCount): void
+    /**
+     * @param list<string> $snippetSets
+     * @param list<array{id: string, name: string, customFields: list<array{id: string, name: string, type: string, config: array{label: array<string, string>}}>}> $customFieldSets
+     * @param array<string, array<string, string>> $expectedSnippets
+     */
+    #[DataProvider('snippetAndCustomFieldProvider')]
+    public function testCustomFieldWrittenWithProvider(array $snippetSets, array $customFieldSets, array $expectedSnippets, int $expectedCount): void
     {
         foreach ($snippetSets as $set) {
             $createdSet = [
@@ -91,7 +93,7 @@ class CustomFieldSubscriberTest extends TestCase
         }
     }
 
-    public static function dataProvider(): \Traversable
+    public static function snippetAndCustomFieldProvider(): \Generator
     {
         $customFieldSet = Uuid::randomHex();
         $customField = Uuid::randomHex();

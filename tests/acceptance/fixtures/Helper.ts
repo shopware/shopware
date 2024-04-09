@@ -108,3 +108,10 @@ export const getFlowId = async (eventName: string, adminApiContext: AdminApiCont
     await expect(result.total).toBe(1);
     return result.data[0];
 };
+
+export const getOrderTransactionId = async (orderId: string, adminApiContext: AdminApiContext): Promise<{ id: string }> =>{
+    const orderTransactionResponse = await adminApiContext.get(`./order/${orderId}/transactions?_response`, {});
+        await expect(orderTransactionResponse.ok()).toBeTruthy();
+        const { data: orderTransaction } = await orderTransactionResponse.json();
+        return orderTransaction[0].id;
+};

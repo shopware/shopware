@@ -100,18 +100,7 @@ const coreConfig = {
     })(),
     context: path.resolve(__dirname, 'src'),
     mode: isProdMode ? 'production' : 'development',
-    ...(() => {
-        if (isHotMode) {
-            return {
-                entry: {
-                    css: [],
-                    storefront: [],
-                },
-            };
-        }
-
-        return {};
-    })(),
+    entry: {},
     module: {
         rules: [
             {
@@ -288,6 +277,60 @@ const coreConfig = {
     target: 'web',
 };
 
+// Create all plugin configs
+const pluginConfigs = pluginEntries.map((plugin) => {
+
+    // add custom config optionally when it exists
+    let customPluginConfig = {};
+
+    if (plugin.webpackConfig) {
+        // eslint-disable-next-line no-console
+        console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
+
+        const pluginWebpackConfigFn = require(path.resolve(plugin.webpackConfig));
+
+        customPluginConfig = pluginWebpackConfigFn({
+            basePath: plugin.basePath,
+            env: process.env.NODE_ENV,
+            config: coreConfig,
+            name: plugin.name,
+            technicalName: plugin.technicalName,
+            technicalFolderName: plugin.technicalFolderName,
+            plugin,
+        });
+    }
+
+    return merge([
+        coreConfig,
+        {
+            name: plugin.technicalName,
+            entry: {
+                [plugin.technicalName]: plugin.filePath,
+            },
+            output: {
+                // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
+                path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
+                filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
+                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
+            },
+            resolve: {
+                modules: ['node_modules'],
+            },
+            plugins: [
+                new WebpackBar({
+                    name: plugin.name,
+                    color: 'green',
+                }),
+            ],
+            optimization: {
+                splitChunks: false,
+                runtimeChunk: false,
+            },
+        },
+        customPluginConfig,
+    ]);
+});
+
 if (isHotMode) {
     /**
      * Converts the feature config JSON to a SCSS map syntax.
@@ -348,65 +391,7 @@ if (isHotMode) {
     }
 
     coreConfig.entry.css = [scssEntryFilePath];
-
-    coreConfig.entry.storefront = [...themeFiles.script].map((file) => {
-        return file.filepath;
-    });
 }
-
-// Create all plugin configs
-const pluginConfigs = pluginEntries.map((plugin) => {
-
-    // add custom config optionally when it exists
-    let customPluginConfig = {};
-
-    if (plugin.webpackConfig) {
-        // eslint-disable-next-line no-console
-        console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
-
-        const pluginWebpackConfigFn = require(path.resolve(plugin.webpackConfig));
-
-        customPluginConfig = pluginWebpackConfigFn({
-            basePath: plugin.basePath,
-            env: process.env.NODE_ENV,
-            config: coreConfig,
-            name: plugin.name,
-            technicalName: plugin.technicalName,
-            technicalFolderName: plugin.technicalFolderName,
-            plugin,
-        });
-    }
-
-    return merge([
-        coreConfig,
-        {
-            name: plugin.technicalName,
-            entry: {
-                [plugin.technicalName]: plugin.filePath,
-            },
-            output: {
-                // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
-                path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
-                filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
-                chunkFilename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
-            },
-            resolve: {
-                modules: ['node_modules'],
-            },
-            plugins: [
-                new WebpackBar({
-                    name: plugin.name,
-                    color: 'green',
-                }),
-            ],
-            optimization: {
-                splitChunks: false,
-                runtimeChunk: false,
-            },
-        },
-        customPluginConfig,
-    ]);
-});
 
 const mergedCoreConfig = merge([
     coreConfig,

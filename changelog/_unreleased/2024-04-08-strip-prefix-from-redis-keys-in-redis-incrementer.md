@@ -1,6 +1,6 @@
 ---
 title: Strip prefix from redis keys in redis incrementer
-issue: NEXT-00000
+issue: NEXT-34923
 author: Stefan Poensgen
 author_github: stefanpoensgen
 ---

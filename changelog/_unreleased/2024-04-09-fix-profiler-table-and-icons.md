@@ -1,6 +1,6 @@
 ---
 title: Fix profiler table and icons
-issue: NEXT-00000
+issue: NEXT-34922
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

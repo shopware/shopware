@@ -87,7 +87,7 @@ jobs:
 
       - name: Run PHPUnit
         run: |
-          for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver,quarantined" --testsuite "$TEST_SUITE"; done
+          for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver" --testsuite "$TEST_SUITE"; done
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"

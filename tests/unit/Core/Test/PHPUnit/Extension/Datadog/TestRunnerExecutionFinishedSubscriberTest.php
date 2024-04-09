@@ -34,6 +34,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
     {
         $failed = new DatadogPayloadCollection();
         $slow = new DatadogPayloadCollection();
+        $skipped = new DatadogPayloadCollection();
 
         $event = $this->buildEvent();
         $this->gateway
@@ -44,6 +45,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
         $runner = new TestRunnerExecutionFinishedSubscriber(
             $failed,
             $slow,
+            $skipped,
             $this->gateway
         );
 
@@ -54,6 +56,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
     {
         $failed = new DatadogPayloadCollection();
         $slow = new DatadogPayloadCollection();
+        $skipped = new DatadogPayloadCollection();
         $eventId = 'Shopware\\Tests\\DevOps\\Core\\Test\\AFakeTest::testNothing';
 
         $failed->set($eventId, new DatadogPayload(
@@ -103,6 +106,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
         $runner = new TestRunnerExecutionFinishedSubscriber(
             $failed,
             $slow,
+            $skipped,
             $this->gateway
         );
 

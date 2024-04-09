@@ -10,7 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class FirstRunWizardFinishedEvent extends Event
 {
     public function __construct(

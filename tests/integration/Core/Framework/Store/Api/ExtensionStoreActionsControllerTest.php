@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionStoreActionsControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

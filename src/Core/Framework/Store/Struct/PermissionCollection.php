@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
  *
  * @phpstan-type PermissionArray array{entity: string, operation: AclRoleDefinition::PRIVILEGE_READ|AclRoleDefinition::PRIVILEGE_CREATE|AclRoleDefinition::PRIVILEGE_UPDATE|AclRoleDefinition::PRIVILEGE_DELETE}
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class PermissionCollection extends StoreCollection
 {
     /**

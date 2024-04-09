@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<CartPositionStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class CartPositionCollection extends Collection
 {
     public function __construct(iterable $elements = [])

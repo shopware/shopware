@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(StoreClientFactory::class)]
 class StoreClientFactoryTest extends TestCase
 {

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
     public function __construct(

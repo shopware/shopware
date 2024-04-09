@@ -40,7 +40,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @final
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class FirstRunWizardService
 {
     final public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';

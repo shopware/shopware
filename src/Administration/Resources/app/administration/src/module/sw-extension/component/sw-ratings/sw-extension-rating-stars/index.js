@@ -2,7 +2,7 @@ import template from './sw-extension-rating-stars.html.twig';
 import './sw-extension-rating-stars.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(FirstRunWizardController::class)]
 class FirstRunWizardControllerTest extends TestCase
 {

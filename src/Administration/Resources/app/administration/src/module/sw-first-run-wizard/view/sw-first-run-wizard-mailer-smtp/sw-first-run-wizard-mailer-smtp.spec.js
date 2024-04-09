@@ -1,10 +1,10 @@
 /**
- * @package services-settings
+ * @package checkout
  */
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () => {
     async function createWrapper() {

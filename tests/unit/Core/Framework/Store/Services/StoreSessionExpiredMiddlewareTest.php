@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(StoreSessionExpiredMiddleware::class)]
 class StoreSessionExpiredMiddlewareTest extends TestCase
 {

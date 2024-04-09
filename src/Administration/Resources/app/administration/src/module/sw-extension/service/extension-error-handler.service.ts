@@ -91,7 +91,7 @@ function mapErrors(errors: StoreApiException[]) {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {
@@ -99,7 +99,7 @@ export default {
 };
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export type {

@@ -23,7 +23,7 @@ interface LabeledLocation extends RouteLocation {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default class ShopwareExtensionService {

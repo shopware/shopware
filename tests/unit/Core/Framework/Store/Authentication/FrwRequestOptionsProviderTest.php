@@ -20,7 +20,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(FrwRequestOptionsProvider::class)]
 class FrwRequestOptionsProviderTest extends TestCase
 {

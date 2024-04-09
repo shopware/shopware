@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @template-extends Collection<TElement>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 abstract class StoreCollection extends Collection
 {
     /**

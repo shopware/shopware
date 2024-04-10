@@ -46,6 +46,7 @@
                 <sw-text-editor
                     :value="element.config.content.value"
                     :allow-inline-data-mapping="true"
+                    :sanitize-info-warn="true"
                     enable-transparent-background
                     @update:value="onInput"
                     @blur="onBlur"

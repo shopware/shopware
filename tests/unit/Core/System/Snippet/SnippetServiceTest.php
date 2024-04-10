@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -49,9 +50,9 @@ class SnippetServiceTest extends TestCase
         array $catalogMessages = [],
         ?string $fallbackLocale = null,
         ?string $salesChannelId = null,
-        ?bool $withThemeRegistry = true,
+        bool $withThemeRegistry = true,
         ?string $usedTheme = null,
-        ?array $databaseSnippets = []
+        array $databaseSnippets = []
     ): void {
         $classExists = class_exists(StorefrontPluginRegistry::class);
 
@@ -62,12 +63,11 @@ class SnippetServiceTest extends TestCase
         }
 
         if ($expected instanceof \Throwable) {
-            static::expectException($expected::class);
+            $this->expectException($expected::class);
         }
 
         $container = $this->createMock(ContainerInterface::class);
         $container->method('has')->with(StorefrontPluginRegistry::class)->willReturn($withThemeRegistry);
-        $themeLoader = null;
         $this->connection->expects(static::once())->method('fetchOne')->willReturn($fetchLocaleResult);
 
         if ($withThemeRegistry) {
@@ -81,7 +81,7 @@ class SnippetServiceTest extends TestCase
 
             $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
             $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
-            $container->expects(static::exactly(1))->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
+            $container->expects(static::once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
         }
 
         $cachedThemeLoader = null;
@@ -92,11 +92,11 @@ class SnippetServiceTest extends TestCase
                 'themeId' => Uuid::randomHex(),
             ];
             $connectionMock = $this->createMock(Connection::class);
-            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $connectionMock->expects(static::once())->method('fetchAssociative')->willReturn($expectedDB);
             $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
         }
 
-        if ($databaseSnippets !== null && $databaseSnippets !== []) {
+        if ($databaseSnippets !== []) {
             $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
         }
 
@@ -209,13 +209,10 @@ class SnippetServiceTest extends TestCase
         ];
     }
 
-    /**
-     * @return iterable<string, array<mixed>>
-     */
-    public static function getStorefrontSnippetsDataProvider(): iterable
+    public static function getStorefrontSnippetsDataProvider(): \Generator
     {
         yield 'with unknown snippet id' => [
-            'expected' => new \InvalidArgumentException('No snippetSet with id "%s" found'),
+            'expected' => SnippetException::snippetSetNotFound('test'),
             'fetchLocaleResult' => false,
             'catalogMessages' => [],
             'fallbackLocale' => null,
@@ -243,7 +240,7 @@ class SnippetServiceTest extends TestCase
             'fallbackLocale' => 'de-DE',
         ];
 
-        yield 'fallback snippets are overrided by catalog messages' => [
+        yield 'fallback snippets are overridden by catalog messages' => [
             'expected' => [
                 'catalog_key' => 'Catalog DE',
                 'title' => 'Catalog title',
@@ -256,7 +253,7 @@ class SnippetServiceTest extends TestCase
             'fallbackLocale' => 'en-GB',
         ];
 
-        yield 'fallback snippets, catalog messages are overrided by localized snippets' => [
+        yield 'fallback snippets, catalog messages are overridden by localized snippets' => [
             'expected' => [
                 'catalog_key' => 'Catalog DE',
                 'title' => 'Storefront DE',
@@ -269,7 +266,7 @@ class SnippetServiceTest extends TestCase
             'fallbackLocale' => 'en-GB',
         ];
 
-        yield 'fallback snippets, catalog message, localized snippets are overrided by database snippets' => [
+        yield 'fallback snippets, catalog message, localized snippets are overridden by database snippets' => [
             'expected' => [
                 'title' => 'Database title',
                 'catalog_key' => 'Catalog DE',
@@ -313,7 +310,7 @@ class SnippetServiceTest extends TestCase
             'usedTheme' => 'SwagTheme',
         ];
 
-        yield 'theme snippets are overrided by database snippets' => [
+        yield 'theme snippets are overridden by database snippets' => [
             'expected' => [
                 'title' => 'Database title',
                 'catalog_key' => 'Catalog DE',

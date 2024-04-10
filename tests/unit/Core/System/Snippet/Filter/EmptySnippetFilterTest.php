@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Filter;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\EmptySnippetFilter;
@@ -10,6 +11,7 @@ use Shopware\Core\System\Snippet\Filter\EmptySnippetFilter;
  * @internal
  */
 #[Package('system-settings')]
+#[CoversClass(EmptySnippetFilter::class)]
 class EmptySnippetFilterTest extends TestCase
 {
     public function testGetFilterName(): void
@@ -32,10 +34,20 @@ class EmptySnippetFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'origin' => '1_bas',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -44,10 +56,20 @@ class EmptySnippetFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'origin' => '2_baz',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -59,10 +81,16 @@ class EmptySnippetFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
@@ -72,17 +100,23 @@ class EmptySnippetFilterTest extends TestCase
             ],
             'secondSetId' => [
                 'snippets' => [
+                    '2.bar' => [
+                        'value' => '',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'author' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
-                    ],
-                    '2.bar' => [
-                        'value' => '',
-                        'origin' => '',
                     ],
                 ],
             ],
@@ -90,6 +124,6 @@ class EmptySnippetFilterTest extends TestCase
 
         $result = (new EmptySnippetFilter())->filter($snippets, true);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 }

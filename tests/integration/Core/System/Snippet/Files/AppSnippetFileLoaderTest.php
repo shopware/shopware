@@ -1,15 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Files;
+namespace Shopware\Tests\Integration\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -17,14 +20,16 @@ use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 class AppSnippetFileLoaderTest extends TestCase
 {
     use AppSystemTestBehaviour;
-    use IntegrationTestBehaviour;
+    use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private SnippetFileLoader $snippetFileLoader;
 
     protected function setUp(): void
     {
         $this->snippetFileLoader = new SnippetFileLoader(
-            new MockedKernel([]),
+            $this->createMock(KernelInterface::class),
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(AppSnippetFileLoader::class),
             $this->getContainer()->get(ActiveAppsLoader::class)

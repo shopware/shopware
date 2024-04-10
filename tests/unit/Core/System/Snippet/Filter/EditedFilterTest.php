@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Filter;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\EditedFilter;
@@ -10,6 +11,7 @@ use Shopware\Core\System\Snippet\Filter\EditedFilter;
  * @internal
  */
 #[Package('system-settings')]
+#[CoversClass(EditedFilter::class)]
 class EditedFilterTest extends TestCase
 {
     public function testGetFilterName(): void
@@ -31,13 +33,21 @@ class EditedFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'id' => 1,
+                        'id' => '1',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'id' => null,
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -45,13 +55,21 @@ class EditedFilterTest extends TestCase
                 'snippets' => [
                     '2.bar' => [
                         'value' => '2_bar',
-                        'id' => 2,
+                        'id' => '2',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'id' => null,
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -62,12 +80,17 @@ class EditedFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'id' => 1,
+                        'id' => '1',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
@@ -77,18 +100,23 @@ class EditedFilterTest extends TestCase
             ],
             'secondSetId' => [
                 'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'id' => '2',
+                        'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
+                    ],
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
-                    ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'id' => 2,
-                        'author' => 'shopware',
                     ],
                 ],
             ],
@@ -96,7 +124,7 @@ class EditedFilterTest extends TestCase
 
         $result = (new EditedFilter())->filter($snippets, true);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public function testFilterDoesntIncludeAddedSnippets(): void
@@ -106,13 +134,21 @@ class EditedFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'id' => 1,
+                        'id' => '1',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'id' => null,
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -120,13 +156,21 @@ class EditedFilterTest extends TestCase
                 'snippets' => [
                     '2.bar' => [
                         'value' => '2_bar',
-                        'id' => 2,
+                        'id' => '2',
                         'author' => 'user/admin',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'id' => null,
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -137,8 +181,12 @@ class EditedFilterTest extends TestCase
                 'snippets' => [
                     '1.bar' => [
                         'value' => '1_bar',
-                        'id' => 1,
+                        'id' => '1',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -147,6 +195,7 @@ class EditedFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
@@ -158,6 +207,6 @@ class EditedFilterTest extends TestCase
 
         $result = (new EditedFilter())->filter($snippets, true);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 }

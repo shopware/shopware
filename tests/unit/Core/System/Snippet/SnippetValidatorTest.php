@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet;
+namespace Shopware\Tests\Unit\Core\System\Snippet;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\System\Snippet\SnippetValidator;
  * @internal
  */
 #[Package('system-settings')]
+#[CoversClass(SnippetValidator::class)]
 class SnippetValidatorTest extends TestCase
 {
     public function testValidateShouldFindMissingSnippets(): void

@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Snippet\Filter;
+namespace Shopware\Tests\Unit\Core\System\Snippet\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\AddedFilter;
@@ -10,6 +11,7 @@ use Shopware\Core\System\Snippet\Filter\AddedFilter;
  * @internal
  */
 #[Package('system-settings')]
+#[CoversClass(AddedFilter::class)]
 class AddedFilterTest extends TestCase
 {
     public function testGetFilterName(): void
@@ -32,10 +34,20 @@ class AddedFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'author' => 'user/admin',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '1.bas' => [
                         'value' => '1_bas',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -44,10 +56,20 @@ class AddedFilterTest extends TestCase
                     '2.bar' => [
                         'value' => '2_bar',
                         'author' => 'user/admin',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.baz' => [
                         'value' => '2_baz',
                         'author' => 'shopware',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                 ],
             ],
@@ -59,10 +81,16 @@ class AddedFilterTest extends TestCase
                     '1.bar' => [
                         'value' => '1_bar',
                         'author' => 'user/admin',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
                     ],
                     '2.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '2.bar',
                         'author' => '',
                         'id' => null,
@@ -72,17 +100,23 @@ class AddedFilterTest extends TestCase
             ],
             'secondSetId' => [
                 'snippets' => [
+                    '2.bar' => [
+                        'value' => '2_bar',
+                        'author' => 'user/admin',
+                        'origin' => '',
+                        'resetTo' => '',
+                        'translationKey' => '',
+                        'id' => null,
+                        'setId' => '',
+                    ],
                     '1.bar' => [
                         'value' => '',
                         'origin' => '',
+                        'resetTo' => '',
                         'translationKey' => '1.bar',
                         'author' => '',
                         'id' => null,
                         'setId' => 'secondSetId',
-                    ],
-                    '2.bar' => [
-                        'value' => '2_bar',
-                        'author' => 'user/admin',
                     ],
                 ],
             ],
@@ -90,6 +124,6 @@ class AddedFilterTest extends TestCase
 
         $result = (new AddedFilter())->filter($snippets, true);
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 }

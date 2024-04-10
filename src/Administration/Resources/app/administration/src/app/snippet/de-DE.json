@@ -59,7 +59,7 @@
       "notificationLoadingDataErrorMessage": "Fehler beim Laden der Daten"
     },
     "sw-desktop": {
-      "stagingBarText": "The Shop befindet sich im Staging mode."
+      "stagingBarText": "Der Shop befindet sich im Staging-Modus."
     },
     "notification-center": {
       "title": "Mitteilungen",

@@ -1,9 +1,9 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import type { PageObject } from '@fixtures/PageObject';
 
-export class SearchSuggest implements PageObject {
+export class SearchSuggestPage implements PageObject {
 
-    private readonly searchSuggestLineItemImages;
+    public readonly searchSuggestLineItemImages: Locator;
 
     constructor(public readonly page: Page) {
 

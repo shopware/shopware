@@ -1,9 +1,9 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import type { PageObject } from '@fixtures/PageObject';
 
 export class SearchPage implements PageObject {
 
-    private readonly productImages;
+    public readonly productImages: Locator;
 
     constructor(public readonly page: Page) {
 

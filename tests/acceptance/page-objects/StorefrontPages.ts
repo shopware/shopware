@@ -8,8 +8,8 @@ import { CheckoutConfirmPage } from './Storefront/CheckoutConfirm';
 import { CheckoutFinishPage } from './Storefront/CheckoutFinish';
 import { StorefrontHomePage } from './Storefront/StorefrontHome';
 import { CheckoutRegisterPage } from './Storefront/CheckoutRegister';
-import { SearchPage } from './Storefront/SearchPage';
-import { SearchSuggest } from './Storefront/SearchSuggest';
+import { SearchPage } from './Storefront/Search';
+import { SearchSuggestPage } from './Storefront/SearchSuggest';
 import { AccountOrderPage } from './Storefront/AccountOrder';
 
 export interface StorefrontPages {
@@ -23,7 +23,7 @@ export interface StorefrontPages {
     storefrontHomePage: StorefrontHomePage,
     checkoutRegisterPage: CheckoutRegisterPage,
     searchPage: SearchPage,
-    searchSuggestPage: SearchSuggest,
+    searchSuggestPage: SearchSuggestPage,
 }
 
 export const test = base.extend<FixtureTypes>({
@@ -64,7 +64,7 @@ export const test = base.extend<FixtureTypes>({
     },
 
     searchSuggestPage: async ({ storefrontPage }, use) => {
-        await use(new SearchSuggest(storefrontPage));
+        await use(new SearchSuggestPage(storefrontPage));
     },
 
     accountOrderPage: async ({ storefrontPage }, use) => {

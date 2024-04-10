@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('buyers-experience')]
 class AttachmentLoader
 {
     /**

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';

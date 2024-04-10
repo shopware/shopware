@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-snippet-filter-switch.html.twig';
 import './sw-settings-snippet-filter-switch.scss';

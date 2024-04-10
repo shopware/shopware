@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\DevOps\Docs\Command\Script;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -35,6 +36,11 @@ MSG
         }
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        ScriptReferenceDataCollector::reset();
+    }
+
     /**
      * Ugly hack as the container does not expose all services with a specific tag
      *
@@ -47,7 +53,6 @@ MSG
         $reflection = new \ReflectionClass($command);
 
         $property = $reflection->getProperty('generators');
-        $property->setAccessible(true);
         /** @var iterable<ScriptReferenceGenerator> $generators */
         $generators = $property->getValue($command);
 

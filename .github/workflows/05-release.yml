@@ -5,6 +5,10 @@ on:
     types: [published,edited]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   release:
       runs-on: ubuntu-latest
@@ -38,24 +42,78 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
             AWS_DEFAULT_REGION: eu-west-1
 
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-store-api-reference
+          with:
+            scope: shopware/store-api-reference
+            identity: release
+
         - name: Trigger Store API schema build
+          if: github.event.action == 'published'
           continue-on-error: true
           run: |
             curl \
             -X POST \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ steps.sts-store-api-reference.outputs.token }}" \
             -H "Content-Type: application/json" \
             https://api.github.com/repos/shopware/store-api-reference/actions/workflows/manual_versioning.yml/dispatches \
             -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
 
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-admin-api-reference
+          with:
+            scope: shopware/admin-api-reference
+            identity: release
+
         - name: Trigger Admin API schema build
+          if: github.event.action == 'published'
           continue-on-error: true
           run: |
             curl \
             -X POST \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ steps.sts-admin-api-reference.outputs.token }}" \
             -H "Content-Type: application/json" \
             https://api.github.com/repos/shopware/admin-api-reference/actions/workflows/manual_versioning.yml/dispatches \
             -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
+
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-production
+          with:
+            scope: shopware/production
+            identity: release
+
+        - name: Trigger shopware/production build
+          if: github.event.action == 'published'
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ steps.sts-production.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopware/production/actions/workflows/update.yml/dispatches \
+            -d '{"ref": "trunk"}'
+
+        - uses: octo-sts/action@v1.0.0
+          if: github.event.action == 'published'
+          id: sts-testenv-platform
+          with:
+            scope: shopwareLabs/testenv-platform
+            identity: release
+
+        - name: Trigger shopwareLabs/testenv-platform build
+          if: github.event.action == 'published'
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ steps.sts-testenv-platform.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
+            -d '{"ref": "trunk"}'

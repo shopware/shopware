@@ -11,6 +11,6 @@ author_github: @AltayAkkus
 * Deprecated `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`, which will be removed in v6.7.0.0. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.
 ___
 # Next Major Version Changes
-# Removal of deprecated exceptions
+## Removal of deprecated exceptions
 * Removed `Shopware\Core\System\Snippet\Exception\FilterNotFoundException`. Use `Shopware\Core\System\Snippet\SnippetException::filterNotFound` instead.
 * Removed `Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException`. Use `Shopware\Core\System\Snippet\SnippetException::invalidSnippetFile` instead.

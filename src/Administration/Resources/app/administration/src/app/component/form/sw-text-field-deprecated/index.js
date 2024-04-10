@@ -1,4 +1,4 @@
-import template from './sw-text-field.html.twig';
+import template from './sw-text-field-deprecated.html.twig';
 
 const { Component, Mixin } = Shopware;
 
@@ -12,7 +12,7 @@ const { Component, Mixin } = Shopware;
  * @component-example
  * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
  */
-Component.register('sw-text-field', {
+Component.register('sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
 

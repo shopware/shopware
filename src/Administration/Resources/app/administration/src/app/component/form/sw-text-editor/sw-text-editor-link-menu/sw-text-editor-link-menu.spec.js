@@ -61,6 +61,7 @@ async function createWrapper(buttonConfig) {
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-email-field': await wrapTestComponent('sw-email-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-url-field': await wrapTestComponent('sw-url-field'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-category-tree-field': await wrapTestComponent('sw-category-tree-field'),

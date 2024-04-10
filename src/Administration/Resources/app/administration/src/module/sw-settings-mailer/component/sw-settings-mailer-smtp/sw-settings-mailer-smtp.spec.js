@@ -18,6 +18,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                 },
                 stubs: {
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),

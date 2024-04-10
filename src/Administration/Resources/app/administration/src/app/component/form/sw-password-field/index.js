@@ -13,7 +13,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-password-field type="password" label="Name" placeholder="placeholder goes here..."></sw-password-field>
  */
-Component.extend('sw-password-field', 'sw-text-field', {
+Component.extend('sw-password-field', 'sw-text-field-deprecated', {
     template,
 
     props: {

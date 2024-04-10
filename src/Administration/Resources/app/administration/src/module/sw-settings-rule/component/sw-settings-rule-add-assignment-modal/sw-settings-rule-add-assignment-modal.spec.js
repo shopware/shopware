@@ -83,6 +83,7 @@ async function createWrapper(props = defaultProps) {
                 'sw-settings-rule-add-assignment-listing': await wrapTestComponent('sw-settings-rule-add-assignment-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),

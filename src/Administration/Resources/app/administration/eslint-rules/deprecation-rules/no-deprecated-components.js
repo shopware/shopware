@@ -35,6 +35,7 @@ module.exports = {
                         'sw-button',
                         'sw-icon',
                         'sw-card',
+                        'sw-text-field',
                     ];
 
                     if (deprecatedComponents.includes(node.name)) {

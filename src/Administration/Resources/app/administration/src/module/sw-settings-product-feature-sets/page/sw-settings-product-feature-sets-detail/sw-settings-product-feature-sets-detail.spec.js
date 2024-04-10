@@ -36,6 +36,9 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                 'sw-text-field': await wrapTestComponent('sw-text-field', {
                     sync: true,
                 }),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', {
+                    sync: true,
+                }),
                 'sw-textarea-field': await wrapTestComponent('sw-textarea-field', {
                     sync: true,
                 }),
@@ -102,7 +105,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         const nameFieldLabel = nameField.get(`.${classes.fieldLabel}`);
 
         expect(nameFieldLabel.text()).toEqual(text.labelNameField);
-        expect(nameField.props().placeholder).toEqual(text.placeholderNameField);
+        expect(nameField.find('input').attributes('placeholder')).toEqual(text.placeholderNameField);
     });
 
     it('should show the description field', async () => {

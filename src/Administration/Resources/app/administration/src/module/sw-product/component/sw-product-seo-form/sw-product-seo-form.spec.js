@@ -73,6 +73,7 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-popover': true,
                     'sw-help-text': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-inheritance-switch': true,

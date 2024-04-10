@@ -28,6 +28,7 @@ async function createWrapper(props) {
                     sync: true,
                 }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-number-field': await wrapTestComponent('sw-number-field'),

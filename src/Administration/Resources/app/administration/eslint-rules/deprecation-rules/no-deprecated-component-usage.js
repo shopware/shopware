@@ -4,6 +4,7 @@ const path = require('path');
 const { handleMtButton } = require('./no-deprecated-component-usage-checks/mt-button.check');
 const { handleMtIcon } = require('./no-deprecated-component-usage-checks/mt-icon.check')
 const { handleMtCard } = require("./no-deprecated-component-usage-checks/mt-card.check");
+const { handleMtTextField } = require("./no-deprecated-component-usage-checks/mt-text-field.check");
 
 /* eslint-disable max-len */
 
@@ -40,6 +41,8 @@ module.exports = {
                     handleMtIcon(context, node);
                     // Handle mt-card component
                     handleMtCard(context, node);
+                    // Handle mt-text-field component
+                    handleMtTextField(context, node);
                 },
             }
         )

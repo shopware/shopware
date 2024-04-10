@@ -15,7 +15,7 @@ const { warn } = Shopware.Utils.debug;
  * <sw-number-field type="number" label="Name" v-model="model" numberType="int"
  * :max="20" :min="5" :step="5"></sw-number-field>
  */
-Component.extend('sw-number-field', 'sw-text-field', {
+Component.extend('sw-number-field', 'sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
 

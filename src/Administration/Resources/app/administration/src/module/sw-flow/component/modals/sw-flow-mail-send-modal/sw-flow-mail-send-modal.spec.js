@@ -88,6 +88,7 @@ async function createWrapper(sequence = {}) {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-help-text': true,
                 'sw-icon': true,

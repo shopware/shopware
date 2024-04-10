@@ -22,7 +22,7 @@ const URL_REGEX = {
  * <sw-field type="url" label="Name" placeholder="Placeholder"
  * switchLabel="My shop uses https"></sw-field>
  */
-Component.extend('sw-url-field', 'sw-text-field', {
+Component.extend('sw-url-field', 'sw-text-field-deprecated', {
     template,
     inheritAttrs: false,
 

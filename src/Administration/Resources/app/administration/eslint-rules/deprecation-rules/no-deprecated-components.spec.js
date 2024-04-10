@@ -28,6 +28,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-icon>Hello</mt-icon>
             </template>`
+        },
+        {
+            name: '"mt-text-field" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-text-field />
+            </template>`
         }
     ],
     invalid: [
@@ -113,6 +121,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-card" is deprecated. Please use "mt-card" instead.',
+            }]
+        },
+        {
+            name: '"sw-text-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-text-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-text-field - please check if everything works correctly -->
+    <mt-text-field />
+</template>`,
+            errors: [{
+                message: '"sw-text-field" is deprecated. Please use "mt-text-field" instead.',
+            }]
+        },
+        {
+            name: '"sw-text-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-text-field />
+</template>`,
+            errors: [{
+                message: '"sw-text-field" is deprecated. Please use "mt-text-field" instead.',
             }]
         },
     ]

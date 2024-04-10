@@ -247,9 +247,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _showModal(modal) {
-        const bootstrapModal = new bootstrap.Modal(modal, {
-            keyboard: false,
-        });
+        const bootstrapModal = new bootstrap.Modal(modal);
 
         const listener = () => {
             this._initSlider(modal);

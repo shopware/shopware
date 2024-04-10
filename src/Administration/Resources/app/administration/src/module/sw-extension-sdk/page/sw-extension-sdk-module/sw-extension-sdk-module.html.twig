@@ -3,8 +3,12 @@
 <sw-page
     class="sw-extension-sdk-module"
     :show-search-bar="showSearchBar"
+    :show-smart-bar="showSmartBar"
 >
-    <template #smart-bar-header>
+    <template
+        v-if="showSmartBar"
+        #smart-bar-header
+    >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_header %}
         <template v-if="!isLoading">
@@ -14,7 +18,7 @@
     </template>
 
     <template
-        v-if="back"
+        v-if="showSmartBar && back"
         #smart-bar-back
     >
         <router-link
@@ -29,7 +33,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_sdk_module_smart_bar_buttons %}
-    <template #smart-bar-actions>
+    <template
+        v-if="showSmartBar"
+        #smart-bar-actions
+    >
         <sw-button
             v-for="button in smartBarButtons"
             :id="button.buttonId"
@@ -72,7 +79,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_sdk_module_language_switch %}
     <template
-        v-if="showLanguageSwitch"
+        v-if="showSmartBar && showLanguageSwitch"
         #language-switch
     >
         <sw-language-switch

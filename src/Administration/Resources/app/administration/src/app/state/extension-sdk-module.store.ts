@@ -13,6 +13,7 @@ export type ExtensionSdkModule = {
     baseUrl: string,
     locationId: string,
     displaySearchBar: boolean,
+    displaySmartBar: boolean,
     displayLanguageSwitch: boolean,
 };
 
@@ -33,12 +34,13 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     actions: {
         addModule(
             { state },
-            { heading, locationId, displaySearchBar, displayLanguageSwitch, baseUrl }: ExtensionSdkModule,
+            { heading, locationId, displaySearchBar, displaySmartBar, displayLanguageSwitch, baseUrl }: ExtensionSdkModule,
         ): Promise<string> {
             const staticElements = {
                 heading,
                 locationId,
                 displaySearchBar,
+                displaySmartBar,
                 displayLanguageSwitch,
                 baseUrl,
             };

@@ -149,5 +149,15 @@
     "release_date": "2024-01-15",
     "extended_eol": "2025-02-01",
     "security_eol": "2026-02-01"
+  },{
+    "version": "6.6.0.0",
+    "release_date": "2024-03-21",
+    "extended_eol": false,
+    "security_eol": "2026-02-01"
+  },{
+    "version": "6.6.1.0",
+    "release_date": "2024-04-09",
+    "extended_eol": false,
+    "security_eol": "2026-02-01"
   }
 ]

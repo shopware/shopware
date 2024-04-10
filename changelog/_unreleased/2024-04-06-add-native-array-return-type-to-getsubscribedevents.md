@@ -7,6 +7,4 @@ author_github: @aragon999
 ---
 # Core
 * Added native `array` return type to `Shopware\Core\System\UsageData\Subscriber\ShopIdChangedSubscriber::getSubscribedEvents()` and `Shopware\Core\System\UsageData\Consent\ConsentReporter::getSubscribedEvents()`
-___
-# Storefront
-* Added native `array` return type to `Shopware\Storefront\Framework\Twig\TwigDateRequestListener::getSubscribedEvents()`
+* Deprecated `TwigDateRequestListener` as it will become internal in v6.7.0

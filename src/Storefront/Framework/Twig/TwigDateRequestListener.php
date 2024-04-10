@@ -9,6 +9,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Extension\CoreExtension;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - This event listener will be internal
+ */
 #[Package('storefront')]
 class TwigDateRequestListener implements EventSubscriberInterface
 {
@@ -21,7 +24,12 @@ class TwigDateRequestListener implements EventSubscriberInterface
     {
     }
 
-    public static function getSubscribedEvents(): array
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will be array
+     *
+     * @return array<string, string>
+     */
+    public static function getSubscribedEvents()
     {
         return [KernelEvents::REQUEST => 'onKernelRequest'];
     }

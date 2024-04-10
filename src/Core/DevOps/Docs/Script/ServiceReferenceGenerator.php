@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
-use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Description;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -16,7 +15,6 @@ use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlockFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ServiceStubs;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -151,11 +149,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $scriptServices = [];
 
-        $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../../..')
-            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/StaticAnalyze*')
-            ->findClassNames();
-
-        foreach ($shopwareClasses as $class) {
+        foreach (ScriptReferenceDataCollector::getShopwareClasses() as $class) {
             if (!class_exists($class)) {
                 // skip not autoloadable test classes
                 continue;
@@ -170,6 +164,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $doc = $this->docFactory->create($reflection);
 
             if (!$doc->hasTag('script-service')) {
+                continue;
+            }
+
+            if ($doc->hasTag('internal')) {
                 continue;
             }
 
@@ -472,20 +470,13 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         /** @var Example $example */
         foreach ($docBlock->getTagsByName('example') as $example) {
-            $finder = new Finder();
-            $finder->files()
-                ->in([__DIR__ . '/../../../../', __DIR__ . '/../../../../../tests'])
-                // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
-                // note that excluded paths need to be relative to platform/src and that no wildcards are supported
-                ->exclude([
-                    'Administration/Resources',
-                    'Storefront/Resources',
-                    'Recovery',
-                ])
-                ->path($example->getFilePath())
-                ->ignoreUnreadableDirs();
+            $files = [];
 
-            $files = iterator_to_array($finder);
+            foreach (ScriptReferenceDataCollector::getFiles() as $file) {
+                if (str_ends_with($file->getPathname(), $example->getFilePath())) {
+                    $files[$file->getPathname()] = $file;
+                }
+            }
 
             if (\count($files) === 0) {
                 throw new \RuntimeException(sprintf(

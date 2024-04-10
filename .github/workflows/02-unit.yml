@@ -8,21 +8,24 @@ on:
 
 jobs:
   php:
-    name: "PHPUnit with PHP ${{ matrix.php-version }}"
+    name: "PHPUnit for ${{ matrix.suite }}"
     continue-on-error: ${{ !matrix.stable }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - php-version: 8.2
-            stable: true
-          - php-version: 8.3
-            stable: true
+        suite:
+          # some suites are merged to reduce the number of jobs
+          - administration,system
+          - storefront
+          - content
+          - framework
+          - unit
+          - integration
+          - migration,migration-tests
     env:
-      TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch unit integration migration-tests'
       APP_ENV: test
-      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
+      DATABASE_URL: mysql://root@127.0.0.1:3306/root
       APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: 127.0.0.1:9200
@@ -31,24 +34,24 @@ jobs:
 
     services:
       elasticsearch:
-        image: opensearchproject/opensearch:1
+        image: ${{ matrix.suite == 'integration' && 'opensearchproject/opensearch:1' || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: 'true'
         ports:
           - "9200:9200"
-      database:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: root
-        options: '--mount="type=tmpfs,destination=/var/lib/mysql" --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=2s --health-retries=3'
-        ports:
-          - "3306:3306"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Start Default MySQL
+        run: |
+          sudo mv /var/lib/mysql /var/lib/mysql-old
+          sudo mkdir /var/lib/mysql
+          sudo mount -t tmpfs tmpfs /var/lib/mysql -o size=1G
+          sudo -u mysql mysqld --datadir=/var/lib/mysql --default-time-zone=SYSTEM --initialize-insecure
+          sudo systemctl start mysql
 
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -56,7 +59,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer Archives
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -66,28 +69,35 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
-          coverage: none
+          php-version: 8.2
+          coverage: "${{ matrix.suite == 'unit' && 'xdebug' || '' }}"
           tools: symfony-cli
 
-      - name: Configure for Unstable
-        run: |
-          composer config platform.php 8.3.99
-          composer config -d vendor-bin/cs-fixer platform.php 8.3.99
-          composer config -d vendor-bin/rector platform.php 8.3.99
-          composer config -d vendor-bin/roave-backward-compatibility-check platform.php 8.3.99
-        if: matrix.stable == false
+      - name: Strip cs-fixer
+        run: rm -rf vendor-bin
 
       - name: Setup Composer
-        run: |
-          composer install -o
+        run: composer install -o
 
       - name: Start Webserver
         run: symfony server:start -d
 
+      - name: Install Shopware
+        run: php src/Core/TestBootstrap.php
+
       - name: Run PHPUnit
-        run: |
-          for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group "needsWebserver" --testsuite "$TEST_SUITE"; done
+        if: matrix.suite != 'unit'
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}"
+
+      - name: Run PHPUnit with coverage
+        if: matrix.suite == 'unit'
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: matrix.suite == 'unit'
+        with:
+          files: coverage.xml
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"

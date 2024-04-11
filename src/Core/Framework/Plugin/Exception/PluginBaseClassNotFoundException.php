@@ -12,7 +12,7 @@ class PluginBaseClassNotFoundException extends ShopwareHttpException
     public function __construct(string $baseClass)
     {
         parent::__construct(
-            'The class "{{ baseClass }}" is not found. Probably an class loader error. Check your plugin composer.json',
+            'The class "{{ baseClass }}" is not found. Probably a class loader error. Check your plugin composer.json',
             ['baseClass' => $baseClass]
         );
     }

@@ -47,3 +47,12 @@
         border: 1px solid $color-gray-300;
     }
 }
+
+.sw-import-export-entity-path-select__result-list {
+    .sw-select-result__result-item-text {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

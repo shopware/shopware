@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<PluginCategoryStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 final class PluginCategoryCollection extends Collection
 {
     public function getApiAlias(): string

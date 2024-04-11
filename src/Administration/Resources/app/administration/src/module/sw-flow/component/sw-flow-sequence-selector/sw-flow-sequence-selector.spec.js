@@ -42,6 +42,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
             },
         },

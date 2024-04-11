@@ -13,7 +13,7 @@ Shopware.Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**
- * @package services-settings
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-mail-template', {

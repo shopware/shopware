@@ -187,6 +187,7 @@
         "exporter": {
             "messageExportStarted": "Der Export wurde gestartet.",
             "messageExportSuccess": "Der Export \"{profile}\" wurde erfolgreich abgeschlossen.",
+            "messageExportError": "Die Export-Datei konnte nicht erstellt werden. | Die Export-Datei konnte nicht erstellt werden. Lade die \"fehlerhaften Einträge\" herunter, um mehr Informationen zu erhalten.",
             "startExportLabel": "Export starten",
             "showLogLabel": "Log anzeigen",
             "exportActivityLabel": "Export-Aktivität",
@@ -201,7 +202,7 @@
         "importer": {
             "messageImportStarted": "Der Import wurde gestartet.",
             "messageImportSuccess": "Der Import \"{profile}\" wurde erfolgreich abgeschlossen.",
-            "messageImportError": "Während des Imports \"{profile}\" traten Fehler auf.",
+            "messageImportError": "Mit dem Profil \"{profile}\" konnten keine Daten importiert werden. | Mit dem Profil \"{profile}\" konnten keine Daten importiert werden. Lade die \"fehlerhaften Einträge\" herunter, um mehr Informationen zu erhalten.",
             "messageImportWarning": "Keine Einträge importiert. Stelle bitte sicher, dass das Separator-Zeichen den Einstellungen im verwendeten Profil entspricht.",
             "uploadCsvLabel": "CSV-Datei hochladen",
             "startImportLabel": "Import starten",

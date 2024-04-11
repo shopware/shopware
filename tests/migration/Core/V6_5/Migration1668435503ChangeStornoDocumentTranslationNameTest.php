@@ -32,10 +32,8 @@ class Migration1668435503ChangeStornoDocumentTranslationNameTest extends TestCas
             'SELECT `id` FROM `document_type` WHERE `technical_name` = :technicalName',
             ['technicalName' => StornoRenderer::TYPE]
         );
-        $enLangId = $connection->fetchOne(
-            'SELECT `language`.id FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
-            ['code' => 'en-GB']
-        );
+        $enLangId = $this->fetchLanguageId($connection, 'en-GB');
+        static::assertIsString($enLangId);
 
         $documentTypeName = $connection->fetchOne(
             'SELECT `name` FROM `document_type_translation` WHERE `document_type_id` = :documentTypeId AND `language_id` = :languageId',

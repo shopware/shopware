@@ -50,8 +50,7 @@
     "next": "Next",
     "previous": "Previous",
     "formSubmit": "Submit",
-    "listPricePreviously": "previously %price%",
-    "cancel": "Cancel"
+    "listPricePreviously": "previously %price%"
   },
   "header": {
     "logoLink": "Go to homepage",

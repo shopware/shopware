@@ -17,4 +17,9 @@ class UpdateAppsTask extends ScheduledTask
     {
         return 86400; // 1 Day
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

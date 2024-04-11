@@ -39,6 +39,10 @@ Shopware.Component.register('sw-extension-sdk-module', {
             return this.module?.displaySearchBar ?? true;
         },
 
+        showSmartBar() {
+            return this.module?.displaySmartBar ?? true;
+        },
+
         showLanguageSwitch() {
             return !!this.module?.displayLanguageSwitch;
         },

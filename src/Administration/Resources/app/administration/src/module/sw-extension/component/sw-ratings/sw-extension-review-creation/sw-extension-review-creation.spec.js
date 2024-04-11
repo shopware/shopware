@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     beforeAll(() => {
@@ -50,6 +50,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                     },
                     'sw-gtc-checkbox': await wrapTestComponent('sw-gtc-checkbox', { sync: true }),
                     'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-button-process': await wrapTestComponent('sw-button-process', { sync: true }),
                     'sw-external-link': await wrapTestComponent('sw-external-link', { sync: true }),
                     'sw-loader': true,

@@ -90,6 +90,7 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-icon': true,
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },

@@ -18,7 +18,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';

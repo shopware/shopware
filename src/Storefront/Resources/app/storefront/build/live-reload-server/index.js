@@ -1,5 +1,5 @@
 /**
- * This module creates an live reload server for the Shopware storefront.
+ * This module creates a live reload server for the Shopware storefront.
  */
 
 module.exports = function createLiveReloadServer() {
@@ -12,6 +12,7 @@ module.exports = function createLiveReloadServer() {
 
         const devServerOptions = Object.assign({}, webpackConfig[0].devServer, {
             open: false,
+            host: '0.0.0.0',
             devMiddleware: {
                 stats: {
                     colors: true,
@@ -22,17 +23,19 @@ module.exports = function createLiveReloadServer() {
         // start the normal webpack dev server for hot reloading the files
         const server = new WebpackDevServer(devServerOptions, compiler);
 
-        server.start(devServerOptions.port, '0.0.0.0', (err) => {
-            if (err) {
-                reject(err);
+        (async () => {
+            try {
+                await server.start();
+            } catch (error) {
+                reject(error);
             }
 
+            // eslint-disable-next-line no-console
             console.log('Starting the hot reload server: \n');
-        });
+        })();
 
         compiler.hooks.done.tap('resolveServer', () => {
             resolve(server);
         });
     });
 };
-

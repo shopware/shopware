@@ -41,8 +41,7 @@ class RedisIncrementer extends AbstractIncrementer
             return;
         }
 
-        $keys = $this->redis->keys($this->getKey($cluster));
-        \assert(\is_array($keys));
+        $keys = $this->getKeys($cluster);
 
         foreach ($keys as $key) {
             $this->redis->del($key);
@@ -51,8 +50,7 @@ class RedisIncrementer extends AbstractIncrementer
 
     public function list(string $cluster, int $limit = 5, int $offset = 0): array
     {
-        $keys = $this->redis->keys($this->getKey($cluster));
-        \assert(\is_array($keys));
+        $keys = $this->getKeys($cluster);
 
         if (empty($keys)) {
             return [];
@@ -93,5 +91,26 @@ class RedisIncrementer extends AbstractIncrementer
         }
 
         return sprintf('%s:%s:%s', $this->poolName, $cluster, $key);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getKeys(string $cluster): array
+    {
+        $keys = $this->redis->keys($this->getKey($cluster));
+        \assert(\is_array($keys));
+
+        if (empty($keys) || !\method_exists($this->redis, 'getOption')) {
+            return [];
+        }
+
+        $prefix = $this->redis->getOption(\Redis::OPT_PREFIX);
+        if (\is_string($prefix)) {
+            $prefixLength = \strlen($prefix);
+            $keys = \array_map(fn ($key) => \str_starts_with($key, $prefix) ? \substr($key, $prefixLength) : $key, $keys);
+        }
+
+        return $keys;
     }
 }

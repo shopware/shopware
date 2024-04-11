@@ -2,7 +2,7 @@ import template from './sw-extension-uninstall-modal.html.twig';
 import './sw-extension-uninstall-modal.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

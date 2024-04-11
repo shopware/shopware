@@ -628,6 +628,36 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent._context.components['sw-admin']).toBeDefined();
         });
 
+        it('should register the Meteor Components', () => {
+            const meteorComponents = [
+                'mt-banner',
+                'mt-loader',
+                'mt-progress-bar',
+                'mt-button',
+                'mt-checkbox',
+                'mt-colorpicker',
+                'mt-datepicker',
+                'mt-email-field',
+                'mt-external-link',
+                'mt-number-field',
+                'mt-password-field',
+                'mt-select',
+                'mt-switch',
+                'mt-text-field',
+                'mt-textarea',
+                'mt-url-field',
+                'mt-icon',
+                'mt-tabs',
+                'mt-data-table',
+                'mt-pagination',
+                'mt-skeleton-bar',
+            ];
+
+            meteorComponents.forEach((componentName) => {
+                expect(rootComponent._context.components[componentName]).toBeDefined();
+            });
+        });
+
         it('should add the router to the rootComponent', () => {
             expect(rootComponent.config.globalProperties.$router).toBeDefined();
         });

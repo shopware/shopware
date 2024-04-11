@@ -17,6 +17,8 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
+import * as MeteorImport from '@shopware-ag/meteor-component-library';
+
 const { Component, State, Mixin } = Shopware;
 
 /**
@@ -218,6 +220,50 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         await Promise.all(initializedComponents);
+
+        /**
+         * Initialize all meteor components
+         */
+        const meteorComponents: (keyof (typeof MeteorImport))[] = [
+            'MtBanner',
+            'MtLoader',
+            'MtProgressBar',
+            'MtButton',
+            'MtCheckbox',
+            'MtColorpicker',
+            'MtDatepicker',
+            'MtEmailField',
+            'MtExternalLink',
+            'MtNumberField',
+            'MtPasswordField',
+            'MtSelect',
+            'MtSwitch',
+            'MtTextField',
+            'MtTextarea',
+            'MtUrlField',
+            'MtIcon',
+            'MtTabs',
+            'MtDataTable',
+            'MtPagination',
+            'MtSkeletonBar',
+        ];
+
+        // Disable instance listeners for meteor components
+        if (Shopware.Feature.isActive('v6.7.0.0')) {
+            meteorComponents.forEach((componentName) => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                MeteorImport[componentName].compatConfig = {
+                    INSTANCE_LISTENERS: false,
+                    INSTANCE_ATTRS_CLASS_STYLE: false,
+                };
+            });
+        }
+
+        meteorComponents.forEach((componentName) => {
+            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
+        });
 
         return this.vueComponents;
     }

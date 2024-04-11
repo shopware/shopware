@@ -72,6 +72,7 @@ async function createWrapper(props = defaultProps) {
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -81,6 +82,7 @@ async function createWrapper(props = defaultProps) {
                 'sw-pagination': await wrapTestComponent('sw-pagination'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
             },
         },

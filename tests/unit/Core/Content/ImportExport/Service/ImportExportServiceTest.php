@@ -10,6 +10,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Service\FileService;
@@ -17,6 +18,7 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserDefinition;
@@ -32,7 +34,11 @@ class ImportExportServiceTest extends TestCase
     {
         $profileId = Uuid::randomHex();
 
-        $this->expectException(ProfileWrongTypeException::class);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $this->expectException(ProfileWrongTypeException::class);
+        } else {
+            $this->expectException(ImportExportException::class);
+        }
         $this->expectExceptionMessage(sprintf('The import/export profile with id %s can only be used for import', $profileId));
 
         $this->createImportExportService($profileId)->prepareExport(

@@ -53,7 +53,7 @@ async function createWrapper(
 </div>
     `,
                 },
-                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-icon': true,
                 'sw-card-view': true,

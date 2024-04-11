@@ -64,6 +64,7 @@ describe('sw-app-app-url-changed-modal', () => {
                 `,
             },
             'sw-button': await wrapTestComponent('sw-button'),
+            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
             'sw-loader': await wrapTestComponent('sw-loader'),
             'sw-icon': true,
             'icons-default-basic-shape-circle-filled': {

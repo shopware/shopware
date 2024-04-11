@@ -14,6 +14,7 @@ async function createWrapper(props) {
             },
             stubs: {
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-modal': {
                     // eslint-disable-next-line max-len
                     template: '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
@@ -28,7 +29,7 @@ async function createWrapper(props) {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     it('should display the values', async () => {

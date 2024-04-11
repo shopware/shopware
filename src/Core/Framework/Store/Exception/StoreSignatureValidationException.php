@@ -9,7 +9,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 /**
  * @deprecated tag:v6.7.0 - unused class
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class StoreSignatureValidationException extends ShopwareHttpException
 {
     public function __construct(string $reason)

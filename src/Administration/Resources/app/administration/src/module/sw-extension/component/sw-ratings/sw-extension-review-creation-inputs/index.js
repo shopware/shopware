@@ -2,7 +2,7 @@ import template from './sw-extension-review-creation-inputs.html.twig';
 import './sw-extension-review-creation-inputs.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

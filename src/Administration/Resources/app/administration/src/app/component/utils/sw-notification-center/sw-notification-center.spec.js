@@ -11,10 +11,12 @@ async function createWrapper() {
             stubs: {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-icon': await wrapTestComponent('sw-icon'),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                 'sw-time-ago': await wrapTestComponent('sw-time-ago'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader'),
             },
         },

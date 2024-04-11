@@ -66,6 +66,7 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-icon': await wrapTestComponent('sw-icon'),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-loader': await wrapTestComponent('sw-loader'),

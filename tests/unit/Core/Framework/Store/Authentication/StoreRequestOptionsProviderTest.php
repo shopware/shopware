@@ -27,7 +27,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(StoreRequestOptionsProvider::class)]
 class StoreRequestOptionsProviderTest extends TestCase
 {

@@ -15,7 +15,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class StoreClientFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

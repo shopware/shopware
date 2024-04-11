@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Kernel;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -155,7 +157,7 @@ class NotFoundSubscriberTest extends TestCase
         static::assertSame('extension-cookie', $cookies[0]->getName());
     }
 
-    public function testOtherExceptionsDoesNotGetCached(): void
+    public function testOtherExceptionsDoNotGetCached(): void
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
@@ -194,6 +196,50 @@ class NotFoundSubscriberTest extends TestCase
 
         static::assertInstanceOf(Response::class, $event->getResponse());
 
+        $subscriber->reset();
+    }
+
+    public function testErrorRedirectIsModifiableAndNotCaptchaValidated(): void
+    {
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+        $httpKernel
+            ->expects(static::once())
+            ->method('handle')
+            ->with(static::callback(function (Request $request) {
+                return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
+            }))
+            ->willReturn(new Response());
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getMainRequest')->willReturn(new Request());
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(ErrorRedirectRequestEvent::class));
+
+        $subscriber = new NotFoundSubscriber(
+            $httpKernel,
+            $this->createMock(SalesChannelContextServiceInterface::class),
+            false,
+            new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
+            $this->createMock(AbstractCacheTracer::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(CacheInvalidator::class),
+            $eventDispatcher,
+        );
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CAPTCHA, true);
+
+        $event = new ExceptionEvent(
+            $this->createMock(Kernel::class),
+            $request,
+            0,
+            new \Exception()
+        );
+        $subscriber->onError($event);
         $subscriber->reset();
     }
 

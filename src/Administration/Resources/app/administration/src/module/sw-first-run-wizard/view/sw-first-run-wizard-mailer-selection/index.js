@@ -2,7 +2,7 @@ import template from './sw-first-run-wizard-mailer-selection.html.twig';
 import './sw-first-run-wizard-mailer-selection.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

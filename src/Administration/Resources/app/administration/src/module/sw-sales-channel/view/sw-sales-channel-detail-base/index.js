@@ -722,5 +722,9 @@ export default {
         isFavorite() {
             return this.salesChannelFavoritesService.isFavorite(this.salesChannel.id);
         },
+
+        validateMaintenanceIpCidr(term) {
+            return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
+        },
     },
 };

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(VariantTypesNotAllowedException::class)]
 class VariantTypesNotAllowedExceptionTest extends TestCase
 {

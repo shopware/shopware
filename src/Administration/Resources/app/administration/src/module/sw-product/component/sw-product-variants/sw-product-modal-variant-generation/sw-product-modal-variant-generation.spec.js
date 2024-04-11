@@ -167,6 +167,7 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-modal': await wrapTestComponent('sw-modal', { sync: true }),
                 'sw-product-variants-configurator-selection': true,
                 'sw-icon': true,

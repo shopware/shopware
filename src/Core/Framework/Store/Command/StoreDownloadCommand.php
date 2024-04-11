@@ -32,7 +32,7 @@ use Symfony\Component\Filesystem\Filesystem;
     name: 'store:download',
     description: 'Downloads a plugin from the store',
 )]
-#[Package('services-settings')]
+#[Package('checkout')]
 class StoreDownloadCommand extends Command
 {
     private readonly string $relativePluginDir;

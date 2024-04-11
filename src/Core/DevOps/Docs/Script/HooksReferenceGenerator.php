@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
-use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
@@ -87,11 +86,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     {
         $hookClasses = [];
 
-        $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../../..')
-            ->exclude('*/Test/*', '*/vendor/*', '*/DevOps/StaticAnalyze*')
-            ->findClassNames();
-
-        foreach ($shopwareClasses as $class) {
+        foreach (ScriptReferenceDataCollector::getShopwareClasses() as $class) {
             if (!class_exists($class)) {
                 // skip not autoloadable test classes
                 continue;

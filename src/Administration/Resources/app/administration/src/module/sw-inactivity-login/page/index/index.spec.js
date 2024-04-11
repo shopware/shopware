@@ -20,6 +20,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 },
                 'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),

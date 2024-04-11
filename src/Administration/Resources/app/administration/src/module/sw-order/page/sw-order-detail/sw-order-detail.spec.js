@@ -43,6 +43,7 @@ async function createWrapper(order = {}) {
                         </div>`,
                 },
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-label': true,
                 'sw-skeleton': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),

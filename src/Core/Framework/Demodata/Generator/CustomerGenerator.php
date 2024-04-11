@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -142,6 +143,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
+            $randomDate = $context->getFaker()->dateTimeBetween('-2 years');
             $id = Uuid::randomHex();
             $firstName = $context->getFaker()->firstName();
             $lastName = $context->getFaker()->format('lastName');
@@ -183,6 +185,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'defaultShippingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'addresses' => $addresses,
                 'tags' => $this->getTags($tags),
+                'createdAt' => $randomDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
 
             $payload[] = $customer;

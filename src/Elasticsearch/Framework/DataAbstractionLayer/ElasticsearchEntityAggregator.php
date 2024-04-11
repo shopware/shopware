@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -28,40 +29,46 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         private readonly EntityAggregatorInterface $decorated,
         private readonly AbstractElasticsearchAggregationHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $timeout = '5s'
+        private readonly string $timeout,
+        private readonly string $searchType
     ) {
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        if (!$this->helper->allowSearch($definition, $context, $criteria)) {
-            return $this->decorated->aggregate($definition, $criteria, $context);
-        }
-
-        $search = $this->createSearch($definition, $criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            new ElasticsearchEntityAggregatorSearchEvent($search, $definition, $criteria, $context)
-        );
-
-        $searchArray = $search->toArray();
-        $searchArray['timeout'] = $this->timeout;
-
         try {
+            if (!$this->helper->allowSearch($definition, $context, $criteria)) {
+                return $this->decorated->aggregate($definition, $criteria, $context);
+            }
+
+            $search = $this->createSearch($definition, $criteria, $context);
+
+            $this->eventDispatcher->dispatch(
+                new ElasticsearchEntityAggregatorSearchEvent($search, $definition, $criteria, $context)
+            );
+
+            $searchArray = $search->toArray();
+            $searchArray['timeout'] = $this->timeout;
+
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
                 'body' => $searchArray,
+                'search_type' => $this->searchType,
             ]);
+
+            $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+            $result->addState(self::RESULT_STATE);
+
+            return $result;
         } catch (\Throwable $e) {
+            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+                return new AggregationResultCollection();
+            }
+
             $this->helper->logAndThrowException($e);
 
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
-
-        $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
-        $result->addState(self::RESULT_STATE);
-
-        return $result;
     }
 
     private function createSearch(EntityDefinition $definition, Criteria $criteria, Context $context): Search

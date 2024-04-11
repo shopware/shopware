@@ -21,9 +21,11 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\UpdatedByValueNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExport;
@@ -132,7 +134,9 @@ class ImportExportTest extends AbstractImportExportTestCase
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
         $events = array_column($this->listener->getCalledListeners(), 'event');
+        static::assertContains(EnrichExportCriteriaEvent::class, $events);
         static::assertContains(ImportExportBeforeExportRecordEvent::class, $events);
+        static::assertNotContains(ImportExportExceptionExportRecordEvent::class, $events);
 
         $logfile = $this->getLogEntity($progress->getLogId())->getFile();
         static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
@@ -367,70 +371,6 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         $actualNewsletter = $repo->search(new Criteria([$testData['id']]), Context::createDefaultContext());
         static::assertNotNull($actualNewsletter);
-    }
-
-    #[Group('quarantined')]
-    public function testDefaultProperties(): void
-    {
-        $repository = static::getContainer()->get('property_group.repository');
-        $filesystem = static::getContainer()->get('shopware.filesystem.private');
-
-        $groupCount = 10;
-        $groupSize = 5;
-
-        $total = $groupCount * $groupSize;
-
-        $groups = [];
-        for ($i = 0; $i < $groupCount; ++$i) {
-            $data = [
-                'id' => Uuid::randomHex(),
-                'name' => 'Group ' . $i,
-                'description' => 'Description ' . $i,
-                'position' => $i + 1,
-                'options' => [],
-            ];
-
-            for ($j = 0; $j < $groupSize; ++$j) {
-                $data['options'][] = [
-                    'id' => Uuid::randomHex(),
-                    'name' => 'Option ' . $j . ' of group ' . $i,
-                    'position' => $j,
-                ];
-            }
-
-            $groups[] = $data;
-        }
-
-        $context = Context::createDefaultContext();
-        $repository->upsert($groups, $context);
-
-        $progress = $this->export($context, PropertyGroupOptionDefinition::ENTITY_NAME, null, $groupSize);
-
-        static::assertSame($total, $progress->getTotal());
-        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
-        $logfile = $this->getLogEntity($progress->getLogId())->getFile();
-        static::assertInstanceOf(ImportExportFileEntity::class, $logfile);
-        static::assertGreaterThan(0, $filesystem->fileSize($logfile->getPath()));
-
-        $exportFileTmp = (string) tempnam(sys_get_temp_dir(), '');
-        file_put_contents($exportFileTmp, (string) $filesystem->read($logfile->getPath()));
-
-        $connection = static::getContainer()->get(Connection::class);
-        $connection->executeStatement('DELETE FROM `property_group`');
-        $connection->executeStatement('DELETE FROM `property_group_option`');
-
-        $this->import($context, PropertyGroupOptionDefinition::ENTITY_NAME, $exportFileTmp, 'test.csv', null, false, true);
-
-        $ids = array_column($groups, 'id');
-        $actual = $repository->searchIds(new Criteria($ids), Context::createDefaultContext());
-        static::assertCount(\count($ids), $actual->getIds());
-
-        $optionRepository = static::getContainer()->get('property_group_option.repository');
-        foreach ($groups as $group) {
-            $ids = array_column($group['options'], 'id');
-            $actual = $optionRepository->searchIds(new Criteria($ids), Context::createDefaultContext());
-            static::assertCount(\count($ids), $actual->getIds());
-        }
     }
 
     public function testImportExportAdvancedPrices(): void

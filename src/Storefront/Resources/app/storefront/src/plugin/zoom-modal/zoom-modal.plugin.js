@@ -246,9 +246,7 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _showModal(modal) {
-        const bootstrapModal = new bootstrap.Modal(modal, {
-            keyboard: false,
-        });
+        const bootstrapModal = new bootstrap.Modal(modal);
 
         if (!this._showModalListener) {
             this._showModalListener = () => {
@@ -305,11 +303,10 @@ export default class ZoomModalPlugin extends Plugin {
                     },
                 },
             },
+        }).then(() => {
+            this.gallerySliderPlugin = window.PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
+            this.$emitter.publish('initSlider');
         });
-
-        this.gallerySliderPlugin = window.PluginManager.getPluginInstanceFromElement(slider, 'GallerySlider');
-
-        this.$emitter.publish('initSlider');
     }
 
     /**

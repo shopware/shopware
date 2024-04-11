@@ -6,6 +6,9 @@
       "description": "Configure to share usage data with us to improve Shopware."
     }
   },
+  "sw-settings-usage-data-general": {
+    "tabHeadline": "General"
+  },
   "sw-usage-data-consent-banner": {
     "headline": "Shaping the future of ecommerce",
     "improvingDescription": "We are constantly improving the services we provide to you. To take the next step, we are analyzing your data using techniques such as machine learning (e.g. pattern recognition) to develop and improve our product. Your data will also be used to develop data-driven services designed to enhance your business success. This is the data we are collecting:",

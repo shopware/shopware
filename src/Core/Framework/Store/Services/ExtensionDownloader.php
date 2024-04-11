@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionDownloader
 {
     private readonly string $relativePluginDir;

@@ -47,6 +47,7 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-card-view': true,
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-entity-listing': {
                     props: ['items'],

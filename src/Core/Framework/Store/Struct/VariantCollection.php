@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template-extends StoreCollection<VariantStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class VariantCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

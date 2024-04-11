@@ -6,13 +6,14 @@ async function createWrapper() {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
             },
         },
     });
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-adding-success', () => {
     it('passes correct props to sw-circle-icon', async () => {
@@ -27,11 +28,12 @@ describe('src/module/sw-extension/component/sw-extension-adding-success', () => 
 
     it('has a primary block button', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const closeButton = wrapper.getComponent('.sw-button');
 
-        expect(closeButton.props('variant')).toBe('primary');
-        expect(closeButton.props('block')).toBe(true);
+        expect(closeButton.classes('sw-button--primary')).toBe(true);
+        expect(closeButton.classes('sw-button--block')).toBe(true);
     });
 
     it('emits close if close button is clicked', async () => {

@@ -16,6 +16,7 @@ describe('src/app/component/modal/sw-confirm-modal', () => {
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                     'sw-loader': true,
                     'sw-icon': true,
                 },

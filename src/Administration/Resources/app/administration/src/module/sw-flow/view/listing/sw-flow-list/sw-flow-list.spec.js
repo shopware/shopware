@@ -59,6 +59,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                 'sw-empty-state': true,
                 'sw-search-bar': true,

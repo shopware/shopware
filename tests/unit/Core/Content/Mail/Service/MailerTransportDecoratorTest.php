@@ -127,5 +127,7 @@ class MailerTransportDecoratorTest extends TestCase
 
         static::assertSame('foo', $attachments[0]->getBody());
         static::assertSame('bar', $attachments[1]->getBody());
+
+        static::assertSame([], $mailAttachmentsConfig->getExtension()->getDocumentIds());
     }
 }

@@ -111,6 +111,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-context-menu-item': {
                     template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">

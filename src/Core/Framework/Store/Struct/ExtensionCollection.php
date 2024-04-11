@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<ExtensionStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionCollection extends Collection
 {
     private int $total = 0;

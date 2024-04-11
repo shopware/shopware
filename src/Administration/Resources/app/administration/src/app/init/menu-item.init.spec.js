@@ -33,6 +33,7 @@ describe('src/app/init/menu-item.init.ts', () => {
             label: 'Test item',
             locationId: 'your-location-id',
             displaySearchBar: true,
+            displaySmartBar: true,
             parent: 'sw-catalogue',
         });
 
@@ -47,6 +48,7 @@ describe('src/app/init/menu-item.init.ts', () => {
                 label: 'Test item',
                 locationId: 'your-location-id',
                 displaySearchBar: true,
+                displaySmartBar: true,
                 parent: 'sw-catalogue',
             });
         }).rejects.toThrow(new Error('Extension with the origin "" not found.'));
@@ -63,9 +65,18 @@ describe('src/app/init/menu-item.init.ts', () => {
             label: 'Test item',
             locationId: 'your-location-id',
             displaySearchBar: true,
+            displaySmartBar: true,
             parent: 'sw-catalogue',
         });
 
         expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(0);
+    });
+
+    it('should handle incoming menuCollapse/menuExpand requests', async () => {
+        await ui.menu.collapseMenu();
+        expect(Shopware.State.get('adminMenu').isExpanded).toBe(false);
+
+        await ui.menu.expandMenu();
+        expect(Shopware.State.get('adminMenu').isExpanded).toBe(true);
     });
 });

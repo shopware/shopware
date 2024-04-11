@@ -12,7 +12,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class StoreClientFactory
 {
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';

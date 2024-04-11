@@ -13,8 +13,8 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
     constructor(parent, position = 'before') {
         super(parent, position);
 
-        if (this._isButtonElement() === false) {
-            throw Error('Parent element is not of type <button>');
+        if (!this._isButtonElement() && !this._isAnchorElement()) {
+            throw Error('Parent element is not of type <button> or <a>');
         }
     }
 
@@ -23,7 +23,12 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      */
     create() {
         super.create();
-        this.parent.disabled = true;
+
+        if (this._isButtonElement()) {
+            this.parent.disabled = true;
+        } else if (this._isAnchorElement()) {
+            this.parent.classList.add('disabled');
+        }
     }
 
     /**
@@ -31,7 +36,12 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      */
     remove() {
         super.remove();
-        this.parent.disabled = false;
+
+        if (this._isButtonElement()) {
+            this.parent.disabled = false;
+        } else if (this._isAnchorElement()) {
+            this.parent.classList.remove('disabled');
+        }
     }
 
     /**
@@ -41,5 +51,14 @@ export default class ButtonLoadingIndicatorUtil extends LoadingIndicatorUtil {
      */
     _isButtonElement() {
         return (this.parent.tagName.toLowerCase() === 'button');
+    }
+
+    /**
+     * Verify whether the injected parent is of type <a> or not
+     * @returns {boolean}
+     * @private
+     */
+    _isAnchorElement() {
+        return (this.parent.tagName.toLowerCase() === 'a');
     }
 }

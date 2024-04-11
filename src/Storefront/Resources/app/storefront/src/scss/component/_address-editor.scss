@@ -11,6 +11,18 @@ based on: https://getbootstrap.com/docs/5.2/components/modal
     }
 }
 
+[data-address-editor] {
+    .loader {
+        --#{$prefix}spinner-width: 16px;
+        --#{$prefix}spinner-height: 16px;
+    }
+
+    &.disabled {
+        opacity: $btn-disabled-opacity;
+        pointer-events: none;
+    }
+}
+
 @if feature('v6.7.0.0') {
     .address-editor-modal {
         .address-editor-actions .btn .icon {

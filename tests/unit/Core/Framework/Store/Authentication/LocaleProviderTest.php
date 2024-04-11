@@ -20,7 +20,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(LocaleProvider::class)]
 class LocaleProviderTest extends TestCase
 {

@@ -9,6 +9,7 @@ async function createWrapper(userConfig = {}) {
         global: {
             stubs: {
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
@@ -57,7 +58,7 @@ function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     beforeAll(() => {

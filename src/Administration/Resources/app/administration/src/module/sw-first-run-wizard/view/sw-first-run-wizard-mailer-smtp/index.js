@@ -2,7 +2,7 @@ import './sw-first-run-wizard-mailer-smtp.scss';
 import template from './sw-first-run-wizard-mailer-smtp.html.twig';
 
 /**
- * @package services-settings
+ * @package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

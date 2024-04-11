@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -35,50 +36,56 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly CriteriaParser $criteriaParser,
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $timeout = '5s'
+        private readonly string $timeout,
+        private readonly string $searchType
     ) {
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        if (!$this->helper->allowSearch($definition, $context, $criteria)) {
-            return $this->decorated->search($definition, $criteria, $context);
-        }
-
-        if ($criteria->getLimit() === 0) {
-            return new IdSearchResult(0, [], $criteria, $context);
-        }
-
-        $search = $this->createSearch($criteria, $definition, $context);
-
-        $this->eventDispatcher->dispatch(
-            new ElasticsearchEntitySearcherSearchEvent(
-                $search,
-                $definition,
-                $criteria,
-                $context
-            )
-        );
-
-        $search = $this->convertSearch($criteria, $definition, $context, $search);
-
         try {
+            if (!$this->helper->allowSearch($definition, $context, $criteria)) {
+                return $this->decorated->search($definition, $criteria, $context);
+            }
+
+            if ($criteria->getLimit() === 0) {
+                return new IdSearchResult(0, [], $criteria, $context);
+            }
+
+            $search = $this->createSearch($criteria, $definition, $context);
+
+            $this->eventDispatcher->dispatch(
+                new ElasticsearchEntitySearcherSearchEvent(
+                    $search,
+                    $definition,
+                    $criteria,
+                    $context
+                )
+            );
+
+            $search = $this->convertSearch($criteria, $definition, $context, $search);
+
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
                 'track_total_hits' => true,
                 'body' => $search,
+                'search_type' => $this->searchType,
             ]);
+
+            $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+
+            $result->addState(self::RESULT_STATE);
+
+            return $result;
         } catch (\Throwable $e) {
+            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+                return new IdSearchResult(0, [], $criteria, $context);
+            }
+
             $this->helper->logAndThrowException($e);
 
             return $this->decorated->search($definition, $criteria, $context);
         }
-
-        $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
-
-        $result->addState(self::RESULT_STATE);
-
-        return $result;
     }
 
     private function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search

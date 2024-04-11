@@ -134,6 +134,7 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-language-switch': true,
                 'sw-language-info': true,

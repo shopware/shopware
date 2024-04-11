@@ -30,6 +30,7 @@
     "lint:test-parser": "eslint test/eslint/error-reference.html.twig --no-ignore",
     "lint:twig": "eslint --ext .html.twig src",
     "lint:types": "tsc",
+    "lint:debugging": "eslint --ext .js,.ts,.vue,.html.twig",
     "security-check": "./node_modules/.bin/nsp check",
     "test-debug": "node --inspect-brk TZ=UTC node_modules/.bin/jest --watch --config jest.config.js --runInBand --no-cache",
     "unit": "jest --config jest.config.js --ci",
@@ -41,7 +42,8 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "@shopware-ag/meteor-admin-sdk": "5.0.1",
+    "@shopware-ag/meteor-admin-sdk": "5.1.0",
+    "@shopware-ag/meteor-component-library": "3.2.0",
     "@shopware-ag/meteor-icon-kit": "5.2.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",

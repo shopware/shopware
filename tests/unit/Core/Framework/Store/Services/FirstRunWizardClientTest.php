@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(FirstRunWizardClient::class)]
 class FirstRunWizardClientTest extends TestCase
 {

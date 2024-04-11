@@ -29,23 +29,10 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
-        $getDeLanguageSql = <<<'SQL'
-            SELECT language.id
-            FROM language
-            JOIN locale ON locale.id = language.locale_id
-            WHERE locale.code = 'de-DE'
-        SQL;
-
-        $deLanguageId = $this->connection->fetchOne($getDeLanguageSql);
-
-        $getEnLanguageSql = <<<'SQL'
-            SELECT language.id
-            FROM language
-            JOIN locale ON locale.id = language.locale_id
-            WHERE locale.code = 'en-GB'
-        SQL;
-
-        $enLanguageId = $this->connection->fetchOne($getEnLanguageSql);
+        $deLanguageId = $this->fetchLanguageId($this->connection, 'de-DE');
+        static::assertIsString($deLanguageId);
+        $enLanguageId = $this->fetchLanguageId($this->connection, 'en-GB');
+        static::assertIsString($enLanguageId);
 
         $this->languages = [
             'EN' => $enLanguageId,

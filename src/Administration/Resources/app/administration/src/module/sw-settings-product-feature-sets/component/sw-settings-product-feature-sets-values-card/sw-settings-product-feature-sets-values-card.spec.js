@@ -41,9 +41,11 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-container': true,
                     'sw-simple-search-field': true,
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-icon': true,
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,

@@ -59,6 +59,7 @@ async function createWrapper(privileges = []) {
                 'sw-context-menu-item': true,
                 'sw-card-view': true,
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-entity-listing': {

@@ -27,6 +27,7 @@ async function createWrapper() {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': {
                     template: '<div class="sw-icon" />',
                 },

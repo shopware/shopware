@@ -152,6 +152,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -160,6 +161,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-skeleton': true,
                 },
             },

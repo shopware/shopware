@@ -1,9 +1,21 @@
-<span
-    class="sw-icon sw-icon--fill"
-    :class="classes"
-    :style="styles"
-    :aria-hidden="decorative"
-    :data-testid="'sw-icon__' + name"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-button component #}
+<mt-icon
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    :name="name"
     v-on="$listeners"
-    v-html="iconSvgData"
-></span>
+>
+    <slot></slot>
+</mt-icon>
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-icon-deprecated
+    v-else
+    v-bind="$attrs"
+    :name="name"
+    v-on="$listeners"
+>
+    <slot></slot>
+</sw-icon-deprecated>

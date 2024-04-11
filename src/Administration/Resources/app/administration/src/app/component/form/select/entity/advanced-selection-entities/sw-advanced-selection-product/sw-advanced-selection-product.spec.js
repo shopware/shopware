@@ -261,6 +261,7 @@ async function createWrapper() {
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-simple-search-field': {
                         template: '<div></div>',

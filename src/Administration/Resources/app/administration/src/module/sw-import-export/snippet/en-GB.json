@@ -187,6 +187,7 @@
         "exporter": {
             "messageExportStarted": "Export started.",
             "messageExportSuccess": "Export \"{profile}\" completed.",
+            "messageExportError": "Export file could not be created. | Export file could not be created. Please download the \"invalid records\" file or more information.",
             "startExportLabel": "Start export",
             "showLogLabel": "Show log file",
             "exportActivityLabel": "Export activity",
@@ -201,7 +202,7 @@
         "importer": {
             "messageImportStarted": "Import started.",
             "messageImportSuccess": "Import \"{profile}\" completed.",
-            "messageImportError": "Errors occurred while importing \"{profile}\"",
+            "messageImportError": "Could not import data using profile \"{profile}\". | Could not import data using profile \"{profile}\". Please download the \"invalid records\" file for more information.",
             "messageImportWarning": "No records imported. Please make sure your delimiters match the current profile.",
             "uploadCsvLabel": "Upload CSV file",
             "startImportLabel": "Start import",

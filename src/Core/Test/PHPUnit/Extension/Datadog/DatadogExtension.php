@@ -13,6 +13,7 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestFailedSubscriber
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestFinishedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestPreparedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestRunnerExecutionFinishedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestSkippedSubscriber;
 
 /**
  * @internal
@@ -33,14 +34,17 @@ class DatadogExtension implements Extension
         $timeKeeper = new TimeKeeper();
         $failedTests = new DatadogPayloadCollection();
         $slowTests = new DatadogPayloadCollection();
+        $skippedTests = new DatadogPayloadCollection();
 
         $facade->registerSubscribers(
             new TestPreparedSubscriber($timeKeeper),
             new TestFailedSubscriber($timeKeeper, $failedTests),
             new TestFinishedSubscriber($timeKeeper, $slowTests),
+            new TestSkippedSubscriber($timeKeeper, $skippedTests),
             new TestRunnerExecutionFinishedSubscriber(
                 $failedTests,
                 $slowTests,
+                $skippedTests,
                 new DatadogGateway(self::GATEWAY_URL)
             ),
         );

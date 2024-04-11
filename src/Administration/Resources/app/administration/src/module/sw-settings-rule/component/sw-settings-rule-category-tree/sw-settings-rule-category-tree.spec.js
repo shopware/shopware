@@ -57,6 +57,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 },
                 provide: {
                     repositoryFactory: {

@@ -67,6 +67,7 @@ async function createWrapper(extension) {
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
                 'sw-loader': await wrapTestComponent('sw-loader', { sync: true }),
                 'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',
@@ -83,6 +84,7 @@ async function createWrapper(extension) {
                     `,
                 },
                 'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-extension-adding-failed': await wrapTestComponent('sw-extension-adding-failed', { sync: true }),
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon', { sync: true }),
                 'sw-extension-rating-modal': true,
@@ -105,7 +107,7 @@ async function createWrapper(extension) {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {

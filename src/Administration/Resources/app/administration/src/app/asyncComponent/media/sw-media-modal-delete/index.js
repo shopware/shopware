@@ -237,7 +237,7 @@ export default {
         },
 
         _checkInUsage(mediaItem) {
-            if (mediaItem.avatarUsers) {
+            if (mediaItem.avatarUsers?.[0]) {
                 return true;
             }
 

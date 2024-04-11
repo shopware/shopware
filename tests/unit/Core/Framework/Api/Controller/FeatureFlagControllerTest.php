@@ -60,6 +60,13 @@ class FeatureFlagControllerTest extends TestCase
                 'major' => false,
                 'description' => 'This is another test feature',
             ],
+            'NEWFEATURE' => [
+                'name' => 'newFeature',
+                'default' => true,
+                'toggleable' => true,
+                'major' => false,
+                'description' => 'This is new test feature',
+            ],
         ];
 
         Feature::registerFeatures($featureFlags);
@@ -74,6 +81,9 @@ class FeatureFlagControllerTest extends TestCase
 
         $response = $controller->load();
 
-        static::assertSame($featureFlags, json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        $expectedFeatureFlags = $featureFlags;
+        $expectedFeatureFlags['NEWFEATURE']['active'] = true;
+
+        static::assertSame($expectedFeatureFlags, json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 }

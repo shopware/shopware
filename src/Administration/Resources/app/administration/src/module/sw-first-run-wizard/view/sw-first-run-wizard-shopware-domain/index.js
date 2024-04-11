@@ -2,7 +2,7 @@ import template from './sw-first-run-wizard-shopware-domain.html.twig';
 import './sw-first-run-wizard-shopware-domain.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

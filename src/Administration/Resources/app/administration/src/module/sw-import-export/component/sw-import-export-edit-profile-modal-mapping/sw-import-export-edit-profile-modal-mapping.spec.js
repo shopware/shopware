@@ -63,6 +63,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 stubs: {
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-import-export-entity-path-select': true,
                     'sw-context-menu-item': true,

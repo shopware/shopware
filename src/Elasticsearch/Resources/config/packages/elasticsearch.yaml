@@ -8,6 +8,7 @@ elasticsearch:
     search:
         timeout: 5s
         term_max_length: 300
+        search_type: "query_then_fetch"
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
@@ -16,6 +17,7 @@ elasticsearch:
         search:
             timeout: 5s
             term_max_length: 300
+            search_type: "query_then_fetch"
         index_settings:
             number_of_shards: 3
             number_of_replicas: 3

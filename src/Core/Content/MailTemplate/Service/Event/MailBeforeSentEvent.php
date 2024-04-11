@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('buyers-experience')]
 class MailBeforeSentEvent extends Event implements LogAware, MessageAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.after.create.message';

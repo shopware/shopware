@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package checkout
  */
 import { mount } from '@vue/test-utils';
 
@@ -24,6 +24,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-loader': true,
                 'sw-icon': {
                     template: '<div />',
@@ -60,7 +61,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
     });
 }
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     beforeAll(() => {

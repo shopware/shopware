@@ -21,16 +21,6 @@ parameters:
 			path: src/Administration/Controller/UserConfigController.php
 
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Framework\\\\Routing\\\\KnownIps\\\\KnownIpsCollector\\:\\:collectIps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Framework/Routing/KnownIps/KnownIpsCollector.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Framework\\\\Routing\\\\KnownIps\\\\KnownIpsCollectorInterface\\:\\:collectIps\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Framework/Routing/KnownIps/KnownIpsCollectorInterface.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Notification\\\\NotificationService\\:\\:createNotification\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Notification/NotificationService.php
@@ -1076,11 +1066,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Service/AbstractFileService.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\FileService\\:\\:updateFile\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Service/FileService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\LandingPage\\\\Aggregate\\\\LandingPageTranslation\\\\LandingPageTranslationEntity\\:\\:getSlotConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/LandingPage/Aggregate/LandingPageTranslation/LandingPageTranslationEntity.php
@@ -2069,51 +2054,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\FileServiceTest\\:\\:testDetectType\\(\\) has parameter \\$fileData with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Service/FileServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:mappingInputProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:templateProfileProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:testCreateTemplateFromProfileMapping\\(\\) has parameter \\$profile with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Service\\\\MappingServiceTest\\:\\:testGetMappingFromTemplate\\(\\) has parameter \\$data with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_exists expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function fopen expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function unlink expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of class Symfony\\\\Component\\\\HttpFoundation\\\\File\\\\UploadedFile constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
-
-		-
-			message: "#^You should use assertCount\\(\\$expectedCount, \\$variable\\) instead of assertSame\\(\\$expectedCount, \\$variable\\-\\>count\\(\\)\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Service/MappingServiceTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Subscriber\\\\ProductCategoryPathsSubscriberTest\\:\\:provideCategoryPaths\\(\\) has no return type specified\\.$#"
@@ -3124,8 +3064,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Exception\\\\ResourceNotFoundException\\:\\:__construct\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Exception/ResourceNotFoundException.php
-
-
 
 		-
 			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, int\\|string\\|null given\\.$#"
@@ -4466,11 +4404,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/CustomField/Api/CustomFieldSetActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\CustomField\\\\CustomFieldEntityRepositoryTest\\:\\:getProduct\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/CustomField/CustomFieldEntityRepositoryTest.php
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
@@ -6018,151 +5951,6 @@ parameters:
 			path: src/Core/System/Snippet/Command/ValidateSnippetsCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AbstractFilter\\:\\:readjust\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AbstractFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AbstractFilter\\:\\:readjust\\(\\) has parameter \\$snippetSets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AbstractFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AbstractFilter\\:\\:readjust\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AbstractFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AddedFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AddedFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AddedFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AddedFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AddedFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AddedFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AuthorFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AuthorFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AuthorFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AuthorFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AuthorFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/AuthorFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\EditedFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/EditedFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\EditedFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/EditedFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\EditedFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/EditedFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\EmptySnippetFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/EmptySnippetFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\EmptySnippetFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/EmptySnippetFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\EmptySnippetFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/EmptySnippetFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\NamespaceFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/NamespaceFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\NamespaceFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/NamespaceFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\NamespaceFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/NamespaceFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\SnippetFilterFactory\\:\\:__construct\\(\\) has parameter \\$filters with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/SnippetFilterFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\SnippetFilterInterface\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/SnippetFilterInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\SnippetFilterInterface\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/SnippetFilterInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\SnippetFilterInterface\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/SnippetFilterInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\TermFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/TermFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\TermFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/TermFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\TermFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/TermFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\TranslationKeyFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/TranslationKeyFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\TranslationKeyFilter\\:\\:filter\\(\\) has parameter \\$snippets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/TranslationKeyFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\TranslationKeyFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Filter/TranslationKeyFilter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetEntity\\:\\:\\$value \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/SnippetEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\SnippetFileHandler\\:\\:findAdministrationSnippetFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/SnippetFileHandler.php
@@ -6496,66 +6284,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Salutation\\\\CachedSalutationRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/System/Test/Salutation/CachedSalutationRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Files\\\\MockedKernel\\:\\:__construct\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Files/MockedKernel.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Filter\\\\SnippetFilterFactoryTest\\:\\:dataProviderForTestGetFilter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Filter/SnippetFilterFactoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Filter\\\\SnippetFilterFactoryTest\\:\\:testGetFilter\\(\\) has parameter \\$expectException with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Filter/SnippetFilterFactoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Filter\\\\SnippetFilterFactoryTest\\:\\:testGetFilter\\(\\) has parameter \\$expectedResult with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Filter/SnippetFilterFactoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Filter\\\\SnippetFilterFactoryTest\\:\\:testGetFilter\\(\\) has parameter \\$filterName with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Filter/SnippetFilterFactoryTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:testCustomFieldWrittenWithProvider\\(\\) has parameter \\$customFieldSets with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:testCustomFieldWrittenWithProvider\\(\\) has parameter \\$expectedCount with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:testCustomFieldWrittenWithProvider\\(\\) has parameter \\$expectedSnippets with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:testCustomFieldWrittenWithProvider\\(\\) has parameter \\$snippetSets with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:\\$customFieldSet is unused\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\Snippet\\\\Subscriber\\\\CustomFieldSubscriberTest\\:\\:\\$customFieldSet type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/Snippet/Subscriber/CustomFieldSubscriberTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getCategoryPayload\\(\\) return type has no value type specified in iterable type array\\.$#"

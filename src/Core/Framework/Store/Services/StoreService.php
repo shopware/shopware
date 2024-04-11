@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class StoreService
 {
     final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';

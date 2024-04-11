@@ -5,7 +5,7 @@ import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { format } = Shopware.Utils;
 
 /**
@@ -40,7 +40,7 @@ export default {
 
     data() {
         return {
-            logs: null,
+            logs: new EntityCollection('/import-export-log', 'import_export_log', null),
             isLoading: false,
             selectedProfile: null,
             selectedLog: null,
@@ -60,6 +60,7 @@ export default {
                 },
                 export: {
                     succeeded: 'sw-import-export.exporter.messageExportSuccess',
+                    failed: 'sw-import-export.exporter.messageExportError',
                 },
             },
         };
@@ -85,8 +86,6 @@ export default {
                         Criteria.equals('activity', 'dryrun'),
                     ],
                 ));
-                criteria.getAssociation('invalidRecordsLog')
-                    .addAssociation('file');
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
@@ -97,6 +96,8 @@ export default {
             criteria.addAssociation('user');
             criteria.addAssociation('file');
             criteria.addAssociation('profile');
+            criteria.getAssociation('invalidRecordsLog')
+                .addAssociation('file');
 
             return criteria;
         },
@@ -155,27 +156,23 @@ export default {
         },
 
         hasActivitiesInProgress() {
-            if (!this.logs) {
-                return false;
-            }
-
             return this.logs.filter(log => log.state === 'progress').length > 0;
         },
 
         downloadFileText() {
             return this.type === 'export' ?
-                this.$tc('sw-import-export.activity.contextMenu.downloadExportFile') :
-                this.$tc('sw-import-export.activity.contextMenu.downloadImportFile');
+                this.$t('sw-import-export.activity.contextMenu.downloadExportFile') :
+                this.$t('sw-import-export.activity.contextMenu.downloadImportFile');
         },
 
         // show when not loading and logs are there
         showGrid() {
-            return !this.isLoading && !!this.logs?.length > 0;
+            return !this.isLoading && !!this.logs.length > 0;
         },
 
         // show when not loading and logs aren't there
         showEmptyState() {
-            return !this.isLoading && !!this.logs?.length <= 0;
+            return !this.isLoading && !!this.logs.length <= 0;
         },
 
         // show when loading
@@ -185,14 +182,14 @@ export default {
 
         emptyStateSubLine() {
             return this.type === 'export' ?
-                this.$tc('sw-import-export.activity.emptyState.subLineExport') :
-                this.$tc('sw-import-export.activity.emptyState.subLineImport');
+                this.$t('sw-import-export.activity.emptyState.subLineExport') :
+                this.$t('sw-import-export.activity.emptyState.subLineImport');
         },
 
         emptyStateTitle() {
             return this.type === 'export' ?
-                this.$tc('sw-import-export.activity.emptyState.titleExport') :
-                this.$tc('sw-import-export.activity.emptyState.titleImport');
+                this.$t('sw-import-export.activity.emptyState.titleExport') :
+                this.$t('sw-import-export.activity.emptyState.titleImport');
         },
 
         dateFilter() {
@@ -236,28 +233,47 @@ export default {
         async fetchActivities() {
             this.isLoading = true;
 
-            const logs = await this.logRepository.search(this.activityCriteria);
+            this.logRepository.search(this.activityCriteria).then(result => {
+                if (!(result instanceof EntityCollection)) {
+                    return Promise.reject(new Error(this.$t('global.notification.notificationLoadingDataErrorMessage')));
+                }
 
-            if (this.logs) {
-                this.updateActivitiesFromLogs(logs);
-            }
+                this.updateActivitiesFromLogs(result);
 
-            this.logs = logs;
+                this.logs = result;
 
-            this.isLoading = false;
+                return Promise.resolve();
+            }).catch(error => {
+                this.createNotificationError({
+                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         async updateActivitiesInProgress() {
             const criteria = Criteria.fromCriteria(this.activityCriteria);
             criteria.setIds(this.logs.filter(log => log.state === 'progress').getIds());
             criteria.addAssociation('file');
-            const currentInProgress = await this.logRepository.search(criteria);
 
-            this.updateActivitiesFromLogs(currentInProgress);
+            this.logRepository.search(criteria).then(result => {
+                if (!(result instanceof EntityCollection)) {
+                    return Promise.reject(new Error(this.$t('global.notification.notificationLoadingDataErrorMessage')));
+                }
+
+                this.updateActivitiesFromLogs(result);
+
+                return Promise.resolve();
+            }).catch(error => {
+                this.createNotificationError({
+                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                });
+            });
         },
 
         updateActivitiesFromLogs(logs) {
-            Object.values(logs).forEach((log) => {
+            logs.forEach((log) => {
                 const activity = this.logs.get(log.id);
 
                 if (!activity) {
@@ -274,10 +290,13 @@ export default {
                 }
 
                 const config = {
-                    message: this.$t((this.stateText?.[log.activity]?.[log.state] ?? ''), {
-                        profile: log.profileName,
-                    }),
-                    autoClose: false,
+                    message: this.$tc(
+                        (this.stateText?.[log.activity]?.[log.state] ?? ''),
+                        (log.state === 'failed' && log.invalidRecordsLog ? 2 : 1),
+                        {
+                            profile: log.profileName,
+                        },
+                    ),
                 };
 
                 if (log.state === 'succeeded') {
@@ -285,8 +304,7 @@ export default {
 
                     if (log.activity === 'import' && log.records === 0) {
                         this.createNotificationWarning({
-                            message: this.$tc('sw-import-export.importer.messageImportWarning', 0),
-                            autoClose: false,
+                            message: this.$t('sw-import-export.importer.messageImportWarning'),
                         });
                     }
 
@@ -298,7 +316,13 @@ export default {
         },
 
         async onOpenProfile(id) {
-            this.selectedProfile = await this.profileRepository.get(id);
+            this.profileRepository.get(id).then((result) => {
+                this.selectedProfile = result;
+            }).catch((error) => {
+                this.createNotificationError({
+                    message: error?.message ?? this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                });
+            });
         },
 
         onAbortProcess(item) {
@@ -344,11 +368,11 @@ export default {
             this.profileRepository.save(this.selectedProfile).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
+                    message: this.$t('sw-import-export.profile.messageSaveSuccess'),
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSaveError', 0),
+                    message: this.$t('sw-import-export.profile.messageSaveError'),
                 });
             }).finally(() => {
                 this.isLoading = false;
@@ -362,7 +386,7 @@ export default {
         getStateLabel(state) {
             const translationKey = `sw-import-export.activity.status.${state}`;
 
-            return this.$te(translationKey) ? this.$tc(translationKey) : state;
+            return this.$te(translationKey) ? this.$t(translationKey) : state;
         },
 
         getStateClass(state) {

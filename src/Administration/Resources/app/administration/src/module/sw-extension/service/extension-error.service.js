@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default class ExtensionErrorService {

@@ -142,14 +142,4 @@ class Migration1692254551FixMailTranslationTest extends TestCase
 
         return $templateId;
     }
-
-    /**
-     * @throws Exception
-     */
-    private function fetchLanguageId(Connection $connection, string $code): ?string
-    {
-        return $connection->fetchOne('
-        SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
-        ', ['code' => $code]) ?: null;
-    }
 }

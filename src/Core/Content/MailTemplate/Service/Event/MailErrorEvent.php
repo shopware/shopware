@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('services-settings')]
+#[Package('buyers-experience')]
 class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowEventAware
 {
     final public const NAME = 'mail.sent.error';

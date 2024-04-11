@@ -37,9 +37,11 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated', { sync: true }),
                 'sw-checkbox-field': true,
                 'sw-loader': true,
                 'sw-extension-component-section': true,

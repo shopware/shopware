@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('buyers-experience')]
 class MailTemplateEvents
 {
     final public const MAIL_TEMPLATE_WRITTEN_EVENT = 'mail_template.written';

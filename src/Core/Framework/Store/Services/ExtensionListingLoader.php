@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 readonly class ExtensionListingLoader
 {
     public function __construct(private StoreClient $client)

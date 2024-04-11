@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template-extends StoreCollection<ImageStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ImageCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

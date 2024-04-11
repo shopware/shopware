@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Store\Services\TrackingEventClient;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(TrackingEventClient::class)]
 class TrackingEventClientTest extends TestCase
 {

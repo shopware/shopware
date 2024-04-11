@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 abstract class AbstractExtensionStoreLicensesService
 {
     abstract public function cancelSubscription(int $licenseId, Context $context): void;

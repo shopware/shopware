@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+
         <service id="Shopware\Core\Content\Category\CategoryHydrator" public="true">
             <argument type="service" id="service_container"/>
         </service>
@@ -86,6 +87,10 @@
         </service>
 
         <service id="Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionHydrator" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\MediaHydrator" public="true">
             <argument type="service" id="service_container"/>
         </service>
     </services>

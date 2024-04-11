@@ -82,7 +82,7 @@ export default class AjaxModalPlugin extends Plugin {
      */
     _openModal(pseudoModalUtil) {
         const modalClasses = [DomAccess.getAttribute(this.el, this.options.modalClassAttribute, false), this.options.modalClass];
-        pseudoModalUtil.open(this._onModalOpen.bind(this, pseudoModalUtil, modalClasses));
+        pseudoModalUtil.open(this._onModalOpen.bind(this, pseudoModalUtil, modalClasses), 0);
     }
 
     /**

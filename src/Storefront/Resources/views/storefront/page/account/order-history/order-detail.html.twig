@@ -172,6 +172,26 @@
                                                     {% endif %}
                                                 {% endblock %}
 
+                                                {% block page_account_order_item_detail_vat %}
+                                                    {% if not order.isTaxFree %}
+                                                        {% for calculatedTax in order.price.calculatedTaxes %}
+                                                            {% block page_account_order_item_detail_vat_label %}
+                                                                <dt class="col-6 col-md-8">
+                                                                    {{ 'checkout.summaryTax'|trans({
+                                                                        '%rate%':  calculatedTax.taxRate
+                                                                    })|sw_sanitize }}
+                                                                </dt>
+                                                            {% endblock %}
+
+                                                            {% block page_account_order_item_detail_vat_value %}
+                                                                <dd class="col-6 col-md-4">
+                                                                    {{ calculatedTax.tax|currency(order.currency.isoCode) }}
+                                                                </dd>
+                                                            {% endblock %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endblock %}
+
                                                 {% block page_account_order_item_detail_amount %}
                                                     {% block page_account_order_item_detail_amount_label %}
                                                         <dt class="col-6 col-md-8">

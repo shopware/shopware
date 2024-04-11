@@ -28,6 +28,7 @@ describe('sw-app-wrong-app-url-modal', () => {
                 `,
             },
             'sw-button': await wrapTestComponent('sw-button'),
+            'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
             'sw-icon': await wrapTestComponent('sw-icon'),
             'icons-small-default-x-line-medium': {
                 template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
@@ -38,6 +39,7 @@ describe('sw-app-wrong-app-url-modal', () => {
             global: {
                 stubs: {
                     'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-icon': await wrapTestComponent('sw-icon'),
                     ...stubs,
                 },

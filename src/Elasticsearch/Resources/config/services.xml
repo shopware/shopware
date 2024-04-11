@@ -160,6 +160,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.search.timeout%</argument>
+            <argument>%elasticsearch.search.search_type%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"
@@ -172,6 +173,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchAggregationHydrator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.search.timeout%</argument>
+            <argument>%elasticsearch.search.search_type%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\SearchKeywordReplacement"

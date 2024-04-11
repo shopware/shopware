@@ -22,7 +22,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 trait StoreClientBehaviour
 {
     public function getStoreRequestHandler(): MockHandler

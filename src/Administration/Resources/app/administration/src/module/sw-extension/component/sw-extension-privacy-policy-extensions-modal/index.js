@@ -2,7 +2,7 @@ import template from './sw-extension-privacy-policy-extensions-modal.html.twig';
 import './sw-extension-privacy-policy-extensions-modal.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

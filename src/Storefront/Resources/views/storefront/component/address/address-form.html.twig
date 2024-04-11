@@ -143,7 +143,8 @@
 
             {% block component_address_form_zipcode_city %}
                 {% set zipcodeField %}
-                {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
+                    {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
+
                     {% if formViolations.getViolations('/zipcode') is not empty %}
                         {% set violationPath = '/zipcode' %}
                     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
@@ -215,13 +216,17 @@
                     {% endblock %}
                 {% endset %}
 
-                <div class="form-group col-md-4 col-8">
-                    {{ cityField }}
-                </div>
+                {% block component_address_form_zipcode_field %}
+                    <div class="form-group col-md-2 col-4">
+                        {{ zipcodeField }}
+                    </div>
+                {% endblock %}
 
-                <div class="form-group col-md-2 col-4">
-                    {{ zipcodeField }}
-                </div>
+                {% block component_address_form_city_field %}
+                    <div class="form-group col-md-4 col-8">
+                        {{ cityField }}
+                    </div>
+                {% endblock %}
             {% endblock %}
 
             {% block component_address_form_additional_field1 %}

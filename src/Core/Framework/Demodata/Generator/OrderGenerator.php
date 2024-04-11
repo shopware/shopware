@@ -77,7 +77,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             function ($promotionCode) {
                 $uniqueKey = 'promotion-' . $promotionCode;
 
-                return (new LineItem($uniqueKey, LineItem::PROMOTION_LINE_ITEM_TYPE))
+                return (new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE))
                     ->setLabel($uniqueKey)
                     ->setGood(false)
                     ->setReferencedId($promotionCode)

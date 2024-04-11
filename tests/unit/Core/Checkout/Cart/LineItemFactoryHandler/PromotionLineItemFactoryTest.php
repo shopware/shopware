@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -43,7 +44,7 @@ class PromotionLineItemFactoryTest extends TestCase
 
         $lineItem = $factory->create($data, $context);
 
-        static::assertSame('promotion-test-referenced-id', $lineItem->getId());
+        static::assertSame(Uuid::fromStringToHex('promotion-test-referenced-id'), $lineItem->getId());
         static::assertSame('test-referenced-id', $lineItem->getReferencedId());
         static::assertFalse($lineItem->isGood());
         static::assertSame(1, $lineItem->getQuantity());

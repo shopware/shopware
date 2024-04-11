@@ -29,4 +29,12 @@ export default function initMenuItems(): void {
             });
         });
     });
+
+    Shopware.ExtensionAPI.handle('menuCollapse', () => {
+        Shopware.State.commit('adminMenu/collapseSidebar');
+    });
+
+    Shopware.ExtensionAPI.handle('menuExpand', () => {
+        Shopware.State.commit('adminMenu/expandSidebar');
+    });
 }

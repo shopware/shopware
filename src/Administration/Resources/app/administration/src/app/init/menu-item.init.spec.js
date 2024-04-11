@@ -71,4 +71,12 @@ describe('src/app/init/menu-item.init.ts', () => {
 
         expect(Shopware.State.get('extensionSdkModules').modules).toHaveLength(0);
     });
+
+    it('should handle incoming menuCollapse/menuExpand requests', async () => {
+        await ui.menu.collapseMenu();
+        expect(Shopware.State.get('adminMenu').isExpanded).toBe(false);
+
+        await ui.menu.expandMenu();
+        expect(Shopware.State.get('adminMenu').isExpanded).toBe(true);
+    });
 });

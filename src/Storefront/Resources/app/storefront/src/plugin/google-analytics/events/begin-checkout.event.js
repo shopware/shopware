@@ -5,7 +5,7 @@ import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
 {
     supports() {
-        return true;
+        return !!DomAccessHelper.querySelector(document, '.begin-checkout-btn', false);
     }
 
     getEvents() {

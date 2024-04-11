@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

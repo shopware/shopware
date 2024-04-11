@@ -2,7 +2,7 @@ import template from './sw-first-run-wizard-defaults.html.twig';
 import './sw-first-run-wizard-defaults.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

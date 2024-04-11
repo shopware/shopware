@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package checkout
  */
 import { mount } from '@vue/test-utils';
 
@@ -61,7 +61,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
     });
 }
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     beforeAll(() => {

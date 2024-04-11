@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.7.0 - unused class
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(StoreSignatureValidationException::class)]
 class StoreSignatureValidationExceptionTest extends TestCase
 {

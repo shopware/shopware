@@ -153,7 +153,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class PermissionCategorization
 {
     private const CATEGORY_APP = 'app';

@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionStoreDataController extends AbstractController
 {
     public function __construct(

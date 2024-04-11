@@ -4,7 +4,7 @@ import swFirstRunWizardPlugins from 'src/module/sw-first-run-wizard/view/sw-firs
 Shopware.Component.register('sw-first-run-wizard-plugins', swFirstRunWizardPlugins);
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     async function createWrapper() {

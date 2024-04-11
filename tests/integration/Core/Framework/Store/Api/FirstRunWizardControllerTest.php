@@ -26,7 +26,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class FirstRunWizardControllerTest extends TestCase
 {
     use EventDispatcherBehaviour;

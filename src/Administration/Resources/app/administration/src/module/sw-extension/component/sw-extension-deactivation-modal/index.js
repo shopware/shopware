@@ -2,7 +2,7 @@ import template from './sw-extension-deactivation-modal.html.twig';
 import './sw-extension-deactivation-modal.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

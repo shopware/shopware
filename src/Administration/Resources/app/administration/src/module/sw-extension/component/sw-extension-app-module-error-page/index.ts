@@ -2,7 +2,7 @@ import template from './sw-extension-app-module-error-page.html.twig';
 import './sw-extension-app-module-error-page.scss';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

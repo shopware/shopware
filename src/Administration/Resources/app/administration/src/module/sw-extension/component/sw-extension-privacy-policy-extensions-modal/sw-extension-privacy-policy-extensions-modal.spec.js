@@ -29,7 +29,7 @@ async function createWrapper(props) {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-privacy-policy-extensions-modal', () => {
     it('should display the values', async () => {

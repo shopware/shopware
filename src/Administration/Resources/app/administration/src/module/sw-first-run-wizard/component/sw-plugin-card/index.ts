@@ -19,7 +19,7 @@ type RecommendedPlugin = {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({

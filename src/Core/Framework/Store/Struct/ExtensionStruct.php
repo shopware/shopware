@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionStruct extends Struct
 {
     final public const EXTENSION_TYPE_APP = 'app';

@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Store\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\StoreException;
 
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionNotFoundException extends StoreException
 {
 }

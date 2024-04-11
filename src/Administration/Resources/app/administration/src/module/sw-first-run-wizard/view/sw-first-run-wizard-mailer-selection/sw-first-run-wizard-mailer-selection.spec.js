@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package checkout
  */
 import { mount } from '@vue/test-utils';
 

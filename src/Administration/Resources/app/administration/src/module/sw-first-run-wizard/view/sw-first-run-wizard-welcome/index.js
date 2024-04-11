@@ -4,7 +4,7 @@ import './sw-first-run-wizard-welcome.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

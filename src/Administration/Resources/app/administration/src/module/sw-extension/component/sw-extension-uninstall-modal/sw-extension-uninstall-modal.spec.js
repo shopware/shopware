@@ -29,7 +29,7 @@ async function createWrapper(propsData = {}) {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-uninstall-modal', () => {
     it('should show the correct title', async () => {

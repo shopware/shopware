@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @template-extends StoreCollection<BinaryStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class BinaryCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

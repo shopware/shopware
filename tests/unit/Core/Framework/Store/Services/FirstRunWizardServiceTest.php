@@ -41,7 +41,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 #[CoversClass(FirstRunWizardService::class)]
 class FirstRunWizardServiceTest extends TestCase
 {

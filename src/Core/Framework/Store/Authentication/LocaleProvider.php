@@ -14,7 +14,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class LocaleProvider
 {
     public function __construct(private readonly EntityRepository $userRepository)

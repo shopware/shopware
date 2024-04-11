@@ -43,7 +43,7 @@ async function createWrapper() {
 }
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     it('isInstalled should return false when not installedAt set', async () => {

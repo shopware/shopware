@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
     final public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';

@@ -3,7 +3,7 @@ import './sw-extension-card-bought.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

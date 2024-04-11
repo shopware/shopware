@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<LicenseStruct>
  */
-#[Package('services-settings')]
+#[Package('checkout')]
 class LicenseCollection extends Collection
 {
     /**

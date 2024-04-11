@@ -1,7 +1,7 @@
 import template from './sw-first-run-wizard-mailer-base.html.twig';
 
 /**
- * @package services-settings
+ * @package checkout
  * @private
  */
 export default {

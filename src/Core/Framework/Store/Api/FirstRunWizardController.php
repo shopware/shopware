@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('services-settings')]
+#[Package('checkout')]
 class FirstRunWizardController extends AbstractController
 {
     public function __construct(

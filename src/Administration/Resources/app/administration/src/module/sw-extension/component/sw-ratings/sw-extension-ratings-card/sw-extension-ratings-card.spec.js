@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 
 /**
- * @package services-settings
+ * @package checkout
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card', () => {
     async function createWrapper(noReviews = false) {

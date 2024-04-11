@@ -127,6 +127,12 @@
         </input-field>
 
         <input-field type="bool">
+            <name>showZipcodeInFrontOfCity</name>
+            <label>Show ZIP code before city</label>
+            <label lang="de-DE">Zeige PLZ vor Stadt</label>
+        </input-field>
+
+        <input-field type="bool">
             <name>invalidateSessionOnLogOut</name>
             <label>Clear and delete cart on log-out</label>
             <label lang="de-DE">Warenkorb bei Abmeldung löschen</label>

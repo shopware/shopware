@@ -14,6 +14,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEve
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -23,6 +24,8 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @deprecated tag:v6.7.0 - Will be removed as the test for the service is not used anymore because the service will be removed
+ *
  * @internal
  */
 class AttachmentLoaderTest extends TestCase
@@ -68,6 +71,10 @@ class AttachmentLoaderTest extends TestCase
 
     public function testLoad(): void
     {
+        if (Feature::isActive('v6.7.0.0')) {
+            static::markTestSkipped('deprecated tag:v6.7.0 - Will be removed as the test for the service is not used anymore because the service will be removed');
+        }
+
         $this->eventDispatcherMock->expects(static::once())->method('dispatch')->with(static::callback(static function (AttachmentLoaderCriteriaEvent $event) {
             $criteria = $event->getCriteria();
 

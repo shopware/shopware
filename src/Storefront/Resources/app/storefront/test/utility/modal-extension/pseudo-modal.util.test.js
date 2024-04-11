@@ -50,6 +50,24 @@ describe('pseudo-modal.util tests', () => {
         expect(openedModal.querySelector('.modal-body').innerHTML).toContain('<div>Modal content</div>');
     });
 
+    test('it should open the modal with delay', () => {
+        const spyModalOpen = jest.spyOn(pseudoModal, '_open');
+        const spyCallback = jest.fn();
+
+        pseudoModal.open(spyCallback, 200);
+        jest.advanceTimersByTime(210);
+
+        expect(spyModalOpen).toHaveBeenCalled();
+        expect(spyCallback).toHaveBeenCalled();
+
+        // Ensure opened modal is found in DOM
+        const openedModal = document.querySelector('.modal.fade.show');
+        expect(openedModal).toBeTruthy();
+
+        // Ensure content is found inside opened modal DOM
+        expect(openedModal.querySelector('.modal-body').innerHTML).toContain('<div>Modal content</div>');
+    });
+
     test('it should close the modal', () => {
         pseudoModal.open();
         jest.runAllTimers();

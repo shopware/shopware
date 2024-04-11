@@ -271,6 +271,7 @@ class ShopwareClass implements CustomShopwareProperties {
         CONFIG_KEY_CODES: !window._features_.DISABLE_VUE_COMPAT,
         CONFIG_WHITESPACE: !window._features_.DISABLE_VUE_COMPAT,
         INSTANCE_SET: !window._features_.DISABLE_VUE_COMPAT,
+        INSTANCE_ATTRS_CLASS_STYLE: !window._features_.DISABLE_VUE_COMPAT,
         INSTANCE_DELETE: !window._features_.DISABLE_VUE_COMPAT,
         INSTANCE_EVENT_EMITTER: !window._features_.DISABLE_VUE_COMPAT,
         INSTANCE_EVENT_HOOKS: !window._features_.DISABLE_VUE_COMPAT,

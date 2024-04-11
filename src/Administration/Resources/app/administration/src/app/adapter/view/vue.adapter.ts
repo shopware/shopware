@@ -242,7 +242,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtTextarea',
             'MtUrlField',
             'MtIcon',
-            'MtCard',
             'MtTabs',
             'MtDataTable',
             'MtPagination',
@@ -255,6 +254,7 @@ export default class VueAdapter extends ViewAdapter {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 MeteorImport[componentName].compatConfig = {
                     INSTANCE_LISTENERS: false,
+                    INSTANCE_ATTRS_CLASS_STYLE: false,
                 };
             });
         }

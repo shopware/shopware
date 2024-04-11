@@ -134,6 +134,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                     'sw-ignore-class': true,
                     'sw-settings-shopware-updates-info': {
                         template: '<div></div>',

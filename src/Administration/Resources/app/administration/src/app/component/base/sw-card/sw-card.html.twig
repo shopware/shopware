@@ -1,129 +1,35 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_card %}
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-card component #}
+<mt-card
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
+    <slot></slot>
+</mt-card>
 
-<div class="sw-card-wrapper">
-
-    <sw-extension-component-section
-        v-if="positionIdentifier"
-        :position-identifier="positionIdentifier + '__before'"
-    />
-
-    <div
-        class="sw-card"
-        :class="cardClasses()"
-        v-bind="$attrs"
-    >
-        <div
-            v-if="showHeader"
-            class="sw-card__header"
-        >
-            <div
-                v-if="hasAvatar"
-                class="sw-card__avatar"
-            >
-                <slot name="avatar">
-                </slot>
-            </div>
-
-            <div class="sw-card__titles">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_title %}
-                <slot name="title">
-                    <div
-                        v-if="title"
-                        class="sw-card__title"
-                    >
-                        {{ title }}
-
-                        <sw-ai-copilot-badge v-if="aiBadge" />
-                    </div>
-                </slot>
-                    {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_subtitle %}
-                <slot name="subtitle">
-                    <div
-                        v-if="subtitle"
-                        class="sw-card__subtitle"
-                    >
-                        {{ subtitle }}
-                    </div>
-                </slot>
-                    {% endblock %}
-            </div>
-
-            <div class="sw-card__titles-right-slot">
-                <slot name="header-right"></slot>
-            </div>
-
-            <slot
-                name="tabs"
-            ></slot>
-        </div>
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_card_toolbar %}
-        <div
-            v-if="!!$slots.toolbar"
-            class="sw-card__toolbar"
-        >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_card_toolbar_inner %}
-            <slot name="toolbar">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_card_slot_toolbar %}{% endblock %}
-            </slot>
-            {% endblock %}
-        </div>
-            {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_card_content %}
-        <div
-            class="sw-card__content"
-            :class="cardContentClasses"
-        >
-            <div
-                v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
-                class="sw-card__context-menu"
-            >
-                <sw-context-button>
-                    <slot name="context-actions">
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_card_slot_context_menu_actions %}{% endblock %}
-                    </slot>
-                </sw-context-button>
-            </div>
-            <slot>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_slot_default %}{% endblock %}
-            </slot>
-            <slot
-                name="grid"
-                :title="title"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_slot_grid %}{% endblock %}
-            </slot>
-            <slot name="footer">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_slot_footer %}{% endblock %}
-            </slot>
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_card_loader %}
-            <sw-loader v-if="isLoading" />
-            {% endblock %}
-        </div>
-        {% endblock %}
-    </div>
-
-    <sw-extension-component-section
-        v-if="positionIdentifier"
-        :position-identifier="positionIdentifier + '__after'"
-    />
-
-</div>
-
-{% endblock %}
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-card-deprecated
+    v-else
+    v-bind="$attrs"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
+    <slot></slot>
+</sw-card-deprecated>

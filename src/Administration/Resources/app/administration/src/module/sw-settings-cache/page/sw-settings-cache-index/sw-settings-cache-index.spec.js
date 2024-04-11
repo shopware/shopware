@@ -32,6 +32,7 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve())) {
                 },
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-card-section': await wrapTestComponent('sw-card-section'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),

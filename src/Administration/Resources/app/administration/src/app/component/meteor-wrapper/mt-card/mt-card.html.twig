@@ -1,0 +1,30 @@
+<mt-card-original
+    v-bind="$attrs"
+    v-on="$listeners"
+>
+    <template #before-card>
+        <sw-extension-component-section
+            v-if="positionIdentifier"
+            :position-identifier="positionIdentifier + '__before'"
+        />
+
+        <slot name="before-card"></slot>
+    </template>
+
+    <template
+        v-for="(index, name) in getFilteredSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data"></slot>
+    </template>
+
+    <template #after-card>
+        <slot name="after-card"></slot>
+
+        <sw-extension-component-section
+            v-if="positionIdentifier"
+            :position-identifier="positionIdentifier + '__after'"
+        />
+    </template>
+</mt-card-original>

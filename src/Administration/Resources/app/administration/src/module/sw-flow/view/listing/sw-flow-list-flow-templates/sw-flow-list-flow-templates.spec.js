@@ -33,6 +33,7 @@ async function createWrapper(privileges = [], props = {}) {
                 `,
                 },
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-internal-link': await wrapTestComponent('sw-internal-link'),
                 'router-link': {
                     props: ['to'],

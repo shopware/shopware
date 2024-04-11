@@ -31,7 +31,11 @@ module.exports = {
             // Event handlers for <template> tags
             {
                 VElement(node) {
-                    const deprecatedComponents = ['sw-button', 'sw-icon'];
+                    const deprecatedComponents = [
+                        'sw-button',
+                        'sw-icon',
+                        'sw-card',
+                    ];
 
                     if (deprecatedComponents.includes(node.name)) {
                         const componentName = node.name;

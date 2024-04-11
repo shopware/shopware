@@ -86,6 +86,34 @@ tester.run('no-deprecated-components', rule, {
             errors: [{
                 message: '"sw-icon" is deprecated. Please use "mt-icon" instead.',
             }]
-        }
+        },
+        {
+            name: '"sw-card" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-card>Hello</sw-card>
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-card - please check if everything works correctly -->
+    <mt-card>Hello</mt-card>
+</template>`,
+            errors: [{
+                message: '"sw-card" is deprecated. Please use "mt-card" instead.',
+            }]
+        },
+        {
+            name: '"sw-card" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-card>Hello</sw-card>
+</template>`,
+            errors: [{
+                message: '"sw-card" is deprecated. Please use "mt-card" instead.',
+            }]
+        },
     ]
 })

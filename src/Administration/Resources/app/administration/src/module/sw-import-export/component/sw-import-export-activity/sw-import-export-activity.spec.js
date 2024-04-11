@@ -782,6 +782,7 @@ const createWrapper = async (options = {}) => {
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-popover': {
                     template: '<div><slot></slot></div>',

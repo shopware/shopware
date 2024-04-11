@@ -17,6 +17,7 @@ async function createWrapper(privileges = [], repository = {}) {
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-chart-card': await wrapTestComponent('sw-chart-card'),
                 'sw-entity-listing': true,
                 'sw-chart': true,

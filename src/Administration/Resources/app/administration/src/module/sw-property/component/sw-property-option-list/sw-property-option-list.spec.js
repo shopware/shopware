@@ -89,6 +89,7 @@ async function createWrapper() {
             },
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-ignore-class': true,
                 'sw-container': await wrapTestComponent('sw-container', { sync: true }),
                 'sw-button': {

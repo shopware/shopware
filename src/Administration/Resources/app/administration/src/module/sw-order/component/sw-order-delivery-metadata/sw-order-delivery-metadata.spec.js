@@ -31,6 +31,7 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', { sync: true }),
                 'sw-address': await wrapTestComponent('sw-address', { sync: true }),
                 'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
             },
             provide: {

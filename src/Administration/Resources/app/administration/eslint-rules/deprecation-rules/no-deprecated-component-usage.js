@@ -3,6 +3,7 @@ const path = require('path');
 
 const { handleMtButton } = require('./no-deprecated-component-usage-checks/mt-button.check');
 const { handleMtIcon } = require('./no-deprecated-component-usage-checks/mt-icon.check')
+const { handleMtCard } = require("./no-deprecated-component-usage-checks/mt-card.check");
 
 /* eslint-disable max-len */
 
@@ -37,6 +38,8 @@ module.exports = {
                     handleMtButton(context, node);
                     // Handle mt-icon component
                     handleMtIcon(context, node);
+                    // Handle mt-card component
+                    handleMtCard(context, node);
                 },
             }
         )

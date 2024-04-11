@@ -31,6 +31,7 @@ async function createWrapper() {
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-page': await wrapTestComponent('sw-page'),
                 'sw-card': await wrapTestComponent('sw-card'),
+                'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 'sw-card-view': await wrapTestComponent('sw-card-view'),
                 'sw-boolean-radio-group': await wrapTestComponent('sw-boolean-radio-group'),
                 'sw-container': await wrapTestComponent('sw-container'),

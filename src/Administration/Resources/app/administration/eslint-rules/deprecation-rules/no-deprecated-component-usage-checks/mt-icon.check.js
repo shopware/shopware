@@ -2,10 +2,10 @@
  *  @param {VElement} node
  */
 const handleMtIcon = (context, node) => {
-    const mtButtonComponentName = 'mt-icon';
+    const mtComponentName = 'mt-icon';
 
     // Refactor the old usage of mt-icon to mt-icon after the migration to the new component
-    if (node.name === mtButtonComponentName) {
+    if (node.name === mtComponentName) {
         const attributes = node.startTag.attributes;
         const smallAttribute = attributes.find((attr) => {
             return attr?.key?.name === 'small';
@@ -137,7 +137,7 @@ const handleMtIcon = (context, node) => {
                     if (attributes.length === 0) {
                         yield fixer.insertTextAfterRange([
                             node.startTag.range[0],
-                            node.startTag.range[0] + mtButtonComponentName.length + 1
+                            node.startTag.range[0] + mtComponentName.length + 1
                         ], ' size="24px"');
                         return;
                     }

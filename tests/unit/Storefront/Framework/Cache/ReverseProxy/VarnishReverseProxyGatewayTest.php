@@ -45,15 +45,6 @@ class VarnishReverseProxyGatewayTest extends TestCase
         $gateway->getDecorated();
     }
 
-    public function testTagggingMissingResponse(): void
-    {
-        $gateway = new VarnishReverseProxyGateway([], 0, $this->client, new NullLogger());
-        static::expectException(\ArgumentCountError::class);
-        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway::tag()');
-        /** @phpstan-ignore-next-line  */
-        $gateway->tag([], 'https://example.com');
-    }
-
     public function testTagggingMissingResponseWithResponse(): void
     {
         $gateway = new VarnishReverseProxyGateway([], 0, $this->client, new NullLogger());
@@ -118,6 +109,22 @@ class VarnishReverseProxyGatewayTest extends TestCase
         static::assertEquals('http://localhost/', $request->getUri()->__toString());
     }
 
+    public function testBanAll(): void
+    {
+        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client, new NullLogger());
+
+        $this->mockHandler->append(new GuzzleResponse(200, [], ''));
+
+        $gateway->banAll();
+
+        $request = $this->mockHandler->getLastRequest();
+
+        static::assertNotNull($request);
+
+        static::assertEquals('BAN', $request->getMethod());
+        static::assertEquals('http://localhost', $request->getUri()->__toString());
+    }
+
     /**
      * @dataProvider providerExceptions
      */
@@ -125,14 +132,14 @@ class VarnishReverseProxyGatewayTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
 
-        $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client, $logger);
+        $gateway = new VarnishReverseProxyGateway(['http://localhost:8000'], 0, $this->client, $logger);
 
         $this->mockHandler->append($e);
 
         $logger
             ->expects(static::once())
             ->method('critical')
-            ->with('Error while flushing varnish cache', ['error' => $message, 'urls' => ['/']]);
+            ->with('Error while flushing varnish cache', ['error' => $message, 'urls' => ['http://localhost:8000/']]);
 
         $gateway->ban(['/']);
     }
@@ -143,8 +150,8 @@ class VarnishReverseProxyGatewayTest extends TestCase
     public static function providerExceptions(): iterable
     {
         yield 'timed out' => [
-            new ServerException('request timed out', new Request('GET', '/'), new GuzzleResponse(500)),
-            'BAN request failed to / failed with error: request timed out',
+            new ServerException('request timed out', new Request('GET', 'http://localhost:8000'), new GuzzleResponse(500)),
+            'BAN request failed to http://localhost:8000 failed with error: request timed out',
         ];
 
         yield 'general php error' => [

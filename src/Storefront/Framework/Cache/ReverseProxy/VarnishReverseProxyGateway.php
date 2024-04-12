@@ -103,14 +103,31 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     public function ban(array $urls): void
     {
         $list = [];
-
         foreach ($urls as $url) {
             foreach ($this->hosts as $host) {
                 $list[] = new Request('PURGE', $host . $url);
             }
         }
 
-        $pool = new Pool($this->client, $list, [
+        $this->runPool($list);
+    }
+
+    public function banAll(): void
+    {
+        $list = [];
+        foreach ($this->hosts as $host) {
+            $list[] = new Request('BAN', $host);
+        }
+
+        $this->runPool($list);
+    }
+
+    /**
+     * @param array<Request> $requests
+     */
+    public function runPool(array $requests): void
+    {
+        $pool = new Pool($this->client, $requests, [
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
@@ -124,12 +141,9 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
         try {
             $pool->promise()->wait();
         } catch (\Throwable $e) {
+            $urls = array_map(fn (Request $request) => $request->getUri()->__toString(), $requests);
+
             $this->logger->critical('Error while flushing varnish cache', ['error' => $e->getMessage(), 'urls' => $urls]);
         }
-    }
-
-    public function banAll(): void
-    {
-        $this->ban(['/']);
     }
 }

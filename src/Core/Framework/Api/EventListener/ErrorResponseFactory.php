@@ -130,6 +130,14 @@ class ErrorResponseFactory
                 }
             }
             // @codeCoverageIgnoreEnd
+
+            // fix for passing resources to json encode, see https://www.php.net/manual/en/function.is-resource.php
+            // the exception and consequently trace may contain arguments that are resources, like file handles
+            // these resource values are now converted into a string of "<RESOURCE_TYPE>"
+            $isResource = \is_resource($value) || ($value !== null && !\is_scalar($value) && !\is_array($value) && !\is_object($value));
+            if ($isResource) {
+                $array[$key] = sprintf('<%s>', get_resource_type($value));
+            }
         }
 
         return $array;

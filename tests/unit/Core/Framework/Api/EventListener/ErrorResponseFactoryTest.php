@@ -290,6 +290,36 @@ class ErrorResponseFactoryTest extends TestCase
         static::assertStringStartsWith($prefix, $json['errors'][0]['detail']);
         static::assertStringEndsWith($suffix, $json['errors'][0]['detail']);
     }
+
+    public function testResourceValueShouldNotThrow(): void
+    {
+        $fileResource = false;
+
+        try {
+            $closedFileResource = \tmpfile();
+            static::assertTrue(\is_resource($closedFileResource));
+            fclose($closedFileResource);
+
+            $fileResource = \tmpfile();
+            static::assertTrue(\is_resource($fileResource));
+
+            $exception = new SimpleShopwareHttpException([
+                'normal' => 'value',
+                'resource' => $fileResource,
+                'closed_resource' => $closedFileResource,
+            ]);
+
+            $factory = new ErrorResponseFactory();
+            // might throw a InvalidArgumentException: Type is not supported
+            // because a resource was passed to json_encode
+            $response = $factory->getResponseFromException($exception);
+            static::assertSame(Response::HTTP_I_AM_A_TEAPOT, $response->getStatusCode());
+        } finally {
+            if ($fileResource) {
+                fclose($fileResource);
+            }
+        }
+    }
 }
 
 /**

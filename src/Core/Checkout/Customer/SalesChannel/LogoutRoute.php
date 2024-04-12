@@ -39,27 +39,17 @@ class LogoutRoute extends AbstractLogoutRoute
     #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
-        $this->contextPersister->save($context->getToken(), ['customerId' => null], $context->getSalesChannelId());
-
         /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
             $this->contextPersister->delete($context->getToken(), $context->getSalesChannelId());
-
-            $event = new CustomerLogoutEvent($context, $customer);
-            $this->eventDispatcher->dispatch($event);
-
-            return new ContextTokenResponse($context->getToken());
-        }
-
-        $newToken = Random::getAlphanumericString(32);
-        if ((bool) $data->get('replace-token')) {
-            $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        } else {
+            $this->contextPersister->replace($context->getToken(), $context);
         }
 
         $context->assign([
-            'token' => $newToken,
+            'token' => Random::getAlphanumericString(32),
         ]);
 
         $event = new CustomerLogoutEvent($context, $customer);

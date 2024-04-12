@@ -206,8 +206,9 @@
         }
     ],
     "scripts-descriptions": {
-        "admin:create:test": " ",
-        "admin:generate-entity-schema-types": " ",
+        "admin:code-mods": "Run admin code mods",
+        "admin:create:test": "Create a admin test blueprint",
+        "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
@@ -281,6 +282,7 @@
         "make:coverage": "Generate test coverage files for current branch"
     },
     "scripts": {
+        "admin:code-mods": "@npm:admin run code-mods --",
         "admin:create:test": "@npm:admin run create-test",
         "admin:generate-entity-schema-types": [
             "@framework:schema:dump",

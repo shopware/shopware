@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
@@ -15,12 +16,15 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
         return $type === LineItem::PROMOTION_LINE_ITEM_TYPE;
     }
 
+    /**
+     * @param array<string, string> $data
+     */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
         $code = $data['referencedId'];
-
         $uniqueKey = 'promotion-' . $code;
-        $item = new LineItem($uniqueKey, LineItem::PROMOTION_LINE_ITEM_TYPE);
+
+        $item = new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 
@@ -34,6 +38,9 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
         return $item;
     }
 
+    /**
+     * @param array<string, string> $data
+     */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
         throw new \RuntimeException(sprintf('You cannot update a line item of type "%s"', $lineItem->getType()));

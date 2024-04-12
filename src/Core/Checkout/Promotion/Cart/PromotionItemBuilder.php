@@ -16,6 +16,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('buyers-experience')]
 class PromotionItemBuilder
@@ -39,7 +40,7 @@ class PromotionItemBuilder
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
 
-        $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
+        $item = new LineItem(Uuid::fromStringToHex($uniqueKey), PromotionProcessor::LINE_ITEM_TYPE);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 

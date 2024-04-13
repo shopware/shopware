@@ -149,7 +149,6 @@
                             name="sw-field--user-password"
                             :disabled="!acl.can('users_and_permissions.editor')"
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
-                            :copy-able="false"
                             :error="userPasswordError"
                             autocomplete="off"
                             @update:value="setPassword"
@@ -380,8 +379,8 @@
                 v-model:value="currentIntegration.accessKey"
                 :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
                 :disabled="true"
-                :copy-able="true"
-                :copy-able-tooltip="true"
+                :copyable="true"
+                :copyable-tooltip="true"
             />
             {% endblock %}
 
@@ -395,8 +394,8 @@
                 :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                 :disabled="true"
                 :password-toggle-able="false"
-                :copy-able="showSecretAccessKey"
-                :copy-able-tooltip="true"
+                :copyable="showSecretAccessKey"
+                :copyable-tooltip="true"
             />
 
             <sw-password-field
@@ -405,8 +404,8 @@
                 :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
                 :disabled="true"
                 :password-toggle-able="false"
-                :copy-able="showSecretAccessKey"
-                :copy-able-tooltip="true"
+                :copyable="showSecretAccessKey"
+                :copyable-tooltip="true"
                 autocomplete="off"
             />
             {% endblock %}

@@ -55,6 +55,8 @@ class StorefrontPluginConfiguration extends Struct
      */
     private array $configInheritance = [];
 
+    private bool $additionalBundles = false;
+
     /**
      * @internal
      */
@@ -255,5 +257,15 @@ class StorefrontPluginConfiguration extends Struct
         $normalizer = new CamelCaseToSnakeCaseNameConverter();
 
         return \str_replace('_', '-', $normalizer->normalize($this->technicalName));
+    }
+
+    public function setAdditionalBundles(bool $hasAdditionalBundles): void
+    {
+        $this->additionalBundles = $hasAdditionalBundles;
+    }
+
+    public function hasAdditionalBundles(): bool
+    {
+        return $this->additionalBundles;
     }
 }

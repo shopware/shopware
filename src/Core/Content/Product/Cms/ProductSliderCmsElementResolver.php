@@ -16,9 +16,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -85,6 +82,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $slot->setData($slider);
 
         $productConfig = $config->get('products');
+
         if ($productConfig === null) {
             return;
         }
@@ -113,7 +111,8 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
                 return;
             }
 
-            $slider->setProducts($streamResult);
+            $finalProducts = $this->handleProductStream($streamResult);
+            $slider->setProducts($finalProducts);
             $slider->setStreamId($productConfig->getStringValue());
         }
     }
@@ -191,15 +190,6 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         $criteria->addAssociation('options.group');
         $criteria->addAssociation('manufacturer');
 
-        // Ensure storefront presentation settings of product variants
-        $criteria->addGroupField(new FieldGrouping('displayGroup'));
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
-
         if ($sorting === 'random') {
             return $this->addRandomSort($criteria);
         }
@@ -235,5 +225,35 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
 
         return $criteria;
+    }
+
+    private function handleProductStream(ProductCollection $streamResult): ProductCollection
+    {
+        $finalProducts = new ProductCollection();
+
+        foreach ($streamResult as $product) {
+            $variantConfig = $product->getVariantListingConfig();
+
+            if (!$variantConfig) {
+                $finalProducts->add($product);
+                continue;
+            }
+
+            $idToFetch = $variantConfig->getDisplayParent() ? $product->getParentId() : $variantConfig->getMainVariantId();
+
+            if ($idToFetch === null) {
+                continue;
+            }
+
+            $productToAdd = $streamResult->get($idToFetch);
+
+            if (!$productToAdd) {
+                continue;
+            }
+
+            $finalProducts->add($productToAdd);
+        }
+
+        return $finalProducts;
     }
 }

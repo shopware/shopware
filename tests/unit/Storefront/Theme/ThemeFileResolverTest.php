@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
@@ -28,7 +29,10 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $projectDir,
+            $this->createMock(KernelPluginLoader::class)
+        );
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -55,7 +59,10 @@ class ThemeFileResolverTest extends TestCase
 
         $projectDir = __DIR__;
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $projectDir,
+            $this->createMock(KernelPluginLoader::class)
+        );
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -83,7 +90,10 @@ class ThemeFileResolverTest extends TestCase
 
         $projectDir = __DIR__;
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $projectDir,
+            $this->createMock(KernelPluginLoader::class)
+        );
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
         $plugin = $factory->createFromBundle($pluginBundle);
@@ -113,7 +123,10 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $projectDir,
+            $this->createMock(KernelPluginLoader::class)
+        );
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
         $plugin = $factory->createFromBundle($pluginBundle);
@@ -164,7 +177,10 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
 
         $projectDir = __DIR__;
-        $factory = new StorefrontPluginConfigurationFactory($projectDir);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $projectDir,
+            $this->createMock(KernelPluginLoader::class)
+        );
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 

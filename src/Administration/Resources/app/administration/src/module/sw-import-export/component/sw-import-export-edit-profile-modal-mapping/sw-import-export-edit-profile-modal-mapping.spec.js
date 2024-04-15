@@ -70,6 +70,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     'sw-context-button': true,
                     'sw-switch-field': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),

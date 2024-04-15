@@ -37,6 +37,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

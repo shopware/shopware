@@ -122,6 +122,7 @@ async function createWrapper(propsData) {
                 'router-link': true,
                 'sw-skeleton': await wrapTestComponent('sw-skeleton'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-icon': {
                     template: '<div></div>',
                 },

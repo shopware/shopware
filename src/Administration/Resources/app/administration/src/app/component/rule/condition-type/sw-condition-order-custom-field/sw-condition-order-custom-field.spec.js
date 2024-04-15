@@ -65,6 +65,7 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-single-select': await wrapTestComponent('sw-single-select'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),

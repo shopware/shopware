@@ -37,6 +37,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                 stubs: {
                     'sw-extension-review-creation-inputs': await wrapTestComponent('sw-extension-review-creation-inputs', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),

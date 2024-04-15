@@ -252,10 +252,7 @@ export default class VueAdapter extends ViewAdapter {
         if (Shopware.Feature.isActive('v6.7.0.0')) {
             meteorComponents.forEach((componentName) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                MeteorImport[componentName].compatConfig = {
-                    INSTANCE_LISTENERS: false,
-                    INSTANCE_ATTRS_CLASS_STYLE: false,
-                };
+                MeteorImport[componentName].compatConfig = Shopware.compatConfig;
             });
         }
 

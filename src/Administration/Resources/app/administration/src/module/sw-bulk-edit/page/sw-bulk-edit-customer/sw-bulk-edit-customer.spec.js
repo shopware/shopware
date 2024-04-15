@@ -45,6 +45,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

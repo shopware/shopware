@@ -32,6 +32,7 @@ async function createWrapper() {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),

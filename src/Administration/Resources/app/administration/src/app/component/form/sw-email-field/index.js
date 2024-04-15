@@ -12,6 +12,6 @@ const { Component } = Shopware;
  * @component-example
  * <sw-email-field label="Name" placeholder="The placeholder goes here..."></sw-email-field>
  */
-Component.extend('sw-email-field', 'sw-text-field', {
+Component.extend('sw-email-field', 'sw-text-field-deprecated', {
     template,
 });

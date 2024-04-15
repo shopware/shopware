@@ -45,6 +45,7 @@ async function createWrapper() {
                 'sw-custom-field-translated-labels': true,
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-field-error': true,

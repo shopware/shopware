@@ -7,7 +7,11 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 let wrapper;
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], options = {
+    global: {
+        stubs: {},
+    },
+}) {
     wrapper = mount(await wrapTestComponent('sw-users-permissions-user-detail', {
         sync: true,
     }), {
@@ -144,6 +148,7 @@ async function createWrapper(privileges = []) {
                 'sw-empty-state': true,
                 'sw-skeleton': true,
                 'sw-loader': true,
+                ...options.global.stubs,
             },
         },
     });
@@ -197,12 +202,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.props('value')).toBe('');
-        expect(fieldLastName.props('value')).toBe('admin');
-        expect(fieldEmail.props('value')).toBe('info@shopware.com');
-        expect(fieldUsername.props('value')).toBe('admin');
-        expect(fieldProfilePicture.props('value')).toBeUndefined();
-        expect(fieldPassword.props('value')).toBeUndefined();
+        expect(fieldFirstName.attributes('value')).toBe('');
+        expect(fieldLastName.attributes('value')).toBe('admin');
+        expect(fieldEmail.attributes('value')).toBe('info@shopware.com');
+        expect(fieldUsername.attributes('value')).toBe('admin');
+        expect(fieldProfilePicture.attributes('value')).toBeUndefined();
+        expect(fieldPassword.attributes('value')).toBeUndefined();
         expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
@@ -235,12 +240,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldPassword.exists()).toBeTruthy();
         expect(fieldLanguage.exists()).toBeTruthy();
 
-        expect(fieldFirstName.props('value')).toBe('Max');
-        expect(fieldLastName.props('value')).toBe('Mustermann');
-        expect(fieldEmail.props('value')).toBe('max@mustermann.com');
-        expect(fieldUsername.props('value')).toBe('maxmuster');
-        expect(fieldProfilePicture.props('value')).toBeUndefined();
-        expect(fieldPassword.props('value')).toBeUndefined();
+        expect(fieldFirstName.attributes('value')).toBe('Max');
+        expect(fieldLastName.attributes('value')).toBe('Mustermann');
+        expect(fieldEmail.attributes('value')).toBe('max@mustermann.com');
+        expect(fieldUsername.attributes('value')).toBe('maxmuster');
+        expect(fieldProfilePicture.attributes('value')).toBeUndefined();
+        expect(fieldPassword.attributes('value')).toBeUndefined();
         expect(fieldLanguage.attributes('value')).toBe('12345');
     });
 
@@ -312,12 +317,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const contextMenuItemEdit = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-edit');
         const contextMenuItemDelete = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-delete');
 
-        expect(fieldFirstName.classes()).toContain('is--disabled');
-        expect(fieldLastName.classes()).toContain('is--disabled');
-        expect(fieldEmail.classes()).toContain('is--disabled');
-        expect(fieldUsername.classes()).toContain('is--disabled');
+        expect(fieldFirstName.attributes('disabled')).toBe('true');
+        expect(fieldLastName.attributes('disabled')).toBe('true');
+        expect(fieldEmail.attributes('disabled')).toBe('true');
+        expect(fieldUsername.attributes('disabled')).toBe('true');
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
-        expect(fieldPassword.classes()).toContain('is--disabled');
+        expect(fieldPassword.attributes().disabled).toBe('true');
         expect(fieldLanguage.attributes().disabled).toBe('true');
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
@@ -363,7 +368,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should change the password', async () => {
-        wrapper = await createWrapper('users_and_permissions.editor');
+        wrapper = await createWrapper('users_and_permissions.editor', {
+            global: {
+                stubs: {
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                },
+            },
+        });
         await wrapper.setData({ isLoading: false });
         await flushPromises();
 
@@ -380,7 +391,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should delete the password when input is empty', async () => {
-        wrapper = await createWrapper('users_and_permissions.editor');
+        wrapper = await createWrapper('users_and_permissions.editor', {
+            global: {
+                stubs: {
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                },
+            },
+        });
         await wrapper.setData({ isLoading: false });
         await flushPromises();
 
@@ -403,7 +420,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should send a request with the new password', async () => {
-        wrapper = await createWrapper('users_and_permissions.editor');
+        wrapper = await createWrapper('users_and_permissions.editor', {
+            global: {
+                stubs: {
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                },
+            },
+        });
         await wrapper.setData({ isLoading: false });
         await flushPromises();
 
@@ -420,7 +443,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should not send a request when user clears the password field', async () => {
-        wrapper = await createWrapper('users_and_permissions.editor');
+        wrapper = await createWrapper('users_and_permissions.editor', {
+            global: {
+                stubs: {
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                },
+            },
+        });
         await wrapper.setData({ isLoading: false });
         await flushPromises();
 

@@ -38,6 +38,7 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },

@@ -48,6 +48,7 @@ async function createWrapper(privileges = []) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-modal': {

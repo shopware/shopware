@@ -27,6 +27,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     'sw-icon': true,
                     'sw-popover': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-context-button': await wrapTestComponent('sw-context-button', {

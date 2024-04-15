@@ -3,117 +3,35 @@
  */
 
 import { mount } from '@vue/test-utils';
-import 'src/app/component/form/sw-text-field';
 
-async function createWrapper(options = {}) {
-    const wrapper = mount(await wrapTestComponent('sw-text-field', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-field-error': true,
-            },
-            provide: {
-                validationService: {},
-            },
-        },
-        ...options,
+async function createWrapper(additionalOptions = {}) {
+    return mount(await wrapTestComponent('sw-text-field', { sync: true }), {
+        global: {},
+        props: {},
+        ...additionalOptions,
     });
-
-    await flushPromises();
-
-    return wrapper;
 }
 
-async function createWrappedComponent() {
-    const wrapper = mount(await Shopware.Component.build(
-        'sw-text-field-mock',
-    ), {
-        global: {
-            stubs: {
-                'sw-text-field': await wrapTestComponent('sw-text-field'),
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
-                'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-field-error': true,
-            },
-            provide: {
-                validationService: {},
-            },
-        },
+describe('src/app/component/base/sw-text-field', () => {
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    await flushPromises();
+    it('should render the deprecated text-field when major feature flag is disabled', async () => {
+        global.activeFeatureFlags = [''];
 
-    return wrapper;
-}
+        const wrapper = await createWrapper();
 
-describe('src/app/component/form/sw-text-field', () => {
-    beforeAll(() => {
-        Shopware.Component.register('sw-text-field-mock', {
-            template: `
-            <div>
-                <sw-text-field v-model:value="mockVar" class="no-suffix" name="sw-field--mockVar" />
-                <sw-text-field v-model:value="mockVar" class="with-suffix" name="sw-field--mockVar-iShallBeSuffix" />
-            </div>`,
-
-            data() {
-                return {
-                    mockVar: 'content',
-                };
-            },
-        });
+        expect(wrapper.html()).toContain('sw-text-field-deprecated');
+        expect(wrapper.html()).not.toContain('mt-text-field');
     });
 
-    it('should render without idSuffix correctly', async () => {
-        const wrapper = await createWrappedComponent();
-        const noSuffix = wrapper.find('.no-suffix');
+    it('should render the mt-text-field when major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['v6.7.0.0'];
 
-        expect(noSuffix.exists()).toBeTruthy();
-        expect(noSuffix.find('#sw-field--mockVar').exists()).toBeTruthy();
-    });
+        const wrapper = await createWrapper();
 
-    it('should render with idSuffix correctly and generated a correct HTML-ID', async () => {
-        const wrapper = await createWrappedComponent();
-        const withSuffix = wrapper.find('.with-suffix');
-
-        expect(withSuffix.exists()).toBeTruthy();
-        expect(withSuffix.find('#sw-field--mockVar-iShallBeSuffix').exists()).toBeTruthy();
-    });
-
-    it('should render with custom html attributes like minlength and maxlength', async () => {
-        const wrapper = await createWrapper({
-            attrs: {
-                maxlength: '12',
-                minlength: '4',
-            },
-        });
-
-        expect(wrapper.find('input[type="text"]').attributes().maxlength).toBe('12');
-        expect(wrapper.find('input[type="text"]').attributes().minlength).toBe('4');
-    });
-
-    it('should show the label from the property', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                label: 'Label from prop',
-            },
-        });
-
-        expect(wrapper.find('label').text()).toBe('Label from prop');
-    });
-
-    it('should show the value from the label slot', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                label: 'Label from prop',
-            },
-            slots: {
-                label: '<template>Label from slot</template>',
-            },
-        });
-
-        expect(wrapper.find('label').text()).toBe('Label from slot');
+        expect(wrapper.html()).toContain('mt-text-field');
     });
 });

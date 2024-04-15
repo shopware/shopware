@@ -56,6 +56,7 @@ async function createWrapper(props = defaultProps) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-card': await wrapTestComponent('sw-card'),
                     'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),
                 },

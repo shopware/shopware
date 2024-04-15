@@ -1,0 +1,66 @@
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
+{% block sw_text_field %}
+<sw-contextual-field
+    class="sw-field--text"
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
+    :name="formFieldName"
+    @inheritance-restore="$emit('inheritance-restore', $event)"
+    @inheritance-remove="$emit('inheritance-remove', $event)"
+    v-on="$listeners"
+>
+    <template
+        v-if="hasPrefix"
+        #sw-contextual-field-prefix="{ disabled, identification }"
+    >
+        <slot
+            name="prefix"
+            v-bind="{ disabled, identification }"
+        ></slot>
+    </template>
+
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            v-bind="$attrs"
+            :id="createInputId(identification)"
+            type="text"
+            :name="identification"
+            :disabled="disabled"
+            :value="currentValue"
+            :placeholder="placeholder"
+            @input="onInput"
+            @change="onChange"
+            @focus="setFocusClass"
+            @blur="removeFocusClass"
+            v-on="additionalListeners"
+        >
+    </template>
+
+    <template
+        v-if="copyable || hasSuffix"
+        #sw-contextual-field-suffix="{ disabled, identification }"
+    >
+        <slot
+            name="suffix"
+            v-bind="{ identification }"
+        ></slot>
+        <sw-field-copyable
+            v-if="copyable"
+            :display-name="identification"
+            :copyable-text="currentValue"
+            :tooltip="copyableTooltip"
+        />
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+</sw-contextual-field>
+{% endblock %}

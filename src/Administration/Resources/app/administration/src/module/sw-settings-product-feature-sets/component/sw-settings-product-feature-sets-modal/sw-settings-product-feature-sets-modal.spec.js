@@ -66,6 +66,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-data-grid-skeleton': true,
                     i18n: true,
                 },

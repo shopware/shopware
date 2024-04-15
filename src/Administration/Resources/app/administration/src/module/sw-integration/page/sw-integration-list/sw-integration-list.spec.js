@@ -95,6 +95,7 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-password-field': await wrapTestComponent('sw-password-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),

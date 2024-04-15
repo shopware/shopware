@@ -27,6 +27,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                         template: '<div><slot></slot></div>',
                     },
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

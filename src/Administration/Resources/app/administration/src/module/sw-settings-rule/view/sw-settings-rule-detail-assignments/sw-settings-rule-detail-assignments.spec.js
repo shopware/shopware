@@ -126,6 +126,7 @@ async function createWrapper(props = defaultProps, entitiesWithResults = ['produ
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-card': await wrapTestComponent('sw-card'),
                 'sw-card-deprecated': await wrapTestComponent('sw-card-deprecated', { sync: true }),

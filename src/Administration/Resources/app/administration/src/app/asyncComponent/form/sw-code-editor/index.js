@@ -108,6 +108,17 @@ export default {
             default: false,
         },
 
+        /**
+         * @description:
+         * If set to true, the component will show warning below the editor the content might be sanitized
+         * but does not call the sanitize API, the sanitization is done by the backend on saving
+         */
+        sanitizeInfoWarn: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         sanitizeInput: {
             type: Boolean,
             required: false,

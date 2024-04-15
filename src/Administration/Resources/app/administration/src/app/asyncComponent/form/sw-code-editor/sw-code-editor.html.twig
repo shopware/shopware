@@ -74,6 +74,28 @@
         {% endblock %}
 
     </div>
+
+    <div
+        v-else-if="enableHtmlSanitizer && sanitizeInfoWarn"
+        class="sw-code-editor__sanitize-bar"
+    >
+        <div
+            class="sw-code-editor__sanitize-info"
+            :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_code_editor_sanitize_info_content_hint %}
+            <sw-circle-icon
+                icon-name="regular-info-circle"
+                :size="30"
+                variant="info"
+            />
+            <p class="sw-code-editor__sanitize-text">
+                {{ $tc('global.sw-code-editor.sanitizeInfo') }}
+            </p>
+            {% endblock %}
+        </div>
+    </div>
     {% endblock %}
 </div>
 {% endblock %}

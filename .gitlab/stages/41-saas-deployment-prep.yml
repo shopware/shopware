@@ -10,32 +10,12 @@ variables:
     description: 'The base branch from which the deployment branch should be split off of. This also determines, which branch is checked for successful scheduled pipeline runs.'
 
 .rules_deployment_preparation: &rules_deployment_preparation
-  - !reference [ .rules, skip-in-merge-train ]
-  - !reference [ .rules, skip ]
   - if: '$CI_PREPARE_SAAS_DEPLOYMENT == "true"'
-
-compile deployment info:
-  extends: .base-no-setup
-  stage: downstream
-  needs: [ ]
-  rules:
-    - *rules_deployment_preparation
-  variables:
-    CI_CURRENT_MAJOR_ALIAS: '6.6.x-dev'
-  script:
-    - .gitlab/bin/compile_deployment_info.sh deployment_env "${CI_PREPARE_SAAS_DEPLOYMENT_EXTENSION_UPDATES}" | tee deployment.env
-  artifacts:
-    paths:
-      - deployment.env
-    reports:
-      dotenv: deployment.env
 
 create downstream deployment branch:
   extends: .base-no-setup
   stage: downstream
-  needs:
-    - job: 'compile deployment info'
-      artifacts: true
+  needs: [ ]
   rules:
     - *rules_deployment_preparation
   script:
@@ -47,6 +27,24 @@ create downstream deployment branch:
           - 'shopware%2F6%2Fproduct%2Fcommercial'
           - 'shopware%2F6%2Fproduct%2Frufus'
           - 'shopware%2F6%2Fproduct%2Fplatform'
+
+compile deployment info:
+  extends: .base-no-setup
+  stage: downstream
+  needs:
+    - job: 'create downstream deployment branch'
+      artifacts: false
+  rules:
+    - *rules_deployment_preparation
+  variables:
+    CI_CURRENT_MAJOR_ALIAS: '6.6.x-dev'
+  script:
+    - .gitlab/bin/compile_deployment_info.sh deployment_env "${CI_PREPARE_SAAS_DEPLOYMENT_EXTENSION_UPDATES}" | tee deployment.env
+  artifacts:
+    paths:
+      - deployment.env
+    reports:
+      dotenv: deployment.env
 
 create deployment merge request:
   stage: downstream

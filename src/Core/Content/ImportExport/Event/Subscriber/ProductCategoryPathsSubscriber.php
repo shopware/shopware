@@ -56,7 +56,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
             return;
         }
 
-        $context = Context::createDefaultContext();
+        $context = $event->getContext();
 
         $result = [];
         $categoriesPaths = explode('|', (string) $row['category_paths']);

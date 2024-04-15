@@ -37,6 +37,8 @@ class ImportExportException extends HttpException
     public const UNEXPECTED_FILE_TYPE = 'CONTENT__IMPORT_FILE_HAS_UNEXPECTED_TYPE';
     public const UNKNOWN_ACTIVITY = 'CONTENT__IMPORT_EXPORT__UNKNOWN_ACTIVITY';
     public const FILE_PATH_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__FILE_PATH_NOT_FOUND';
+    public const INVALID_REQUEST_PARAMETER = 'CONTENT__IMPORT_EXPORT__INVALID_REQUEST_PARAMETER';
+    public const MISSING_PRIVILEGE = 'CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE';
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
@@ -243,6 +245,29 @@ class ImportExportException extends HttpException
             self::UNKNOWN_ACTIVITY,
             'The activity "{{ activity }}" could not be processed.',
             ['activity' => $activity]
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
+    }
+
+    /**
+     * @param array<string> $privilege
+     */
+    public static function missingPrivilege(array $privilege): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::MISSING_PRIVILEGE,
+            'Missing privilege: {{ missingPrivileges }}',
+            ['missingPrivileges' => \json_encode($privilege)],
         );
     }
 }

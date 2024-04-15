@@ -48,6 +48,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-icon': true,
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-context-menu-divider': await wrapTestComponent('sw-context-menu-divider'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),

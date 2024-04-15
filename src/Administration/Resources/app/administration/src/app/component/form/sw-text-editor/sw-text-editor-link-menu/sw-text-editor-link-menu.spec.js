@@ -59,6 +59,7 @@ async function createWrapper(buttonConfig) {
             stubs: {
                 'sw-select-field': await wrapTestComponent('sw-select-field'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-email-field': await wrapTestComponent('sw-email-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),

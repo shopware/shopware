@@ -5,6 +5,7 @@ const { handleMtButton } = require('./no-deprecated-component-usage-checks/mt-bu
 const { handleMtIcon } = require('./no-deprecated-component-usage-checks/mt-icon.check')
 const { handleMtCard } = require("./no-deprecated-component-usage-checks/mt-card.check");
 const { handleMtTextField } = require("./no-deprecated-component-usage-checks/mt-text-field.check");
+const { handleMtSwitch } = require("./no-deprecated-component-usage-checks/mt-switch.check");
 
 /* eslint-disable max-len */
 
@@ -43,6 +44,8 @@ module.exports = {
                     handleMtCard(context, node);
                     // Handle mt-text-field component
                     handleMtTextField(context, node);
+                    // Handle mt-switch-field component
+                    handleMtSwitch(context, node);
                 },
             }
         )

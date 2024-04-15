@@ -60,6 +60,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                     'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                     'sw-settings-listing-visibility-detail': true,
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 },
             },
         });

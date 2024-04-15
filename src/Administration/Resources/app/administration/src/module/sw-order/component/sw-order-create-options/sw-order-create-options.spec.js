@@ -129,6 +129,7 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                 'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', { sync: true }),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-text-field': true,
                 'sw-entity-single-select': {
                     props: ['value'],

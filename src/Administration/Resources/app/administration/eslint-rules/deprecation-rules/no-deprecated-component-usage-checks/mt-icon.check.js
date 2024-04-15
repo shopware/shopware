@@ -5,148 +5,150 @@ const handleMtIcon = (context, node) => {
     const mtComponentName = 'mt-icon';
 
     // Refactor the old usage of mt-icon to mt-icon after the migration to the new component
-    if (node.name === mtComponentName) {
-        const attributes = node.startTag.attributes;
-        const smallAttribute = attributes.find((attr) => {
-            return attr?.key?.name === 'small';
+    if (node.name !== mtComponentName) {
+        return;
+    }
+
+    const attributes = node.startTag.attributes;
+    const smallAttribute = attributes.find((attr) => {
+        return attr?.key?.name === 'small';
+    });
+    const smallAttributeExpression = attributes.find((attr) => {
+        return attr?.key?.name?.name === 'bind' &&
+            attr?.key?.argument?.name === 'small'
+    });
+    const largeAttribute = attributes.find((attr) => {
+        return attr?.key?.name === 'large';
+    });
+    const largeAttributeExpression = attributes.find((attr) => {
+        return attr?.key?.name?.name === 'bind' &&
+            attr?.key?.argument?.name === 'large'
+    });
+    const sizeAttribute = attributes.find((attr) => {
+        return attr?.key?.name === 'size';
+    });
+    const sizeAttributeExpression = attributes.find((attr) => {
+        return attr?.key?.name?.name === 'bind' &&
+            attr?.key?.argument?.name === 'size'
+    });
+
+    // Handle the old attribute "small" of mt-icon and replace it with "size" of value "16px"
+    if (smallAttribute && !(sizeAttribute || sizeAttributeExpression)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.insertTextAfterRange(smallAttribute.range, 'size="16px"');
+                yield fixer.removeRange(smallAttribute.range);
+            }
         });
-        const smallAttributeExpression = attributes.find((attr) => {
-            return attr?.key?.name?.name === 'bind' &&
-                attr?.key?.argument?.name === 'small'
+    } else if (smallAttribute && (sizeAttributeExpression || sizeAttribute)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.removeRange(smallAttribute.range);
+            }
         });
-        const largeAttribute = attributes.find((attr) => {
-            return attr?.key?.name === 'large';
+    }
+
+    // Handle the old attribute expression "small" of mt-icon and replace it with "size" of value "16px"
+    if (smallAttributeExpression && !(sizeAttribute || sizeAttributeExpression)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.insertTextAfterRange(smallAttributeExpression.range, 'size="16px"');
+                yield fixer.removeRange(smallAttributeExpression.range);
+            }
         });
-        const largeAttributeExpression = attributes.find((attr) => {
-            return attr?.key?.name?.name === 'bind' &&
-                attr?.key?.argument?.name === 'large'
+    } else if (smallAttributeExpression && (sizeAttributeExpression || sizeAttribute)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.removeRange(smallAttributeExpression.range);
+            }
         });
-        const sizeAttribute = attributes.find((attr) => {
-            return attr?.key?.name === 'size';
+    }
+
+    // Handle the old attribute "large" of mt-icon and replace it with "size" of value "32px"
+    if (largeAttribute && !(sizeAttribute || sizeAttributeExpression)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.insertTextAfterRange(largeAttribute.range, 'size="32px"');
+                yield fixer.removeRange(largeAttribute.range);
+            }
         });
-        const sizeAttributeExpression = attributes.find((attr) => {
-            return attr?.key?.name?.name === 'bind' &&
-                attr?.key?.argument?.name === 'size'
+    } else if (largeAttribute && (sizeAttributeExpression || sizeAttribute)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.removeRange(largeAttribute.range);
+            }
         });
+    }
 
-        // Handle the old attribute "small" of mt-icon and replace it with "size" of value "16px"
-        if (smallAttribute && !(sizeAttribute || sizeAttributeExpression)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
+    // Handle the old attribute expression "large" of mt-icon and replace it with "size" of value "32px"
+    if (largeAttributeExpression && !(sizeAttribute || sizeAttributeExpression)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
 
-                    yield fixer.insertTextAfterRange(smallAttribute.range, 'size="16px"');
-                    yield fixer.removeRange(smallAttribute.range);
+                yield fixer.insertTextAfterRange(largeAttributeExpression.range, 'size="32px"');
+                yield fixer.removeRange(largeAttributeExpression.range);
+            }
+        });
+    } else if (largeAttributeExpression && (sizeAttributeExpression || sizeAttribute)) {
+        context.report({
+            node,
+            message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                yield fixer.removeRange(largeAttributeExpression.range);
+            }
+        });
+    }
+
+    // Handle when no size, small or large attribute is set
+    if (!(sizeAttribute || sizeAttributeExpression) && !(smallAttribute || smallAttributeExpression) && !(largeAttribute || largeAttributeExpression)) {
+        context.report({
+            node,
+            message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
+            *fix(fixer) {
+                if (context.options.includes('disableFix')) return;
+
+                // Handle no attributes
+                if (attributes.length === 0) {
+                    yield fixer.insertTextAfterRange([
+                        node.startTag.range[0],
+                        node.startTag.range[0] + mtComponentName.length + 1
+                    ], ' size="24px"');
+                    return;
                 }
-            });
-        } else if (smallAttribute && (sizeAttributeExpression || sizeAttribute)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
 
-                    yield fixer.removeRange(smallAttribute.range);
-                }
-            });
-        }
-
-        // Handle the old attribute expression "small" of mt-icon and replace it with "size" of value "16px"
-        if (smallAttributeExpression && !(sizeAttribute || sizeAttributeExpression)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    yield fixer.insertTextAfterRange(smallAttributeExpression.range, 'size="16px"');
-                    yield fixer.removeRange(smallAttributeExpression.range);
-                }
-            });
-        } else if (smallAttributeExpression && (sizeAttributeExpression || sizeAttribute)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "small" prop is deprecated. Please use the "size" prop with value "16px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    yield fixer.removeRange(smallAttributeExpression.range);
-                }
-            });
-        }
-
-        // Handle the old attribute "large" of mt-icon and replace it with "size" of value "32px"
-        if (largeAttribute && !(sizeAttribute || sizeAttributeExpression)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    yield fixer.insertTextAfterRange(largeAttribute.range, 'size="32px"');
-                    yield fixer.removeRange(largeAttribute.range);
-                }
-            });
-        } else if (largeAttribute && (sizeAttributeExpression || sizeAttribute)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    yield fixer.removeRange(largeAttribute.range);
-                }
-            });
-        }
-
-        // Handle the old attribute expression "large" of mt-icon and replace it with "size" of value "32px"
-        if (largeAttributeExpression && !(sizeAttribute || sizeAttributeExpression)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    yield fixer.insertTextAfterRange(largeAttributeExpression.range, 'size="32px"');
-                    yield fixer.removeRange(largeAttributeExpression.range);
-                }
-            });
-        } else if (largeAttributeExpression && (sizeAttributeExpression || sizeAttribute)) {
-            context.report({
-                node,
-                message: '[mt-icon] The "large" prop is deprecated. Please use the "size" prop with value "32px" instead.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    yield fixer.removeRange(largeAttributeExpression.range);
-                }
-            });
-        }
-
-        // Handle when no size, small or large attribute is set
-        if (!(sizeAttribute || sizeAttributeExpression) && !(smallAttribute || smallAttributeExpression) && !(largeAttribute || largeAttributeExpression)) {
-            context.report({
-                node,
-                message: '[mt-icon] The size of the icon is not 24px by default now. Please use the "size" prop with value "24px" to set the size explicitly if needed.',
-                *fix(fixer) {
-                    if (context.options.includes('disableFix')) return;
-
-                    // Handle no attributes
-                    if (attributes.length === 0) {
-                        yield fixer.insertTextAfterRange([
-                            node.startTag.range[0],
-                            node.startTag.range[0] + mtComponentName.length + 1
-                        ], ' size="24px"');
-                        return;
-                    }
-
-                    const firstAttribute = attributes[0];
-                    yield fixer.insertTextAfterRange(firstAttribute.range, ' size="24px"');
-                }
-            });
-        }
+                const firstAttribute = attributes[0];
+                yield fixer.insertTextAfterRange(firstAttribute.range, ' size="24px"');
+            }
+        });
     }
 }
 

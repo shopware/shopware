@@ -45,6 +45,7 @@ async function createWrapper(isSelectable, tooltip) {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-icon': true,
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-context-menu-divider': true,
                 'sw-pagination': await wrapTestComponent('sw-pagination'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),

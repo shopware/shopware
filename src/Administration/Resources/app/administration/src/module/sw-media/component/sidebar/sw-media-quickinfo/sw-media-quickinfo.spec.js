@@ -77,6 +77,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                 'sw-custom-field-set-renderer': true,
                 'sw-field-error': true,
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
             },

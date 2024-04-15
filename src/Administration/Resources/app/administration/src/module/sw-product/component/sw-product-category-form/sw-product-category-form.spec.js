@@ -76,6 +76,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     'sw-modal': true,
                     'sw-multi-tag-select': true,
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-category-tree-field': true,

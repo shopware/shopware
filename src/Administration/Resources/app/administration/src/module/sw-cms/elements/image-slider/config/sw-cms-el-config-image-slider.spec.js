@@ -57,6 +57,7 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                 'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-help-text': true,

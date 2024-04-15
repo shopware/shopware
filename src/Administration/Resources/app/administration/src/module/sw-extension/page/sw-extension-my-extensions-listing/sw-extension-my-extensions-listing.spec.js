@@ -45,6 +45,7 @@ async function createWrapper() {
                 // eslint-disable-next-line max-len
                 'sw-extension-my-extensions-listing-controls': await wrapTestComponent('sw-extension-my-extensions-listing-controls', { sync: true }),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                 'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                 'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),

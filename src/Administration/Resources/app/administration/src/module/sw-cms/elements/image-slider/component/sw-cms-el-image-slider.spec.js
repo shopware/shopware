@@ -1,8 +1,11 @@
 /**
  * @package buyers-experience
- */
+*/
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
+
+const MOCK_ASSET_PATH = '/ASSET-PATH/';
+Shopware.Context.api.assetsPath = MOCK_ASSET_PATH;
 
 const sliderItemsConfigMock = [
     {
@@ -92,6 +95,14 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-cms/elements/image-slider/component', () => {
+    it('should render a fallback image if config is not resolved to data', async () => {
+        const wrapper = await createWrapper();
+
+        const image = wrapper.get('.sw-cms-el-image-slider__image');
+
+        expect(image.attributes('src')).toBe(`${MOCK_ASSET_PATH}administration/static/img/cms/preview_mountain_large.jpg`);
+    });
+
     it('setSliderArrowItem should work correctly', async () => {
         const wrapper = await createWrapper();
 

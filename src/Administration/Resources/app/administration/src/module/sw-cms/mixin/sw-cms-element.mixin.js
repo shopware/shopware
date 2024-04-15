@@ -70,18 +70,13 @@ export default Mixin.register('cms-element', defineComponent({
 
         initElementData(elementName) {
             if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
-                const elemData = cloneDeep(this.element.data);
-                this.$set(this.element, 'data', elemData);
-
                 return;
             }
 
             const elementConfig = this.cmsElements[elementName];
-            const defaultData = elementConfig.defaultData ? elementConfig.defaultData : {};
-
-            const elemData = merge(cloneDeep(defaultData), this.element.data || {});
-
-            this.$set(this.element, 'data', elemData);
+            const defaultData = elementConfig.defaultData ?? {};
+            // eslint-disable-next-line vue/no-mutating-props
+            this.element.data = merge(cloneDeep(defaultData), this.element.data || {});
         },
 
         getDemoValue(mappingPath) {

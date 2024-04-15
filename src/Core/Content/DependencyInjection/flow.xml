@@ -249,6 +249,10 @@
             <tag name="flow.storer" priority="999"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\LanguageStorer">
+            <tag name="flow.storer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowFactory" public="true">
             <argument type="tagged_iterator" tag="flow.storer"/>
         </service>

@@ -175,6 +175,12 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
+    beforeAll(() => {
+        Shopware.Context.app.config.settings = {
+            enableHtmlSanitizer: true,
+        };
+    });
+
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

@@ -105,7 +105,7 @@ export default {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
 
-            return `sw-order-document-settings-${subComponentName}-modal`;
+            return 'sw-order-document-settings-modal';
         },
 
         documentCardStyles() {

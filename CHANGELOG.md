@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.9
+*  [NEXT-32927 - Fixed switch edit mode to html doesn't save new content](./changelog/release-6-5-8-9/2024-03-21-fixed-switch-edit-mode-to-html-doesn-t-save-new-content.md)
+*  [NEXT-34914 - Form validation errors ignored by captcha](./changelog/release-6-5-8-9/2024-04-09-form-validation-errors-ignored-by-captcha.md)
+*  [NEXT-32927 - Fix show sanitize warning info on sw-cms-el-config](./changelog/release-6-5-8-9/2024-04-10-fix-show-sanitize-warning-info-on-sw-cms-el-config.md)
+*  [NEXT-31926 - Fix varnish ban all](./changelog/release-6-5-8-9/2024-04-12-fix-varnish-ban-all.md)
+*  [NEXT-35111 - Change token instead of deleting it for cart restore](./changelog/release-6-5-8-9/2024-04-16-change-token-instead-of-deleting-it-for-cart-restore.md)
+
 ## 6.5.8.8
 *  [NEXT-32311 - Updated validation in EntityWriter](./changelog/release-6-5-8-8/2024-01-04-updated-validation-in-entitywriter.md)
 *  [NEXT-11827 - Clean-up temp files after use of MediaService](./changelog/release-6-5-8-8/2024-01-25-clean-up-temp-files-after-use-of-mediaservice.md)

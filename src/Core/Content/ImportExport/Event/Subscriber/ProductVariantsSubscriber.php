@@ -91,7 +91,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             return;
         }
 
-        $context = Context::createDefaultContext();
+        $context = $event->getContext();
         $payload = $this->getCombinationsPayload($variants, $parentId, $parentPayload['productNumber'], $context);
 
         $variantIds = array_column($payload, 'id');

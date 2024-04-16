@@ -105,7 +105,7 @@ class ImportExportActionControllerTest extends TestCase
             $content = $response->getContent();
             static::assertIsString($content);
             $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-            static::assertSame('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
+            static::assertSame('CONTENT__IMPORT_EXPORT__MISSING_PRIVILEGE', $response['errors'][0]['code'] ?? null);
             static::assertStringContainsString('product:read', $response['errors'][0]['detail']);
             static::assertStringContainsString('tax:read', $response['errors'][0]['detail']);
             static::assertStringContainsString('product_category:read', $response['errors'][0]['detail']);

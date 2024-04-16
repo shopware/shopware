@@ -3,22 +3,14 @@
 namespace Shopware\Core\Framework\Api\HealthCheck\Service;
 
 use Shopware\Core\Framework\Api\HealthCheck\Model\Result;
-use Shopware\Core\Framework\Api\HealthCheck\Model\Status;
-use SplStack;
 
 class Manager
 {
-    private array $checksMap;
-
     /**
      * @param iterable<Check> $checks
      */
     public function __construct(private readonly iterable $checks)
     {
-        $this->checksMap = [];
-        foreach ($checks as $check) {
-            $this->checksMap[get_class($check)] = $check;
-        }
     }
 
     /**
@@ -26,86 +18,62 @@ class Manager
      */
     public function healthCheck(): array
     {
-        $graph = $this->getDependencyGraph();
+        $priorityCheckCluster = $this->groupChecksByPriority();
 
-        $traverseResults = $this->dfsResults($graph);
-        // skip deadlocked dependencies..
-        foreach ($this->checksMap as $check) {
-            if (!isset($traverseResults[get_class($check)])) {
-                $traverseResults[get_class($check)] = new Result(
-                    get_class($check),
-                    Status::SKIPPED,
-                    'Deadlocked dependency'
-                );
-            }
-        }
-
-        return array_values($traverseResults);
+       return $this->runChecks($priorityCheckCluster);
     }
 
-    public function dfsResults(array $dependencyGraph): array
+    private function runChecks(array $priorityCheckCluster): array
     {
-        $sortedDependencyGraph = $this->getSortedDependencyGraph($dependencyGraph);
-        $stack = new SplStack();
-        foreach ($sortedDependencyGraph as $check) {
-            $stack->push($check);
-        }
-
-        $visited = [];
         $results = [];
-        while (! $stack->isEmpty()) {
-            $check = $stack->pop();
-            if (isset($visited[$check])) {
-                continue;
-            }
+        foreach ($priorityCheckCluster as $checks) {
+            $result = $this->doRunChecks($checks);
+            $results = array_merge($results, $result);
 
-            $visited[$check] = true;
-            $dependencies = $this->checksMap[$check]->dependsOn();
-            $results[$check] = $this->runCheck($dependencies, $results, $check);
+            if ($this->shouldStopPropagation($result)) {
+                break;
+            }
         }
 
         return $results;
     }
 
-    private function getDependencyGraph(): array
+    /**
+     * @param Check[] $checks
+     * @return array<Result>
+     */
+    private function doRunChecks(array $checks): array
     {
-        $dependencyGraph = [];
-        foreach ($this->checks as $check) {
-            $dependencyGraph[get_class($check)] = $check->dependsOn();
+        $results = [];
+        foreach ($checks as $check) {
+            $results[] = $check->run();
         }
 
-        return $dependencyGraph;
+        return $results;
     }
 
     /**
-     * @param array $dependencyGraph
-     * @return array
+     * @return array<int, Check[]>
      */
-    private function getSortedDependencyGraph(array $dependencyGraph): array
+    private function groupChecksByPriority(): array
     {
-        $sortedDependencyGraph = $dependencyGraph;
-        uasort($sortedDependencyGraph, function (array $a, array $b) {
-            return count($a) - count($b);
-        });
+        $priorityCheckCluster = [];
+        foreach ($this->checks as $check) {
+            $priorityCheckCluster[$check->priority()][] = $check;
+        }
+        ksort($priorityCheckCluster);
 
-        return array_keys($sortedDependencyGraph);
+        return $priorityCheckCluster;
     }
 
-    /**
-     * @param $dependencies
-     * @param array $results
-     * @param string $check
-     * @return array
-     */
-    private function runCheck($dependencies, array $results, string $check): Result
+    private function shouldStopPropagation(array $results): bool
     {
-        foreach ($dependencies as $dependency) {
-            if (! empty($results[$dependency]) && $results[$dependency]->healthy()) {
-                return new Result($check, Status::SKIPPED, 'Dependency check failed');
+        foreach ($results as $result) {
+            if (! $result->healthy()) {
+                return true;
             }
         }
 
-        return $this->checksMap[$check]->run();
+        return false;
     }
-
 }

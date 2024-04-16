@@ -6,7 +6,6 @@ use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\Api\HealthCheck\Model\Result;
 use Shopware\Core\Framework\Api\HealthCheck\Model\Status;
 use Shopware\Core\Framework\Api\HealthCheck\Service\Check;
-use \Redis;
 
 class Cache implements Check
 {
@@ -37,8 +36,8 @@ class Cache implements Check
         return new Result('Cache', Status::Healthy);
     }
 
-    public function dependsOn(): array
+    public function priority(): int
     {
-        return [];
+        return 0;
     }
 }

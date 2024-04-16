@@ -8,5 +8,5 @@ interface Check
 {
     public function run(): Result;
 
-    public function dependsOn(): array;
+    public function priority(): int;
 }

@@ -25,8 +25,8 @@ class Database implements Check
         }
     }
 
-    public function dependsOn(): array
+    public function priority(): int
     {
-       return [];
+       return 0;
     }
 }

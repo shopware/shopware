@@ -46,8 +46,8 @@ class ScheduledTasks implements Check
         return [];
     }
 
-    public function dependsOn(): array
+    public function priority(): int
     {
-        return [Database::class];
+        return 10;
     }
 }

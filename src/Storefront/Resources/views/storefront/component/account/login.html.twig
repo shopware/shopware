@@ -3,7 +3,9 @@
         <div class="card-body">
             {% block component_account_login_header %}
                 {% if cardTitle %}
-                    <h2 class="card-title">{{ cardTitle }}</h2>
+                    <div class="card-title">
+                        <h2>{{ cardTitle }}</h2>
+                    </div>
                 {% endif %}
             {% endblock %}
 

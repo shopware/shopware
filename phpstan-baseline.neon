@@ -296,16 +296,6 @@ parameters:
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RendererResult\\:\\:getErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/RendererResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RendererResult\\:\\:getSuccess\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/RendererResult.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\:\\:getVatIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/Aggregate/OrderCustomer/OrderCustomerEntity.php

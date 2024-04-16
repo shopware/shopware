@@ -1,6 +1,6 @@
 ---
 title: Improve storefront webpack watch twig
-issue: NEXT-00000
+issue: NEXT-35041
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

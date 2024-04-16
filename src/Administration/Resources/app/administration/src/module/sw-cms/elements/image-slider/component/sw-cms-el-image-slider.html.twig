@@ -12,21 +12,21 @@
         :class="[displayModeClass, navDotsClass]"
         :style="styles"
     >
-        <img
-            v-if="activeMedia?.mediaType?.name === 'IMAGE'"
-            class="sw-cms-el-image-slider__image"
-            :src="imgSrc"
-            alt=""
-        >
         <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
         <video
-            v-else-if="activeMedia?.mediaType?.name === 'VIDEO'"
+            v-if="activeMedia?.mediaType?.name === 'VIDEO'"
             class="sw-cms-el-image-slider__video"
             :src="activeMedia?.url"
             controls
         >
             {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
         </video>
+        <img
+            v-else
+            class="sw-cms-el-image-slider__image"
+            :src="imgSrc"
+            alt=""
+        >
     </div>
     {% endblock %}
 
@@ -42,7 +42,7 @@
                 :class="navDotsClass"
             >
                 <div class="sw-cms-el-image-slider__navigation-buttons">
-                    <template v-if="sliderItems && sliderItems.length > 0">
+                    <template v-if="sliderItems?.length > 0">
                         <div
                             v-for="(sliderItem, index) in sliderItems"
                             :key="index"

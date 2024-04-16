@@ -57,7 +57,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\HealthCheckController" public="true">
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\HealthCheck\Service\Manager"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">

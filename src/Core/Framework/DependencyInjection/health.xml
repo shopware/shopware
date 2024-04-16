@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="Shopware\Core\Framework\App\Command\HealthCheckCommand">
+            <argument type="service" id="Shopware\Core\Framework\Api\HealthCheck\Service\Manager"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\HealthCheck\Service\Manager">
+            <argument type="tagged_iterator" tag="shopware.health_check"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\HealthCheck\Service\Check\Database" autowire="true" autoconfigure="true">
+            <tag name="shopware.health_check"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\HealthCheck\Service\Check\Cache" autowire="true" autoconfigure="true">
+            <tag name="shopware.health_check"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\HealthCheck\Service\Check\ScheduledTasks" autowire="true" autoconfigure="true">
+            <tag name="shopware.health_check"/>
+        </service>
+    </services>
+</container>

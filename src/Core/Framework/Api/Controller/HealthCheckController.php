@@ -3,9 +3,12 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
+use Shopware\Core\Framework\Api\HealthCheck\Model\Status;
+use Shopware\Core\Framework\Api\HealthCheck\Service\Manager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -18,7 +21,7 @@ class HealthCheckController
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly Manager $manager
     ) {
     }
 
@@ -38,14 +41,21 @@ class HealthCheckController
             );
         }
 
-        $context ??= Context::createDefaultContext();
+        $results = $this->manager->healthCheck();
 
-        $event = new HealthCheckEvent($context);
-        $this->eventDispatcher->dispatch($event);
+        $message = '';
+        $hasErrors = false;
+        foreach ($results as $result) {
+            if (! $result->healthy()) {
+                $message .= $result->errorMessage() . PHP_EOL;
+                $hasErrors = true;
+            }
+        }
 
-        $response = new Response('');
+        $response = new JsonResponse($message, $hasErrors ? Response::HTTP_SERVICE_UNAVAILABLE : Response::HTTP_OK);
         $response->setPrivate();
 
         return $response;
     }
 }
+

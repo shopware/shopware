@@ -191,16 +191,16 @@ class ProductSearchQueryBuilderTest extends TestCase
                     [
                         'bool' => [
                             'should' => [
-                                self::match($prefix . 'evolvesText', 'foo', 2500),
-                                self::matchPhrasePrefix($prefix . 'evolvesText', 'foo', 500),
+                                self::match($prefix . 'evolvesText.search', 'foo', 2500),
+                                self::matchPhrasePrefix($prefix . 'evolvesText.search', 'foo', 500),
                             ],
                         ],
                     ],
                     [
                         'bool' => [
                             'should' => [
-                                self::match($prefix . 'evolvesText', '2023', 2500),
-                                self::matchPhrasePrefix($prefix . 'evolvesText', '2023', 500),
+                                self::match($prefix . 'evolvesText.search', '2023', 2500),
+                                self::matchPhrasePrefix($prefix . 'evolvesText.search', '2023', 500),
                                 self::term($prefix . 'evolvesInt', 2023, 2000),
                                 self::term($prefix . 'evolvesFloat', 2023.0, 2500),
                                 self::nested('categories', self::term('categories.childCount', 2023, 2500)),
@@ -210,8 +210,8 @@ class ProductSearchQueryBuilderTest extends TestCase
                     [
                         'bool' => [
                             'should' => [
-                                self::match($prefix . 'evolvesText', 'foo 2023', 2500),
-                                self::matchPhrasePrefix($prefix . 'evolvesText', 'foo 2023', 500),
+                                self::match($prefix . 'evolvesText.search', 'foo 2023', 2500),
+                                self::matchPhrasePrefix($prefix . 'evolvesText.search', 'foo 2023', 500),
                             ],
                         ],
                     ],

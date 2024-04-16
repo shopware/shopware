@@ -143,14 +143,6 @@ class CustomFieldUpdaterTest extends TestCase
         $indices = $this->createMock(IndicesNamespace::class);
         $connection = $this->createMock(Connection::class);
 
-        $customFields = [
-            'properties' => [
-                'test' => [
-                    'type' => 'text',
-                ],
-            ],
-        ];
-
         $deLang = Uuid::randomHex();
         $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
             Defaults::LANGUAGE_SYSTEM,
@@ -164,7 +156,12 @@ class CustomFieldUpdaterTest extends TestCase
                     'dynamic' => true,
                     'properties' => [
                         'test' => [
-                            'type' => 'text',
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => ['type' => 'text'],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
                         ],
                     ],
                 ],
@@ -173,7 +170,12 @@ class CustomFieldUpdaterTest extends TestCase
                     'dynamic' => true,
                     'properties' => [
                         'test' => [
-                            'type' => 'text',
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => ['type' => 'text'],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
                         ],
                     ],
                 ],
@@ -290,6 +292,11 @@ class CustomFieldUpdaterTest extends TestCase
             'unknown',
             [
                 'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => ['type' => 'text'],
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
             ],
         ];
     }

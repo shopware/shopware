@@ -158,7 +158,12 @@ class ElasticsearchFieldBuilderTest extends TestCase
                             'type' => 'boolean',
                         ],
                         'cf_foo' => [
-                            'type' => 'text',
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => ['type' => 'text'],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
                         ],
                         'cf_baz' => [
                             'type' => 'long',
@@ -173,7 +178,12 @@ class ElasticsearchFieldBuilderTest extends TestCase
                             'type' => 'boolean',
                         ],
                         'cf_foo' => [
-                            'type' => 'text',
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => ['type' => 'text'],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
                         ],
                         'cf_baz' => [
                             'type' => 'long',

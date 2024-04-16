@@ -120,7 +120,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     {
         $queries = [];
 
-        $searchField = $config->isCustomField() ? $config->getField() : $config->getField() . '.search';
+        $searchField = $config->getField() . '.search';
 
         $queries[] = new MatchQuery($searchField, $token, ['boost' => 5 * $config->getRanking(), 'fuzziness' => 0]);
         $queries[] = new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $config->getRanking(), 'slop' => 5]);

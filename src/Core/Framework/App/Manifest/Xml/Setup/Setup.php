@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\Setup;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -27,15 +28,8 @@ class Setup extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            $values[$child->tagName] = $child->nodeValue;
-        }
+        /** @var array{registrationUrl: string, secret: ?string} $values */
+        $values = XmlParserUtils::parseChildren($element);
 
         return $values;
     }

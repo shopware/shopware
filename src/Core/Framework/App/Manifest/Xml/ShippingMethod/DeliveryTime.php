@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system
@@ -56,15 +56,6 @@ class DeliveryTime extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $deliveryTimeArray = [];
-        foreach ($element->childNodes as $childNode) {
-            if (!$childNode instanceof \DOMElement) {
-                continue;
-            }
-
-            $deliveryTimeArray[self::kebabCaseToCamelCase($childNode->tagName)] = XmlReader::phpize($childNode->nodeValue);
-        }
-
-        return $deliveryTimeArray;
+        return XmlParserUtils::parseChildren($element);
     }
 }

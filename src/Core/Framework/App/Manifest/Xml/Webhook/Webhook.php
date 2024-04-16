@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\Webhook;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system
@@ -42,14 +42,8 @@ class Webhook extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->attributes as $attribute) {
-            if (!$attribute instanceof \DOMAttr) {
-                continue;
-            }
-            $values[$attribute->name] = XmlReader::phpize($attribute->value);
-        }
+        /** @var array{name: string, url: string, event: string, onlyLiveVersion: bool} $values */
+        $values = XmlParserUtils::parseAttributes($element);
 
         return $values;
     }

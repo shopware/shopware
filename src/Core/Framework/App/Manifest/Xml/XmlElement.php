@@ -61,50 +61,6 @@ abstract class XmlElement extends Struct
     abstract protected static function parse(\DOMElement $element): array;
 
     /**
-     * @param array<string, mixed> $values
-     *
-     * @return array<string, mixed>
-     */
-    protected static function mapTranslatedTag(\DOMElement $child, array $values): array
-    {
-        if (!\array_key_exists(static::kebabCaseToCamelCase($child->tagName), $values)) {
-            $values[static::kebabCaseToCamelCase($child->tagName)] = [];
-        }
-
-        $tagValues = $values[static::kebabCaseToCamelCase($child->tagName)];
-        $tagValues[self::getLocaleCodeFromElement($child)] = trim($child->nodeValue ?? '');
-        $values[static::kebabCaseToCamelCase($child->tagName)] = $tagValues;
-
-        return $values;
-    }
-
-    /**
-     * @template TReturn of XmlElement|string
-     *
-     * @param callable(\DOMElement): TReturn $transformer
-     *
-     * @return list<TReturn>
-     */
-    protected static function parseChildNodes(\DOMElement $child, callable $transformer): array
-    {
-        $values = [];
-        foreach ($child->childNodes as $field) {
-            if (!$field instanceof \DOMElement) {
-                continue;
-            }
-
-            $values[] = $transformer($field);
-        }
-
-        return $values;
-    }
-
-    protected static function kebabCaseToCamelCase(string $string): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
-    }
-
-    /**
      * if translations for system default language are not provided it tries to use the english translation as the default,
      * if english does not exist it uses the first translation
      *
@@ -138,9 +94,9 @@ abstract class XmlElement extends Struct
         }
     }
 
-    private static function getLocaleCodeFromElement(\DOMElement $element): string
+    public static function kebabCaseToCamelCase(string $string): string
     {
-        return $element->getAttribute('lang') ?: self::FALLBACK_LOCALE;
+        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 
     /**

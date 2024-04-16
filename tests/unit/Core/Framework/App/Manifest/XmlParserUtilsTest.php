@@ -167,49 +167,6 @@ class XmlParserUtilsTest extends TestCase
         );
     }
 
-    public function testParseChildrenAndTranslateWithExistingValues(): void
-    {
-        $element = $this->createDOMElement();
-
-        /** @var \DOMElement $nameEn */
-        $nameEn = $element->appendChild(new \DOMElement('name', 'EnglishName'));
-        $nameEn->setAttribute('lang', 'en-GB');
-
-        /** @var \DOMElement $labelEn */
-        $labelEn = $element->appendChild(new \DOMElement('label', 'EnglishLabel'));
-        $labelEn->setAttribute('lang', 'en-GB');
-
-        /** @var \DOMElement $nameDe */
-        $nameDe = $element->appendChild(new \DOMElement('name', 'GermanName'));
-        $nameDe->setAttribute('lang', 'de-DE');
-
-        /** @var \DOMElement $labelDe */
-        $labelDe = $element->appendChild(new \DOMElement('label', 'GermanLabel'));
-        $labelDe->setAttribute('lang', 'de-DE');
-
-        $element->appendChild(new \DOMElement('version', '1.5'));
-
-        $result = XmlParserUtils::parseChildrenAndTranslate($element, ['name', 'label'], ['location' => ['en-GB' => 'one', 'de-DE' => 'two']]);
-
-        $expectedResult = [
-            'name' => [
-                'en-GB' => 'EnglishName',
-                'de-DE' => 'GermanName',
-            ],
-            'label' => [
-                'en-GB' => 'EnglishLabel',
-                'de-DE' => 'GermanLabel',
-            ],
-            'version' => '1.5',
-            'location' => [
-                'en-GB' => 'one',
-                'de-DE' => 'two',
-            ],
-        ];
-
-        static::assertEquals($expectedResult, $result);
-    }
-
     public function testKebabCaseToCamelCase(): void
     {
         static::assertEquals('someValue', XmlParserUtils::kebabCaseToCamelCase('some-value'));

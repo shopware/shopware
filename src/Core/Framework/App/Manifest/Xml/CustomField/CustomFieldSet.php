@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\CustomField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldTypeFactory;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system
@@ -101,14 +101,7 @@ class CustomFieldSet extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->attributes as $attribute) {
-            if (!$attribute instanceof \DOMAttr) {
-                continue;
-            }
-            $values[$attribute->name] = XmlReader::phpize($attribute->value);
-        }
+        $values = XmlParserUtils::parseAttributes($element);
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
@@ -130,11 +123,11 @@ class CustomFieldSet extends XmlElement
     {
         // translated
         if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-            return self::mapTranslatedTag($child, $values);
+            return XmlParserUtils::mapTranslatedTag($child, $values);
         }
 
         if ($child->tagName === 'fields') {
-            $values[$child->tagName] = self::parseChildNodes(
+            $values[$child->tagName] = XmlParserUtils::parseChildrenAsList(
                 $child,
                 static fn (\DOMElement $element): CustomFieldType => CustomFieldTypeFactory::createFromXml($element)
             );
@@ -143,7 +136,7 @@ class CustomFieldSet extends XmlElement
         }
 
         if ($child->tagName === 'related-entities') {
-            $values[self::kebabCaseToCamelCase($child->tagName)] = self::parseChildNodes(
+            $values[XmlParserUtils::kebabCaseToCamelCase($child->tagName)] = XmlParserUtils::parseChildrenAsList(
                 $child,
                 static fn (\DOMElement $element): string => $element->tagName
             );
@@ -151,7 +144,7 @@ class CustomFieldSet extends XmlElement
             return $values;
         }
 
-        $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
+        $values[XmlParserUtils::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
 
         return $values;
     }

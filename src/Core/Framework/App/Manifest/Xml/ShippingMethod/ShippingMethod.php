@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -130,18 +131,18 @@ class ShippingMethod extends XmlElement
             }
 
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
+                $values = XmlParserUtils::mapTranslatedTag($child, $values);
 
                 continue;
             }
 
             if ($child->tagName === 'delivery-time') {
-                $values[self::kebabCaseToCamelCase($child->tagName)] = DeliveryTime::fromXml($child);
+                $values[XmlParserUtils::kebabCaseToCamelCase($child->tagName)] = DeliveryTime::fromXml($child);
 
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize((string) $child->nodeValue);
+            $values[XmlParserUtils::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize((string) $child->nodeValue);
         }
 
         return $values;

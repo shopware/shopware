@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -145,23 +146,6 @@ class PaymentMethod extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            // translated
-            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
-
-                continue;
-            }
-
-            $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
-        }
-
-        return $values;
+        return XmlParserUtils::parseChildrenAndTranslate($element, self::TRANSLATABLE_FIELDS);
     }
 }

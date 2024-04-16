@@ -37,7 +37,6 @@ class XmlParserUtils
     public static function parseChildren(\DOMElement $element, ?callable $transformer = null): array
     {
         $values = [];
-
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
                 continue;
@@ -69,12 +68,12 @@ class XmlParserUtils
 
     /**
      * @param list<string> $translatableFields
-     * @param array<string, string|array<string, string>> $values
      *
      * @return array<string, string|array<string, string>>
      */
-    public static function parseChildrenAndTranslate(\DOMElement $element, array $translatableFields, array $values = []): array
+    public static function parseChildrenAndTranslate(\DOMElement $element, array $translatableFields): array
     {
+        $values = [];
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
                 continue;

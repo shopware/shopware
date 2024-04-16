@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\AllowedHost;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -26,16 +27,6 @@ class AllowedHosts extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $allowedHosts = [];
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            $allowedHosts[] = $child->nodeValue;
-        }
-
-        return ['allowedHosts' => $allowedHosts];
+        return ['allowedHosts' => XmlParserUtils::parseChildrenAsList($element)];
     }
 }

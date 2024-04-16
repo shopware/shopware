@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\Tax;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system
@@ -49,16 +49,6 @@ class TaxProvider extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlUtils::phpize((string) $child->nodeValue);
-        }
-
-        return $values;
+        return XmlParserUtils::parseChildren($element);
     }
 }

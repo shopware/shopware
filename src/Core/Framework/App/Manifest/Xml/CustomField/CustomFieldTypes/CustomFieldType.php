@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 
@@ -126,14 +127,7 @@ abstract class CustomFieldType extends XmlElement
             $translatableFields = static::TRANSLATABLE_FIELDS;
         }
 
-        $values = [];
-
-        foreach ($element->attributes as $attribute) {
-            if (!$attribute instanceof \DOMAttr) {
-                continue;
-            }
-            $values[$attribute->name] = $attribute->value;
-        }
+        $values = XmlParserUtils::parseAttributes($element);
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
@@ -148,12 +142,12 @@ abstract class CustomFieldType extends XmlElement
 
             // translated
             if (\in_array($child->tagName, $translatableFields, true)) {
-                $values = self::mapTranslatedTag($child, $values);
+                $values = XmlParserUtils::mapTranslatedTag($child, $values);
 
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($child->tagName)] = XmlReader::phpize($child->nodeValue);
+            $values[XmlParserUtils::kebabCaseToCamelCase($child->tagName)] = XmlReader::phpize($child->nodeValue);
         }
 
         return $values;

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\Meta;
 use Composer\Package\Version\VersionParser;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 use Shopware\Core\Framework\Log\Package;
 
@@ -172,22 +173,24 @@ class Metadata extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            // translated
-            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
-
-                continue;
-            }
-
-            $values[$child->tagName] = $child->nodeValue;
-        }
+        /**
+         * @var array{
+         *      label: array<string, string>,
+         *      description: array<string, string>,
+         *      name: string,
+         *      type: string,
+         *      author: string,
+         *      copyright: string,
+         *      license: ?string,
+         *      compatibility: ?string,
+         *      version: ?string,
+         *      icon: ?string,
+         *      privacy: ?string,
+         *      privacyPolicyExtensions: array<string, string>,
+         *      url: ?string,
+         *  } $values
+         */
+        $values = XmlParserUtils::parseChildrenAndTranslate($element, self::TRANSLATABLE_FIELDS);
 
         return $values;
     }

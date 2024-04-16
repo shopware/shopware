@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\Administration;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system
@@ -59,25 +59,8 @@ class Module extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        $values = [];
-
-        foreach ($element->attributes as $attribute) {
-            if (!$attribute instanceof \DOMAttr) {
-                continue;
-            }
-            $values[self::kebabCaseToCamelCase($attribute->name)] = XmlReader::phpize($attribute->value);
-        }
-
-        foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            // translated
-            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
-            }
-        }
+        $values = XmlParserUtils::parseAttributes($element);
+        $values += XmlParserUtils::parseChildrenAndTranslate($element, self::TRANSLATABLE_FIELDS);
 
         return $values;
     }

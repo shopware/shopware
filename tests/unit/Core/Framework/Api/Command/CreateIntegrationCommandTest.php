@@ -22,8 +22,8 @@ class CreateIntegrationCommandTest extends TestCase
     public static function createIntegrationDataProvider(): array
     {
         return [
-            ['admin' => false],
-            ['admin' => true],
+            ['adminOption' => false],
+            ['adminOption' => true],
         ];
     }
 

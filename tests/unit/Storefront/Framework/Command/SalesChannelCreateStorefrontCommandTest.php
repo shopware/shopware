@@ -27,8 +27,12 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
      * @param array<IdSearchResult> $idsSearchResult
      */
     #[DataProvider('dataProviderTestExecuteCommandSuccessful')]
-    public function testExecuteCommandSuccessful(?string $snippetSetId = null, ?string $isoCode = null, array $idsSearchResult = []): void
-    {
+    public function testExecuteCommandSuccessful(
+        ?string $snippetSetId = null,
+        ?string $isoCode = null,
+        array $idsSearchResult = [],
+        ?string $exception = null
+    ): void {
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
         $foundSnippetSetId = $snippetSetId;
@@ -116,8 +120,12 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
      * @param array<IdSearchResult> $idsSearchResult
      */
     #[DataProvider('dataProviderTestExecuteCommandWithAnException')]
-    public function testExecuteCommandWithAnException(?string $snippetSetId = null, ?string $isoCode = null, array $idsSearchResult = []): void
-    {
+    public function testExecuteCommandWithAnException(
+        ?string $snippetSetId,
+        string $isoCode,
+        array $idsSearchResult,
+        string $exception
+    ): void {
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
         $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
@@ -152,7 +160,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
         $output = $this->createStub(OutputInterface::class);
 
-        $this->expectExceptionMessage(sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
+        $this->expectExceptionMessage($exception);
 
         $cmd->run($input, $output);
     }
@@ -162,14 +170,14 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         yield 'with snippetSetId input' => [
             'snippetSetId' => 'snippetSetId',
             'isoCode' => null,
-            'idSearchResult' => [],
+            'idsSearchResult' => [],
             'exception' => null,
         ];
 
         yield 'with valid isoCode' => [
             'snippetSetId' => null,
             'isoCode' => 'de-DE',
-            'idSearchResult' => [
+            'idsSearchResult' => [
                 new IdSearchResult(1, [['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
             ],
             'exception' => null,
@@ -178,7 +186,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         yield 'with not found isoCode, use en-GB as fallback' => [
             'snippetSetId' => null,
             'isoCode' => 'nl-NL',
-            'idSearchResult' => [
+            'idsSearchResult' => [
                 new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
                 new IdSearchResult(1, [['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
             ],
@@ -191,7 +199,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         yield 'with not found fallback isoCode, throw exception' => [
             'snippetSetId' => null,
             'isoCode' => 'nl-NL',
-            'idSearchResult' => [
+            'idsSearchResult' => [
                 new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
                 new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
             ],

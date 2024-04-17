@@ -59,7 +59,7 @@ class SystemInstallCommandTest extends TestCase
     public static function dataProviderTestExecuteWhenInstallLockExists(): \Generator
     {
         yield 'Data provider for test execute failure' => [
-            'Mock method getOption from input' => [
+            'mockInputValues' => [
                 'force' => false,
                 'shopName' => 'Storefront',
                 'shopEmail' => 'admin@gmail.com',

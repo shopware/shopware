@@ -163,13 +163,13 @@ class SnippetServiceTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $locales
+     * @param array<string, string> $sets
      */
     #[DataProvider('findSnippetSetIdDataProvider')]
-    public function testFindSnippetSetIdWithoutSalesChannelDomain(array $locales, string $id): void
+    public function testFindSnippetSetIdWithoutSalesChannelDomain(array $sets, string $expected): void
     {
         $this->connection->expects(static::once())->method('fetchOne')->willReturn(null);
-        $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($locales);
+        $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($sets);
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -182,13 +182,10 @@ class SnippetServiceTest extends TestCase
 
         $snippetSetId = $snippetService->findSnippetSetId(Uuid::randomHex(), Uuid::randomHex(), 'vi-VN');
 
-        static::assertSame($snippetSetId, $id);
+        static::assertSame($snippetSetId, $expected);
     }
 
-    /**
-     * @return iterable<string, array<string|array<string>>>
-     */
-    public static function findSnippetSetIdDataProvider(): iterable
+    public static function findSnippetSetIdDataProvider(): \Generator
     {
         $snippetSetIdWithVI = Uuid::randomHex();
         $snippetSetIdWithEN = Uuid::randomHex();
@@ -198,14 +195,14 @@ class SnippetServiceTest extends TestCase
                 'vi-VN' => $snippetSetIdWithVI,
                 'en-GB' => $snippetSetIdWithEN,
             ],
-            'snippetSetId' => $snippetSetIdWithVI,
+            'expected' => $snippetSetIdWithVI,
         ];
 
         yield 'get snippet set without local vi-VN' => [
             'sets' => [
                 'en-GB' => $snippetSetIdWithEN,
             ],
-            'snippetSetId' => $snippetSetIdWithEN,
+            'expected' => $snippetSetIdWithEN,
         ];
     }
 

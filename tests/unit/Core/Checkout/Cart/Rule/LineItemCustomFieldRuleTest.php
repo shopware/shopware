@@ -207,47 +207,47 @@ class LineItemCustomFieldRuleTest extends TestCase
     {
         yield 'testBooleanCustomFieldTrue' => [
             'rule' => self::setupBoolRule(true),
-            'customFieldValueInCustomer' => true,
+            'customFieldValueInLineItem' => true,
             'result' => true,
         ];
         yield 'testBooleanCustomFieldFalse' => [
             'rule' => self::setupBoolRule(false),
-            'customFieldValueInCustomer' => false,
+            'customFieldValueInLineItem' => false,
             'result' => true,
         ];
         yield 'testBooleanCustomFieldNull' => [
             'rule' => self::setupBoolRule(null),
-            'customFieldValueInCustomer' => false,
+            'customFieldValueInLineItem' => false,
             'result' => true,
         ];
         yield 'testBooleanCustomFieldInvalid' => [
             'rule' => self::setupBoolRule(false),
-            'customFieldValueInCustomer' => true,
+            'customFieldValueInLineItem' => true,
             'result' => false,
         ];
         yield 'testStringCustomField' => [
             'rule' => self::setupStringRule('my_test_value'),
-            'customFieldValueInCustomer' => 'my_test_value',
+            'customFieldValueInLineItem' => 'my_test_value',
             'result' => true,
         ];
         yield 'testStringCustomFieldInvalid' => [
             'rule' => self::setupStringRule('my_test_value'),
-            'customFieldValueInCustomer' => 'my_invalid_value',
+            'customFieldValueInLineItem' => 'my_invalid_value',
             'result' => false,
         ];
         yield 'testMultiSelectCustomField' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
-            'customFieldValueInCustomer' => [1],
+            'customFieldValueInLineItem' => [1],
             'result' => true,
         ];
         yield 'testMultiSelectCustomFieldInvalid' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
-            'customFieldValueInCustomer' => [3],
+            'customFieldValueInLineItem' => [3],
             'result' => false,
         ];
         yield 'testMultiSelectCustomFieldNull' => [
             'rule' => self::setupSelectRule(null, ['componentName' => 'sw-multi-select']),
-            'customFieldValueInCustomer' => [3],
+            'customFieldValueInLineItem' => [3],
             'result' => false,
         ];
     }

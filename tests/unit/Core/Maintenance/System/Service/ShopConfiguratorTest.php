@@ -216,50 +216,50 @@ class ShopConfiguratorTest extends TestCase
         };
 
         yield 'empty country state translations' => [
-            'country state translations' => [],
-            'missing translations' => [],
-            'expected insert call' => 0,
-            'expected insert callback' => $insertCallback,
+            'expectedStateTranslations' => [],
+            'expectedMissingTranslations' => [],
+            'expectedInsertCall' => 0,
+            'insertCallback' => $insertCallback,
         ];
 
         yield 'none missing default translations' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'USA' => 'United State',
                 'VNA' => 'Viet Nam',
             ],
-            'missing translations' => [],
-            'expected insert call' => 0,
-            'expected insert callback' => $insertCallback,
+            'expectedMissingTranslations' => [],
+            'expectedInsertCall' => 0,
+            'insertCallback' => $insertCallback,
         ];
 
         yield 'missing default translations' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'USA' => 'United State',
                 'VNA' => 'Viet Nam',
             ],
-            'missing translations' => [
+            'expectedMissingTranslations' => [
                 'id_vna' => 'VNA',
             ],
-            'expected insert call' => 1,
-            'expected insert callback' => $insertCallback,
+            'expectedInsertCall' => 1,
+            'insertCallback' => $insertCallback,
         ];
 
         yield 'correcting german translations' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'DE-TH' => 'Thuringia',
                 'DE-NW' => 'North Rhine-Westphalia',
                 'DE-RP' => 'Rhineland-Palatinate',
             ],
-            'missing translations' => [
+            'expectedMissingTranslations' => [
                 'id_de_th' => 'DE-TH',
                 'id_de_nw' => 'DE-NW',
                 'id_de_rp' => 'DE-RP',
             ],
-            'expected insert call' => 3,
+            'expectedInsertCall' => 3,
             /**
              * @param array<string, string> $parameters
              */
-            'expected insert callback' => function (string $table, array $parameters): void {
+            'insertCallback' => function (string $table, array $parameters): void {
                 static::assertEquals('country_state_translation', $table);
                 static::assertArrayHasKey('language_id', $parameters);
                 static::assertArrayHasKey('name', $parameters);
@@ -290,15 +290,15 @@ class ShopConfiguratorTest extends TestCase
         ];
 
         yield 'missing default translations but not available' => [
-            'country state translations' => [
+            'expectedStateTranslations' => [
                 'USA' => 'United State',
                 'VNA' => 'Viet Nam',
             ],
-            'missing translations' => [
+            'expectedMissingTranslations' => [
                 'id_jpn' => 'JPN',
             ],
-            'expected insert call' => 0,
-            'expected insert callback' => $insertCallback,
+            'expectedInsertCall' => 0,
+            'insertCallback' => $insertCallback,
         ];
     }
 }

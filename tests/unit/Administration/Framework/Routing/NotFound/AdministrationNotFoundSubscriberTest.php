@@ -80,15 +80,15 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     public static function getNonInterceptingData(): iterable
     {
         yield 'valid admin route' => [
-            'requestPath' => '/admin',
+            'route' => '/admin',
             'exception' => new HttpException(Response::HTTP_OK),
         ];
         yield 'non-existing storefront route' => [
-            'requestPath' => '/foo',
+            'route' => '/foo',
             'exception' => new HttpException(Response::HTTP_NOT_FOUND),
         ];
         yield 'non-http exception' => [
-            'requestPath' => '/admin/foo',
+            'route' => '/admin/foo',
             'exception' => new \Exception(),
         ];
     }
@@ -99,12 +99,12 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     public static function getInterceptingData(): iterable
     {
         yield 'default admin route' => [
-            'administrationRoot' => 'admin',
-            'requestPath' => '/admin/foo',
+            'root' => 'admin',
+            'route' => '/admin/foo',
         ];
         yield 'edited admin route' => [
-            'administrationRoot' => 'backend',
-            'requestPath' => '/backend/foo',
+            'root' => 'backend',
+            'route' => '/backend/foo',
         ];
     }
 }

@@ -528,10 +528,19 @@ class ThemeServiceTest extends TestCase
     /**
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
+     * @param array<string, mixed>|null $expectedNotTranslated
+     * @param array<string, mixed>|null $expectedStructured
+     * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
     #[DataProvider('getThemeCollectionForThemeConfiguration')]
-    public function testGetThemeConfiguration(array $ids, ThemeCollection $themeCollection, ?array $expected = null): void
-    {
+    public function testGetThemeConfiguration(
+        array $ids,
+        ThemeCollection $themeCollection,
+        ?array $expected = null,
+        ?array $expectedNotTranslated = null,
+        ?array $expectedStructured = null,
+        ?array $expectedStructuredNotTranslated = null
+    ): void {
         $this->themeRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(
                 'theme',
@@ -566,13 +575,17 @@ class ThemeServiceTest extends TestCase
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
+     * @param array<string, mixed>|null $expectedStructured
+     * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
     #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationNoTranslation(
         array $ids,
         ThemeCollection $themeCollection,
         ?array $expected = null,
-        ?array $expectedNotTranslated = null
+        ?array $expectedNotTranslated = null,
+        ?array $expectedStructured = null,
+        ?array $expectedStructuredNotTranslated = null
     ): void {
         if ($expectedNotTranslated !== null) {
             $expected = $expectedNotTranslated;
@@ -613,6 +626,7 @@ class ThemeServiceTest extends TestCase
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
+     * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
     #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationStructured(
@@ -620,7 +634,8 @@ class ThemeServiceTest extends TestCase
         ThemeCollection $themeCollection,
         ?array $expected = null,
         ?array $expectedNotTranslated = null,
-        ?array $expectedStructured = null
+        ?array $expectedStructured = null,
+        ?array $expectedStructuredNotTranslated = null
     ): void {
         $this->themeRepositoryMock->method('search')->willReturn(
             new EntitySearchResult(

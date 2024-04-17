@@ -16,14 +16,14 @@ class SitemapExceptionTest extends TestCase
 {
     #[DataProvider('exceptionProvider')]
     public function testExceptions(
-        SitemapException $exception,
+        SitemapException $exceptionFunction,
         int $statusCode,
         string $errorCode,
         string $message
     ): void {
-        static::assertSame($statusCode, $exception->getStatusCode());
-        static::assertSame($errorCode, $exception->getErrorCode());
-        static::assertSame($message, $exception->getMessage());
+        static::assertSame($statusCode, $exceptionFunction->getStatusCode());
+        static::assertSame($errorCode, $exceptionFunction->getErrorCode());
+        static::assertSame($message, $exceptionFunction->getMessage());
     }
 
     /**

@@ -7256,11 +7256,6 @@ parameters:
 			path: tests/unit/Core/System/SystemConfig/Api/SystemConfigControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/System/SystemConfig/Validation/SystemConfigValidatorTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\Builder\\\\\\\\TreeBuilder' and Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\TreeBuilder will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Elasticsearch/DependencyInjection/ConfigurationTest.php

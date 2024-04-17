@@ -40,7 +40,7 @@ class OrderAddressServiceTest extends TestCase
     public static function provideInvalidMappings(): \Generator
     {
         yield 'missing type' => [
-            'mapping' => [
+            'mappings' => [
                 [
                     'customerAddressId' => '123',
                 ],
@@ -48,7 +48,7 @@ class OrderAddressServiceTest extends TestCase
         ];
 
         yield 'missing customerAddressId' => [
-            'mapping' => [
+            'mappings' => [
                 [
                     'type' => 'billing',
                 ],
@@ -56,7 +56,7 @@ class OrderAddressServiceTest extends TestCase
         ];
 
         yield 'invalid type' => [
-            'mapping' => [
+            'mappings' => [
                 [
                     'customerAddressId' => '123',
                     'type' => 'invalid',
@@ -65,7 +65,7 @@ class OrderAddressServiceTest extends TestCase
         ];
 
         yield 'missing deliveryId' => [
-            'mapping' => [
+            'mappings' => [
                 [
                     'customerAddressId' => '123',
                     'type' => 'shipping',
@@ -74,7 +74,7 @@ class OrderAddressServiceTest extends TestCase
         ];
 
         yield 'multiple billing addresses' => [
-            'mapping' => [
+            'mappings' => [
                 [
                     'customerAddressId' => '123',
                     'type' => 'billing',

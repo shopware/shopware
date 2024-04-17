@@ -57,8 +57,11 @@ class InvoiceRendererTest extends TestCase
      * @param InvoiceConfig $config
      */
     #[DataProvider('configDataProvider')]
-    public function testRenderIsAllowIntraCommunityDelivery(array $orderSettings, array $config, bool $expectedResult): void
-    {
+    public function testRenderIsAllowIntraCommunityDelivery(
+        array $orderSettings,
+        array $config,
+        bool $expectedResult
+    ): void {
         $context = Context::createDefaultContext();
 
         $order = $this->createOrder($orderSettings);
@@ -128,7 +131,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'deliveryCountries' => [self::COUNTRY_ID],
             ],
@@ -142,7 +145,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'deliveryCountries' => [self::COUNTRY_ID],
             ],
@@ -156,7 +159,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'deliveryCountries' => [self::COUNTRY_ID],
             ],
@@ -170,7 +173,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'deliveryCountries' => ['another-country-id'],
             ],
@@ -184,7 +187,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => true,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => false,
                 'deliveryCountries' => [self::COUNTRY_ID],
             ],
@@ -198,7 +201,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => false,
                 'setShippingCountry' => false,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'deliveryCountries' => [self::COUNTRY_ID],
             ],
@@ -212,7 +215,7 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => false,
             ],
-            'invoiceConfig' => [
+            'config' => [
                 'displayAdditionalNoteDelivery' => true,
                 'deliveryCountries' => [self::COUNTRY_ID],
             ],

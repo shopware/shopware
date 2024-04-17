@@ -40,7 +40,7 @@ class SyncOperationTest extends TestCase
                     'payload' => [['id' => 'id1', 'name' => 'first manufacturer']],
                 ],
             ],
-            'errors' => [
+            'expectedErrors' => [
                 'Missing "entity" argument for operation with key "invalid-entity". It needs to be a non-empty string.',
             ],
         ];
@@ -57,7 +57,7 @@ class SyncOperationTest extends TestCase
                     ],
                 ],
             ],
-            'errors' => [
+            'expectedErrors' => [
                 'Missing or invalid "action" argument for operation with key "missing-action". Supported actions are [upsert, delete]',
             ],
         ];
@@ -74,7 +74,7 @@ class SyncOperationTest extends TestCase
                     ],
                 ],
             ],
-            'errors' => [
+            'expectedErrors' => [
                 'Missing or invalid "action" argument for operation with key "invalid-action". Supported actions are [upsert, delete]',
             ],
         ];
@@ -88,7 +88,7 @@ class SyncOperationTest extends TestCase
                     'payload' => [],
                 ],
             ],
-            'errors' => [
+            'expectedErrors' => [
                 'Missing "payload"|"criteria" argument for operation with key "missing-payload". It needs to be a non-empty array.',
             ],
         ];
@@ -102,7 +102,7 @@ class SyncOperationTest extends TestCase
                     'payload' => [['id' => 'id1', 'name' => 'first manufacturer']],
                 ],
             ],
-            'errors' => [
+            'expectedErrors' => [
                 'Missing "entity" argument for operation with key "missing-both". It needs to be a non-empty string.; Missing or invalid "action" argument for operation with key "missing-both". Supported actions are [upsert, delete]',
             ],
         ];

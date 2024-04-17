@@ -98,7 +98,7 @@ class SalesChannelCreateCommandTest extends TestCase
     public static function dataProviderTestExecuteSuccess(): \Generator
     {
         yield 'Test execute success' => [
-            'Mock method getOption from input' => [
+            'inputMockValues' => [
                 'id' => Uuid::randomHex(),
                 'typeId' => Uuid::randomHex(),
                 'name' => 'Headless',
@@ -116,7 +116,7 @@ class SalesChannelCreateCommandTest extends TestCase
     public static function dataProviderTestExecuteFailure(): \Generator
     {
         yield 'Test execute failure' => [
-            'Mock method getOption from input' => [
+            'inputMockValues' => [
                 'id' => Uuid::randomHex(),
                 'typeId' => Uuid::randomHex(),
                 'name' => 'Headless',

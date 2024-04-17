@@ -87,25 +87,25 @@ class ScriptTwigLoaderTest extends TestCase
         yield 'Shared cache for same names' => [
             new DummyScript('foo.twig', null),
             new DummyScript('foo.twig', null),
-            'same' => true,
+            'expected' => true,
         ];
 
         yield 'Different cache for different names' => [
             new DummyScript('foo.twig', null),
             new DummyScript('bar.twig', null),
-            'same' => false,
+            'expected' => false,
         ];
 
         yield 'Different cache for same names with different app ids' => [
             new DummyScript('foo.twig', 'first-app'),
             new DummyScript('foo.twig', 'second-app'),
-            'same' => false,
+            'expected' => false,
         ];
 
         yield 'Same cache for same names with same app ids' => [
             new DummyScript('foo.twig', 'first-app'),
             new DummyScript('foo.twig', 'first-app'),
-            'same' => true,
+            'expected' => true,
         ];
     }
 }

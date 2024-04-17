@@ -234,20 +234,20 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: array<string, string>, expected-writes: array<string, string>, expected-deletes: array<string>}>
+     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
      */
     public static function adminFilesProvider(): array
     {
         return [
             'destination-empty' => [
                 'manifest' => [],
-                'expected-writes' => [
+                'expectedWrites' => [
                     'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
                     'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
                     'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
                     'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
                 ],
-                'expected-deletes' => [],
+                'expectedDeletes' => [],
             ],
             'destination-nothing-changed' => [
                 'manifest' => [
@@ -256,8 +256,8 @@ class AssetServiceTest extends TestCase
                     'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                     'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
-                'expected-writes' => [],
-                'expected-deletes' => [],
+                'expectedWrites' => [],
+                'expectedDeletes' => [],
             ],
             'destination-new-and-removed' => [
                 'manifest' => [
@@ -266,10 +266,10 @@ class AssetServiceTest extends TestCase
                     'two.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                     'four.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
-                'expected-writes' => [
+                'expectedWrites' => [
                     'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
                 ],
-                'expected-deletes' => [
+                'expectedDeletes' => [
                     'bundles/administration/four.js',
                 ],
             ],
@@ -280,11 +280,11 @@ class AssetServiceTest extends TestCase
                     'two.js' => 'xxx13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b', // incorrect hash to simulate content change
                     'three.js' => '13b896d551a100401b0d3982e0729efc2e8d7aeb09a36c0a51e48ec2bd15ea8b',
                 ],
-                'expected-writes' => [
+                'expectedWrites' => [
                     'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
                     'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
                 ],
-                'expected-deletes' => [],
+                'expectedDeletes' => [],
             ],
         ];
     }

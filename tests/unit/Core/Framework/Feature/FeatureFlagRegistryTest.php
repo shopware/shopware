@@ -503,7 +503,7 @@ class FeatureFlagRegistryTest extends TestCase
      * @param array<string, FeatureFlagConfig> $expected
      */
     #[DataProvider('registerDataProvider')]
-    public function testRegister(bool $enable, array $staticFeatureFlags, array|string $stored, array $expected): void
+    public function testRegister(bool $enabled, array $staticFeatureFlags, array|string $stored, array $expected): void
     {
         Feature::resetRegisteredFeatures();
         $storage = new ArrayKeyValueStorage(['feature.flags' => $stored]);
@@ -512,7 +512,7 @@ class FeatureFlagRegistryTest extends TestCase
             $storage,
             new EventDispatcher(),
             $staticFeatureFlags,
-            $enable
+            $enabled
         );
 
         $service->register();

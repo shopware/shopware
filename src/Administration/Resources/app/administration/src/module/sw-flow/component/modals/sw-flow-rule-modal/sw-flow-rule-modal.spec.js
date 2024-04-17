@@ -54,6 +54,7 @@ async function createWrapper() {
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                 'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-modal': {

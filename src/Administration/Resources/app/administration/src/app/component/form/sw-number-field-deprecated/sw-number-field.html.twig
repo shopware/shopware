@@ -1,0 +1,69 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_text_field %}
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/no-duplicate-attributes, vue/no-parsing-error -->
+{% block sw_number_field %}
+<sw-contextual-field
+    class="sw-field--number"
+    v-bind="{
+        ...$attrs,
+        ...inheritanceAttrs
+    }"
+    :name="formFieldName"
+    @inheritance-restore="$emit('inheritance-restore', $event)"
+    @inheritance-remove="$emit('inheritance-remove', $event)"
+>
+    <template
+        v-if="hasPrefix"
+        #sw-contextual-field-prefix="{ disabled, identification }"
+    >
+        <slot
+            name="prefix"
+            v-bind="{ disabled, identification }"
+        ></slot>
+    </template>
+
+    <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+        <input
+            :id="identification"
+            :name="identification"
+            type="text"
+            :value="stringRepresentation"
+            :placeholder="placeholder"
+            :disabled="disabled"
+            autocomplete="off"
+            @input="onInput"
+            @keydown.up="increaseNumberByStep"
+            @keydown.down="decreaseNumberByStep"
+            @change="onChange"
+            @focus="setFocusClass"
+            @blur="removeFocusClass"
+        >
+    </template>
+
+    <template
+        v-if="copyable || hasSuffix"
+        #sw-contextual-field-suffix="{ disabled, identification }"
+    >
+        <slot
+            name="suffix"
+            v-bind="{ identification }"
+        ></slot>
+        <sw-field-copyable
+            v-if="copyable"
+            :display-name="identification"
+            :copyable-text="stringRepresentation"
+            :tooltip="copyableTooltip"
+        />
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
+    </template>
+</sw-contextual-field>
+{% endblock %}
+{% endblock %}

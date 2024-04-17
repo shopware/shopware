@@ -29,9 +29,13 @@ Extends the basic offcanvas component with additional cart styles.
 
 .offcanvas-summary {
     .js-toggle-shipping-selection {
+        --#{$prefix}btn-font-weight: var(--#{$prefix}body-font-weight);
+        --#{$prefix}btn-padding-y: 0;
+        --#{$prefix}btn-padding-x: 0;
+        --#{$prefix}btn-font-size: 90%;
+        --#{$prefix}btn-color: var(--#{$prefix}body-color);
+        --#{$prefix}btn-line-height: inherit;
         text-decoration: underline;
-        font-size: 90%;
-        cursor: pointer;
     }
 
     .offcanvas-shipping-preference {

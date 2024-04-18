@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - trunk
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read
+
+jobs:
+  release-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            releases.json
+
+      - name: Configure aws credentials
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/UploadReleaseCalendar
+          role-session-name: github-actions
+          aws-region: eu-central-1
+
+      - name: Publish release schedule
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          gh release download --repo shopware/release-schedule --pattern 'release-schedule.phar'
+          php release-schedule.phar publish

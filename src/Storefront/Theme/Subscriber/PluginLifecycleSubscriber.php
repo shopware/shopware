@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginLifecycleEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
@@ -49,6 +50,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             PluginPostActivateEvent::class => 'pluginPostActivate',
             PluginPreUpdateEvent::class => 'pluginUpdate',
             PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
+            PluginPostDeactivateEvent::class => 'pluginPostDeactivate',
             PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
             PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
             PluginPostUninstallEvent::class => 'pluginPostUninstall',
@@ -85,6 +87,25 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         );
     }
 
+    public function pluginPostDeactivate(PluginPostDeactivateEvent $event): void
+    {
+        $pluginName = $event->getPlugin()->getName();
+        $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
+
+        if (!$config) {
+            return;
+        }
+
+        if (
+            !$config->hasAdditionalBundles()
+            || $this->skipCompile($event->getContext()->getContext())
+        ) {
+            return;
+        }
+
+        $this->themeLifecycleHandler->recompileAllActiveThemes($event->getContext()->getContext());
+    }
+
     public function pluginDeactivateAndUninstall(PluginPreDeactivateEvent|PluginPreUninstallEvent $event): void
     {
         if ($this->skipCompile($event->getContext()->getContext())) {
@@ -95,6 +116,12 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
 
         if (!$config) {
+            return;
+        }
+
+        if ($config->hasAdditionalBundles()) {
+            $this->themeLifecycleHandler->deactivateTheme($config, $event->getContext()->getContext());
+
             return;
         }
 

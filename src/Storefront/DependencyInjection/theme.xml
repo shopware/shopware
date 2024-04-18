@@ -8,6 +8,7 @@
         <!-- Theme -->
         <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -719,7 +720,10 @@ PHP_EOL;
             false
         );
 
-        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
+        $configurationFactory = new StorefrontPluginConfigurationFactory(
+            $projectDir,
+            $this->createMock(KernelPluginLoader::class)
+        );
         $themePluginBundle = new TestTheme();
         $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
         $notFoundPluginBundle = new NotFoundPlugin(

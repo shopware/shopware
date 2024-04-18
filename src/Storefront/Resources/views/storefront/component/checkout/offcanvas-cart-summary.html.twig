@@ -23,9 +23,13 @@
                         <span class="col-7 shipping-label shipping-cost">
                             <strong>{{ 'checkout.summaryShipping'|trans|sw_sanitize }}</strong>
                             {% if loop.first %}
-                                <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
-                                    ({{ activeShipping.shippingMethod.translated.name }})
-                                </small>
+                                {% if page.shippingMethods|length %}
+                                    <button class="btn btn-sm btn-link js-toggle-shipping-selection">
+                                        ({{ activeShipping.shippingMethod.translated.name }})
+                                    </button>
+                                {% else %}
+                                    <small>({{ activeShipping.shippingMethod.translated.name }})</small>
+                                {% endif %}
                             {% endif %}
                         </span>
 

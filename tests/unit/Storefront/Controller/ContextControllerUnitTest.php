@@ -41,6 +41,40 @@ class ContextControllerUnitTest extends TestCase
         $controller->switchLanguage(new Request(), $this->createMock(SalesChannelContext::class));
     }
 
+    public function testSwitchLangNoString(): void
+    {
+        $controller = new ContextController(
+            $this->createMock(ContextSwitchRoute::class),
+            $this->createMock(RequestStack::class),
+            $this->createMock(RouterInterface::class)
+        );
+
+        $this->expectException(RoutingException::class);
+        $this->expectExceptionMessage('The parameter "languageId" is invalid.');
+
+        $controller->switchLanguage(
+            new Request([], ['languageId' => 1]),
+            $this->createMock(SalesChannelContext::class)
+        );
+    }
+
+    public function testSwitchLangNoValidUuid(): void
+    {
+        $controller = new ContextController(
+            $this->createMock(ContextSwitchRoute::class),
+            $this->createMock(RequestStack::class),
+            $this->createMock(RouterInterface::class)
+        );
+
+        $this->expectException(RoutingException::class);
+        $this->expectExceptionMessage('The parameter "languageId" is invalid.');
+
+        $controller->switchLanguage(
+            new Request([], ['languageId' => 'noUuid']),
+            $this->createMock(SalesChannelContext::class)
+        );
+    }
+
     public function testSwitchLangNotFound(): void
     {
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);

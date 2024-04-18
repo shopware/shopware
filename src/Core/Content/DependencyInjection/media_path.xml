@@ -70,7 +70,7 @@
         <service id="Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand">
             <tag name="console.command"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Infrastructure\Path\BanMediaUrl">

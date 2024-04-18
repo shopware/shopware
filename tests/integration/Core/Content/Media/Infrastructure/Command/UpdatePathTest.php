@@ -13,7 +13,6 @@ use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
 use Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -57,7 +56,7 @@ class UpdatePathTest extends TestCase
                 $this->getContainer()->get(MediaLocationBuilder::class),
                 $this->getContainer()->get(MediaPathStorage::class)
             ),
-            $this->getContainer()->get(IteratorFactory::class)
+            $this->getContainer()->get(Connection::class)
         );
 
         $command->run($input, new NullOutput());

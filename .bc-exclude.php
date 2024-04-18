@@ -44,6 +44,8 @@ return [
         // Removed property, which was unintentionally added
         'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
 
+        'Shopware\\\\Core\\\\Content\\\\Product\\\\ProductEntity#setWishlists\(\) changed from Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerWishlist\\\\CustomerWishlistCollection',
+        
         // Will be typed in Symfony 7
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#add\(\) changed from no type to void',
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#set\(\) changed from no type to void',

@@ -26,18 +26,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                     'sw-switch-field': await wrapTestComponent('sw-switch-field', {
                         sync: true,
                     }),
-                    // 'sw-switch-field': {
-                    //     name: 'sw-switch-field',
-                    //     props: ['value', 'label'],
-                    //     template: `
-                    //     <input :value="value"
-                    //            @click="$emit('change', !value)"
-                    //            type="checkbox"
-                    //            :label="label"
-                    //            class="sw-field-stub sw-field--switch">
-                    //     </input>
-                    // `,
-                    // },
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', {
+                        sync: true,
+                    }),
                 },
                 provide: {
                     privileges: {
@@ -146,7 +137,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const systemRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_system + .sw-users-permissions-additional-permissions__switches',
         );
-        const systemFields = systemRoles.findAllComponents('.sw-field--switch');
+        const systemFields = systemRoles.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' });
 
         expect(systemFields).toHaveLength(3);
 
@@ -157,7 +148,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         const ordersRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_orders + .sw-users-permissions-additional-permissions__switches',
         );
-        const ordersFields = ordersRoles.findAllComponents('.sw-field--switch');
+        const ordersFields = ordersRoles.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' });
 
         expect(ordersFields).toHaveLength(1);
         expect(ordersFields[0].props().label).toBe('sw-privileges.additional_permissions.orders.create_discounts');
@@ -172,8 +163,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
         await flushPromises();
 
-        const clearCacheField = wrapper.findComponent('.sw_users_permissions_additional_permissions_system_clear_cache');
-
+        const clearCacheField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+            return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
+        });
         expect(clearCacheField.props().value).toBeTruthy();
     });
 
@@ -186,9 +178,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     });
 
     it('should add the checked value to the role privileges', async () => {
-        const clearCacheField = wrapper.findComponent(
-            '.sw_users_permissions_additional_permissions_system_clear_cache',
-        );
+        const clearCacheField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+            return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
+        });
 
         expect(clearCacheField.props().value).toBeFalsy();
 
@@ -206,9 +198,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
             },
         });
 
-        const clearCacheField = wrapper.findComponent(
-            '.sw_users_permissions_additional_permissions_system_clear_cache',
-        );
+        const clearCacheField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+            return field.classes().includes('sw_users_permissions_additional_permissions_system_clear_cache');
+        });
 
         expect(clearCacheField.props().value).toBeTruthy();
 
@@ -235,7 +227,9 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
     });
 
     it('should add the checked value to all app privileges when the all option checked', async () => {
-        const allField = wrapper.findComponent('.sw_users_permissions_additional_permissions_app_all');
+        const allField = wrapper.findAllComponents({ name: 'sw-switch-field-deprecated__wrapped' }).find((field) => {
+            return field.classes().includes('sw_users_permissions_additional_permissions_app_all');
+        });
 
         expect(allField.props().value).toBeFalsy();
 

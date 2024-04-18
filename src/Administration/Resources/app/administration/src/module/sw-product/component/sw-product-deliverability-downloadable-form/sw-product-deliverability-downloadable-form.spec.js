@@ -82,6 +82,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

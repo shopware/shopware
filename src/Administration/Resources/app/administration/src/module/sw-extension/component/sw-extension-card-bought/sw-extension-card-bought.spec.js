@@ -60,6 +60,7 @@ async function createWrapper(extension) {
 
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },

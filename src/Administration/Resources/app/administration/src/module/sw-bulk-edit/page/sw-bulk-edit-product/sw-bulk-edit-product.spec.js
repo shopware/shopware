@@ -75,6 +75,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),

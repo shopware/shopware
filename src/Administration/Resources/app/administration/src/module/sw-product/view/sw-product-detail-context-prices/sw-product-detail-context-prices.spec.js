@@ -21,6 +21,7 @@ const createWrapper = async () => {
                 'sw-icon': true,
                 'sw-loader': true,
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-inheritance-switch': true,
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

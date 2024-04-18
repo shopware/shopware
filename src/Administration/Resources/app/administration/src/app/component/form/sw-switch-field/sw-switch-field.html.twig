@@ -1,53 +1,23 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_checkbox_field %}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_switch_field %}
-<div
-    class="sw-field--switch"
-    :class="swSwitchFieldClasses"
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-switch component #}
+<mt-switch
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    :checked="checkedValue"
+    v-on="$listeners"
+    @change="onChangeHandler"
 >
-    <div class="sw-field--switch__content">
-        <div class="sw-field--switch__input">
-            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
-            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-            <input
-                :id="formFieldName || identification"
-                type="checkbox"
-                :name="formFieldName || identification"
-                :checked="inputState"
-                :disabled="disabled"
-                @change="onChange"
-            >
-            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
-            <div class="sw-field__switch-state">
-                <div class="sw-field__switch-state-knob"></div>
-            </div>
-        </div>
-        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
-        <sw-base-field
-            v-bind="{
-                ...$attrs,
-                ...inheritanceAttrs
-            }"
-            :is-inheritance-field="inheritanceAttrs.isInheritanceField"
-            :is-inherited="inheritanceAttrs.isInherited"
-            :name="formFieldName || identification"
-            :disabled="disabled"
-            :label="label"
-            @inheritance-restore="onInheritanceRestore($event)"
-            @inheritance-remove="$emit('inheritance-remove', $event)"
-        >
-            <template #label>
-                <slot name="label"></slot>
-            </template>
+    <slot></slot>
+</mt-switch>
 
-            <template #hint>
-                <slot name="hint"></slot>
-            </template>
-        </sw-base-field>
-
-    </div>
-    <sw-field-error :error="error" />
-</div>
-    {% endblock %}
-{% endblock %}
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-switch-field-deprecated
+    v-else
+    v-bind="$attrs"
+    :router-link="routerLink"
+    :value="value"
+    v-on="$listeners"
+>
+    <slot></slot>
+</sw-switch-field-deprecated>

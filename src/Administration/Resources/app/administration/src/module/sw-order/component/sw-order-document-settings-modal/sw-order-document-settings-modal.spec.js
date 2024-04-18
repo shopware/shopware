@@ -30,6 +30,7 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-checkbox-field': true,
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
                 'sw-file-input': await wrapTestComponent('sw-file-input', { sync: true }),
                 'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),

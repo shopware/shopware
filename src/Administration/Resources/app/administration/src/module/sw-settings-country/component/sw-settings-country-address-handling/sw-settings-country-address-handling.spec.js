@@ -88,6 +88,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                 'sw-ignore-class': true,
                 'sw-text-field': true,
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-field-error': true,
                 'sw-help-text': true,

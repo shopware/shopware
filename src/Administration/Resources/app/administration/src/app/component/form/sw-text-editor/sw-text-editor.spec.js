@@ -35,6 +35,7 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),

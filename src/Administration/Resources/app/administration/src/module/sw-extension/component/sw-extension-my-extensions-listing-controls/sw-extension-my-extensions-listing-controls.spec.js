@@ -5,6 +5,7 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
             },
         },
     });

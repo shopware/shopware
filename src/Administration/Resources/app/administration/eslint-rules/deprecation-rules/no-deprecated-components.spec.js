@@ -151,5 +151,33 @@ tester.run('no-deprecated-components', rule, {
                 message: '"sw-text-field" is deprecated. Please use "mt-text-field" instead.',
             }]
         },
+        {
+            name: '"sw-switch-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-switch-field>Hello</sw-switch-field>
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
+    <mt-switch>Hello</mt-switch>
+</template>`,
+            errors: [{
+                message: '"sw-switch-field" is deprecated. Please use "mt-switch" instead.',
+            }]
+        },
+        {
+            name: '"sw-switch-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-switch-field>Hello</sw-switch-field>
+</template>`,
+            errors: [{
+                message: '"sw-switch-field" is deprecated. Please use "mt-switch" instead.',
+            }]
+        }
     ]
 })

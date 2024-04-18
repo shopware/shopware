@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.1.1
+*  [NEXT-31926 - Fix varnish ban all](./changelog/release-6-6-1-1/2024-04-12-fix-varnish-ban-all.md)
+*  [NEXT-35121 - Recompile theme on plugin with additional bundles](./changelog/release-6-6-1-1/2024-04-16-recompile-on-plugins-with-additional-bundles.md)
+
 ## 6.6.1.0
 *  [NEXT-34653 - Check for invalid rules in criteria instead at runtime](./changelog/release-6-6-1-0/2020-09-07-check-invalid-rules-in-criteria-instead-of-runtime.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-30706 - Fix issues by statefulness twig environment in SeoUrlGenerator](./changelog/release-6-6-1-0/2022-01-22-fix-statefulness-issues-of-twig-environment-in-seo-url-generator.md) ([JoshuaBehrens](https://github.com/JoshuaBehrens))

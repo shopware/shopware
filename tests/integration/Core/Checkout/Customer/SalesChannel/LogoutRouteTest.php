@@ -109,6 +109,46 @@ class LogoutRouteTest extends TestCase
         static::assertArrayHasKey('errors', $response);
     }
 
+    public function testLogoutKeepsCartToBeAbleToRestore(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $this->createCustomer($email);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => $email,
+                    'password' => 'shopware',
+                ]
+            );
+
+        static::assertIsString($this->browser->getResponse()->getContent());
+
+        $response = $this->browser->getResponse();
+
+        // After login successfully, the context token will be set in the header
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/logout',
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $tokens = $this->getContainer()->get(Connection::class)
+            ->fetchFirstColumn('SELECT token FROM sales_channel_api_context WHERE customer_id =  (SELECT id FROM customer where email = ?)', [$email]);
+
+        static::assertCount(1, $tokens);
+        static::assertNotContains($contextToken, $tokens, 'Old token should still exist');
+    }
+
     public function testLoggedOutKeepCustomerContextWithoutReplaceTokenParameter(): void
     {
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);

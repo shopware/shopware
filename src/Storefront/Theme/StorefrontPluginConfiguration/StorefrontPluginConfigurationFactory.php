@@ -4,7 +4,10 @@ namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -16,7 +19,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     /**
      * @internal
      */
-    public function __construct(private readonly string $projectDir)
+    public function __construct(private readonly string $projectDir, private readonly KernelPluginLoader $pluginLoader)
     {
     }
 
@@ -31,7 +34,22 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             return $this->createThemeConfig($bundle->getName(), $bundle->getPath());
         }
 
-        return $this->createPluginConfig($bundle->getName(), $bundle->getPath());
+        $config = $this->createPluginConfig($bundle->getName(), $bundle->getPath());
+        if ($bundle instanceof Plugin) {
+            $config->setAdditionalBundles(
+                !empty(
+                    $bundle->getAdditionalBundles(
+                        new AdditionalBundleParameters(
+                            $this->pluginLoader->getClassLoader(),
+                            $this->pluginLoader->getPluginInstances(),
+                            []
+                        )
+                    )
+                )
+            );
+        }
+
+        return $config;
     }
 
     public function createFromApp(string $appName, string $appPath): StorefrontPluginConfiguration

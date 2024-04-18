@@ -27,6 +27,9 @@ class JsonApiDecoderTest extends TestCase
         static::assertFalse($this->decoder->supportsDecoding('yml'));
     }
 
+    /**
+     * @return array<int, array<int, bool|\DateTime|float|int|string|null>>
+     */
     public static function emptyInputProvider(): array
     {
         return [
@@ -39,14 +42,20 @@ class JsonApiDecoderTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<int, array<int, array<int|string, string>>>
+     */
     public static function inputWithoutDataOnRootProvider(): array
     {
         return [
-            ['randomKey' => 'randomValue'],
-            ['data' => 'foo'],
+            [['randomKey' => 'randomValue']],
+            [['data']],
         ];
     }
 
+    /**
+     * @return array<int, array<int, array<string, array<int|string, array<string, string>|string>>>>
+     */
     public static function resourceIdentifierWIthInvalidStructureProvider(): array
     {
         return [
@@ -58,7 +67,7 @@ class JsonApiDecoderTest extends TestCase
     }
 
     #[DataProvider('emptyInputProvider')]
-    public function testEncodeWithEmptyInput($input): void
+    public function testEncodeWithEmptyInput(mixed $input): void
     {
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Input not a valid JSON:API data object.');
@@ -66,8 +75,11 @@ class JsonApiDecoderTest extends TestCase
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
+    /**
+     * @param array<mixed> $input
+     */
     #[DataProvider('inputWithoutDataOnRootProvider')]
-    public function testInputWithoutDataOnRoot($input): void
+    public function testInputWithoutDataOnRoot(array $input): void
     {
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Input not a valid JSON:API data object.');
@@ -75,8 +87,11 @@ class JsonApiDecoderTest extends TestCase
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
+    /**
+     * @param array<mixed> $input
+     */
     #[DataProvider('resourceIdentifierWIthInvalidStructureProvider')]
-    public function testResourceIdentifierWithInvalidStructure($input): void
+    public function testResourceIdentifierWithInvalidStructure(array $input): void
     {
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('A resource identifier must be an array containing "id" and "type".');
@@ -102,7 +117,7 @@ class JsonApiDecoderTest extends TestCase
             'included' => [],
         ];
 
-        $this->decoder->decode(json_encode($json), 'jsonapi');
+        $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testRelationshipsWithMalformatData(): void
@@ -119,7 +134,7 @@ class JsonApiDecoderTest extends TestCase
             'included' => [],
         ];
 
-        $this->decoder->decode(json_encode($json), 'jsonapi');
+        $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testRelationshipKeysMustNotBeNumeric(): void
@@ -138,7 +153,7 @@ class JsonApiDecoderTest extends TestCase
             'included' => [],
         ];
 
-        $this->decoder->decode(json_encode($json), 'jsonapi');
+        $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testRelationshipBaseStructureType(): void
@@ -157,7 +172,7 @@ class JsonApiDecoderTest extends TestCase
             'included' => [],
         ];
 
-        $this->decoder->decode(json_encode($json), 'jsonapi');
+        $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testRelationshipBaseStructureData(): void
@@ -176,7 +191,7 @@ class JsonApiDecoderTest extends TestCase
             'included' => [],
         ];
 
-        $this->decoder->decode(json_encode($json), 'jsonapi');
+        $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testAttributesMustBeAnArray(): void
@@ -192,7 +207,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        $this->decoder->decode(json_encode($json), 'jsonapi');
+        $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testDecodeStructWithoutRelationships(): void
@@ -216,7 +231,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi'));
     }
 
     public function testDecodeStructWithRelationships(): void
@@ -279,7 +294,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi'));
     }
 
     public function testDecodeStructWithToManyRelationships(): void
@@ -384,7 +399,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi'));
     }
 
     public function testDecodeCollectionOfIncludedRelationships(): void
@@ -524,7 +539,7 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi'));
     }
 
     public function testDecodeCollection(): void
@@ -685,6 +700,6 @@ class JsonApiDecoderTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $this->decoder->decode(json_encode($json), 'jsonapi'));
+        static::assertEquals($expected, $this->decoder->decode(json_encode($json, \JSON_THROW_ON_ERROR), 'jsonapi'));
     }
 }

@@ -4216,41 +4216,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/PromotionControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:emptyInputProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:inputWithoutDataOnRootProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:resourceIdentifierWIthInvalidStructureProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:testEncodeWithEmptyInput\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:testInputWithoutDataOnRoot\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:testResourceIdentifierWithInvalidStructure\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decode\\(\\) expects string, string\\|false given\\.$#"
-			count: 11
-			path: src/Core/Framework/Test/Api/Serializer/JsonApiDecoderTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonSalesChannelApiEncoderTest\\:\\:arrayRemove\\(\\) has parameter \\$haystack with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Serializer/JsonSalesChannelApiEncoderTest.php

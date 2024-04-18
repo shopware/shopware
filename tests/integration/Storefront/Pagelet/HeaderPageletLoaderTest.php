@@ -59,7 +59,7 @@ class HeaderPageletLoaderTest extends TestCase
      * Some characters like A and Ä share one position since Ä is being seen as A with decorations.
      * Adding a test case with e.g. Alang and Älang with an expected order will introduce flakynes.
      *
-     * @return array<array{languages: list<array{name: string}>, expected_order: list<string>}>
+     * @return array<array{languages: list<array{name: string}>, expectedOrder: list<string>}>
      */
     public static function sortingTestDataProvider(): array
     {
@@ -71,7 +71,7 @@ class HeaderPageletLoaderTest extends TestCase
                     ['name' => 'Xlang'],
                     ['name' => 'Blang'],
                 ],
-                'expected_order' => ['Alang', 'Blang', 'Dlang', 'Xlang'],
+                'expectedOrder' => ['Alang', 'Blang', 'Dlang', 'Xlang'],
             ],
             [
                 'languages' => [
@@ -94,7 +94,7 @@ class HeaderPageletLoaderTest extends TestCase
                     ['name' => 'Älang'],
                     ['name' => 'Llang'],
                 ],
-                'expected_order' => [
+                'expectedOrder' => [
                     'Älang',
                     'Elang',
                     'Flang',
@@ -127,7 +127,7 @@ class HeaderPageletLoaderTest extends TestCase
                     ['name' => 'Aqlang'],
                     ['name' => 'Aülang'],
                 ],
-                'expected_order' => ['Ablang', 'Alang', 'Anlang', 'Aolang', 'Aqlang', 'Arlang', 'Aülang', 'Axlang', 'Azlang'],
+                'expectedOrder' => ['Ablang', 'Alang', 'Anlang', 'Aolang', 'Aqlang', 'Arlang', 'Aülang', 'Axlang', 'Azlang'],
             ],
         ];
     }

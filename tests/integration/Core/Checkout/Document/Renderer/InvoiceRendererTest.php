@@ -626,7 +626,7 @@ class InvoiceRendererTest extends TestCase
             'customerSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
             ],
-            'invoiceConfig' => [
+            'invoiceSettings' => [
                 'enableIntraCommunityDeliveryLabel' => true,
                 'setCustomerShippingCountryAsMemberCountry' => true,
             ],
@@ -637,7 +637,7 @@ class InvoiceRendererTest extends TestCase
         yield 'shall not be displayed cause customer account is no B2B account' => [
             'customerSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE, ],
-            'invoiceConfig' => [
+            'invoiceSettings' => [
                 'enableIntraCommunityDeliveryLabel' => true,
                 'setCustomerShippingCountryAsMemberCountry' => true,
             ],
@@ -648,7 +648,7 @@ class InvoiceRendererTest extends TestCase
         yield 'shall not be displayed cause customer shipping country is not in "member country" list' => [
             'customerSettings' => [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS, ],
-            'invoiceConfig' => [
+            'invoiceSettings' => [
                 'enableIntraCommunityDeliveryLabel' => true,
                 'setCustomerShippingCountryAsMemberCountry' => false,
             ],

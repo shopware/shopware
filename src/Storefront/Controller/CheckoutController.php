@@ -14,11 +14,13 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -198,7 +200,7 @@ class CheckoutController extends StorefrontController
             $response = Profiler::trace('handle-payment', fn (): ?RedirectResponse => $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl));
 
             return $response ?? new RedirectResponse($finishUrl);
-        } catch (PaymentException) {
+        } catch (PaymentException|IllegalTransitionException|FlowException) {
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
     }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -454,7 +454,7 @@ class ProductEntity extends Entity implements \Stringable
     protected $customSearchKeywords;
 
     /**
-     * @var CustomerWishlistCollection|null
+     * @var CustomerWishlistProductCollection|null
      */
     protected $wishlists;
 
@@ -1390,12 +1390,12 @@ class ProductEntity extends Entity implements \Stringable
         $this->customSearchKeywords = $customSearchKeywords;
     }
 
-    public function getWishlists(): ?CustomerWishlistCollection
+    public function getWishlists(): ?CustomerWishlistProductCollection
     {
         return $this->wishlists;
     }
 
-    public function setWishlists(CustomerWishlistCollection $wishlists): void
+    public function setWishlists(CustomerWishlistProductCollection $wishlists): void
     {
         $this->wishlists = $wishlists;
     }

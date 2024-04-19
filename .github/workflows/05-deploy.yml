@@ -32,6 +32,11 @@ jobs:
           role-session-name: github-actions
           aws-region: eu-central-1
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
       - name: Publish release schedule
         if: steps.changed-files.outputs.any_changed == 'true'
         env:

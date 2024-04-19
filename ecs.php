@@ -120,6 +120,7 @@ return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->cacheNamespace('platform');
 
     $ecsConfig->parallel();
+    $ecsConfig->lineEnding('\n');
 
     $ecsConfig->skip([
         // Fixture

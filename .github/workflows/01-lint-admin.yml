@@ -17,15 +17,37 @@ jobs:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
     steps:
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Archives
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
       - name: Clone platform
         uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Dependencies
+        run: |
+          composer install
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: node-cache
         with:
           path: src/Administration/Resources/app/administration/node_modules
@@ -35,14 +57,18 @@ jobs:
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm --prefix src/Administration/Resources/app/administration ci --no-audit --prefer-offline
 
+      - name: Generate admin entity-schema
+        run: |
+          composer admin:generate-entity-schema-types
+
       - name: Cache ESLint
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: src/Administration/Resources/app/administration/node_modules/.eslintcache
           key: admin-eslint-${{ runner.os }}
 
       - name: Cache Stylelint
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: src/Administration/Resources/app/administration/node_modules/.stylelintcache
           key: admin-stylelint-${{ runner.os }}

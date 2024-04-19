@@ -7,7 +7,7 @@ Shopware Install (onPrem):
     - name: mariadb:10.11
       alias: database
   tags:
-    - shopware
+    - shopware-multi-arch
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always

@@ -23,7 +23,7 @@ Publish entity-schema-types NPM package:
 .push split repositories:
   stage: deploy
   tags:
-    - shopware
+    - shopware-multi-arch
   image:
     name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   needs:
@@ -70,16 +70,16 @@ push split repositories (gitlab):
     GITLAB_TOKEN: "${CI_GITLAB_API_TOKEN}"
     CI_COMMENT_MESSAGE: |
       The following testing branches have been created for you:
-      
+
       - [administration:tmp-${CI_COMMIT_SHORT_SHA}](https://gitlab.shopware.com/shopware/6/product/many-repositories/administration/-/tree/tmp-${CI_COMMIT_SHORT_SHA})
       - [storefront:tmp-${CI_COMMIT_SHORT_SHA}](https://gitlab.shopware.com/shopware/6/product/many-repositories/storefront/-/tree/tmp-${CI_COMMIT_SHORT_SHA})
       - [core:tmp-${CI_COMMIT_SHORT_SHA}](https://gitlab.shopware.com/shopware/6/product/many-repositories/core/-/tree/tmp-${CI_COMMIT_SHORT_SHA})
       - [elasticsearch:tmp-${CI_COMMIT_SHORT_SHA}](https://gitlab.shopware.com/shopware/6/product/many-repositories/elasticsearch/-/tree/tmp-${CI_COMMIT_SHORT_SHA})
-      
+
       More info on how to use these branches can be found in the [handbook](https://handbook.shopware.com/Product/Guides/Engineering/Platform/PipelineTestSuite/PrivateComposerRegistry#creating-branches-for-testing).
-      
+
       ---
-      
+
       ```shell
       composer require \
         "shopware/administration:dev-tmp-${CI_COMMIT_SHORT_SHA} as 6.6.x-dev" \

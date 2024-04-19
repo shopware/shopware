@@ -8,7 +8,7 @@ include:
       stage: lint
       context: tar://${CI_PROJECT_DIR}/context.tar.gz
       destination-image: "${CI_REGISTRY_IMAGE}/ci-e2e"
-      destination-tag: "$CI_PIPELINE_ID"
+      destination-tag: "${CI_PIPELINE_ID}"
       additional-tags: "${EXTRA_DEV_BUILD_TAGS}"
       dockerfile: .gitlab/docker/dev/Dockerfile
       enable-scan: "false"

@@ -3,11 +3,10 @@
 .split-base:
   stage: split
   tags:
-    - shopware
+    - shopware-multi-arch
   image:
     name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   variables:
-    SPLITSH_ARCHIVE_URL: 'https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz'
     GIT_DEPTH: '0'
     GIT_STRATEGY: 'clone'
   needs: [ ]

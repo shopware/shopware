@@ -40,7 +40,7 @@ variables:
     - !reference [.rules, run]
     - when: always
   tags:
-    - shopware
+    - shopware-multi-arch
   before_script:
     - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
     - >
@@ -105,7 +105,7 @@ variables:
 .deploy-job:
   extends: .long-running
   tags:
-    -
+    - shopware-multi-arch
   before_script: []
   rules:
     # only sync on protected branches

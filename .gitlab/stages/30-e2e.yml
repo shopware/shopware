@@ -5,6 +5,8 @@
   image: shopware/development:8.2-composer-2
   extends:
     - .long-running
+  tags:
+    - shopware-amd64
   needs: [Build, "Jest (Administration)"]
   dependencies: [Build]
   services:
@@ -116,6 +118,8 @@ acceptance:
     - .long-running
   image: mcr.microsoft.com/playwright:v1.41.1-jammy
   needs: [build image]
+  tags:
+    - shopware-amd64
   stage: E2E
   rules:
     - !reference [.rules, skip]

@@ -82,6 +82,7 @@ module.exports = {
                         'sw-icon',
                         'sw-card',
                         'sw-text-field',
+                        'sw-number-field',
                     ];
 
                     // Handle other deprecated components

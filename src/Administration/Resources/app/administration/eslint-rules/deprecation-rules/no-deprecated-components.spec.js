@@ -178,6 +178,34 @@ tester.run('no-deprecated-components', rule, {
             errors: [{
                 message: '"sw-switch-field" is deprecated. Please use "mt-switch" instead.',
             }]
-        }
+        },
+        {
+            name: '"sw-number-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-number-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-number-field - please check if everything works correctly -->
+    <mt-number-field />
+</template>`,
+            errors: [{
+                message: '"sw-number-field" is deprecated. Please use "mt-number-field" instead.',
+            }]
+        },
+        {
+            name: '"sw-number-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-number-field />
+</template>`,
+            errors: [{
+                message: '"sw-number-field" is deprecated. Please use "mt-number-field" instead.',
+            }]
+        },
     ]
 })

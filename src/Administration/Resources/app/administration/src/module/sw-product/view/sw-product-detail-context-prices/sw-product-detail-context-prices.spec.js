@@ -32,6 +32,7 @@ const createWrapper = async () => {
                 'sw-data-grid-settings': true,
                 'sw-field': true,
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,

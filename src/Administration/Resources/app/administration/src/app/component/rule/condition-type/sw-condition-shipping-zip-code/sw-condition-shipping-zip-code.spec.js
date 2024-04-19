@@ -14,6 +14,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 stubs: {
                     'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),

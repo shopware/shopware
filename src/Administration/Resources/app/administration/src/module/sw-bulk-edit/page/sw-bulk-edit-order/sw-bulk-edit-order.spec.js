@@ -51,6 +51,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
+                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),

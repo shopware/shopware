@@ -34,6 +34,8 @@ jobs:
 
       - name: Publish release schedule
         if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release download --repo shopware/release-schedule --pattern 'release-schedule.phar'
           php release-schedule.phar publish

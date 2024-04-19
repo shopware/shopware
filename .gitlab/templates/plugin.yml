@@ -146,7 +146,7 @@ workflow:
 default:
     image: $DEV_IMAGE
     tags:
-      - shopware
+      - shopware-amd64
     services:
         - name: "$MYSQL_IMAGE"
           alias: database
@@ -203,6 +203,7 @@ build and validate zip:
     before_script:
       - *setup_platform_and_plugin_files
     script:
+        - source /root/.bashrc # Workaround until Gitlab fixes the Gitlab Kubernetes runner
         - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --git-commit "${CI_COMMIT_SHA}"
         - mv ${PLUGIN_NAME}-${CI_COMMIT_SHA}.zip ${PLUGIN_NAME}.zip
         - shopware-cli extension validate "${PLUGIN_NAME}.zip"
@@ -335,6 +336,8 @@ template filled:
     image: shopware/development:8.2-node-20.10-composer-2
     stage: E2E
     needs: []
+    tags:
+      - shopware-amd64
     script:
         - *e2e-prepare
         - >

@@ -94,16 +94,74 @@ PHP integration:
       --testsuite integration
       --order-by default
 
+PHP bench:
+    extends: .base-no-setup
+    stage: unit
+    tags:
+      - shopware-amd64
+    timeout: 30m
+    allow_failure: true
+    needs: []
+    services:
+        -   name: mariadb:11.0
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: redis:7.0
+            alias: redis
+    variables:
+        APP_ENV: "dev"
+        REDIS_URL: redis://redis:6379
+        MYSQL_CMD: 'mariadbd'
+    rules:
+        # do not run in merge trains
+        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+          when: never
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run ]
+        - changes:
+            - '**/*.php'
+            - '**/*.xml'
+            - 'composer.json'
+
+    before_script:
+        - !reference [ .scripts, init, composer ]
+        - mkdir -p config/jwt || true
+    script:
+        - php vendor/bin/phpbench run
+            --report=compressed
+
 Open Api Schema validation:
   extends: .base-no-setup
+  image: ${CI_REGISTRY}/infrastructure/docker-base/ci-build:${CI_BUILD_IMAGE_TAG}
   stage: unit
-  timeout: 2m
-  needs: []
-  services:
-    - name: swaggerapi/swagger-validator-v2:v2.0.5
-      alias: swagger
+  timeout: 10m
+  allow_failure: true
+  needs: [build image]
+  tags:
+    - shopware-amd64
   variables:
     APP_ENV: "dev"
+    TEST_WEB_INSTALLER: 1
+    DATABASE_URL: mysql://root:app@database:3306/root
+  services:
+    - name: mysql:8
+      alias: database
+      entrypoint:
+        [
+          "sh",
+          "-c",
+          "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON",
+        ]
+    - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
+      alias: shopware.test
+      entrypoint:
+        [
+          "sh",
+          "-c",
+          "bin/console system:generate-jwt && /entrypoint"
+        ]
+      variables:
+        PROJECT_ROOT: /var/www/html
   rules:
     # do not run in merge trains
     - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
@@ -116,9 +174,18 @@ Open Api Schema validation:
         - "composer.json"
   before_script:
     - !reference [.scripts, init, composer]
+    - composer run init:db
+    - mkdir -p config/jwt || true
+    - bin/console system:generate-jwt || true
   script:
-    - php ./bin/console open-api:validate http://swagger:8080/validator/debug
-    - php ./bin/console open-api:validate --api-type=store-api http://swagger:8080/validator/debug
+    - export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
+    - export OPENAPI_ACCESS_KEY=$(mysql -u root -h database -papp root -se "SELECT access_key FROM sales_channel WHERE id = 0x${STOREFRONT_ID}";)
+    - printf "OPENAPI_JSON_URL=http://shopware.test:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
+    - npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
+    - npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
+    - npm i -g @redocly/cli@latest
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./storeApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./adminApiSchema.json
 
 PHP unit coverage:
   extends: .base-no-setup
@@ -241,7 +308,7 @@ PHP Full:
           - "php8.3"
         FEATURE_ALL: ["false", "major"]
         MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON"
-      - MYSQL_IMAGE: mysql:8.0.17
+      - MYSQL_IMAGE: mysql:8.0.36
       - MYSQL_IMAGE: mariadb:10.11
       - MYSQL_IMAGE: mariadb:10.11
         PREFER_LOWEST: "prefer lowest"

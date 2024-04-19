@@ -128,7 +128,7 @@ default:
           alias: database
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     tags:
-      - shopware
+      - shopware-amd64
     before_script:
         - *base_env_vars
         - zip -rq theme.zip .
@@ -244,6 +244,8 @@ template filled:
 cypress:
     image: shopware/development:8.2-node-20.10-composer-2
     stage: E2E
+    tags:
+      - shopware-amd64
     needs:
         - build zip
     rules:

@@ -1,0 +1,22 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_loader %}
+<div class="sw-loader">
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_loader_container %}
+    <div
+        class="sw-loader__container"
+        :style="loaderSize"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_loader_element %}
+        <div class="sw-loader-element">
+            <div :style="{ borderWidth: borderWidth }"></div>
+            <div :style="{ borderWidth: borderWidth }"></div>
+            <div :style="{ borderWidth: borderWidth }"></div>
+            <div :style="{ borderWidth: borderWidth }"></div>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

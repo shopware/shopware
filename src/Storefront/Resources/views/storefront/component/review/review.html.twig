@@ -95,6 +95,12 @@
                                                                     <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
                                                                 {% endif %}
 
+                                                                {% if app.request.get('points') %}
+                                                                    {% for points in app.request.get('points') %}
+                                                                        <input type="hidden" name="points[]" value="{{ points }}">
+                                                                    {% endfor %}
+                                                                {% endif %}
+
                                                                 <div class="form-check form-switch">
                                                                     {# TODO NEXT-16994 - set checked and disabled state #}
                                                                     <input type="checkbox"
@@ -117,11 +123,7 @@
                                                     {% if productReviewCount > 0 %}
                                                         <div class="col-12 col-md-auto product-detail-review-sortby">
                                                             {% set formAjaxSubmitOptions = {
-                                                                replaceSelectors: [
-                                                                    '.js-review-info',
-                                                                    '.js-review-teaser',
-                                                                    '.js-review-content'
-                                                                ],
+                                                                replaceSelectors: ['.js-review-container'],
                                                                 submitOnChange: true
                                                             } %}
 

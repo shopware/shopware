@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -18,6 +19,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('core')]
+#[RunClassInSeparateProcess]
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends TestCase
 {
     use IntegrationTestBehaviour;

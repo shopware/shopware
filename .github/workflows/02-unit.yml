@@ -116,7 +116,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer Archives
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
@@ -126,12 +126,12 @@ jobs:
       - name: Clone platform
         uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: node-cache
         with:
           path: src/Administration/Resources/app/administration/node_modules
@@ -172,12 +172,12 @@ jobs:
       - name: Clone platform
         uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: node-cache
         with:
           path: src/Storefront/Resources/app/storefront/node_modules

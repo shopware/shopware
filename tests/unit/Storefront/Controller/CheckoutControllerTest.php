@@ -19,11 +19,13 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
@@ -476,6 +478,40 @@ class CheckoutControllerTest extends TestCase
 
         $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
             PaymentException::syncProcessInterrupted(Uuid::randomHex(), 'error')
+        );
+
+        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+
+        static::assertEquals(new Response('forward to frontend.checkout.finish.page'), $response);
+    }
+
+    public function testOrderTransitionException(): void
+    {
+        $request = new Request();
+        $request->setSession($this->createMock(Session::class));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
+            new IllegalTransitionException('open', 'done', ['in_progress', 'canceled'])
+        );
+
+        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+
+        static::assertEquals(new Response('forward to frontend.checkout.finish.page'), $response);
+    }
+
+    public function testOrderFlowException(): void
+    {
+        $request = new Request();
+        $request->setSession($this->createMock(Session::class));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
+            FlowException::transactionFailed(new IllegalTransitionException('open', 'done', ['in_progress', 'canceled']))
         );
 
         $response = $this->controller->order(new RequestDataBag(), $context, $request);

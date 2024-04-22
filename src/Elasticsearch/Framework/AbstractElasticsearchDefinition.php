@@ -19,7 +19,6 @@ abstract class AbstractElasticsearchDefinition
     final public const KEYWORD_FIELD = [
         'type' => 'keyword',
         'normalizer' => 'sw_lowercase_normalizer',
-        'ignore_above' => 1024,
     ];
 
     final public const BOOLEAN_FIELD = ['type' => 'boolean'];

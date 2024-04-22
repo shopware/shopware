@@ -2,25 +2,25 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 class SearchFieldConfig
 {
-    private ?bool $isTextField = null;
+    private float $ranking;
 
     public function __construct(
-        private string $field,
-        private float $ranking,
+        private readonly string $field,
+        int|float $ranking,
         private readonly bool $tokenize,
-        private readonly bool $andLogic = false,
-        private readonly bool $translatedField = false,
-        private readonly ?Field $fieldDefinition = null
+        private readonly bool $andLogic = false
     ) {
+        if (Feature::isActive('v6.7.0.0') && \is_int($ranking)) {
+            Feature::throwException('v6.7.0.0', 'The ranking property in SearchFieldConfig is now a float.');
+        }
+
+        $this->ranking = (float) $ranking;
     }
 
     public function tokenize(): bool
@@ -28,7 +28,10 @@ class SearchFieldConfig
         return $this->tokenize;
     }
 
-    public function getRanking(): float
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change -  Return type will be changed to float
+     */
+    public function getRanking(): int|float
     {
         return $this->ranking;
     }
@@ -43,29 +46,13 @@ class SearchFieldConfig
         return str_contains($this->field, 'customFields');
     }
 
-    public function getFieldDefinition(): ?Field
-    {
-        return $this->fieldDefinition;
-    }
-
-    public function isTranslatedField(): bool
-    {
-        return $this->translatedField;
-    }
-
-    public function isTextField(): bool
-    {
-        if ($this->isTextField) {
-            return $this->isTextField;
-        }
-
-        $this->isTextField = $this->fieldDefinition instanceof StringField || $this->fieldDefinition instanceof LongTextField || $this->fieldDefinition instanceof ListField;
-
-        return $this->isTextField;
-    }
-
     public function isAndLogic(): bool
     {
         return $this->andLogic;
+    }
+
+    public function setRanking(float $ranking): void
+    {
+        $this->ranking = $ranking;
     }
 }

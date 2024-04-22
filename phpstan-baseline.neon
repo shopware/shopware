@@ -6821,16 +6821,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/EntityScoreBuilderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\TokenizerTest\\:\\:cases\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/TokenizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\TokenizerTest\\:\\:testInterpreter\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/TokenizerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\Util\\\\DateHistogramCase\\:\\:__construct\\(\\) has parameter \\$buckets with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Util/DateHistogramCase.php

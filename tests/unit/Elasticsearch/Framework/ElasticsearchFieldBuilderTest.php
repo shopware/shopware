@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -16,9 +17,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder
  */
+#[CoversClass(ElasticsearchFieldBuilder::class)]
 class ElasticsearchFieldBuilderTest extends TestCase
 {
     public function testBuildTranslatedField(): void
@@ -158,7 +158,15 @@ class ElasticsearchFieldBuilderTest extends TestCase
                             'type' => 'boolean',
                         ],
                         'cf_foo' => [
-                            'type' => 'text',
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
                         ],
                         'cf_baz' => [
                             'type' => 'long',
@@ -173,7 +181,15 @@ class ElasticsearchFieldBuilderTest extends TestCase
                             'type' => 'boolean',
                         ],
                         'cf_foo' => [
-                            'type' => 'text',
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
                         ],
                         'cf_baz' => [
                             'type' => 'long',
@@ -217,7 +233,10 @@ class ElasticsearchFieldBuilderTest extends TestCase
                     'type' => 'keyword',
                     'normalizer' => 'sw_lowercase_normalizer',
                     'fields' => [
-                        'search' => ['type' => 'text'],
+                        'search' => [
+                            'type' => 'text',
+                            'analyzer' => 'sw_whitespace_analyzer',
+                        ],
                         'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
                     ],
                 ],

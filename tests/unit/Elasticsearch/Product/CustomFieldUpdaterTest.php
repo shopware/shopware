@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
-use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,25 +14,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
+use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\CustomFieldUpdater
  */
+#[CoversClass(CustomFieldUpdater::class)]
 class CustomFieldUpdaterTest extends TestCase
 {
     public function testSubscribedEvents(): void
     {
         static::assertSame([
-            EntityWrittenContainerEvent::class => 'onNewCustomFieldCreated',
+            EntityWrittenContainerEvent::class => 'indexCustomFields',
         ], CustomFieldUpdater::getSubscribedEvents());
     }
 
@@ -42,13 +43,11 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects(static::never())
             ->method('allowIndexing');
 
-        $connection = $this->createMock(Connection::class);
-
         $customFieldUpdater = new CustomFieldUpdater(
             $this->createMock(ElasticsearchOutdatedIndexDetector::class),
             $this->createMock(Client::class),
             $elasticsearchHelper,
-            $connection
+            $this->createMock(CustomFieldSetGateway::class)
         );
 
         $containerEvent = new EntityWrittenContainerEvent(
@@ -57,7 +56,7 @@ class CustomFieldUpdaterTest extends TestCase
             []
         );
 
-        $customFieldUpdater->onNewCustomFieldCreated($containerEvent);
+        $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
     public function testElasticsearchDisabled(): void
@@ -72,13 +71,11 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects(static::never())
             ->method('getAllUsedIndices');
 
-        $connection = $this->createMock(Connection::class);
-
         $customFieldUpdater = new CustomFieldUpdater(
             $indexDetector,
             $this->createMock(Client::class),
             $elasticsearchHelper,
-            $connection
+            $this->createMock(CustomFieldSetGateway::class)
         );
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, [], Context::createDefaultContext());
@@ -89,7 +86,7 @@ class CustomFieldUpdaterTest extends TestCase
             []
         );
 
-        $customFieldUpdater->onNewCustomFieldCreated($containerEvent);
+        $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
     public function testCustomFieldUpdatedChangesNothing(): void
@@ -104,13 +101,11 @@ class CustomFieldUpdaterTest extends TestCase
             ->expects(static::never())
             ->method('getAllUsedIndices');
 
-        $connection = $this->createMock(Connection::class);
-
         $customFieldUpdater = new CustomFieldUpdater(
             $indexDetector,
             $this->createMock(Client::class),
             $elasticsearchHelper,
-            $connection
+            $this->createMock(CustomFieldSetGateway::class)
         );
 
         $writeResults = [
@@ -125,7 +120,7 @@ class CustomFieldUpdaterTest extends TestCase
             []
         );
 
-        $customFieldUpdater->onNewCustomFieldCreated($containerEvent);
+        $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
     public function testCustomFieldCreationDoesCreateThemInES(): void
@@ -141,47 +136,65 @@ class CustomFieldUpdaterTest extends TestCase
             ->willReturn(['test']);
 
         $indices = $this->createMock(IndicesNamespace::class);
-        $connection = $this->createMock(Connection::class);
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $gateway->expects(static::once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId])
+            ->willReturn([$customFieldId => $customFieldSetId]);
+
+        $gateway->expects(static::once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => ['product']]);
+
+        $deLang = Uuid::randomHex();
+        $gateway->expects(static::once())
+            ->method('fetchLanguageIds')
+            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
 
         $customFields = [
             'properties' => [
-                'test' => [
-                    'type' => 'text',
+                $deLang => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'test' => [
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
+                        ],
+                    ],
+                ],
+                Defaults::LANGUAGE_SYSTEM => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'test' => [
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $elasticsearchHelper->expects(static::once())->method('enabledMultilingualIndex')->willReturn(true);
-            $deLang = Uuid::randomHex();
-            $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
-                Defaults::LANGUAGE_SYSTEM,
-                $deLang,
-            ]);
-
-            $customFields = [
-                'properties' => [
-                    $deLang => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [
-                            'test' => [
-                                'type' => 'text',
-                            ],
-                        ],
-                    ],
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [
-                            'test' => [
-                                'type' => 'text',
-                            ],
-                        ],
-                    ],
-                ],
-            ];
-        }
         $indices
             ->expects(static::once())
             ->method('putMapping')
@@ -218,11 +231,11 @@ class CustomFieldUpdaterTest extends TestCase
             $indexDetector,
             $client,
             $elasticsearchHelper,
-            $connection
+            $gateway
         );
 
         $writeResults = [
-            new EntityWriteResult('test', ['name' => 'test', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId, ['name' => 'test', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
         ];
 
         $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
@@ -233,14 +246,320 @@ class CustomFieldUpdaterTest extends TestCase
             []
         );
 
-        $customFieldUpdater->onNewCustomFieldCreated($containerEvent);
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsAreNotIndexedWhenNonProductAssociationIsAddedToFieldSet(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $indexDetector
+            ->method('getAllUsedIndices')
+            ->willReturn(['test']);
+
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldSetRelationId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $client = $this->createMock(Client::class);
+        $client->expects(static::never())->method('indices');
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $indexDetector,
+            $client,
+            $elasticsearchHelper,
+            $gateway
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                $customFieldSetRelationId,
+                ['entityName' => 'customer', 'customFieldSetId' => $customFieldSetId],
+                CustomFieldSetRelationDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testCustomFieldsAreIndexedWhenProductAssociationIsAddedToFieldSet(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $indexDetector
+            ->method('getAllUsedIndices')
+            ->willReturn(['test']);
+
+        $indices = $this->createMock(IndicesNamespace::class);
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldSetRelationId = Uuid::randomHex();
+        $customFieldSetId = Uuid::randomHex();
+
+        $deLang = Uuid::randomHex();
+        $gateway->expects(static::once())
+            ->method('fetchLanguageIds')
+            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
+
+        $gateway->expects(static::once())
+            ->method('fetchCustomFieldsForSets')
+            ->with([$customFieldSetId])
+            ->willReturn([$customFieldSetId => [
+                ['id' => Uuid::randomHex(), 'name' => 'field2', 'type' => 'text'],
+            ]]);
+
+        $customFields = [
+            'properties' => [
+                $deLang => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'field2' => [
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
+                        ],
+                    ],
+                ],
+                Defaults::LANGUAGE_SYSTEM => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'field2' => [
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $indices
+            ->expects(static::once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'test',
+                'body' => [
+                    'properties' => [
+                        'customFields' => $customFields,
+                    ],
+                    '_source' => [
+                        'includes' => [
+                            'id',
+                        ],
+                    ],
+                ],
+            ]);
+
+        $indices
+            ->method('get')
+            ->willReturn([
+                'test' => [
+                    'mappings' => [
+                        '_source' => [
+                            'includes' => ['id'],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $client = $this->createMock(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $indexDetector,
+            $client,
+            $elasticsearchHelper,
+            $gateway
+        );
+
+        $writeResults = [
+            new EntityWriteResult(
+                $customFieldSetRelationId,
+                ['entityName' => 'product', 'customFieldSetId' => $customFieldSetId],
+                CustomFieldSetRelationDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_INSERT
+            ),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldSetRelationDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
+    }
+
+    public function testOnlyProductCustomFieldsAreCreatedInES(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper
+            ->method('allowIndexing')
+            ->willReturn(true);
+
+        $indexDetector = $this->createMock(ElasticsearchOutdatedIndexDetector::class);
+        $indexDetector
+            ->method('getAllUsedIndices')
+            ->willReturn(['test']);
+
+        $indices = $this->createMock(IndicesNamespace::class);
+        $gateway = $this->createMock(CustomFieldSetGateway::class);
+
+        $customFieldId1 = Uuid::randomHex();
+        $customFieldId2 = Uuid::randomHex();
+        $customFieldSetId1 = Uuid::randomHex();
+        $customFieldSetId2 = Uuid::randomHex();
+
+        $gateway->expects(static::once())
+            ->method('fetchFieldSetIds')
+            ->with([$customFieldId1, $customFieldId2])
+            ->willReturn([$customFieldId1 => $customFieldSetId1, $customFieldId2 => $customFieldSetId2]);
+
+        $gateway->expects(static::once())
+            ->method('fetchFieldSetEntityMappings')
+            ->with([$customFieldSetId1, $customFieldSetId2])
+            ->willReturn([
+                $customFieldSetId1 => ['customer'],
+                $customFieldSetId2 => ['product', 'customer'],
+            ]);
+
+        $deLang = Uuid::randomHex();
+        $gateway->expects(static::once())
+            ->method('fetchLanguageIds')
+            ->willReturn([Defaults::LANGUAGE_SYSTEM, $deLang]);
+
+        $customFields = [
+            'properties' => [
+                $deLang => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'field2' => [
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
+                        ],
+                    ],
+                ],
+                Defaults::LANGUAGE_SYSTEM => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'field2' => [
+                            'type' => 'keyword',
+                            'normalizer' => 'sw_lowercase_normalizer',
+                            'fields' => [
+                                'search' => [
+                                    'type' => 'text',
+                                    'analyzer' => 'sw_whitespace_analyzer',
+                                ],
+                                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $indices
+            ->expects(static::once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'test',
+                'body' => [
+                    'properties' => [
+                        'customFields' => $customFields,
+                    ],
+                    '_source' => [
+                        'includes' => [
+                            'id',
+                        ],
+                    ],
+                ],
+            ]);
+
+        $indices
+            ->method('get')
+            ->willReturn([
+                'test' => [
+                    'mappings' => [
+                        '_source' => [
+                            'includes' => ['id'],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $client = $this->createMock(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $customFieldUpdater = new CustomFieldUpdater(
+            $indexDetector,
+            $client,
+            $elasticsearchHelper,
+            $gateway
+        );
+
+        $writeResults = [
+            new EntityWriteResult($customFieldId1, ['name' => 'field1', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+            new EntityWriteResult($customFieldId2, ['name' => 'field2', 'type' => 'text'], CustomFieldDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+        ];
+
+        $event = new EntityWrittenEvent(CustomFieldDefinition::ENTITY_NAME, $writeResults, Context::createDefaultContext());
+
+        $containerEvent = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([$event]),
+            []
+        );
+
+        $customFieldUpdater->indexCustomFields($containerEvent);
     }
 
     /**
-     * @dataProvider providerMapping
-     *
      * @param array<mixed> $mapping
      */
+    #[DataProvider('providerMapping')]
     public function testMapping(string $type, array $mapping): void
     {
         static::assertSame($mapping, CustomFieldUpdater::getTypeFromCustomFieldType($type));
@@ -293,6 +612,14 @@ class CustomFieldUpdaterTest extends TestCase
             'unknown',
             [
                 'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                    ],
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
             ],
         ];
     }

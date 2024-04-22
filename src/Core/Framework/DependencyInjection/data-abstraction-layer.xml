@@ -60,6 +60,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer">
             <argument>%shopware.dbal.token_minimum_length%</argument>
+            <argument>%shopware.search.preserved_chars%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">

@@ -527,8 +527,28 @@ shopware:
             base_uri: 'https://data.shopware.io'
             batch_size: 50
 
-    messenger:
-        routing_overwrite:
+    feature_toggle:
+        enable: true
 
     search:
         term_max_length: 300
+        # special chars that will not be removed on tokenizing
+        preserved_chars: ['-', '_', '+', '.', '@']
+
+    staging:
+        mailing:
+            disable_delivery: true
+        storefront:
+            show_banner: true
+        administration:
+            show_banner: true
+        sales_channel:
+            domain_rewrite: []
+        elasticsearch:
+            check_for_existence: true
+
+    system_config:
+        default: []
+
+    messenger:
+        routing_overwrite:

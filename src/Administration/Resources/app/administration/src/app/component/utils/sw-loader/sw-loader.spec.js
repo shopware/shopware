@@ -4,94 +4,34 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(options = {}) {
+async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-loader', { sync: true }), {
-        ...options,
+        global: {},
+        props: {},
+        ...additionalOptions,
     });
 }
 
-describe('sr/app/component/utils/sw-loader', () => {
-    it('should be a Vue.JS component with default values', async () => {
+describe('src/app/component/base/sw-loader', () => {
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should render the deprecated sw-loader when major feature flag is disabled', async () => {
+        global.activeFeatureFlags = [''];
+
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm).toBeTruthy();
-        expect(typeof wrapper.vm.loaderSize).toBe('object');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('height')).toBe(true);
-        expect(wrapper.vm.loaderSize.height).toBe('50px');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('width')).toBe(true);
-        expect(wrapper.vm.loaderSize.width).toBe('50px');
-        expect(typeof wrapper.vm.borderWidth).toBe('string');
-        expect(wrapper.vm.borderWidth).toBe('4px');
+        expect(wrapper.html()).toContain('sw-loader-deprecated');
+        expect(wrapper.html()).not.toContain('mt-loader');
     });
 
-    it('should throw warning for size smaller than 12px', async () => {
-        let showedWarning = false;
-        const warnSpy = jest.fn((args) => {
-            if (typeof args === 'string' && args.includes('Invalid prop: custom validator check failed for prop "size".')) {
-                showedWarning = true;
-            }
-        });
-        jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
-        const wrapper = await createWrapper({
-            props: {
-                size: '11px',
-            },
-        });
+    it('should render the mt-loader when major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['v6.7.0.0'];
 
-        expect(wrapper.vm).toBeTruthy();
-        expect(showedWarning).toBe(true);
-    });
+        const wrapper = await createWrapper();
 
-    it('should throw warning for none numeric values', async () => {
-        let showedWarning = false;
-        const warnSpy = jest.fn((args) => {
-            if (typeof args === 'string' && args.includes('Invalid prop: custom validator check failed for prop "size".')) {
-                showedWarning = true;
-            }
-        });
-        jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
-        const wrapper = await createWrapper({
-            props: {
-                size: 'zwölfpx',
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(showedWarning).toBe(true);
-    });
-
-    it('should accept valid size with px suffix', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                size: '20px',
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(typeof wrapper.vm.loaderSize).toBe('object');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('height')).toBe(true);
-        expect(wrapper.vm.loaderSize.height).toBe('20px');
-        expect(wrapper.vm.loaderSize.hasOwnProperty('width')).toBe(true);
-        expect(wrapper.vm.loaderSize.width).toBe('20px');
-        expect(typeof wrapper.vm.borderWidth).toBe('string');
-        expect(wrapper.vm.borderWidth).toBe('1px');
-    });
-
-    it('should throw warning for size without px suffix', async () => {
-        let showedWarning = false;
-        const warnSpy = jest.fn((args) => {
-            if (typeof args === 'string' && args.includes('Invalid prop: custom validator check failed for prop "size".')) {
-                showedWarning = true;
-            }
-        });
-        jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
-        const wrapper = await createWrapper({
-            props: {
-                size: '24',
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(showedWarning).toBe(true);
+        expect(wrapper.html()).toContain('mt-loader');
     });
 });

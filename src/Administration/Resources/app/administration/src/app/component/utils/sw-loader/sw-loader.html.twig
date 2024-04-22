@@ -1,22 +1,46 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_loader %}
-<div class="sw-loader">
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_loader_container %}
-    <div
-        class="sw-loader__container"
-        :style="loaderSize"
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# New mt-loader component #}
+<mt-loader
+    v-if="useMeteorComponent"
+    v-bind="$attrs"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data">
+        </slot>
+    </template>
+    <slot></slot>
+</mt-loader>
+
+{# v-on="$listeners" needed becaues vue/compat removes them from $attrs #}
+{# Deprecated component #}
+<sw-loader-deprecated
+    v-else
+    v-bind="$attrs"
+    v-on="$listeners"
+>
+    <template
+        v-for="(index, name) in $slots"
     >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_loader_element %}
-        <div class="sw-loader-element">
-            <div :style="{ borderWidth: borderWidth }"></div>
-            <div :style="{ borderWidth: borderWidth }"></div>
-            <div :style="{ borderWidth: borderWidth }"></div>
-            <div :style="{ borderWidth: borderWidth }"></div>
-        </div>
-        {% endblock %}
-    </div>
-    {% endblock %}
-</div>
-{% endblock %}
+        <slot
+            :name="name"
+        >
+        </slot>
+    </template>
+
+    <template
+        v-for="(index, name) in $scopedSlots"
+        #[name]="data">
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
+    <slot></slot>
+</sw-loader-deprecated>

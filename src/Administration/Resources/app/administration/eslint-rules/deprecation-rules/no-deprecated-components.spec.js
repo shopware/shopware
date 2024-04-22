@@ -36,6 +36,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-text-field />
             </template>`
+        },
+        {
+            name: '"mt-loader" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-loader />
+            </template>`
         }
     ],
     invalid: [
@@ -207,5 +215,33 @@ tester.run('no-deprecated-components', rule, {
                 message: '"sw-number-field" is deprecated. Please use "mt-number-field" instead.',
             }]
         },
+        {
+            name: '"sw-loader" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-loader />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-loader - please check if everything works correctly -->
+    <mt-loader />
+</template>`,
+            errors: [{
+                message: '"sw-loader" is deprecated. Please use "mt-loader" instead.',
+            }]
+        },
+        {
+            name: '"sw-loader" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-loader />
+</template>`,
+            errors: [{
+                message: '"sw-loader" is deprecated. Please use "mt-loader" instead.',
+            }]
+        }
     ]
 })

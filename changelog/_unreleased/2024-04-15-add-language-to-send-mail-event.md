@@ -1,6 +1,6 @@
 ---
+issue: NEXT-35521
 title: add-language-to-send-mail-event
-issue: NEXT-00000
 author: Jasper Peeters
 author_email: jasper.peeters@meteor.be
 author_github: JasperP98

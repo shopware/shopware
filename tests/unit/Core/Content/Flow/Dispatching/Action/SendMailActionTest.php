@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
@@ -265,6 +266,7 @@ class SendMailActionTest extends TestCase
                 'subject' => null,
                 'mediaIds' => [],
                 'senderName' => null,
+                'languageId' => null,
                 'attachmentsConfig' => new MailAttachmentsConfig(
                     Context::createDefaultContext(),
                     $this->mailTemplate,
@@ -423,6 +425,7 @@ class SendMailActionTest extends TestCase
             'recipient' => ['type' => 'customer'],
             'documentTypeIds' => null,
         ]);
+        $languageId = Uuid::randomHex();
 
         $expected = [
             'data' => [
@@ -437,6 +440,7 @@ class SendMailActionTest extends TestCase
                 'subject' => null,
                 'mediaIds' => [],
                 'senderName' => null,
+                'languageId' => $languageId,
                 'attachmentsConfig' => new MailAttachmentsConfig(
                     Context::createDefaultContext(),
                     $this->mailTemplate,
@@ -467,6 +471,7 @@ class SendMailActionTest extends TestCase
         $flow->setData(MailAware::MAIL_STRUCT, $templateData);
         $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
         $flow->setData(OrderAware::ORDER_ID, $orderId);
+        $flow->setData(LanguageAware::LANGUAGE_ID, $languageId);
         $flow->setData(FlowMailVariables::CONTACT_FORM_DATA, [
             'email' => 'customer@example.com',
             'firstName' => 'Max',
@@ -506,6 +511,7 @@ class SendMailActionTest extends TestCase
                         'firstName' => 'Max',
                         'lastName' => 'Mustermann',
                     ],
+                    'languageId' => $languageId,
                 ]
             );
 

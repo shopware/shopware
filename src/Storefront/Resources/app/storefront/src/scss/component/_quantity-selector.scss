@@ -7,6 +7,10 @@
         border-right: 0;
         padding-left: 0;
         padding-right: 0;
+
+        &:disabled {
+            color: $gray-600;
+        }
     }
 
     .quantity-selector-group-input::-webkit-outer-spin-button,
@@ -15,8 +19,13 @@
         margin: 0;
     }
 
-    .btn {
-        border: 1px solid $border-color;
+    .btn-outline-light {
+        --#{$prefix}btn-disabled-bg: #{$gray-200};
+        --#{$prefix}btn-disabled-border-color: #{$border-color};
+        --#{$prefix}btn-border-color: #{$border-color};
+        --#{$prefix}btn-active-border-color: #{$border-color};
+        --#{$prefix}btn-hover-border-color: #{$border-color};
+        --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
 
         &.btn-plus {
             border-left: 0;
@@ -26,8 +35,8 @@
             border-right: 0;
         }
 
-        &:active {
-            border-color: $border-color;
+        &:disabled .icon {
+            color: $gray-300;
         }
 
         svg {

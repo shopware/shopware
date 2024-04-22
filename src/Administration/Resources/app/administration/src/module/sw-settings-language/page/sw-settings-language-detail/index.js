@@ -51,7 +51,6 @@ export default {
             isSaveSuccessful: false,
             customFieldSets: null,
             parentTranslationCodeId: null,
-            translationCodeError: null,
         };
     },
 
@@ -85,9 +84,14 @@ export default {
         },
 
         usedLocaleCriteria() {
-            return (new Criteria(1, 1)).addAggregation(
-                Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null),
-            );
+            return (new Criteria(1, null))
+                .addFilter(Criteria.not(
+                    'and',
+                    [Criteria.equals('id', this.languageId)],
+                ))
+                .addAggregation(
+                    Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null),
+                );
         },
 
         allowSave() {
@@ -152,28 +156,6 @@ export default {
                 this.createdComponent();
             }
         },
-        'language.translationCodeId'(newId, oldId) {
-            this.translationCodeError = null;
-
-            if (newId === null) {
-                return;
-            }
-
-            // if no previous value, just set this translation iso as used
-            if (oldId === null) {
-                this.usedTranslationIds.push(newId);
-                return;
-            }
-
-            // if the translation iso code was changed, remove the original from the used list and replace
-            // with the newly selected code
-            const index = this.usedTranslationIds.findIndex((id) => id === oldId);
-            this.usedTranslationIds.splice(
-                index,
-                1,
-                newId,
-            );
-        },
     },
 
     created() {
@@ -185,19 +167,22 @@ export default {
             if (!this.languageId) {
                 Shopware.State.commit('context/resetLanguageToDefault');
                 this.language = this.languageRepository.create();
-            } else {
-                this.loadEntityData();
-                this.loadCustomFieldSets();
+
+                return;
             }
 
-            this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
-                this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
+            this.loadEntityData().then(() => {
+                return this.loadCustomFieldSets();
+            }).then(() => {
+                this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
+                    this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
+                });
             });
         },
 
         loadEntityData() {
             this.isLoading = true;
-            this.languageRepository.get(this.languageId).then((language) => {
+            return this.languageRepository.get(this.languageId).then((language) => {
                 this.isLoading = false;
                 this.language = language;
 
@@ -210,7 +195,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            this.customFieldDataProviderService.getCustomFieldSets('language').then((sets) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('language').then((sets) => {
                 this.customFieldSets = sets;
             });
         },
@@ -226,8 +211,6 @@ export default {
         },
 
         onInputLanguage(parentId) {
-            this.translationCodeError = null;
-
             if (parentId) {
                 this.setParentTranslationCodeId(parentId);
             }
@@ -240,30 +223,14 @@ export default {
             this.showAlertForChangeParentLanguage = origin.parentId !== this.language.parentId;
         },
 
-        isLocaleAlreadyUsed(item) {
-            const usedByAnotherLanguage = this.usedTranslationIds.some((localeId) => {
-                return item.id === localeId;
+        isLocaleAlreadyUsed(itemId) {
+            return this.usedTranslationIds.some((localeId) => {
+                return itemId === localeId;
             });
-
-            if (usedByAnotherLanguage) {
-                return true;
-            }
-
-            if (!this.language.locale) {
-                return false;
-            }
-
-            return item.code === this.language.locale.code;
         },
 
         onSave() {
             this.isLoading = true;
-
-            if (!this.language.parentId && !this.language.translationCodeId) {
-                this.translationCodeError = {
-                    detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
-                };
-            }
 
             this.languageRepository.save(this.language).then(() => {
                 this.isLoading = false;

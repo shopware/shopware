@@ -59,7 +59,11 @@ class SyncController extends AbstractController
         }
 
         $operations = [];
+
         foreach ($payload as $key => $operation) {
+            if (!\is_array($operation)) {
+                throw ApiException::badRequest('Invalid payload format. Expected an array of operations.');
+            }
             $operations[] = SyncOperation::createFromArray($operation, (string) $key);
         }
 

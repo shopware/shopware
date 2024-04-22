@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -96,6 +97,23 @@ class SyncControllerTest extends TestCase
 
         $invalidJson = 'this is not json';
         $request = new Request([], [], [], [], [], [], $invalidJson);
+
+        $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
+        $service = $this->createMock(SyncService::class);
+
+        $controller = new SyncController($service, $serializer);
+
+        $controller->sync($request, Context::createDefaultContext());
+    }
+
+    public function testSyncWithInvalidOperation(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Invalid payload format. Expected an array of operations.');
+
+        $operations = ['delete-mapping' => 'action:delete'];
+
+        $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
         $service = $this->createMock(SyncService::class);

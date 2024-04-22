@@ -98,6 +98,7 @@ class DefinitionValidator
         'payment_token',
         'refresh_token',
         'usage_data_entity_deletion',
+        'one_time_tasks',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

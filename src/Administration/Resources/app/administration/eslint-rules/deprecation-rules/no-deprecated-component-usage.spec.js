@@ -6,6 +6,7 @@ const { mtCardValidTests, mtCardInvalidTests } = require("./no-deprecated-compon
 const { mtTextFieldValidTests, mtTextFieldInvalidTests } = require("./no-deprecated-component-usage-checks/mt-text-field.check");
 const { mtSwitchValidChecks, mtSwitchInvalidChecks } = require("./no-deprecated-component-usage-checks/mt-switch.check");
 const { mtNumberFieldValidTests, mtNumberFieldInvalidTests } = require("./no-deprecated-component-usage-checks/mt-number-field.check");
+const {mtCheckboxValidTests, mtCheckboxInvalidTests} = require("./no-deprecated-component-usage-checks/mt-checkbox.check");
 
 const tester = new RuleTester({
     parser: require.resolve('vue-eslint-parser'),
@@ -25,6 +26,7 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtTextFieldValidTests,
         ...mtSwitchValidChecks,
         ...mtNumberFieldValidTests,
+        ...mtCheckboxValidTests,
     ],
     invalid: [
         ...mtButtonInvalidChecks,
@@ -33,5 +35,6 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtTextFieldInvalidTests,
         ...mtSwitchInvalidChecks,
         ...mtNumberFieldInvalidTests,
+        ...mtCheckboxInvalidTests
     ]
 })

@@ -64,6 +64,7 @@ async function createWrapper(props = defaultProps) {
             stubs: {
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             },
             mocks: {
                 $el: {

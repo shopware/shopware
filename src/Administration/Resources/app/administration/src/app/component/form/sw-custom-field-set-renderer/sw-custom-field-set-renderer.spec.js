@@ -35,6 +35,7 @@ async function createWrapper(props) {
                 'sw-number-field': await wrapTestComponent('sw-number-field'),
                 'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-entity-multi-select': true,
                 'sw-block-field': await wrapTestComponent('sw-block-field', {
                     sync: true,

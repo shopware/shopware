@@ -171,6 +171,7 @@ async function createWrapper() {
                     template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
                 },
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-number-field': {
                     // eslint-disable-next-line max-len
                     template: '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',

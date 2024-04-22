@@ -101,6 +101,7 @@ async function createWrapper(privileges = []) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-field-error': true,
                     'sw-field-copyable': true,
                     'sw-switch-field': true,

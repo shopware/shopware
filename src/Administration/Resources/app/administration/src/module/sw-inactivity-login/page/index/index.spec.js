@@ -29,6 +29,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
             },
             mocks: {

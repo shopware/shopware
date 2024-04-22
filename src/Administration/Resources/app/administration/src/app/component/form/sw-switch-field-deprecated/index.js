@@ -13,7 +13,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-switch-field-deprecated v-model="aBooleanProperty" label="Name"></sw-switch-field>
  */
-Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field', {
+Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
     template,
 
     inheritAttrs: false,

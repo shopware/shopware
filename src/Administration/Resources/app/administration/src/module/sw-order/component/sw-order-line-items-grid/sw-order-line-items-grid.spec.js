@@ -216,6 +216,7 @@ async function createWrapper() {
                 },
                 'sw-card-filter': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-data-grid-settings': true,
                 'sw-icon': await await wrapTestComponent('sw-icon', { sync: true }),

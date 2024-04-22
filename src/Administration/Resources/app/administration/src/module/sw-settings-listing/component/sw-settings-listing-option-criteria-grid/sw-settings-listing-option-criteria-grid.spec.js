@@ -42,6 +42,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-icon': {
                         template: '<i></i>',
                     },

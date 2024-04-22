@@ -121,6 +121,7 @@ async function createWrapper(props = defaultProps, entitiesWithResults = ['produ
                 'sw-settings-rule-assignment-listing': await wrapTestComponent('sw-settings-rule-assignment-listing'),
                 'sw-settings-rule-add-assignment-modal': await wrapTestComponent('sw-settings-rule-add-assignment-modal'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),

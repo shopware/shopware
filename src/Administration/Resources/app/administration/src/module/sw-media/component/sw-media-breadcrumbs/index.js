@@ -1,7 +1,7 @@
 import template from './sw-media-breadcrumbs.html.twig';
 import './sw-media-breadcrumbs.scss';
 
-const { Context } = Shopware;
+const { Context, Filter } = Shopware;
 
 /**
  * @package buyers-experience
@@ -51,6 +51,10 @@ export default {
             return {
                 'is--small': this.small,
             };
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
     },
 

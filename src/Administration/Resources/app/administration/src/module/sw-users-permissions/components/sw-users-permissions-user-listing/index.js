@@ -65,6 +65,7 @@ export default {
             }
 
             criteria.addAssociation('aclRoles');
+            criteria.addAssociation('avatarMedia');
 
             return criteria;
         },

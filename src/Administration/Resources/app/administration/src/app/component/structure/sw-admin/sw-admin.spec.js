@@ -1,6 +1,8 @@
 import 'src/app/component/structure/sw-admin';
 import { mount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
+import { toast } from '@shopware-ag/meteor-admin-sdk';
+import { MtToast } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
     return mount(await wrapTestComponent('sw-admin', { sync: true }), {
@@ -14,6 +16,7 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
                 'sw-modals-renderer': true,
                 'sw-app-wrong-app-url-modal': true,
                 'router-view': true,
+                'mt-toast': MtToast,
             },
             mocks: {
                 $router: {
@@ -138,5 +141,36 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
+    });
+
+    it('should add toast notification', async () => {
+        wrapper = await createWrapper(true);
+
+        await toast.dispatch({
+            msg: 'Jest toast',
+            type: 'informal',
+            dismissible: false,
+        });
+
+        const toastNotification = wrapper.find('.mt-toast-notification');
+        expect(toastNotification.element).toBeVisible();
+        expect(toastNotification.text()).toContain('Jest toast');
+    });
+
+    it('should remove toast notification', async () => {
+        wrapper = await createWrapper(false);
+
+        await toast.dispatch({
+            msg: 'Jest toast',
+            type: 'informal',
+            dismissible: true,
+        });
+
+        expect(wrapper.find('.mt-toast-notification').element).toBeVisible();
+
+        await wrapper.find('.mt-toast-notification__close-action').trigger('click');
+
+        expect(wrapper.find('.mt-toast-notification').exists()).toBe(false);
+        expect(wrapper.findComponent('.mt-toast').emitted('remove-toast')).toHaveLength(1);
     });
 });

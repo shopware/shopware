@@ -14,5 +14,10 @@
     <sw-hidden-iframes />
     <sw-modals-renderer />
     <sw-app-wrong-app-url-modal v-if="isLoggedIn" />
+
+    <mt-toast
+        :toasts="toasts"
+        @remove-toast="onRemoveToast"
+    />
 </div>
 {% endblock %}

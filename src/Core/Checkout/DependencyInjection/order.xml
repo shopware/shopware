@@ -120,6 +120,7 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="promotion.repository"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute" public="true">

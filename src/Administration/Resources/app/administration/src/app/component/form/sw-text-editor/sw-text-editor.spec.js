@@ -937,4 +937,43 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         expect(wrapper.find('.sw-text-editor__content').classes()).toContain('is--transparent-background');
     });
+
+    it('should render the inline toolbar when editor is not disabled', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            isInlineEdit: true,
+        });
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        // Add selection
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 11, 'Hello World');
+
+        // Check if the inline toolbar is visible in body DOM
+        await flushPromises();
+
+        expect(document.body.querySelector('.sw-text-editor-toolbar')).toBeTruthy();
+    });
+
+    it('should not render the inline toolbar when editor is disabled', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            isInlineEdit: true,
+            disabled: true,
+        });
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        // Add selection
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 11, 'Hello World');
+
+        // Check if the inline toolbar is visible in body DOM
+        await flushPromises();
+
+        expect(document.body.querySelector('.sw-text-editor-toolbar')).toBeNull();
+    });
 });

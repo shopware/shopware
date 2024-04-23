@@ -218,7 +218,11 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             this.setSelectionRange();
-            const boundary = this.range.getBoundingClientRect();
+            const boundary = this.range?.getBoundingClientRect?.();
+
+            if (!boundary) {
+                return;
+            }
 
             let offsetTop = window.pageYOffset;
             const arrowHeight = 8;

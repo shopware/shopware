@@ -13,10 +13,15 @@ trait CompilerPassConfigTrait
      */
     public function getConfig(ContainerBuilder $container, string $bundle): array
     {
+        $config = $container->getExtensionConfig($bundle);
+
+        $resolvingBag = $container->getParameterBag();
+        $config = $resolvingBag->resolveValue($config);
+
         return (new Processor())
             ->processConfiguration(
                 new Configuration($container->getParameter('kernel.debug')),
-                $container->getExtensionConfig($bundle)
+                $config,
             );
     }
 }

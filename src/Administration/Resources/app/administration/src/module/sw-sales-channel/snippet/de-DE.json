@@ -85,7 +85,7 @@
       "tooltipDisabledPaymentMethod": "Diese Zahlungsart muss aktiviert werden, damit sie als Standard-Zahlungsart wählbar ist.",
       "tooltipDisabledCountry": "Dieses Land muss aktiviert werden, damit es als Standard-Land wählbar ist.",
       "warningDisabledCountries": "Das Land <b>{name}</b> ist nicht aktiv. | Die Länder <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
-      "warningDisabledPaymentMethod": "Einige der Zahlungsmethoden, die diesem Vertriebskanal zugeordnet sind, sind derzeit nicht verfügbar. Bitte überprüfen Sie Ihre <a href=\"{paymentSettingsLink}\">Einstellungen</a> für diese Zahlungsarten:<br /><b>{separatedList}</b>",
+      "warningDisabledPaymentMethod": "Einige der Zahlungsarten, die diesem Verkaufskanal zugeordnet sind, sind derzeit nicht verfügbar. Bitte überprüfen Sie Ihre <a href=\"{paymentSettingsLink}\">Einstellungen</a> für diese Zahlungsarten:<br /><b>{separatedList}</b>",
       "warningDisabledShippingMethod": "Die Versandart <b>{name}</b> ist nicht aktiv. | Die Versandarten <b>{name}</b> und <b>{addition}</b> sind nicht aktiv.",
       "warningDisabledAddition": "{amount} weitere",
       "warningUnservedLanguage": "Die Sprache <b>{list}</b> ist keiner Domain zugewiesen. Um die Sprache in Deinem Verkaufskanal nutzen zu können, musst Du zunächst eine entsprechende Domain anlegen. | Die Sprachen <b>{list}</b> sind keiner Domain zugewiesen. Um diese Sprachen in Deinem Verkaufskanal nutzen zu können, musst Du zunächst die entsprechenden Domains anlegen.",

@@ -64,9 +64,9 @@
     "wishlist": "Wishlist"
   },
   "error": {
-    "VIOLATION::IS_BLANK_ERROR": "%field% should not be empty.",
-    "VIOLATION::TOO_LOW_ERROR": "%field% should not be empty.",
-    "VIOLATION::STRICT_CHECK_FAILED_ERROR": "%field% is invalid",
+    "VIOLATION::IS_BLANK_ERROR": "Input should not be empty.",
+    "VIOLATION::TOO_LOW_ERROR": "Input should not be empty.",
+    "VIOLATION::STRICT_CHECK_FAILED_ERROR": "Input is invalid",
     "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "This email address has already been registered.",
     "VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT": "Password incorrect.",
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "The VAT Reg.No. you have entered does not have the correct format.",
@@ -77,14 +77,14 @@
     "FRAMEWORK__INVALID_UUID": "The selected payment method does not exist.",
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
     "productNotFound": "Product \"%number%\" not found.",
-    "VIOLATION::TOO_SHORT_ERROR": "%field% is too short.",
+    "VIOLATION::TOO_SHORT_ERROR": "Input is too short.",
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
     "product-out-of-stock": "%name% is not available at the moment.",
     "auto-promotion-not-found": "Promotion \"%name%\" is no longer valid!",
     "rateLimitExceeded": "Too many requests. Please wait %seconds% seconds before trying again.",
-    "captcha" : {
+    "captcha": {
       "basic-captcha-invalid": "Incorrect input. Please try again."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "The order with the order number \"%orderNumber%\" was already paid and cannot be edited afterwards.",
@@ -150,7 +150,6 @@
     "personalPhonePlaceholder": "Enter phone number...",
     "registerDifferentShipping": "Shipping and billing address do not match.",
     "registerSubmit": "Continue",
-    "overviewTitle": "Overview",
     "greetings": "Hello, ",
     "overviewLink": "Overview",
     "profileLink": "Your profile",
@@ -643,7 +642,7 @@
     "googleReCaptcha": {
       "dataProtectionInformation": "This site is protected by reCAPTCHA and the Google <a href=\"https://policies.google.com/privacy\">Privacy Policy</a> and <a href=\"https://policies.google.com/terms\">Terms of Service</a> apply."
     },
-    "basicCaptchaLabel" : "To continue, enter the characters shown above*"
+    "basicCaptchaLabel": "To continue, enter the characters shown above*"
   },
   "cookie": {
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
@@ -679,11 +678,11 @@
           "manufacturerNumber": "Manufacturer number:",
           "ean": "GTIN/EAN:",
           "weight": "Weight:",
-          "width":  "Width:",
+          "width": "Width:",
           "height": "Height:",
-          "length":  "Length:",
+          "length": "Length:",
           "releaseDate": "Release date:",
-          "description":  "Description:",
+          "description": "Description:",
           "referencePrice": "Content:"
         },
         "customField": {

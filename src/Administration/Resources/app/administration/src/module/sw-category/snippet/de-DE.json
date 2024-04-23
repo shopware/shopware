@@ -228,7 +228,7 @@
         "helpTextMetaTitle": "Meta-Titel sollten nicht länger als 70 Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und der Titel wird nicht vollständig im SERP-Snippet angezeigt.",
         "helpTextMetaDescription": "Die mögliche Länge bei Meta-Beschreibungen bei Google liegt bei etwa 175 Zeichen und wird nach Pixelbreite beschnitten. Es ist aber empfehlenswert eine Länge von etwa 150 Zeichen anzustreben, damit die Beschreibung im SERP-Snippet nicht abgeschnitten wird. Shopware erlaubt eine maximale Länge von 255 Zeichen.",
         "notification": {
-          "noLayoutAssigned": "Für diese Landingpage wurde kein Layout festgelegt. Ohne ein Layout ist die Landingpage über SEO nicht erreichbar."
+          "noLayoutAssigned": "Für diese Landingpage wurde kein Layout festgelegt. Ohne Layout ist die Landingpage über SEO nicht erreichbar."
         }
       },
       "cms": {

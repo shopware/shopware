@@ -84,7 +84,7 @@
     "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
     "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht mehr gültig!",
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warten Sie %seconds% Sekunden, bevor Sie es erneut versuchen.",
-    "captcha" : {
+    "captcha": {
       "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     },
     "CHECKOUT__ORDER_ORDER_ALREADY_PAID": "Die Bestellung mit der Bestellnummer \"%orderNumber%\" wurde bereits bezahlt und kann nicht nachträglich bearbeitet werden.",
@@ -158,6 +158,8 @@
     "paymentSuccess": "Zahlungsart erfolgreich geändert.",
     "paymentLink": "Zahlungsarten",
     "ordersLink": "Bestellungen",
+    "profileTitle": "Profil",
+    "profileMetaTitle": "Profil",
     "profileText": "Überprüfen Sie Ihre persönlichen Daten. ",
     "addressTitle": "Adressen",
     "addressMetaTitle": "Adressen",
@@ -184,8 +186,6 @@
     "overviewCustomerGroupRequest": "Anfrage zur Aufnahme in die Kundengruppe \"%group%\" gestellt.",
     "overviewNotAbleToShip": "Wir können nicht in das Land liefern, welches in Ihrer Lieferadresse hinterlegt ist.",
     "paymentChangeSubmit": "Ändern",
-    "profileTitle": "Profil",
-    "profileMetaTitle": "Profil",
     "profilePersonalTitle": "Persönliche Daten",
     "profileMailTitle": "E-Mail-Adresse",
     "profileCurrentMail": "Ihre E-Mail-Adresse",
@@ -429,7 +429,7 @@
     "finishInfoOrdernumber": "Ihre Bestellnummer:",
     "finishInfoConfirmationMail": "Bestellbestätigungs-E-Mail wurde verschickt.",
     "finishButtonBackToShop": "Zurück zum Shop",
-    "finishChangePayment":  "Zahlungsart ändern",
+    "finishChangePayment": "Zahlungsart ändern",
     "finishPaymentFailed": "Leider ist der Zahlungsprozess fehlgeschlagen. Bitte ändern Sie die Zahlungsart um Ihre Bestellung abzuschließen. <a href=\"%editOrderUrl%\">Zahlung ändern</a>",
     "codeAddedSuccessful": "Gutschein-Code erfolgreich hinzugefügt.",
     "addToCartSuccess": "{1} 1 Produkt zum Warenkorb hinzugefügt.|]1,Inf[ %count% Produkte zum Warenkorb hinzugefügt.",
@@ -450,9 +450,9 @@
     "promotion-discount-deleted": "Rabatt \"%name%\" wurde aus dem Warenkorb gelöscht",
     "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
     "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
+    "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
     "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
     "promotion-excluded": "Mindestens ein Rabatt wurde wegen Konflikten mit anderen Rabatten aus dem Warenkorb entfernt. Sobald die Bedingungen wieder zutreffen, wird der Rabatt automatisch hinzugefügt.",
-    "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",
     "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Angaben.",
@@ -566,7 +566,6 @@
     "reviewFormRatingLabel": "Ihre Bewertung",
     "reviewFormTitleLabel": "Titel",
     "reviewFormTitlePlaceholder": "Titel eingeben ...",
-    "reviewFormContentPlaceholder": "Erfahrungen eingeben ...",
     "review1PointRatingText": "Unbefriedigend",
     "review2PointRatingText": "Akzeptierbar",
     "review3PointRatingText": "Gut",
@@ -643,7 +642,7 @@
     "googleReCaptcha": {
       "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\"https://policies.google.com/privacy?hl=de\">Datenschutzrichtlinie</a> und <a href=\"https://policies.google.com/terms?hl=de\">Nutzungsbedingungen</a>."
     },
-    "basicCaptchaLabel" : "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*"
+    "basicCaptchaLabel": "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*"
   },
   "cookie": {
     "messageText": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
@@ -679,11 +678,11 @@
           "manufacturerNumber": "Herstellernummer:",
           "ean": "GTIN/EAN:",
           "weight": "Gewicht:",
-          "width":  "Breite:",
+          "width": "Breite:",
           "height": "Höhe:",
-          "length":  "Länge:",
+          "length": "Länge:",
           "releaseDate": "Veröffentlicht:",
-          "description":  "Beschreibung:",
+          "description": "Beschreibung:",
           "referencePrice": "Inhalt:"
         },
         "customField": {

@@ -17,6 +17,7 @@ export default {
     inject: [
         'userService',
         'loginService',
+        'mediaDefaultFolderService',
         'userValidationService',
         'integrationService',
         'repositoryFactory',
@@ -59,6 +60,8 @@ export default {
             skeletonItemAmount: 3,
             confirmPasswordModal: false,
             timezoneOptions: [],
+            mediaDefaultFolderId: null,
+            showMediaModal: false,
         };
     },
 
@@ -208,6 +211,14 @@ export default {
                 return;
             }
 
+            this.getMediaDefaultFolderId()
+                .then((id) => {
+                    this.mediaDefaultFolderId = id;
+                })
+                .catch(() => {
+                    this.mediaDefaultFolderId = null;
+                });
+
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
                 Shopware.State.commit('context/setApiLanguageId', this.languageId);
@@ -245,7 +256,7 @@ export default {
                 this.user = user;
 
                 if (this.user.avatarId) {
-                    this.mediaItem = this.user.avatarMedia;
+                    this.loadMediaItem(this.user.avatarId);
                 }
 
                 this.keyRepository = this.repositoryFactory.create(user.accessKeys.entity, this.user.accessKeys.source);
@@ -303,18 +314,40 @@ export default {
             });
         },
 
-        setMediaItem({ targetId }) {
+        loadMediaItem(targetId) {
             this.mediaRepository.get(targetId).then((media) => {
                 this.mediaItem = media;
                 this.user.avatarMedia = media;
-                this.user.avatarId = targetId;
             });
+        },
+
+        setMediaItem({ targetId }) {
+            this.user.avatarId = targetId;
+            this.loadMediaItem(targetId);
         },
 
         onUnlinkLogo() {
             this.mediaItem = null;
             this.user.avatarMedia = null;
             this.user.avatarId = null;
+        },
+
+        onDropMedia(mediaItem) {
+            this.setMediaItem({ targetId: mediaItem.id });
+        },
+
+        onOpenMedia() {
+            this.showMediaModal = true;
+        },
+
+        onMediaSelectionChange([mediaEntity]) {
+            this.mediaItem = mediaEntity;
+            this.user.avatarMedia = mediaEntity;
+            this.user.avatarId = mediaEntity.id;
+        },
+
+        getMediaDefaultFolderId() {
+            return this.mediaDefaultFolderService.getDefaultFolderId('user');
         },
 
         onSearch(value) {

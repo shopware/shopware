@@ -45,6 +45,9 @@ async function createWrapper(privileges = [], options = {
                 userService: {
                     getUser: () => Promise.resolve({ data: {} }),
                 },
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: (folder) => Promise.resolve(folder),
+                },
                 userValidationService: {},
                 integrationService: {},
                 repositoryFactory: {

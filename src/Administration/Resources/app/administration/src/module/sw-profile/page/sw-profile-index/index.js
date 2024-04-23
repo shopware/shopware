@@ -188,6 +188,10 @@ export default {
         beforeMountComponent() {
             this.userPromise.then((user) => {
                 this.user = user;
+
+                if (this.user.avatarId) {
+                    this.loadMediaItem(this.user.avatarId);
+                }
             });
         },
 
@@ -361,11 +365,15 @@ export default {
             });
         },
 
-        setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId).then((response) => {
-                this.avatarMediaItem = response;
+        loadMediaItem(targetId) {
+            this.mediaRepository.get(targetId).then((media) => {
+                this.avatarMediaItem = media;
             });
+        },
+
+        setMediaItem({ targetId }) {
             this.user.avatarId = targetId;
+            this.loadMediaItem(targetId);
         },
 
         onDropMedia(mediaItem) {

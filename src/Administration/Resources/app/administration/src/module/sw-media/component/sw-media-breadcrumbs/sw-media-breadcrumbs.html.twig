@@ -14,18 +14,14 @@
         @click="onBreadcrumbsItemClicked(null)"
         @keydown.enter="onBreadcrumbsItemClicked(null)"
     >
-        <sw-icon
+        <img
             v-if="!small"
-            large
-            name="multicolor-folder-breadcrumbs-back-to-root"
-            multicolor
-        />
-        <sw-icon
+            :src="assetFilter('/administration/static/img/media/multicolor-folder-breadcrumbs-back-to-root.svg')"
+            alt="Folder breadcrumbs back-to-root">
+        <img
             v-else
-            small
-            name="multicolor-folder-breadcrumbs"
-            multicolor
-        />
+            :src="assetFilter('/administration/static/img/media/multicolor-folder-breadcrumbs.svg')"
+            alt="Folder breadcrumbs">
     </a>
     {% endblock %}
 

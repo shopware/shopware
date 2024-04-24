@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -94,12 +95,7 @@ class CustomFieldUpdater implements EventSubscriberInterface
                 'type' => 'object',
                 'dynamic' => true,
             ],
-            CustomFieldTypes::HTML, CustomFieldTypes::TEXT => [
-                'type' => 'text',
-            ],
-            default => [
-                'type' => 'keyword',
-            ],
+            default => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD
         };
     }
 

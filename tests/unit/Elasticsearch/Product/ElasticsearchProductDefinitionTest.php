@@ -452,13 +452,23 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertArrayHasKey('test1', $customFields['properties']['lang_de']['properties']);
         static::assertSame(
             [
-                'type' => 'text',
+                'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => ['type' => 'text'],
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
             ],
             $customFields['properties']['lang_en']['properties']['test1']
         );
         static::assertSame(
             [
-                'type' => 'text',
+                'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => ['type' => 'text'],
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
             ],
             $customFields['properties']['lang_de']['properties']['test1']
         );
@@ -468,12 +478,22 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame(
             [
                 'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => ['type' => 'text'],
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
             ],
             $customFields['properties']['lang_en']['properties']['test2']
         );
         static::assertSame(
             [
                 'type' => 'keyword',
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => ['type' => 'text'],
+                    'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                ],
             ],
             $customFields['properties']['lang_de']['properties']['test2']
         );

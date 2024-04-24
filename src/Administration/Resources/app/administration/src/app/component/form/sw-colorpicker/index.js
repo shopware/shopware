@@ -393,6 +393,8 @@ Component.register('sw-colorpicker', {
         },
 
         moveSelector(event) {
+            event.preventDefault();
+
             if (!this.isDragging) {
                 return;
             }

@@ -273,8 +273,6 @@ PHP Full:
           "-Ediscovery.type=single-node",
           "-Eplugins.security.disabled=true",
         ]
-    - name: swaggerapi/swagger-validator-v2:v2.0.5
-      alias: swagger
     - name: redis:7.0
       alias: redis
   variables:
@@ -283,7 +281,6 @@ PHP Full:
     GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     ALLOW_FAILURE: "false"
     REDIS_URL: redis://redis:6379
-    SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
     FEATURE_ALL: "false"
   rules:
     - !reference [.rules, skip]

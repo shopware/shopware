@@ -116,6 +116,7 @@ async function createWrapper(propsData) {
                 'sw-help-text': await wrapTestComponent('sw-help-text'),
                 'sw-confirm-field': await wrapTestComponent('sw-confirm-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),

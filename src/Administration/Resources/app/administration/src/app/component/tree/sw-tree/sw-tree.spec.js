@@ -17,6 +17,7 @@ async function createWrapper() {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-field-error': true,
@@ -148,7 +149,7 @@ describe('src/app/component/tree/sw-tree', () => {
         expect(automotiveItem.text()).toContain('Automotive');
 
         // check checkbox of automotive
-        const automotiveCheckbox = automotiveItem.getComponent({ name: 'sw-checkbox-field__wrapped' });
+        const automotiveCheckbox = automotiveItem.getComponent({ name: 'sw-checkbox-field-deprecated__wrapped' });
         expect(automotiveCheckbox.props('value')).toBe(false);
         await automotiveCheckbox.get('input').setValue(true);
         expect(automotiveCheckbox.props('value')).toBe(true);

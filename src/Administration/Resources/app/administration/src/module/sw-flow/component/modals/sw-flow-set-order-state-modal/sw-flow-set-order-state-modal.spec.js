@@ -54,6 +54,7 @@ async function createWrapper() {
                 'sw-select-field': await wrapTestComponent('sw-select-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-help-text': true,
                 'sw-field-error': true,

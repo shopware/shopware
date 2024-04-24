@@ -72,6 +72,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                 'sw-bulk-edit-modal': true,
                 'sw-modal': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
             },
         },

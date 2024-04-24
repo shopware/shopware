@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
@@ -13,6 +12,7 @@ async function createWrapper(profile) {
             stubs: {
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': true,
             },

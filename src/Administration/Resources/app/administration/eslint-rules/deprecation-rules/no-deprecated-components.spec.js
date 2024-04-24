@@ -242,6 +242,34 @@ tester.run('no-deprecated-components', rule, {
             errors: [{
                 message: '"sw-loader" is deprecated. Please use "mt-loader" instead.',
             }]
-        }
+        },
+        {
+            name: '"sw-checkbox-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-checkbox-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-checkbox-field - please check if everything works correctly -->
+    <mt-checkbox />
+</template>`,
+            errors: [{
+                message: '"sw-checkbox-field" is deprecated. Please use "mt-checkbox" instead.',
+            }]
+        },
+        {
+            name: '"sw-checkbox-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-checkbox-field />
+</template>`,
+            errors: [{
+                message: '"sw-checkbox-field" is deprecated. Please use "mt-checkbox" instead.',
+            }]
+        },
     ]
 })

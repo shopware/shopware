@@ -54,6 +54,7 @@ const createWrapper = async () => {
                 'router-link': true,
                 'sw-product-variant-info': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-icon': true,
                 'sw-field-error': true,
                 'sw-base-field': await wrapTestComponent('sw-base-field'),

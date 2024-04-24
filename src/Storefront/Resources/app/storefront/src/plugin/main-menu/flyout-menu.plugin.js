@@ -46,7 +46,7 @@ export default class FlyoutMenuPlugin extends Plugin {
         this._triggerEls = this.el.querySelectorAll(`[${this.options.triggerDataAttribute}]`);
         this._closeEls = this.el.querySelectorAll(this.options.closeSelector);
         this._flyoutEls = this.el.querySelectorAll(`[${this.options.flyoutIdDataAttribute}]`);
-
+        this._hasOpenedFlyouts = false;
         this._registerEvents();
     }
 
@@ -59,6 +59,12 @@ export default class FlyoutMenuPlugin extends Plugin {
         const clickEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         const openEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseenter';
         const closeEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'mouseleave';
+
+        document.addEventListener('keydown', (event) => {
+            if (this._hasOpenedFlyouts === true && event.code === 'Escape' || event.keyCode === 27) {
+                this._debounce(this._closeAllFlyouts);
+            }
+        })
 
         // register opening triggers
         Iterator.iterate(this._triggerEls, el => {
@@ -93,6 +99,7 @@ export default class FlyoutMenuPlugin extends Plugin {
             this._closeAllFlyouts();
             flyoutEl.classList.add(this.options.activeCls);
             triggerEl.classList.add(this.options.activeCls);
+            this._hasOpenedFlyouts = true;
         }
 
         this.$emitter.publish('openFlyout');
@@ -109,6 +116,7 @@ export default class FlyoutMenuPlugin extends Plugin {
         if (this._isOpen(triggerEl)) {
             flyoutEl.classList.remove(this.options.activeCls);
             triggerEl.classList.remove(this.options.activeCls);
+            this._hasOpenedFlyouts = false;
         }
 
         this.$emitter.publish('closeFlyout');

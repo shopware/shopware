@@ -1,6 +1,6 @@
 ---
 title: Correct display of long names of child items in administration order
-issue: -
+issue: NEXT-35665
 author: Joschka
 author_email: joschka@swk-web.com
 author_github: @tschosch51

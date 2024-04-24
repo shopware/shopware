@@ -2793,30 +2793,70 @@ class ElasticsearchProductTest extends TestCase
                     ],
                     'test_select' => [
                         'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'test_html' => [
-                        'type' => 'text',
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'test_text' => [
-                        'type' => 'text',
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'test_unmapped' => [
                         'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'testFloatingField' => [
                         'type' => 'double',
                     ],
                     'testField' => [
-                        'type' => 'text',
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'a' => [
-                        'type' => 'text',
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'b' => [
-                        'type' => 'text',
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                     'c' => [
-                        'type' => 'text',
+                        'type' => 'keyword',
+                        'normalizer' => 'sw_lowercase_normalizer',
+                        'fields' => [
+                            'search' => ['type' => 'text'],
+                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+                        ],
                     ],
                 ],
             ];

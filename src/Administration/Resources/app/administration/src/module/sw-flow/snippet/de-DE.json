@@ -9,7 +9,7 @@
       "descriptionTextModule": "Flow Builder",
       "placeholderSearchBar": "Flows durchsuchen ...",
       "tabMyFlows": "Meine Flows",
-      "tabFlowTemplates": "Flow-Templates"
+      "tabFlowTemplates": "Flow Templates"
     },
     "list": {
       "textHeadline": "Flow Builder",
@@ -80,14 +80,14 @@
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
-      "messageWarningSave": "Flow-Vorlagen können nicht bearbeitet werden.",
+      "messageWarningSave": "Flow Templates können nicht bearbeitet werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle vor dem Speichern ein Auslöser-Ereignis aus.",
       "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
       "messageDuplicateSuccess": "Flow dupliziert.",
       "messageDuplicateError": "Flow konnte nicht dupliziert werden.",
       "messageCreateSuccess": "Flow erstellt.",
-      "messageUpdateTemplateSuccess": "Flow template updated.",
+      "messageUpdateTemplateSuccess": "Flow Template aktualisiert.",
       "messageCreateError": "Flow konnte nicht erstellt werden.",
       "messageUnknownTriggerWarning": "Dieser Flow wurde deaktiviert, weil er einen Auslöser verwendet, der nicht länger verfügbar ist. Dies ist wahrscheinlich darauf zurückzuführen, dass die Edition geändert wurde oder die Erweiterung, die diesen Auslöser bereitstellt, entweder inaktiv ist oder deinstalliert wurde.",
       "textIntroduce": "Versuche eine der folgenden Lösungen, um den Auslöser wieder verfügbar zu machen:",

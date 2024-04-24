@@ -101,15 +101,10 @@ class DocumentGenerator
         }
 
         $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
+        $document = $rendered->getOrderSuccess($operation->getOrderId());
 
-        if (!\array_key_exists($operation->getOrderId(), $rendered->getSuccess())) {
-            throw DocumentException::generationError();
-        }
-
-        $document = $rendered->getSuccess()[$operation->getOrderId()];
-
-        if (!($document instanceof RenderedDocument)) {
-            throw DocumentException::generationError();
+        if (!$document instanceof RenderedDocument) {
+            throw DocumentException::generationError($rendered->getOrderError($operation->getOrderId())?->getMessage());
         }
 
         $document->setContent($this->pdfRenderer->render($document));

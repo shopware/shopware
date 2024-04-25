@@ -390,7 +390,7 @@ class CartLineItemControllerTest extends TestCase
 
         $response = $this->controller->addProductByNumber($request, $context);
 
-        static::assertEquals(new Response(), $response);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }

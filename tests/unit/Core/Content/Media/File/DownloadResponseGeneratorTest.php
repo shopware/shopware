@@ -17,6 +17,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -91,10 +92,10 @@ class DownloadResponseGeneratorTest extends TestCase
     }
 
     #[DataProvider('filesystemProvider')]
-    public function testGetResponse(bool $private, string $privateType, string $publicType, Response $expectedResponse, ?string $strategy = null): void
+    public function testGetResponse(bool $private, string $type, Response $expectedResponse, ?string $strategy = null): void
     {
-        $privateFilesystem = $privateType === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
-        $publicFilesystem = $publicType === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
+        $privateFilesystem = $type === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
+        $publicFilesystem = $type === 'local' ? $this->getLocaleFilesystemOperator() : $this->getExternalFilesystemOperator();
 
         $media = new MediaEntity();
         $media->setId(Uuid::randomHex());
@@ -120,22 +121,16 @@ class DownloadResponseGeneratorTest extends TestCase
 
         $response = $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
 
-        $response->headers->set('date', null);
-        $expectedResponse->headers->set('date', null);
-
-        static::assertEquals($expectedResponse, $response);
+        AssertResponseHelper::assertResponseEquals($expectedResponse, $response);
     }
 
     public static function filesystemProvider(): \Generator
     {
-        yield 'private / aws' => [true, 'external', 'external', new RedirectResponse('foobar.txt')];
-        yield 'public / aws' => [false, 'external', 'external', new RedirectResponse('foobar.txt')];
-        yield 'private / google' => [true, 'external', 'external', new RedirectResponse('foobar.txt')];
-        yield 'public / google' => [false, 'external', 'external', new RedirectResponse('foobar.txt')];
-        yield 'private / local / php' => [true, 'local', 'local', self::getExpectedStreamResponse()];
+        yield 'private / aws' => [true, 'external', new RedirectResponse('foobar.txt')];
+        yield 'public / aws' => [false, 'external', new RedirectResponse('foobar.txt')];
+        yield 'private / local / php' => [true, 'local', self::getExpectedStreamResponse()];
         yield 'private / local / x-sendfile' => [
             true,
-            'local',
             'local',
             self::getExpectedStreamResponse('X-Sendfile'),
             DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGRY,
@@ -143,11 +138,10 @@ class DownloadResponseGeneratorTest extends TestCase
         yield 'private / local / x-accel' => [
             true,
             'local',
-            'local',
             self::getExpectedStreamResponse('X-Accel-Redirect'),
             DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGRY,
         ];
-        yield 'public / local' => [false, 'local', 'local', new RedirectResponse('foobar.txt')];
+        yield 'public / local' => [false, 'local', new RedirectResponse('foobar.txt')];
     }
 
     /**

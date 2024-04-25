@@ -84,13 +84,12 @@ class ApiControllerTest extends TestCase
 
         $client->request('PATCH', '/api/' . $entityName . '/' . $id, [2 => 'test']);
 
-        /** @var string $response */
-        $response = $client->getResponse()->getContent();
+        $response = $client->getResponse();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
-        static::assertEquals('Invalid payload. Should be associative array', $response['errors'][0]['detail']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $content['errors'][0]['status']);
+        static::assertEquals('Invalid payload. Should be associative array', $content['errors'][0]['detail']);
     }
 }

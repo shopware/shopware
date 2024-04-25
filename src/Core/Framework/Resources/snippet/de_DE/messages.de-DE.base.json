@@ -2,8 +2,8 @@
     "document": {
         "invoiceNumber": "Rechnungs-Nr. %invoiceNumber%",
         "invoiceHeadline": "Rechnungs-Nr. %invoiceNumber%",
-        "stornoNumber": "Storno-Nr. %stornoNumber%",
         "stornoHeadline": "Storno-Nr. %stornoNumber% für Rechnung Nr. %invoiceNumber%",
+        "stornoNumber": "Storno-Nr. %stornoNumber%",
         "stornoDate": "Storno-Nr Datum %date%",
         "deliveryNoteNumber": "Lieferschein-Nr. %deliveryNoteNumber%",
         "deliveryNoteHeadline": "Lieferschein-Nr. %deliveryNoteNumber% für Bestellung Nr. %orderNumber%",
@@ -34,8 +34,8 @@
             "header": {
                 "position": "Pos.",
                 "label": "Produkt / Dienst",
-                "quantity": "Anzahl",
                 "tax": "USt.",
+                "quantity": "Anzahl",
                 "unitPrice": "Stückpreis",
                 "productNumber": "Prod.-Nr.",
                 "total": "Gesamt"

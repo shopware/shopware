@@ -771,7 +771,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
-        "numberOfReviews": "Number of submitted reviews",
+        "numberOfReviews": "Number of approved reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total quantity of all products",
@@ -787,7 +787,7 @@
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
-              "placeholder": "Select fieldset..."
+              "placeholder": "Select field set..."
             },
             "customFieldSelect": {
               "placeholder": "Select custom field...",

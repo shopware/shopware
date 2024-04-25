@@ -440,12 +440,12 @@
       }
     },
     "mail_templates": {
-      "title": "E-Mail-Vorlagen",
+      "title": "E-Mail-Templates",
       "entities": {
         "mail_header_footer": "Kopf- und Fußzeile",
         "mail_header_footer_translation": "Kopf- und Fußzeilen-Übersetzung",
-        "mail_template": "E-Mail-Vorlage",
-        "mail_template_translation": "E-Mail-Vorlage-Übersetzung",
+        "mail_template": "E-Mail-Template",
+        "mail_template_translation": "E-Mail-Template-Übersetzung",
         "mail_template_media": "Medien",
         "mail_template_sales_channel": "Verkaufskanal",
         "mail_template_type": "Typ",
@@ -538,9 +538,9 @@
     "promotion": {
       "title": "Rabatte & Aktionen",
       "entities": {
-        "promotion": "Promotion",
-        "promotion_translation": "Promotion-Übersetzung",
-        "promotion_cart_rule": "Kartenregel",
+        "promotion": "Aktion",
+        "promotion_translation": "Aktionsübersetzung",
+        "promotion_cart_rule": "Warenkorbregel",
         "promotion_discount": "Rabatt",
         "promotion_discount_prices": "Rabattpreise",
         "promotion_discount_rule": "Rabattregel",
@@ -549,8 +549,8 @@
         "promotion_persona_customer": "Persona-Kunde",
         "promotion_persona_rule": "Persona-Regel",
         "promotion_sales_channel": "Verkaufskanal",
-        "promotion_setgroup": "Promotion-Set-Gruppe",
-        "promotion_setgroup_rule": "Promotion-Set-Gruppenregel"
+        "promotion_setgroup": "Aktion-Setgruppe",
+        "promotion_setgroup_rule": "Aktion-Setgruppenregel"
       }
     },
     "rules": {

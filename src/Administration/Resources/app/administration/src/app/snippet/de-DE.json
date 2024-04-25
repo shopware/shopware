@@ -771,7 +771,7 @@
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
         "lineItemProductStates": "Position mit Produktzustand",
-        "numberOfReviews": "Anzahl abgegebener Bewertungen",
+        "numberOfReviews": "Anzahl freigegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",

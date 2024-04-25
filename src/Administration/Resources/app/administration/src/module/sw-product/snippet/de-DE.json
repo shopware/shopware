@@ -183,7 +183,7 @@
       "cardTitleReviews": "Bewertungen"
     },
     "reviewForm": {
-      "labelStatus": "Sichtbar",
+      "labelStatus": "Freigegeben",
       "labelCreatedAt": "Erstellt am",
       "labelPoints": "Sterne",
       "labelTitle": "Titel",
@@ -196,8 +196,8 @@
         "buttonDelete": "Löschen"
       },
       "messageEmptyTitle": "Produkt noch nicht bewertet",
-      "messageEmptySubline": "Du kannst Bewertungen anderer Produkte durchsuchen.",
-      "emptyStateButton": "Andere Bewertungen öffnen"
+      "messageEmptySubline": "Sieh Dir stattdessen die Bewertungen anderer Produkte an.",
+      "emptyStateButton": "Zu den Bewertungen"
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",
@@ -473,7 +473,7 @@
       "productStreamType": "Dynamische Produktgruppe",
       "productListType": "Manuelle Zuweisung",
       "deleteConfirmTitle": "Cross Selling löschen",
-      "deleteConfirmText": "Möchtest Du die Cross Selling-Konfiguration wirklich löschen?",
+      "deleteConfirmText": "Möchtest Du die Cross-Selling-Konfiguration wirklich löschen?",
       "deleteButtonCancel": "Zurück",
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
@@ -484,11 +484,11 @@
     "featureSets": {
       "cardTitle": "Wesentliche Merkmale",
       "descriptionTitle": "Wesentliche Merkmale",
-      "descriptionBody": "Wesentliche Merkmale helfen Dir, relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden hervorgehoben im Warenkorb und Checkout dargestellt.",
-      "configInformation": "Lege zuerst Vorlagen für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
+      "descriptionBody": "Wesentliche Merkmale helfen Dir, relevante Merkmale Deiner Produkte festzulegen. Diese Merkmale werden hervorgehoben im Warenkorb und an der Kasse dargestellt.",
+      "configInformation": "Lege zuerst Templates für {0} an und weise sie dann dem Produkt mittels des Auswahlfeldes unten hinzu.",
       "linkFeatureSetsConfig": "Wesentliche Merkmale",
-      "templateSelectFieldLabel": "Vorlagen",
-      "templateSelectFieldPlaceholder": "Wähle eine Vorlage aus ..."
+      "templateSelectFieldLabel": "Templates",
+      "templateSelectFieldPlaceholder": "Wähle ein Template aus ..."
     },
     "layoutAssignment": {
       "title": "Standardwert",

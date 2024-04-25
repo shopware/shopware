@@ -183,7 +183,7 @@
       "cardTitleReviews": "Reviews"
     },
     "reviewForm": {
-      "labelStatus": "Visible",
+      "labelStatus": "Approved",
       "labelCreatedAt": "Created at",
       "labelPoints": "Stars",
       "labelTitle": "Title",
@@ -196,8 +196,8 @@
         "buttonDelete": "Delete"
       },
       "messageEmptyTitle": "Product not reviewed yet",
-      "messageEmptySubline": "You can search the reviews of other products.",
-      "emptyStateButton": "Open other reviews"
+      "messageEmptySubline": "Check out other products' reviews instead.",
+      "emptyStateButton": "Go to reviews"
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",

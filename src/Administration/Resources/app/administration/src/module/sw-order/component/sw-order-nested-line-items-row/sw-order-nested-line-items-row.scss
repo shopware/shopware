@@ -9,25 +9,24 @@
         border-left: 1px solid $color-gray-300;
         display: inline-block;
         height: 100%;
-        margin: 0 8px 0 12px;
+        padding: 0 8px 0 12px;
     }
 
     &__label > div {
-        float: left;
+        display: table-cell;
     }
 
     &__label-content {
-        padding: 10px;
+        padding: 10px 10px 10px 0;
     }
 
     &__item {
         flex-grow: 1;
         padding: 10px;
-        height: 42px;
         font-size: $font-size-s;
 
         &:first-child {
-            padding: 0 0 0 20px;
+            padding: 0 0 0 30px;
         }
 
         &:last-child {

@@ -1,0 +1,75 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_alert %}
+<div
+    class="sw-alert"
+    :class="alertClasses"
+    role="alert"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_alert_inner %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_alert_icon %}
+    <slot name="customIcon">
+        <sw-icon
+            v-if="showIcon"
+            size="20px"
+            class="sw-alert__icon"
+            :name="alertIcon"
+            decorative
+        />
+    </slot>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_alert_body %}
+    <div
+        class="sw-alert__body"
+        :class="alertBodyClasses"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_alert_title %}
+        <div
+            v-if="title"
+            class="sw-alert__title"
+        >
+            {{ title }}
+        </div>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_alert_message %}
+        <div class="sw-alert__message">
+            <slot>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_alert_slot_default %}{% endblock %}
+            </slot>
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_alert_actions %}
+    <div
+        v-if="hasActionSlot"
+        class="sw-alert__actions"
+    >
+        <slot name="actions"></slot>
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_alert_close %}
+    <button
+        v-if="closable"
+        class="sw-alert__close"
+        :aria-label="$tc('global.default.close')"
+        :title="$tc('global.default.close')"
+        @click.prevent="$emit('close', notificationIndex)"
+    >
+        <sw-icon name="regular-times-s" />
+    </button>
+    {% endblock %}
+    {% endblock %}
+</div>
+{% endblock %}

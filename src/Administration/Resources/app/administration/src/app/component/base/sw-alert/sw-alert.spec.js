@@ -4,79 +4,34 @@
 
 import { mount } from '@vue/test-utils';
 
-describe('components/base/sw-alert', () => {
-    let wrapper;
+async function createWrapper(additionalOptions = {}) {
+    return mount(await wrapTestComponent('sw-alert', { sync: true }), {
+        global: {},
+        props: {},
+        ...additionalOptions,
+    });
+}
 
+describe('src/app/component/base/sw-alert', () => {
     it('should be a Vue.js component', async () => {
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
-            global: {
-                stubs: ['sw-icon'],
-            },
-        });
+        const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render correctly', async () => {
-        const title = 'Alert title';
-        const message = '<p>Alert message</p>';
+    it('should render the deprecated alert when major feature flag is disabled', async () => {
+        global.activeFeatureFlags = [''];
 
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
-            global: {
-                stubs: ['sw-icon'],
-            },
-            props: {
-                title,
-            },
-            slots: {
-                default: message,
-            },
-        });
+        const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-alert__title').text()).toBe(title);
-        expect(wrapper.get('.sw-alert__message').html()).toContain(message);
+        expect(wrapper.html()).toContain('sw-alert-deprecated');
+        expect(wrapper.html()).not.toContain('mt-banner');
     });
 
-    it('should use custom icon', async () => {
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
-            global: {
-                stubs: ['sw-icon'],
-            },
-            props: {
-                icon: 'your-icon-here',
-            },
-        });
+    it('should render the mt-banner when major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['v6.7.0.0'];
 
-        expect(wrapper.get('sw-icon-stub').attributes('name')).toBe('your-icon-here');
-    });
+        const wrapper = await createWrapper();
 
-    it.each([
-        ['info', 'default', true],
-        ['warning', 'default', true],
-        ['error', 'default', true],
-        ['success', 'default', true],
-        ['info', 'notification', true],
-        ['warning', 'notification', true],
-        ['error', 'notification', true],
-        ['success', 'notification', true],
-        ['info', 'system', false],
-        ['warning', 'system', false],
-        ['error', 'system', false],
-        ['success', 'system', false],
-        ['neutral', 'default', true],
-        ['neutral', 'notification', true],
-        ['neutral', 'system', false],
-    ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
-        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
-            global: {
-                stubs: ['sw-icon'],
-            },
-            props: {
-                appearance: appearance,
-                variant: variant,
-            },
-        });
-
-        expect(wrapper.get('.sw-alert').classes(`sw-alert--${variant}`)).toBe(applied);
+        expect(wrapper.html()).toContain('mt-banner');
     });
 });
-

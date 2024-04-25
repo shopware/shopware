@@ -4,17 +4,14 @@ namespace Shopware\Tests\Unit\Core\Profiling\Doctrine;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
-use Symfony\Bridge\PhpUnit\ClockMock;
 use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
 
@@ -22,14 +19,8 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
  * @internal
  */
 #[CoversClass(ConnectionProfiler::class)]
-#[Group('time-sensitive')]
 class ConnectionProfilerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        ClockMock::withClockMock(1500000000);
-    }
-
     public function testCollectConnections(): void
     {
         $c = $this->createCollector([]);
@@ -72,7 +63,7 @@ class ConnectionProfilerTest extends TestCase
         $c->lateCollect();
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
-        static::assertEquals(1, floor($c->getTime() * 100));
+        static::assertEquals(10, $c->getTime());
 
         $queries = [
             ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 10],
@@ -83,9 +74,7 @@ class ConnectionProfilerTest extends TestCase
         $c = unserialize(serialize($c));
         static::assertInstanceOf(ConnectionProfiler::class, $c);
 
-        $t = floor($c->getTime() * 100);
-
-        static::assertGreaterThanOrEqual(3, $t);
+        static::assertGreaterThanOrEqual(30, $c->getTime());
     }
 
     public function testCollectQueryWithNoTypes(): void
@@ -244,23 +233,17 @@ class ConnectionProfilerTest extends TestCase
 
         $collector = new ConnectionProfiler($connection);
         foreach ($queries as $queryData) {
-            $query = new Query($queryData['sql'] ?? '');
-            foreach (($queryData['params'] ?? []) as $key => $value) {
-                if (\is_int($key)) {
-                    ++$key;
-                }
-
-                $query->setValue($key, $value, $queryData['types'][$key] ?? ParameterType::STRING);
-            }
-
-            $query->start();
+            $query = $this->createMock(Query::class);
+            $query->method('getSql')
+                ->willReturn($queryData['sql'] ?? '');
+            $query->method('getTypes')
+                ->willReturn($queryData['types'] ?? []);
+            $query->method('getParams')
+                ->willReturn($queryData['params'] ?? []);
+            $query->method('getDuration')
+                ->willReturn((float) ($queryData['executionMS'] ?? 0));
 
             $debugDataHolder->addQuery('default', $query);
-
-            if (isset($queryData['executionMS'])) {
-                usleep($queryData['executionMS'] * 1000);
-            }
-            $query->stop();
         }
 
         return $collector;

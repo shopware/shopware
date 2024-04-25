@@ -91,6 +91,23 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
+    public function testPayNoState(): void
+    {
+        $paymentMethodId = $this->getPaymentMethodId('async');
+        $orderId = $this->createOrder($paymentMethodId);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = (new AsyncPayResponse())->assign([
+            'redirectUrl' => self::REDIRECT_URL,
+            'status' => '',
+        ]);
+        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
+
+        $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
+    }
+
     public function testPayWithUnsignedResponse(): void
     {
         $paymentMethodId = $this->getPaymentMethodId('async');
@@ -293,6 +310,21 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertSame(PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED, $exception->getErrorCode());
 
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
+    }
+
+    public function testPayFinalizeNoState(): void
+    {
+        $data = $this->prepareTransaction();
+
+        $response = (new AsyncFinalizeResponse())->assign([
+            'status' => '',
+        ]);
+        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
+
+        $return = $this->paymentService->finalizeTransaction($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+
+        static::assertNull($return->getException());
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $data['transactionId']);
     }
 
     /**

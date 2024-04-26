@@ -107,6 +107,7 @@ in {
 
   services.redis.enable = lib.mkDefault true;
   services.adminer.enable = lib.mkDefault true;
+  services.adminer.package = lib.mkDefault pkgs.adminerevo;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
   services.mailpit.enable = lib.mkDefault true;
 

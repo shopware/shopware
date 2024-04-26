@@ -19,6 +19,7 @@ class ProductExportException extends HttpException
     public const RENDER_PRODUCT_EXCEPTION = 'PRODUCT_EXPORT__RENDER_PRODUCT_EXCEPTION';
 
     public const PRODUCT_EXPORT_NOT_FOUND = 'CONTENT__PRODUCT_EXPORT_EMPTY';
+    public const SALES_CHANNEL_NOT_ALLOWED_EXCEPTION = 'PRODUCT_EXPORT_SALES_CHANNEL_NOT_ALLOWED_EXCEPTION';
 
     public static function templateBodyNotSet(): ProductExportException
     {
@@ -61,5 +62,14 @@ class ProductExportException extends HttpException
     private static function getErrorMessage(string $message): string
     {
         return sprintf('Failed rendering string template using Twig: %s', $message);
+    }
+
+    public static function salesChannelNotAllowed(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION,
+            'Only sales channels from type "Storefront" can be used for exports.'
+        );
     }
 }

@@ -6,14 +6,8 @@
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI
     Shopware.ExtensionAPI.handle('notificationDispatch', async (notificationOptions) => {
-        const viewRoot = Shopware.Application.view?.root;
-        // @ts-expect-error
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/ban-types
-        const $tc = viewRoot.$tc.bind(viewRoot);
-
-        const message = notificationOptions.message ?? $tc('global.notification.noMessage');
-        const title = notificationOptions.title ?? $tc('global.notification.noTitle');
+        const message = notificationOptions.message ?? Shopware.Snippet.tc('global.notification.noMessage');
+        const title = notificationOptions.title ?? Shopware.Snippet.tc('global.notification.noTitle');
         const actions = notificationOptions.actions ?? [];
         const appearance = notificationOptions.appearance ?? 'notification';
         const growl = notificationOptions.growl ?? true;

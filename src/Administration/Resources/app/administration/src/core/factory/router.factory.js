@@ -26,6 +26,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         getViewComponent,
         getRouterInstance,
         _setModuleFavicon: setModuleFavicon,
+        getModuleInfo,
     };
 
     /**
@@ -160,6 +161,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
      * Fetches module information based on the route the user wants to enter.
      * After the module information got fetched the router navigation guard hook will be resolved.
      *
+     * @private
      * @param {Route} to
      * @returns {Route} to
      */

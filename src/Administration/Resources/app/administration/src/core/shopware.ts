@@ -42,6 +42,7 @@ import AppContextFactory from 'src/core/factory/app-context.factory';
 import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
+import type { VueI18n } from 'vue-i18n';
 import ExtensionApi from './extension-api';
 
 /** Initialize feature flags at the beginning */
@@ -219,7 +220,7 @@ class ShopwareClass implements CustomShopwareProperties {
 
     public Data = data;
 
-    public get Snippet() {
+    public get Snippet(): VueI18n {
         // @ts-expect-error - type is currently not available
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
         return Shopware.Application.view.i18n.global;

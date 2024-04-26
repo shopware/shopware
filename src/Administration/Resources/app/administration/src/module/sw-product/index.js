@@ -118,6 +118,7 @@ Module.register('sw-product', {
                 appSystem: {
                     view: 'detail',
                 },
+                parentPath: 'sw.product.index',
             },
             children: {
                 base: {

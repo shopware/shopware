@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -43,7 +44,8 @@ class RuleAreaUpdater implements EventSubscriberInterface
         private readonly Connection $connection,
         private readonly RuleDefinition $definition,
         private readonly RuleConditionRegistry $conditionRegistry,
-        private readonly CacheInvalidator $cacheInvalidator
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
     }
 
@@ -60,8 +62,8 @@ class RuleAreaUpdater implements EventSubscriberInterface
         $associatedEntities = $this->getAssociationEntities();
 
         foreach ($event->getCommands() as $command) {
-            $definition = $command->getDefinition();
-            $entity = $definition->getEntityName();
+            $entity = $command->getEntityName();
+            $definition = $this->definitionRegistry->getByEntityName($entity);
 
             if (!$command instanceof ChangeSetAware || !\in_array($entity, $associatedEntities, true)) {
                 continue;

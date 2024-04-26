@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
@@ -27,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class EntityWriteResultFactoryTest extends TestCase
 {
     /**
-     * @param array<WriteCommand> $commands
+     * @param array<array<string, mixed>> $commands
      * @param array<string, array<string, array<string, mixed>>> $expected
      */
     #[DataProvider('buildResultProvider')]
@@ -48,6 +47,13 @@ class EntityWriteResultFactoryTest extends TestCase
 
         // add all commands to queue, use the identifier system of DAL
         foreach ($commands as $command) {
+            // fake class to reduce constructor complexity
+            $command = new UpdateCommandStub(
+                $command['payload'],
+                $command['primaryKey'],
+                $registry->get($command['definition'])
+            );
+
             $identifier = WriteCommandQueue::hashedPrimary($registry, $command);
             $queue->add($command->getEntityName(), $identifier, $command);
         }
@@ -78,14 +84,14 @@ class EntityWriteResultFactoryTest extends TestCase
         $ids = new IdsCollection();
 
         yield 'Test single definition, single command' => [
-            [
-                // fake class to reduce constructor complexity
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-1'), 'active' => false],
-                    ['id' => $ids->getBytes('country-1')],
-                ),
+            'commands' => [
+                [
+                    'payload' => ['id' => $ids->getBytes('country-1'), 'active' => false],
+                    'primaryKey' => ['id' => $ids->getBytes('country-1')],
+                    'definition' => CountryDefinition::class,
+                ],
             ],
-            [
+            'expected' => [
                 'country' => [
                     $ids->get('country-1') => ['id' => $ids->get('country-1'), 'active' => false],
                 ],
@@ -93,18 +99,19 @@ class EntityWriteResultFactoryTest extends TestCase
         ];
 
         yield 'Test single definition, multiple commands' => [
-            [
-                // fake class to reduce constructor complexity
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-1'), 'active' => false],
-                    ['id' => $ids->getBytes('country-1')],
-                ),
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-2'), 'active' => true],
-                    ['id' => $ids->getBytes('country-2')],
-                ),
+            'commands' => [
+                [
+                    'payload' => ['id' => $ids->getBytes('country-1'), 'active' => false],
+                    'primaryKey' => ['id' => $ids->getBytes('country-1')],
+                    'definition' => CountryDefinition::class,
+                ],
+                [
+                    'payload' => ['id' => $ids->getBytes('country-2'), 'active' => true],
+                    'primaryKey' => ['id' => $ids->getBytes('country-2')],
+                    'definition' => CountryDefinition::class,
+                ],
             ],
-            [
+            'expected' => [
                 'country' => [
                     $ids->get('country-1') => ['id' => $ids->get('country-1'), 'active' => false],
                     $ids->get('country-2') => ['id' => $ids->get('country-2'), 'active' => true],
@@ -113,29 +120,29 @@ class EntityWriteResultFactoryTest extends TestCase
         ];
 
         yield 'Test multiple definitions, multiple commands' => [
-            [
-                // fake class to reduce constructor complexity
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-1'), 'active' => false],
-                    ['id' => $ids->getBytes('country-1')],
-                ),
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-2'), 'active' => true],
-                    ['id' => $ids->getBytes('country-2')],
-                ),
-                // fake class to reduce constructor complexity
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('tax-1'), 'tax_rate' => 10],
-                    ['id' => $ids->getBytes('tax-1')],
-                    new TaxDefinition()
-                ),
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('tax-2'), 'tax_rate' => 11],
-                    ['id' => $ids->getBytes('tax-2')],
-                    new TaxDefinition()
-                ),
+            'commands' => [
+                [
+                    'payload' => ['id' => $ids->getBytes('country-1'), 'active' => false],
+                    'primaryKey' => ['id' => $ids->getBytes('country-1')],
+                    'definition' => CountryDefinition::class,
+                ],
+                [
+                    'payload' => ['id' => $ids->getBytes('country-2'), 'active' => true],
+                    'primaryKey' => ['id' => $ids->getBytes('country-2')],
+                    'definition' => CountryDefinition::class,
+                ],
+                [
+                    'payload' => ['id' => $ids->getBytes('tax-1'), 'tax_rate' => 10],
+                    'primaryKey' => ['id' => $ids->getBytes('tax-1')],
+                    'definition' => TaxDefinition::class,
+                ],
+                [
+                    'payload' => ['id' => $ids->getBytes('tax-2'), 'tax_rate' => 11],
+                    'primaryKey' => ['id' => $ids->getBytes('tax-2')],
+                    'definition' => TaxDefinition::class,
+                ],
             ],
-            [
+            'expected' => [
                 'country' => [
                     $ids->get('country-1') => ['id' => $ids->get('country-1'), 'active' => false],
                     $ids->get('country-2') => ['id' => $ids->get('country-2'), 'active' => true],
@@ -148,19 +155,19 @@ class EntityWriteResultFactoryTest extends TestCase
         ];
 
         yield 'Test merge payload for same definition and same command primary key' => [
-            [
-                // fake class to reduce constructor complexity
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-1'), 'active' => false],
-                    ['id' => $ids->getBytes('country-1')],
-                ),
-                // fake class to reduce constructor complexity
-                new UpdateCommandStub(
-                    ['id' => $ids->getBytes('country-1'), 'position' => 10],
-                    ['id' => $ids->getBytes('country-1')],
-                ),
+            'commands' => [
+                [
+                    'payload' => ['id' => $ids->getBytes('country-1'), 'active' => false],
+                    'primaryKey' => ['id' => $ids->getBytes('country-1')],
+                    'definition' => CountryDefinition::class,
+                ],
+                [
+                    'payload' => ['id' => $ids->getBytes('country-1'), 'position' => 10],
+                    'primaryKey' => ['id' => $ids->getBytes('country-1')],
+                    'definition' => CountryDefinition::class,
+                ],
             ],
-            [
+            'expected' => [
                 'country' => [
                     $ids->get('country-1') => [
                         'id' => $ids->get('country-1'),

@@ -87,13 +87,13 @@ class SalesChannelValidator implements EventSubscriberInterface
     {
         $mapping = [];
         foreach ($event->getCommands() as $command) {
-            if ($command->getDefinition() instanceof SalesChannelDefinition) {
+            if ($command->getEntityName() === SalesChannelDefinition::ENTITY_NAME) {
                 $this->handleSalesChannelMapping($mapping, $command);
 
                 continue;
             }
 
-            if ($command->getDefinition() instanceof SalesChannelLanguageDefinition) {
+            if ($command->getEntityName() === SalesChannelLanguageDefinition::ENTITY_NAME) {
                 $this->handleSalesChannelLanguageMapping($mapping, $command);
             }
         }

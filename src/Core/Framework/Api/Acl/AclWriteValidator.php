@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
@@ -25,8 +26,10 @@ class AclWriteValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     /**
@@ -54,15 +57,17 @@ class AclWriteValidator implements EventSubscriberInterface
         $missingPrivileges = [];
 
         foreach ($commands as $command) {
-            $resource = $command->getDefinition()->getEntityName();
+            $resource = $command->getEntityName();
             $privilege = $command->getPrivilege();
 
             if ($privilege === null) {
                 continue;
             }
 
-            if (is_subclass_of($command->getDefinition(), EntityTranslationDefinition::class)) {
-                $resource = $command->getDefinition()->getParentDefinition()->getEntityName();
+            $definition = $this->definitionRegistry->getByEntityName($command->getEntityName());
+
+            if (is_subclass_of($definition, EntityTranslationDefinition::class)) {
+                $resource = $definition->getParentDefinition()->getEntityName();
 
                 if ($privilege !== AclRoleDefinition::PRIVILEGE_DELETE) {
                     $privilege = $this->getPrivilegeForParentWriteOperation($command, $commands);

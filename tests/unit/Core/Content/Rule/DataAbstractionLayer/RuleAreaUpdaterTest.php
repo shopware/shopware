@@ -83,7 +83,8 @@ class RuleAreaUpdaterTest extends TestCase
             $this->connection,
             $this->definition,
             $this->conditionRegistry,
-            $cacheInvalidator
+            $cacheInvalidator,
+            $registry
         );
     }
 

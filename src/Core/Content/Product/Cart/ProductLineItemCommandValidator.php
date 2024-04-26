@@ -49,7 +49,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         $products = $this->findProducts($event->getCommands());
 
         foreach ($event->getCommands() as $command) {
-            if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
+            if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
                 continue;
             }
             if ($command instanceof SetNullOnDeleteCommand) {
@@ -108,7 +108,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
     private function findProducts(array $commands): array
     {
         $ids = array_map(function (WriteCommand $command) {
-            if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
+            if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
                 return null;
             }
 

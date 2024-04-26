@@ -683,7 +683,7 @@ class ImportExport
                     continue;
                 }
 
-                $entityName = $writeCommand->getDefinition()->getEntityName();
+                $entityName = $writeCommand->getEntityName();
                 $entityResult = $overallResults[$entityName] ?? $defaultTemplate;
                 $operation = $writeCommand->getEntityExistence()->exists()
                     ? EntityWriteResult::OPERATION_UPDATE

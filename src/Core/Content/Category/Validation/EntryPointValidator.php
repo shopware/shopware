@@ -51,7 +51,7 @@ class EntryPointValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if ($command->getDefinition()->getClass() !== CategoryDefinition::class) {
+            if ($command->getEntityName() !== CategoryDefinition::ENTITY_NAME) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ class EntryPointValidator implements EventSubscriberInterface
     private function isCategoryEntryPoint(string $categoryId, PostWriteValidationEvent $event): bool
     {
         foreach ($event->getCommands() as $salesChannelCommand) {
-            if ($salesChannelCommand->getDefinition()->getClass() !== SalesChannelDefinition::class) {
+            if ($salesChannelCommand->getEntityName() !== SalesChannelDefinition::ENTITY_NAME) {
                 continue;
             }
 

@@ -666,6 +666,7 @@ describe('components/form/sw-colorpicker', () => {
         const event = {
             clientX,
             clientY,
+            preventDefault: jest.fn(),
         };
 
         jest.spyOn(wrapper.vm.$refs.colorPicker, 'getBoundingClientRect').mockImplementation(() => {
@@ -681,5 +682,19 @@ describe('components/form/sw-colorpicker', () => {
 
         expect(wrapper.vm.saturationValue).toEqual(expectedSaturationValue);
         expect(wrapper.vm.luminanceValue).toEqual(expectedLuminanceValue);
+    });
+
+    it('should prevent default behavior on moveSelector event argument', async () => {
+        wrapper = await createWrapper();
+
+        const mockEvent = {
+            preventDefault: jest.fn(),
+        };
+
+        expect(mockEvent.preventDefault).toHaveBeenCalledTimes(0);
+
+        wrapper.vm.moveSelector(mockEvent);
+
+        expect(mockEvent.preventDefault).toHaveBeenCalledTimes(1);
     });
 });

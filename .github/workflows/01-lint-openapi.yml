@@ -1,0 +1,68 @@
+name: Lint OpenApi Schema
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+
+jobs:
+  openapi-lint:
+    runs-on: ubuntu-latest
+    services:
+      database:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: root
+        options: '--mount="type=tmpfs,destination=/var/lib/mysql" --health-cmd="mysqladmin ping -h 127.0.0.1" --health-interval=5s --health-timeout=2s --health-retries=3'
+        ports:
+          - "3306:3306"
+    env:
+      APP_ENV: "dev"
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
+      DATABASE_HOST: database
+    steps:
+      - name: Install mysql-cli
+        run: apt-get update && apt-get install -y --no-install-recommends mysql-client
+
+      - name: Clone platform
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd, bcmath
+          tools: symfony-cli
+
+      - name: Remove vendor-bin
+        run: rm -R vendor-bin
+
+      - name: Setup Composer
+        run: composer install -o
+
+      - name: Install Shopware
+        run: |
+          composer run init:db
+          chown -R www-data:www-data config/jwt
+
+      - name: Start Webserver
+        run: symfony server:start -d
+
+      - name: Generate OpenApi schema
+        run: |
+          export STOREFRONT_ID=$(bin/console sales-channel:list --output json | jq -r '.[] | select(.name == "Storefront") | .id')
+          export OPENAPI_ACCESS_KEY=$(mysql -u root -h 127.0.0.1 -proot root -se "SELECT access_key FROM sales_channel WHERE id = 0x${STOREFRONT_ID}";)
+          printf "OPENAPI_JSON_URL=http://localhost:8000\nSHOPWARE_ADMIN_USERNAME=admin\nSHOPWARE_ADMIN_PASSWORD=shopware\nOPENAPI_ACCESS_KEY=${OPENAPI_ACCESS_KEY}" > .env
+          npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
+          npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
+
+      - name: Lint OpenApi schema
+        run: |
+          npm i -g @redocly/cli@latest
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./storeApiSchema.json
+          redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./adminApiSchema.json
+

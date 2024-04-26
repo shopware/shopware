@@ -129,23 +129,28 @@ class DomainExceptionRule implements Rule
         $domain = $parts[2] ?? '';
         $sub = $parts[3] ?? '';
 
-        $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $domain, $sub, $sub);
+        $acceptedClasses = [
+            \sprintf('Shopware\\Core\\%s\\%s\\%sException', $domain, $sub, $sub),
+            \sprintf('Shopware\\Core\\%s\\%sException', $domain, $domain),
+        ];
 
-        if ($exceptionClass !== $expected && !$exception->isSubclassOf($expected)) {
-            // Is it in a subdomain?
-            if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
-                $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
-                if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
-                    return [];
-                }
+        foreach ($acceptedClasses as $expected) {
+            if ($exceptionClass === $expected || $exception->isSubclassOf($expected)) {
+                return [];
             }
-
-            return [
-                RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $expected, $exceptionClass))->build(),
-            ];
         }
 
-        return [];
+        // Is it in a subdomain?
+        if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
+            $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
+            if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
+                return [];
+            }
+        }
+
+        return [
+            RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $acceptedClasses[0], $exceptionClass))->build(),
+        ];
     }
 
     private function isRemapped(string $source, string $exceptionClass): bool

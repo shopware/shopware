@@ -35,10 +35,18 @@ class SnippetFinder implements SnippetFinderInterface
      */
     public function findSnippets(string $locale): array
     {
-        $snippetFiles = $this->findSnippetFiles($locale);
-        $snippets = $this->parseFiles($snippetFiles);
+        $languagePrefix = explode('-', $locale)[0];
+        $baseLanguageSnippetFiles = $this->findSnippetFiles($languagePrefix, true);
+        $specificCountrySnippetFiles = $this->findSnippetFiles($locale);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
+        $baseLanguageSnippets = $this->parseFiles($baseLanguageSnippetFiles);
+        $countrySnippets = $this->parseFiles($specificCountrySnippetFiles);
+
+        $languageSnippets = array_replace_recursive($baseLanguageSnippets, $countrySnippets);
+        $snippets = array_replace_recursive(
+            $languageSnippets,
+            $this->getAppAdministrationSnippets($locale, $languageSnippets),
+        );
 
         if (!\count($snippets)) {
             return [];
@@ -105,7 +113,7 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @return array<int, string>
      */
-    private function findSnippetFiles(string $locale): array
+    private function findSnippetFiles(string $locale, bool $isBaseLanguage = false): array
     {
         $finder = (new Finder())
             ->files()
@@ -113,8 +121,14 @@ class SnippetFinder implements SnippetFinderInterface
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
             ->in($this->getBundlePaths());
+
+        if ($isBaseLanguage) {
+            $finder->name('/[a-z]{2}\.json/');
+        } else {
+            $finder->name(sprintf('%s.json', $locale));
+        }
+
 
         $iterator = $finder->getIterator();
         $files = [];

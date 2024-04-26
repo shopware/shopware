@@ -25,11 +25,21 @@ jobs:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/root
       DATABASE_HOST: database
     steps:
-      - name: Install mysql-cli
-        run: apt-get update && apt-get install -y --no-install-recommends mysql-client
-
       - name: Clone platform
         uses: actions/checkout@v4
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Archives
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -45,9 +55,7 @@ jobs:
         run: composer install -o
 
       - name: Install Shopware
-        run: |
-          composer run init:db
-          chown -R www-data:www-data config/jwt
+        run: composer run init:db
 
       - name: Start Webserver
         run: symfony server:start -d

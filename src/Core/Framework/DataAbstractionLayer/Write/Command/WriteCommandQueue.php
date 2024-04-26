@@ -165,8 +165,7 @@ class WriteCommandQueue
 
         sort($primaryKey);
 
-        // don't access definition of command directly, goal is to get rid of definition inside DTOs
-        $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
+        $definition = $registry->getByEntityName($command->getEntityName());
 
         $decoded = [];
         foreach ($primaryKey as $fieldValue) {
@@ -188,7 +187,7 @@ class WriteCommandQueue
     {
         $primaryKey = $command->getPrimaryKey();
 
-        $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
+        $definition = $registry->getByEntityName($command->getEntityName());
 
         $mapped = [];
         foreach ($definition->getPrimaryKeys() as $key) {

@@ -29,6 +29,7 @@
         </service>
 
         <service id="Shopware\Core\System\Language\TranslationValidator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

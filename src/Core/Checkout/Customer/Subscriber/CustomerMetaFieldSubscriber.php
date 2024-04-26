@@ -61,7 +61,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 
         $orderIds = [];
         foreach ($event->getCommands() as $command) {
-            if ($command->getDefinition()->getClass() === OrderDefinition::class
+            if ($command->getEntityName() === OrderDefinition::ENTITY_NAME
                 && $command instanceof DeleteCommand
             ) {
                 $orderIds[] = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);

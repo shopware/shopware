@@ -63,7 +63,7 @@ class RuleValidator implements EventSubscriberInterface
         $updateQueue = [];
 
         foreach ($commands as $command) {
-            if ($command->getDefinition()->getClass() !== RuleConditionDefinition::class) {
+            if ($command->getEntityName() !== RuleConditionDefinition::ENTITY_NAME) {
                 continue;
             }
 

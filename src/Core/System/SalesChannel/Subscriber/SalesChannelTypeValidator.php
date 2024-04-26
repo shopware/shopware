@@ -27,7 +27,7 @@ class SalesChannelTypeValidator implements EventSubscriberInterface
     public function preWriteValidateEvent(PreWriteValidationEvent $event): void
     {
         foreach ($event->getCommands() as $command) {
-            if (!$command instanceof DeleteCommand || !$command->getDefinition() instanceof SalesChannelTypeDefinition) {
+            if (!$command instanceof DeleteCommand || $command->getEntityName() !== SalesChannelTypeDefinition::ENTITY_NAME) {
                 continue;
             }
 

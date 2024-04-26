@@ -43,7 +43,7 @@ class LandingPageValidator implements EventSubscriberInterface
         $violationList = new ConstraintViolationList();
 
         foreach ($commands as $command) {
-            if (!($command instanceof InsertCommand) || $command->getDefinition()->getClass() !== LandingPageDefinition::class) {
+            if (!($command instanceof InsertCommand) || $command->getEntityName() !== LandingPageDefinition::ENTITY_NAME) {
                 continue;
             }
 
@@ -66,7 +66,7 @@ class LandingPageValidator implements EventSubscriberInterface
     {
         $isValid = false;
         foreach ($commands as $searchCommand) {
-            if ($searchCommand->getDefinition()->getClass() === LandingPageSalesChannelDefinition::class && $searchCommand instanceof InsertCommand) {
+            if ($searchCommand->getEntityName() === LandingPageSalesChannelDefinition::ENTITY_NAME && $searchCommand instanceof InsertCommand) {
                 $searchPrimaryKey = $searchCommand->getPrimaryKey();
                 $searchLandingPageId = $searchPrimaryKey['landing_page_id'] ?? null;
 

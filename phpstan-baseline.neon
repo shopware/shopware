@@ -816,16 +816,6 @@ parameters:
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/SerializerRegistry.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\SystemDefaultValidator\\:\\:filterSystemDefaults\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/SystemDefaultValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\SystemDefaultValidator\\:\\:filterSystemDefaults\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/SystemDefaultValidator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Event\\\\ImportExportAfterImportRecordEvent\\:\\:__construct\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Event/ImportExportAfterImportRecordEvent.php
@@ -4904,56 +4894,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\LockValidatorTest\\:\\:\\$testDefinition \\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\) does not accept object\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PostWriteValidationEventTest\\:\\:delete\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PostWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PostWriteValidationEventTest\\:\\:insert\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PostWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PostWriteValidationEventTest\\:\\:testGetDeletedPrimaryKeys\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PostWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PostWriteValidationEventTest\\:\\:testGetDeletedPrimaryKeysProvider\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PostWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PostWriteValidationEventTest\\:\\:testGetPrimaryKeys\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PostWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PreWriteValidationEventTest\\:\\:delete\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PreWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PreWriteValidationEventTest\\:\\:insert\\(\\) has parameter \\$primaryKey with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PreWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PreWriteValidationEventTest\\:\\:testGetDeletedPrimaryKeys\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PreWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PreWriteValidationEventTest\\:\\:testGetDeletedPrimaryKeysProvider\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PreWriteValidationEventTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Write\\\\Validation\\\\PreWriteValidationEventTest\\:\\:testGetPrimaryKeys\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PreWriteValidationEventTest.php
 
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\|null\\.$#"

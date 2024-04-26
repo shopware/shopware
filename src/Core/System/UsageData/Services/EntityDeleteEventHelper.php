@@ -65,13 +65,13 @@ class EntityDeleteEventHelper
         $this->eventEntityIds = [];
 
         foreach ($this->event->getCommands() as $entityWriteResult) {
-            $definition = $entityWriteResult->getDefinition();
-
-            if (!\array_key_exists($definition->getEntityName(), $this->includedEntityDefinitions)) {
+            if (!\array_key_exists($entityWriteResult->getEntityName(), $this->includedEntityDefinitions)) {
                 continue;
             }
 
-            $this->eventEntityIds[$definition->getEntityName()][] = $this->getCommandPrimaryKeys(
+            $definition = $this->includedEntityDefinitions[$entityWriteResult->getEntityName()];
+
+            $this->eventEntityIds[$entityWriteResult->getEntityName()][] = $this->getCommandPrimaryKeys(
                 $entityWriteResult,
                 $definition->getPrimaryKeys(),
             );

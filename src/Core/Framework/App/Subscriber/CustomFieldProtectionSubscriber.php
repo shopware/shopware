@@ -52,9 +52,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         $violationList = new ConstraintViolationList();
 
         foreach ($event->getCommands() as $command) {
-            if (!($command->getDefinition() instanceof CustomFieldSetDefinition)
-                || $command instanceof InsertCommand
-            ) {
+            if ($command->getEntityName() !== CustomFieldSetDefinition::ENTITY_NAME || $command instanceof InsertCommand) {
                 continue;
             }
 
@@ -105,7 +103,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
             $this->buildViolation(
                 'No permissions to %privilege%".',
                 ['%privilege%' => 'write:custom_field_set'],
-                '/' . $command->getDefinition()->getEntityName(),
+                '/' . $command->getEntityName(),
                 self::VIOLATION_NO_PERMISSION
             )
         );

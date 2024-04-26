@@ -641,6 +641,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\LockValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -668,6 +669,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

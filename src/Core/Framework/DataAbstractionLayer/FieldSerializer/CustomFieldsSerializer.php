@@ -156,7 +156,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             );
 
             $parameters->getCommandQueue()->add(
-                $jsonUpdateCommand->getDefinition()->getEntityName(),
+                $jsonUpdateCommand->getEntityName(),
                 $identifier,
                 $jsonUpdateCommand
             );

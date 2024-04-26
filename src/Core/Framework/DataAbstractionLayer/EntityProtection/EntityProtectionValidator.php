@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -19,6 +20,10 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 #[Package('core')]
 class EntityProtectionValidator implements EventSubscriberInterface
 {
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
+    {
+    }
+
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
@@ -84,12 +89,14 @@ class EntityProtectionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $writeProtection = $command->getDefinition()->getProtections()->get(WriteProtection::class);
+            $definition = $this->definitionRegistry->getByEntityName($command->getEntityName());
+
+            $writeProtection = $definition->getProtections()->get(WriteProtection::class);
             if ($writeProtection && !$writeProtection->isAllowed($event->getContext()->getScope())) {
                 throw new AccessDeniedHttpException(
                     sprintf(
                         'Write access to entity "%s" are not allowed in scope "%s".',
-                        $command->getDefinition()->getEntityName(),
+                        $command->getEntityName(),
                         $event->getContext()->getScope()
                     )
                 );

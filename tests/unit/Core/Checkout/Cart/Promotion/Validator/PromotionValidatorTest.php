@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Validator\PromotionValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -20,7 +21,9 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeConnection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -38,8 +41,20 @@ class PromotionValidatorTest extends TestCase
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $this->promotionDefinition = new PromotionDefinition();
-        $this->discountDefinition = new PromotionDiscountDefinition();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [PromotionDefinition::class, PromotionDiscountDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        /** @var PromotionDefinition $promotionDefinition */
+        $promotionDefinition = $registry->get(PromotionDefinition::class);
+
+        /** @var PromotionDiscountDefinition $discountDefinition */
+        $discountDefinition = $registry->get(PromotionDiscountDefinition::class);
+
+        $this->promotionDefinition = $promotionDefinition;
+        $this->discountDefinition = $discountDefinition;
     }
 
     /**
@@ -61,7 +76,7 @@ class PromotionValidatorTest extends TestCase
                 'use_individual_codes' => false,
                 'code' => ' ',
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -105,7 +120,7 @@ class PromotionValidatorTest extends TestCase
                 'valid_from' => '2019-02-25 12:00:00',
                 'valid_until' => '2019-02-25 11:59:59',
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -141,7 +156,7 @@ class PromotionValidatorTest extends TestCase
                 'use_individual_codes' => true,
                 'code' => ' ',
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -178,7 +193,7 @@ class PromotionValidatorTest extends TestCase
                 'type' => ($type === 'percentage') ? PromotionDiscountEntity::TYPE_PERCENTAGE : PromotionDiscountEntity::TYPE_ABSOLUTE,
                 'value' => $value,
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );
@@ -235,7 +250,7 @@ class PromotionValidatorTest extends TestCase
                 'type' => ($type === 'percentage') ? PromotionDiscountEntity::TYPE_PERCENTAGE : PromotionDiscountEntity::TYPE_ABSOLUTE,
                 'value' => $value,
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0'
         );

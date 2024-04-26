@@ -10,13 +10,16 @@ use Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeConnection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -33,7 +36,16 @@ class ShippingMethodValidatorTest extends TestCase
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 
-        $this->shippingMethodDefinition = new ShippingMethodDefinition();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [ShippingMethodDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        /** @var ShippingMethodDefinition $definition */
+        $definition = $registry->get(ShippingMethodDefinition::class);
+
+        $this->shippingMethodDefinition = $definition;
     }
 
     #[DataProvider('shippingMethodTaxProvider')]
@@ -52,7 +64,7 @@ class ShippingMethodValidatorTest extends TestCase
                     'priority' => 2,
                 ],
             ],
-            ['id' => 'D1'],
+            ['id' => Uuid::randomBytes()],
             $this->createMock(EntityExistence::class),
             '/0/'
         );

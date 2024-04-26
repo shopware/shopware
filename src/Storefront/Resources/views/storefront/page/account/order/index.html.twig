@@ -102,14 +102,16 @@
             {% endfor %}
 
             {% block page_checkout_confirm_form_submit %}
-                <button
-                    class="btn btn-primary btn-block"
-                    {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
-                        disabled="disabled"
-                    {% endif %}
-                    type="submit">
-                    {{ 'account.editOrderUpdateButton'|trans|sw_sanitize }}
-                </button>
+                <div class="d-grid">
+                    <button
+                        class="btn btn-primary"
+                        {% if page.paymentChangeable == false or paymentMethodInvalid == true %}
+                            disabled="disabled"
+                        {% endif %}
+                        type="submit">
+                        {{ 'account.editOrderUpdateButton'|trans|sw_sanitize }}
+                    </button>
+                </div>
             {% endblock %}
         </form>
 

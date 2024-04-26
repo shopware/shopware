@@ -89,8 +89,8 @@ describe('Account: Edit order', () => {
         // change payment
         cy.get('.payment-methods').should('be.visible');
         cy.get('.payment-methods > :nth-child(3)').click();
-        cy.get('#confirmOrderForm > .btn').scrollIntoView();
-        cy.get('#confirmOrderForm > .btn').click();
+        cy.get('#confirmOrderForm .btn').scrollIntoView();
+        cy.get('#confirmOrderForm .btn').click();
         cy.get('.finish-order-details .checkout-card .card-body p:first')
             .should('contain', 'Paid in advance');
     });

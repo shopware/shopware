@@ -29,10 +29,17 @@ class SnippetFinder implements SnippetFinderInterface
      */
     public function findSnippets(string $locale): array
     {
-        $snippetFiles = $this->findSnippetFiles($locale);
-        $snippets = $this->parseFiles($snippetFiles);
+        $countryAgnosticSnippetFiles = $this->findSnippetFiles($locale, true);
+        $countrySpecificSnippetFiles = $this->findSnippetFiles($locale);
 
-        $snippets = [...$snippets, ...$this->getAppAdministrationSnippets($locale, $snippets)];
+        $countryAgnosticSnippets = $this->parseFiles($countryAgnosticSnippetFiles);
+        $countrySpecificSnippets = $this->parseFiles($countrySpecificSnippetFiles);
+
+        $languageSnippets = array_replace_recursive($countryAgnosticSnippets, $countrySpecificSnippets);
+        $snippets = array_replace_recursive(
+            $languageSnippets,
+            $this->getAppAdministrationSnippets($locale, $languageSnippets),
+        );
 
         if (!\count($snippets)) {
             return [];
@@ -99,16 +106,30 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @return array<int, string>
      */
-    private function findSnippetFiles(string $locale): array
+    private function findSnippetFiles(string $locale, bool $isBaseLanguage = false): array
     {
+        if ($isBaseLanguage) {
+            $locale = explode('-', $locale)[0];
+        }
+
         $finder = (new Finder())
             ->files()
             ->exclude('node_modules')
             ->ignoreDotFiles(true)
             ->ignoreVCS(true)
             ->ignoreUnreadableDirs()
-            ->name(\sprintf('%s.json', $locale))
+<<<<<<< HEAD
             ->in($this->getBundlePaths());
+
+        if ($isBaseLanguage) {
+            $finder->name('/[a-z]{2}\.json/');
+        } else {
+            $finder->name(sprintf('%s.json', $locale));
+        }
+=======
+            ->in($this->getBundlePaths())
+            ->name(\sprintf('%s.json', $locale));
+>>>>>>> f010394b2a (adjustments to snippetfinder)
 
         $iterator = $finder->getIterator();
         $files = [];

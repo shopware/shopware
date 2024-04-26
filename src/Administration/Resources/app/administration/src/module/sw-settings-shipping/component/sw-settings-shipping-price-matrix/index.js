@@ -42,6 +42,7 @@ export default {
             ],
             showDeleteModal: false,
             isLoading: false,
+            ruleColumns: [],
         };
     },
 
@@ -203,41 +204,51 @@ export default {
         },
     },
 
+    watch: {
+        isRuleMatrix() {
+            this.createdComponent();
+        },
+    },
+
     created() {
-        this.ruleColumns = [];
-
-        if (this.isRuleMatrix) {
-            this.ruleColumns.push({
-                property: 'calculationRule',
-                label: 'sw-settings-shipping.priceMatrix.columnCalculationRule',
-                allowResize: true,
-                primary: true,
-                rawData: true,
-                width: '250px',
-            });
-        } else {
-            this.ruleColumns.push({
-                property: 'quantityStart',
-                label: this.labelQuantityStart,
-                allowResize: true,
-                primary: true,
-                rawData: true,
-                width: '130px',
-            });
-            this.ruleColumns.push({
-                property: 'quantityEnd',
-                label: this.labelQuantityEnd,
-                allowResize: true,
-                rawData: true,
-                primary: true,
-                width: '130px',
-            });
-        }
-
-        this.ruleColumns.push(...this.currencyColumns);
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.ruleColumns = [];
+
+            if (this.isRuleMatrix) {
+                this.ruleColumns.push({
+                    property: 'calculationRule',
+                    label: 'sw-settings-shipping.priceMatrix.columnCalculationRule',
+                    allowResize: true,
+                    primary: true,
+                    rawData: true,
+                    width: '250px',
+                });
+            } else {
+                this.ruleColumns.push({
+                    property: 'quantityStart',
+                    label: this.labelQuantityStart,
+                    allowResize: true,
+                    primary: true,
+                    rawData: true,
+                    width: '130px',
+                });
+                this.ruleColumns.push({
+                    property: 'quantityEnd',
+                    label: this.labelQuantityEnd,
+                    allowResize: true,
+                    rawData: true,
+                    primary: true,
+                    width: '130px',
+                });
+            }
+
+            this.ruleColumns.push(...this.currencyColumns);
+        },
+
         onAddNewShippingPrice() {
             const refPrice = this.priceGroup.prices[this.priceGroup.prices.length - 1];
 

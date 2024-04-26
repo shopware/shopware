@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Flow\Action\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -130,7 +131,7 @@ class InputField extends XmlElement
 
             // translated
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
+                $values = XmlParserUtils::mapTranslatedTag($child, $values);
 
                 continue;
             }
@@ -185,7 +186,7 @@ class InputField extends XmlElement
                 continue;
             }
 
-            $values = self::mapTranslatedTag($child, $values);
+            $values = XmlParserUtils::mapTranslatedTag($child, $values);
         }
 
         return $values;

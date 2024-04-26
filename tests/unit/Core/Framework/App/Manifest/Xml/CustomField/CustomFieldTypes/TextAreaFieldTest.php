@@ -25,6 +25,7 @@ class TextAreaFieldTest extends TestCase
         static::assertCount(1, $customFieldSet->getFields());
 
         $textAreaField = $customFieldSet->getFields()[0];
+
         static::assertInstanceOf(TextAreaField::class, $textAreaField);
         static::assertEquals('test_text_area_field', $textAreaField->getName());
         static::assertEquals([

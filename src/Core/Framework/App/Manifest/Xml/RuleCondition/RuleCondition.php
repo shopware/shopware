@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml\RuleCondition;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldTypeFactory;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -112,11 +113,11 @@ class RuleCondition extends XmlElement
     {
         // translated
         if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-            return self::mapTranslatedTag($child, $values);
+            return XmlParserUtils::mapTranslatedTag($child, $values);
         }
 
         if ($child->tagName === 'constraints') {
-            $values[$child->tagName] = self::parseChildNodes(
+            $values[$child->tagName] = XmlParserUtils::parseChildrenAsList(
                 $child,
                 static fn (\DOMElement $element): CustomFieldType => CustomFieldTypeFactory::createFromXml($element)
             );
@@ -124,7 +125,7 @@ class RuleCondition extends XmlElement
             return $values;
         }
 
-        $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
+        $values[XmlParserUtils::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
 
         return $values;
     }

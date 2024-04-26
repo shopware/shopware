@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Flow\Action\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -130,8 +131,8 @@ class Metadata extends XmlElement
     {
         $data = parent::toArray($defaultLocale);
 
-        foreach (self::TRANSLATABLE_FIELDS as $TRANSLATABLE_FIELD) {
-            $translatableField = self::kebabCaseToCamelCase($TRANSLATABLE_FIELD);
+        foreach (self::TRANSLATABLE_FIELDS as $field) {
+            $translatableField = XmlParserUtils::kebabCaseToCamelCase($field);
 
             $data[$translatableField] = $this->ensureTranslationForDefaultLanguageExist(
                 $data[$translatableField],
@@ -153,7 +154,7 @@ class Metadata extends XmlElement
 
             // translated
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
-                $values = self::mapTranslatedTag($child, $values);
+                $values = XmlParserUtils::mapTranslatedTag($child, $values);
 
                 continue;
             }

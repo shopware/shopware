@@ -72,6 +72,9 @@ class Permissions extends XmlElement
         return $this->generatePrivileges();
     }
 
+    /**
+     * @return array{permissions: array<string, list<string>>, additionalPrivileges: list<string>}
+     */
     protected static function parse(\DOMElement $element): array
     {
         $permissions = [];

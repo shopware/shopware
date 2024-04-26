@@ -45,14 +45,26 @@ class SnippetFinder implements SnippetFinderInterface
      */
     public function findSnippets(string $locale): array
     {
-        $snippetFiles = $this->findSnippetFiles($locale);
-        $snippets = $this->parseFiles($snippetFiles);
+        $countryAgnosticSnippetFiles = $this->findSnippetFiles($locale, true);
+        $countrySpecificSnippetFiles = $this->findSnippetFiles($locale);
 
-        return [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
+        $countryAgnosticSnippets = $this->parseFiles($countryAgnosticSnippetFiles);
+        $countrySpecificSnippets = $this->parseFiles($countrySpecificSnippetFiles);
+
+        $languageSnippets = array_replace_recursive($countryAgnosticSnippets, $countrySpecificSnippets);
+
+        return array_replace_recursive(
+            $languageSnippets,
+            $this->getAppAdministrationSnippets($locale, $languageSnippets),
+        );
     }
 
-    private function findSnippetFiles(string $locale): SnippetPathCollection
+    private function findSnippetFiles(string $locale, bool $isBaseLanguage = false): SnippetPathCollection
     {
+        if ($isBaseLanguage) {
+            $locale = explode('-', $locale)[0];
+        }
+
         $paths = new SnippetPathCollection();
         $this->addInstalledPlatformPaths($paths, $locale);
 

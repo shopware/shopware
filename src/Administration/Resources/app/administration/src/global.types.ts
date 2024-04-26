@@ -169,6 +169,8 @@ declare global {
         };
         processingInactivityLogout?: boolean;
         _sw_extension_component_collection: DevtoolComponent[];
+        // Only available with Vite
+        startApplication: () => void;
     }
 
     const _features_: {
@@ -257,9 +259,13 @@ declare global {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{
-        state: $TSFixMe,
+        state: $TSFixMe, // has to be removed once we moved to vite
         router: $TSFixMe,
         httpClient: AxiosInstance,
+    }
+    interface InitPostContainer extends SubContainer<'init-post'>{}
+    interface InitPreContainer extends SubContainer<'init-pre'>{
+        state: $TSFixMe
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'>{
@@ -383,12 +389,14 @@ declare global {
  * Link global bottle.js container to the bottle.js container interface
  */
 declare module 'bottlejs' { // Use the same module name as the import string
-    type IContainerChildren = 'factory' | 'service' | 'init';
+    type IContainerChildren = 'factory' | 'service' | 'init' | 'init-post' | 'init-pre';
 
     interface IContainer {
         factory: FactoryContainer,
         service: ServiceContainer,
+        'init-pre': InitPreContainer,
         init: InitContainer,
+        'init-post': InitPostContainer,
     }
 }
 

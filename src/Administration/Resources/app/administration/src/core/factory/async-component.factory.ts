@@ -573,10 +573,11 @@ function register(componentName: string, componentConfiguration: unknown): unkno
          * Check if the resulted config is a ES module. Then we need to use the default
          * value of it.
          */
-        if (awaitedConfigResult.hasOwnProperty('default')) {
+        if (awaitedConfigResult?.default) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             awaitedConfigResult = awaitedConfigResult.default;
         }
+
         const config = { ...awaitedConfigResult };
 
         config.name = componentName;
@@ -636,7 +637,7 @@ function extend(
          * Check if the resulted config is a ES module. Then we need to use the default
          * value of it.
          */
-        if (awaitedConfigResult.hasOwnProperty('default')) {
+        if (awaitedConfigResult?.default) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             awaitedConfigResult = awaitedConfigResult.default;
         }

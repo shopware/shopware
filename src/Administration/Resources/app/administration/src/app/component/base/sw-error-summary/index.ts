@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import template from './sw-error-summary.html';
+import template from './sw-error-summary.html.twig';
 import './sw-error-summary.scss';
 
 const { Component } = Shopware;

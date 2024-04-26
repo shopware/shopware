@@ -89,6 +89,10 @@ export default {
         apexchart: VueApexCharts,
     },
 
+    inject: [
+        'feature',
+    ],
+
     props: {
         type: {
             type: String,
@@ -229,13 +233,25 @@ export default {
         defaultLocale() {
             const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
 
-            // get all available languages in "apexcharts/dist/locales/**.json"
-            const languageFiles = require.context('apexcharts/dist/locales', false, /.json/);
+            let allowedLocales = [];
+            if (!this.feature.isActive('ADMIN_VITE')) {
+                // get all available languages in "apexcharts/dist/locales/**.json"
+                const languageFiles = require.context('apexcharts/dist/locales', false, /.json/);
 
-            // change string from "./en.json" to "en"
-            const allowedLocales = languageFiles.keys()
-                .map(filePath => filePath.replace('./', ''))
-                .map(filePath => filePath.replace('.json', ''));
+                // change string from "./en.json" to "en"
+                allowedLocales = languageFiles.keys()
+                    .map(filePath => filePath.replace('./', ''))
+                    .map(filePath => filePath.replace('.json', ''));
+            } else {
+                // get all available languages in "apexcharts/dist/locales/**.json"
+                // eslint-disable-next-line max-len
+                const languageFiles = import.meta.glob('./../../../../../node_modules/apexcharts/dist/locales/*.json', { eager: true });
+
+                // change string from "../../../../../node_modules/apexcharts/dist/locales/en.json" to "en"
+                allowedLocales = Object.keys(languageFiles)
+                    .map(filePath => filePath.replace('../../../../../node_modules/apexcharts/dist/locales/', ''))
+                    .map(filePath => filePath.replace('.json', ''));
+            }
 
             if (allowedLocales.includes(adminLocaleLanguage)) {
                 return adminLocaleLanguage;
@@ -446,8 +462,8 @@ export default {
             const defaultLocale = this.defaultLocale;
 
             // ESLint can´t understand template strings in this import context
-            /* eslint-disable-next-line prefer-template */
-            const localeConfigModule = await import('apexcharts/dist/locales/' + defaultLocale + '.json');
+            /* eslint-disable prefer-template, max-len */
+            const localeConfigModule = await import(/* @vite-ignore */'../../../../../node_modules/apexcharts/dist/locales/' + defaultLocale + '.json');
 
             this.localeConfig = localeConfigModule?.default;
         },

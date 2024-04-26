@@ -3,8 +3,8 @@ import initComponents from 'src/app/init/component.init';
 describe('src/app/init/component.init.ts', () => {
     let baseComponents;
 
-    beforeAll(() => {
-        baseComponents = initComponents();
+    beforeAll(async () => {
+        baseComponents = await initComponents();
     });
 
     it('should init async components', () => {

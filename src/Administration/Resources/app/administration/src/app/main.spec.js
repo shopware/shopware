@@ -173,7 +173,7 @@ describe('src/app/main.ts', () => {
         // Reset the Shopware object to make sure that the application is not already initialized
         Shopware = undefined;
         // Import the Shopware object
-        Shopware = (await import('src/core/shopware')).default;
+        Shopware = (await import('src/core/shopware')).ShopwareInstance;
         // Initialize the main application
         await import('src/app/main');
         // Import the VueAdapter to check if it is set in the application

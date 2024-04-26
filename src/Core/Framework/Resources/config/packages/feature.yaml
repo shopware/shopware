@@ -18,3 +18,8 @@ shopware:
         major: false
         toggleable: true
         description: "Accessibility tweaks (highly recommended)\nAccessibility improvements can alter the HTML and CSS structure of the template.\nThe accessibility improvements will be standard as of v6.7.0"
+      - name: ADMIN_VITE
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Uses Vite instead of webpack to built and serve the administration. Plugins are not yet supported!"

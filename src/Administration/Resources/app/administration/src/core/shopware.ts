@@ -315,10 +315,10 @@ class ShopwareClass implements CustomShopwareProperties {
 
 const ShopwareInstance = new ShopwareClass();
 
-window.Shopware = ShopwareInstance;
+// Only works for webpack order of imports
+if (!window._features_.ADMIN_VITE) {
+    window.Shopware = ShopwareInstance;
+}
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default ShopwareInstance;
-
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export { ShopwareClass };
+export { ShopwareClass, ShopwareInstance };

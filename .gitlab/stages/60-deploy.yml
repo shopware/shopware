@@ -128,12 +128,7 @@ push split repositories (github):
 deploy to cloud staging:
     stage: deploy
     rules:
-      - !reference [ .rules, skip ]
-      - if: '$CI_COMMIT_BRANCH =~ /^6\.*/ && ($CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*run_scheduled*/)'
-        variables:
-          VERSION_ORIGIN_REF: ''
-          CUSTOM_VERSION: 'shopware/platform:${CI_COMMIT_BRANCH}-dev as 6.5.x-dev;swag/saas-rufus:6.5.x-dev;shopware/commercial:6.5.x-dev;'
-      - !reference [ .rules, scheduled ]
+      - when: never # We won't (and can't) deploy 6.5.x to cloud anymore
     variables:
       VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
       CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.5.x-dev;swag/saas-rufus:6.5.x-dev;shopware/commercial:6.5.x-dev;'

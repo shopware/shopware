@@ -1,7 +1,7 @@
 /* eslint-disable playwright/no-conditional-in-test */
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test.skip('@update: Update a shop', async ({ page, adminApiContext }) => {
+test('@update: Update a shop', async ({ page, adminApiContext }) => {
     await test.slow();
 
     await page.goto(process.env.ADMIN_URL);

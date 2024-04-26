@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ProductExport\Command;
+namespace Shopware\Tests\Integration\Core\Content\ProductExport\Command;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -27,6 +29,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 class ProductExportGenerateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private ProductExportGenerateCommand $productExportGenerateCommand;
 
@@ -181,5 +184,19 @@ class ProductExportGenerateCommandTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
+    }
+
+    public function testExecuteWithNonStorefrontSalesChannel(): void
+    {
+        $nonStorefrontSalesChannelId = $this->createSalesChannel(['typeId' => Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON])['id'];
+
+        $commandTester = new CommandTester($this->productExportGenerateCommand);
+
+        static::expectException(ProductExportException::class);
+        static::expectExceptionMessage('Only sales channels from type "Storefront" can be used for exports.');
+
+        $commandTester->execute([
+            'sales-channel-id' => $nonStorefrontSalesChannelId,
+        ]);
     }
 }

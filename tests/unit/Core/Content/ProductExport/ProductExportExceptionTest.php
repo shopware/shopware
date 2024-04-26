@@ -75,4 +75,13 @@ class ProductExportExceptionTest extends TestCase
         $exception = ProductExportException::productExportNotFound();
         static::assertSame('No products for export found', $exception->getMessage());
     }
+
+    public function testSalesChannelNotAllowed(): void
+    {
+        $exception = ProductExportException::salesChannelNotAllowed();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ProductExportException::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('Only sales channels from type "Storefront" can be used for exports.', $exception->getMessage());
+    }
 }

@@ -39,7 +39,7 @@ variables:
         - !reference [.rules, run]
         - when: always
     tags:
-      - shopware
+      - shopware-amd64
     before_script:
         - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
         - !reference [ .scripts, init, composer ]

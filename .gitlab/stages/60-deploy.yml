@@ -46,7 +46,7 @@ Publish entity-schema-types NPM package:
 .push split repositories:
   stage: deploy
   tags:
-    - shopware
+    - shopware-amd64
   image:
     name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   needs:

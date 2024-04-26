@@ -114,6 +114,7 @@ in {
   # WSL2 fix locale
   services.redis.extraConfig = "locale-collate C";
   services.adminer.enable = lib.mkDefault true;
+  services.adminer.package = lib.mkDefault pkgs.adminerevo;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
   services.mailpit.enable = lib.mkDefault true;
 

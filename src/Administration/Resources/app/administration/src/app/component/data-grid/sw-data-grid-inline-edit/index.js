@@ -23,7 +23,6 @@ Component.register('sw-data-grid-inline-edit', {
                 return {};
             },
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -57,7 +56,7 @@ Component.register('sw-data-grid-inline-edit', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

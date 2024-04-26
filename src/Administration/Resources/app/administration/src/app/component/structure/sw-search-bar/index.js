@@ -224,7 +224,7 @@ Component.register('sw-search-bar', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

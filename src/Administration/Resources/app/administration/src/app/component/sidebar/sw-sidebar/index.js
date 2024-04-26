@@ -63,7 +63,7 @@ Component.register('sw-sidebar', {
         this.mountedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

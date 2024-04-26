@@ -83,15 +83,6 @@ export default {
     },
 
     watch: {
-        activeOptions() {
-            // TODO: Replace it with prop when the sw-data-grid allows to deactivate the compact mode
-            this.$nextTick().then(() => {
-                if (this.$refs.variantsMedia) {
-                    this.$refs.variantsMedia.compact = false;
-                }
-            });
-        },
-
         activeGroup: {
             handler() {
                 this.product.variantListingConfig.configuratorGroupConfig.find((group) => {

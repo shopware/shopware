@@ -133,7 +133,7 @@ Component.register('sw-duplicated-media-v2', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

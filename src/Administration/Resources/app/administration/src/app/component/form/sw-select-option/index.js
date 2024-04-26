@@ -55,7 +55,7 @@ Component.register('sw-select-option', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

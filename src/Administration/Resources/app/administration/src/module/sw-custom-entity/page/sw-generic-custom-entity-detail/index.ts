@@ -115,6 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$route.meta.$module.icon = this.adminConfig?.icon;
             }
 
+            // eslint-disable-next-line no-warning-comments
             // ToDo NEXT-22874 - Favicon handling
             void this.loadData();
         },

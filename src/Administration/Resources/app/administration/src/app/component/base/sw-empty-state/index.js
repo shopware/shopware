@@ -24,7 +24,6 @@ Component.register('sw-empty-state', {
         },
         showDescription: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
@@ -41,7 +40,6 @@ Component.register('sw-empty-state', {
         },
         absolute: {
             type: Boolean,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,

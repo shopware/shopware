@@ -28,12 +28,10 @@ Component.register('sw-radio-panel', {
     inject: ['feature'],
 
     props: {
-        // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop
         value: {
             type: String,
         },
-        // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop
         modelValue: {
             type: String,

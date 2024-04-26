@@ -28,7 +28,6 @@ Component.register('sw-grid-column', {
             type: String,
             default: 'left',
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,

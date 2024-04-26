@@ -31,7 +31,6 @@ export default {
     ],
 
     props: {
-        // FIXME: add type for salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
@@ -43,7 +42,6 @@ export default {
             required: true,
         },
 
-        // FIXME: add default value for this property
         // eslint-disable-next-line vue/require-default-prop
         storefrontSalesChannelCriteria: {
             type: Criteria,

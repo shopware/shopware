@@ -60,7 +60,6 @@ Component.register('sw-button-deprecated', {
             required: false,
             default: false,
         },
-        // FIXME: add required flag
         // eslint-disable-next-line vue/require-default-prop
         routerLink: {
             type: Object,

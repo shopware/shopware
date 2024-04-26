@@ -1,5 +1,3 @@
-// TODO: implement extension component section in mt-card
-
 import { MtCard } from '@shopware-ag/meteor-component-library';
 import template from './mt-card.html.twig';
 

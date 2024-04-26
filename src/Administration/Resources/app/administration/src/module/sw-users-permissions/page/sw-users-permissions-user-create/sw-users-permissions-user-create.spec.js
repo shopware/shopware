@@ -109,7 +109,6 @@ async function createWrapper(privileges = []) {
         },
     });
 }
-// TODO: fix these tests and add test cases
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', () => {
     let wrapper;
 

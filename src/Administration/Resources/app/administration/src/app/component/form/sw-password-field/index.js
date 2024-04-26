@@ -20,7 +20,6 @@ Component.extend('sw-password-field', 'sw-text-field-deprecated', {
         passwordToggleAble: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

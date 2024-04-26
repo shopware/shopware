@@ -48,7 +48,6 @@ Component.register('sw-file-input', {
             default: null,
         },
 
-        // FIXME: add property type and prop default value
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: false,

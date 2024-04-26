@@ -620,7 +620,6 @@ function createConfig() {
                     await flushPromises();
 
                     if (domValue.length > 0) {
-                        // TODO: this is not working
                         expect(
                             field.find('.sw-media-base-item__name')
                                 .text(),

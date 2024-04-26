@@ -12,7 +12,6 @@ Component.register('sw-text-editor-table-toolbar', {
     template,
 
     props: {
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         selection: {
             required: false,

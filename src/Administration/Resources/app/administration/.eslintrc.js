@@ -18,6 +18,7 @@ const baseRules = {
         vue: 'never',
     }],
     'no-console': ['error', { allow: ['warn', 'error'] }],
+    'no-warning-comments': ['error', { location: 'anywhere' }],
     'inclusive-language/use-inclusive-words': 'error',
     'comma-dangle': ['error', 'always-multiline'],
     'sw-core-rules/require-position-identifier': ['error', {
@@ -135,7 +136,8 @@ module.exports = {
                         'renderError',
                     ],
                 }],
-                // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
+                // eslint-disable-next-line no-warning-comments
+                // TODO: NEXT-35608 - Enable this rules again after VUE 3 migration
                 'vue/no-deprecated-destroyed-lifecycle': 'off',
                 'vue/no-deprecated-events-api': 'off',
                 'vue/require-slots-as-functions': 'off',

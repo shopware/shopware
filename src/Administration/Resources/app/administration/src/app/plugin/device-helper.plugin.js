@@ -28,7 +28,7 @@ export default {
         });
 
         Vue.mixin({
-            destroyed() {
+            unmounted() {
                 this.$device.removeResizeListener(this);
             },
         });

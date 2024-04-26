@@ -24,7 +24,6 @@ Component.register('sw-sales-channel-config', {
             required: false,
             default: '',
         },
-        // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         value: {
             type: Object,

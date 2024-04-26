@@ -75,7 +75,7 @@ export default {
         },
 
         isDisabled() {
-            return true; // TODO use ACL here with NEXT-1653
+            return true;
         },
 
         userRepository() {
@@ -92,17 +92,6 @@ export default {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        userMediaCriteria() {
-            if (this.user.id) {
-                // ???
-                // ToDo: If SwSidebarMedia has the new data handling, change this too
-                // return CriteriaFactory.equals('userId', this.user.id);
-                return null;
-            }
-
-            return null;
         },
 
         languageId() {

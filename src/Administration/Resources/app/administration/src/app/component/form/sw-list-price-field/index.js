@@ -39,7 +39,6 @@ Component.register('sw-list-price-field', {
             },
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
@@ -62,7 +61,6 @@ Component.register('sw-list-price-field', {
             },
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
@@ -75,7 +73,6 @@ Component.register('sw-list-price-field', {
             default: null,
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
@@ -121,7 +118,6 @@ Component.register('sw-list-price-field', {
         showSettingPrice: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

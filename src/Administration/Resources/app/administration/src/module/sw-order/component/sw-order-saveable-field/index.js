@@ -10,7 +10,6 @@ export default {
     template,
 
     props: {
-        // FIXME: add type to value property
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -21,7 +20,6 @@ export default {
             required: true,
             default: 'text',
         },
-        // FIXME: add type to placeholder property
         // eslint-disable-next-line vue/require-prop-types
         placeholder: {
             required: false,
@@ -30,7 +28,6 @@ export default {
         editable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

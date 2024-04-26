@@ -16,7 +16,6 @@ Component.register('sw-product-stream-grid-preview', {
         /**
          * The apiFilter of a loaded product stream
          */
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         filters: {
             required: true,

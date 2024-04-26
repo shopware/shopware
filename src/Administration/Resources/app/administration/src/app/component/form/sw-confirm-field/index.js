@@ -79,7 +79,7 @@ Component.register('sw-confirm-field', {
         },
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.$emit('remove-error');
     },
 

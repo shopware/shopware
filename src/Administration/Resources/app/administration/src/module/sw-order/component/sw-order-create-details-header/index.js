@@ -11,7 +11,6 @@ export default {
     template,
 
     props: {
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         customer: {
             type: Object,
@@ -22,13 +21,11 @@ export default {
             required: true,
         },
 
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         cartPrice: {
             type: Object,
         },
 
-        // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         currency: {
             type: Object,

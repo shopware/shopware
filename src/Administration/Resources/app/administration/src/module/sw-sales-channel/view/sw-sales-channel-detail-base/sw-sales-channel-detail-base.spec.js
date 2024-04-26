@@ -963,7 +963,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    // todo: figure out what this test actually tests
     // eslint-disable-next-line jest/no-identical-title
     it('should have the field for productExport accessKey disabled', async () => {
         const wrapper = await createWrapper();
@@ -984,7 +983,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    // todo: figure out what this test actually tests
     // eslint-disable-next-line jest/no-identical-title
     it('should have the field for productExport accessKey not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];

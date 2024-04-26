@@ -391,7 +391,7 @@ Component.register('sw-text-editor', {
         this.mountedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

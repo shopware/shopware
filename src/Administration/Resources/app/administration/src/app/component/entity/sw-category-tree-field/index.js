@@ -168,7 +168,7 @@ Component.register('sw-category-tree-field', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

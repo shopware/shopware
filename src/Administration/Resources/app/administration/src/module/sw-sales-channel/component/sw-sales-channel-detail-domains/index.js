@@ -22,7 +22,6 @@ export default {
     ],
 
     props: {
-        // FIXME: add type to salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,

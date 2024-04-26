@@ -95,7 +95,6 @@ describe('components/sw-select-rule-create', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    // TODO: fix test
     it('should disable restricted rules', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -21,14 +21,12 @@ Component.register('sw-property-search', {
         collapsible: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         overlay: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -105,7 +103,7 @@ Component.register('sw-property-search', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

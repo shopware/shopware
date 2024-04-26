@@ -48,7 +48,7 @@ export default {
 
                 return true;
             },
-            beforeDestroy() {
+            beforeUnmount() {
                 const shortcuts = this.$options.shortcuts;
 
                 if (!shortcuts) {

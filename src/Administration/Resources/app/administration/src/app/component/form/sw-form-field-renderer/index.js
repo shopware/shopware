@@ -88,7 +88,6 @@ Component.register('sw-form-field-renderer', {
             required: false,
             default: null,
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,

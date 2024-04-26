@@ -82,7 +82,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
         }, 7000);
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.loadingTimeOut) {
             window.clearTimeout(this.loadingTimeOut);
         }

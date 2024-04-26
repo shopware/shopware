@@ -89,7 +89,7 @@ Component.register('sw-image-preview-modal', {
         this.updatedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

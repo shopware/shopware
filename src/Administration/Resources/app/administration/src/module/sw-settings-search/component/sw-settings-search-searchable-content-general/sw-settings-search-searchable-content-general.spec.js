@@ -59,14 +59,6 @@ async function createWrapper() {
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-general', () => {
     beforeEach(async () => {
         global.activeAclRoles = [];
-
-        // TODO: Remove this when the test is fixed
-        global.allowedErrors = [
-            {
-                method: 'warn',
-                msg: '[Listing Mixin]',
-            },
-        ];
     });
 
     it('should be a Vue.JS component', async () => {

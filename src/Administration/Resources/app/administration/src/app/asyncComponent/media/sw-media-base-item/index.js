@@ -37,7 +37,6 @@ export default {
         showContextMenuButton: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -51,7 +50,6 @@ export default {
         editable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -59,7 +57,6 @@ export default {
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -73,7 +70,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
@@ -81,7 +77,6 @@ export default {
         allowDelete: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

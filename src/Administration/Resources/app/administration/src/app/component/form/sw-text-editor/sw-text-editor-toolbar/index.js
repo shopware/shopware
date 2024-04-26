@@ -24,7 +24,6 @@ Component.register('sw-text-editor-toolbar', {
             default: false,
         },
 
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         selection: {
             required: false,
@@ -103,7 +102,7 @@ Component.register('sw-text-editor-toolbar', {
         this.mountedComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

@@ -27,7 +27,6 @@ Component.register('sw-text-field-deprecated', {
     ],
 
     props: {
-        // FIXME: add type and default value to property
         // eslint-disable-next-line vue/require-prop-types, vue/require-default-prop
         value: {
             required: false,

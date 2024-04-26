@@ -2,8 +2,8 @@
  * @package admin
  */
 
-import template from './sw-tabs.html.twig';
-import './sw-tabs.scss';
+import template from './sw-tabs-deprecated.html.twig';
+import './sw-tabs-deprecated.scss';
 
 const { Component } = Shopware;
 const util = Shopware.Utils;
@@ -24,7 +24,7 @@ const dom = Shopware.Utils.dom;
  *     </sw-tabs-item>
  * </sw-tabs>
  */
-Component.register('sw-tabs', {
+Component.register('sw-tabs-deprecated', {
     template,
 
     inject: ['feature'],
@@ -234,7 +234,15 @@ Component.register('sw-tabs', {
             this.recalculateSlider();
 
             if (this.$slots.default &&
+                // Check direct child
                 this.$slots.default({ active: this.active })?.[0]?.componentOptions?.propsData?.route
+            ) {
+                this.hasRoutes = true;
+            }
+
+            if (this.$slots.default &&
+                // Check sub child
+                this.$slots.default({ active: this.active })?.[0]?.children?.[0]?.componentOptions?.propsData?.route
             ) {
                 this.hasRoutes = true;
             }

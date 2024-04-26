@@ -44,6 +44,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-loader />
             </template>`
+        },
+        {
+            name: '"mt-tabs" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-tabs />
+            </template>`
         }
     ],
     invalid: [
@@ -269,6 +277,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-checkbox-field" is deprecated. Please use "mt-checkbox" instead.',
+            }]
+        },
+        {
+            name: '"sw-tabs" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-tabs />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-tabs - please check if everything works correctly -->
+    <mt-tabs />
+</template>`,
+            errors: [{
+                message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
+            }]
+        },
+        {
+            name: '"sw-tabs" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-tabs />
+</template>`,
+            errors: [{
+                message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
             }]
         },
     ]

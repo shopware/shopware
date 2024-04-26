@@ -89,6 +89,7 @@ async function createWrapper(layoutType = 'product_list') {
 `,
                 },
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-button': {
                     template: '<div class="sw-button" @click="$emit(\'click\')"></div>',
                 },

@@ -130,6 +130,7 @@ module.exports = {
                         'sw-text-field',
                         'sw-number-field',
                         'sw-loader',
+                        'sw-tabs'
                     ];
 
                     // Handle other deprecated components

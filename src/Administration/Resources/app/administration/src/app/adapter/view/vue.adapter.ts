@@ -242,7 +242,6 @@ export default class VueAdapter extends ViewAdapter {
             'MtTextarea',
             'MtUrlField',
             'MtIcon',
-            'MtTabs',
             'MtDataTable',
             'MtPagination',
             'MtSkeletonBar',

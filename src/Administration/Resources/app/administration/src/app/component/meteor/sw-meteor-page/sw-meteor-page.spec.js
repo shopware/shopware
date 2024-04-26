@@ -21,6 +21,7 @@ async function createWrapper(slotsData = {}) {
                     template: '<div class="sw-meteor-navigation"></div>',
                 },
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'router-link': {
                     template: '<div class="router-link"><slot></slot></div>',

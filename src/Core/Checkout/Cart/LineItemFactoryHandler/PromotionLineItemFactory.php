@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Framework\Log\Package;
@@ -43,6 +44,6 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
      */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
-        throw new \RuntimeException(sprintf('You cannot update a line item of type "%s"', $lineItem->getType()));
+        throw CartException::lineItemTypeNotUpdatable($lineItem->getType());
     }
 }

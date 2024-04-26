@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItemFactoryHandler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -58,8 +59,8 @@ class PromotionLineItemFactoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('You cannot update a line item of type "promotion"');
+        $this->expectException(CartException::class);
+        $this->expectExceptionMessage('Line item type "promotion" cannot be updated.');
 
         $factory = new PromotionLineItemFactory();
 

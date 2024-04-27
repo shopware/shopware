@@ -17,9 +17,9 @@ export default class OffCanvasAccountMenu extends Plugin {
         additionalClass: 'account-menu-offcanvas',
 
         /**
-         * class is used to hide the dropdown on viewports where the offcanvas is used
+         * class is used to show the dropdown on viewports where the offcanvas is not used
          */
-        hiddenClass: 'd-none',
+        showClass: 'show',
 
         /**
          * from which direction the offcanvas opens
@@ -55,7 +55,7 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         this._dropdown = DomAccess.querySelector(trigger.parentNode, `.${this.options.dropdownMenuSelector}`);
 
-        this._dropdown.classList.add(this.options.hiddenClass);
+        this._dropdown.classList.remove(this.options.showClass);
 
         OffCanvas.open(this._dropdown.innerHTML, null, this.options.offcanvasPostion, true, OffCanvas.REMOVE_OFF_CANVAS_DELAY());
         OffCanvas.setAdditionalClassName(this.options.additionalClass);
@@ -79,14 +79,15 @@ export default class OffCanvasAccountMenu extends Plugin {
 
         if (this._dropdown) {
             if (this._isInAllowedViewports() === false) {
-                this._dropdown.classList.remove(this.options.hiddenClass);
+                this._dropdown.classList.add(this.options.showClass);
             } else {
-                this._dropdown.classList.add(this.options.hiddenClass);
+                this._dropdown.classList.remove(this.options.showClass);
             }
         }
 
         this.$emitter.publish('onViewportHasChanged');
     }
+
 
     /**
      * Returns if the browser is in the allowed viewports

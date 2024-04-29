@@ -184,4 +184,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         expect(contextMenuEdit.attributes().disabled).toBe('true');
         expect(contextMenuDelete.attributes().disabled).toBeUndefined();
     });
+
+    it('should add avatar media as association', async () => {
+        wrapper = await createWrapper(['users_and_permissions.editor']);
+        await flushPromises();
+
+        expect(wrapper.vm.userCriteria.associations[1].association).toBe('avatarMedia');
+    });
 });

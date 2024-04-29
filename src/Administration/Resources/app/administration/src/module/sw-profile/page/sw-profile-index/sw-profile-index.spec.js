@@ -34,18 +34,26 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 repositoryFactory: {
-                    create: () => ({
-                        get: () => Promise.resolve({ id: '87923', localeId: '1337' }),
-                        search: () => Promise.resolve(new EntityCollection(
-                            '',
-                            '',
-                            Shopware.Context.api,
-                            null,
-                            [],
-                            0,
-                        )),
-                        getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
-                    }),
+                    create: (entityName) => {
+                        if (entityName === 'media') {
+                            return {
+                                get: () => Promise.resolve({ id: '2142' }),
+                            };
+                        }
+
+                        return {
+                            get: () => Promise.resolve({ id: '87923', localeId: '1337' }),
+                            search: () => Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                                [],
+                                0,
+                            )),
+                            getSyncChangeset: () => ({ changeset: [{ changes: { id: '1337' } }] }),
+                        };
+                    },
                 },
                 loginService: {},
                 userService: {
@@ -204,5 +212,19 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isLoading).toBe(true);
 
         expect(saveUserSpyOn).toHaveBeenCalledWith({ foo: 'bar' });
+    });
+
+    it('should handle avatarId and load the media', async () => {
+        const wrapper = await createWrapper();
+        const mediaId = '2142';
+
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        wrapper.vm.setMediaItem({ targetId: mediaId });
+        await flushPromises();
+
+        expect(wrapper.vm.user.avatarId).toBe(mediaId);
+        expect(wrapper.vm.avatarMediaItem.id).toBe(mediaId);
     });
 });

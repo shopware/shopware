@@ -1,6 +1,6 @@
 ---
 title: Fix missing user avatar media
-issue: NEXT-00000
+issue: NEXT-27720
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

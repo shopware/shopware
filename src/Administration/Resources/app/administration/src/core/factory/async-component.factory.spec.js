@@ -2704,4 +2704,58 @@ describe('core/factory/async-component.factory.ts', () => {
             });
         });
     });
+
+    describe('returns a component that overrides a method which overrides another method. Calling these method multiple times should not return different values', () => {
+        createComponentMatrix({
+            A: () => ({
+                template: '<div>Something</div>',
+                methods: {
+                    test(value) {
+                        // This should never be called in Component B
+                        return `NEVER_CALL_THIS_${value}`;
+                    },
+                },
+            }),
+            B: () => ({
+                methods: {
+                    test(value) {
+                        // Component B ignores return value of A
+                        return `B_${value}`;
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    test(value) {
+                        // Component C calls the super method of B
+                        return `C_${this.$super('test', value)}`;
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('base-component', components.A());
+                ComponentFactory.extend('extension', 'base-component', components.B());
+                ComponentFactory.override('extension', components.C());
+
+                const buildConfig = await ComponentFactory.build('extension');
+
+                const wrapper = mount(buildConfig, {});
+
+                // Call the method multiple times and expect the same return value
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(1)).toBe('C_B_1');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+                expect(wrapper.vm.test(2)).toBe('C_B_2');
+
+                wrapper.unmount();
+            });
+        });
+    });
 });

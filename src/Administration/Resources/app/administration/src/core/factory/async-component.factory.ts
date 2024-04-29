@@ -1037,6 +1037,15 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
                 return this.$super(name, ...args);
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            if (!superFuncObject?.func?.toString()?.includes('$super')) {
+                this._virtualCallStack[name] = undefined;
+
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return superFuncObject.func.bind(this)(...args);
+            }
+
             // @ts-expect-error
             this._virtualCallStack[name] = superFuncObject.parent;
 

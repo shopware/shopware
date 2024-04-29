@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.1.2
+*  [NEXT-35571 - Block twig update to 3.9](./changelog/release-6-6-1-2/2024-04-23-block-twig-update.md)
+*  [NEXT-35585 - Fix shipping cost matrix for non-rules](./changelog/release-6-6-1-2/2024-04-25-fix-shipping-matrix-factors.md)
+
 ## 6.6.1.1
 *  [NEXT-31926 - Fix varnish ban all](./changelog/release-6-6-1-1/2024-04-12-fix-varnish-ban-all.md)
 *  [NEXT-35121 - Recompile theme on plugin with additional bundles](./changelog/release-6-6-1-1/2024-04-16-recompile-on-plugins-with-additional-bundles.md)

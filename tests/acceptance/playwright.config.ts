@@ -35,7 +35,6 @@ const projectRoot = path.resolve('./../../');
 const pluginFile = path.resolve(projectRoot, 'var/plugins.json');
 
 
-
 interface PluginInfo {
     basePath: string;
     technicalName: string;

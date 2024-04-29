@@ -122,11 +122,12 @@ acceptance:
     - shopware-amd64
   stage: E2E
   rules:
-    - !reference [.rules, skip]
-    - !reference [.rules, run]
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
       changes:
         - "tests/acceptance/**/*"
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - !reference [.rules, long-running]
   services:
     - name: mysql:8
       alias: database

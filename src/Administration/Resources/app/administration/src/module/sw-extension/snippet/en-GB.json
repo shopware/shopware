@@ -540,7 +540,7 @@
       "entities": {
         "promotion": "Promotion",
         "promotion_translation": "Promotion translation",
-        "promotion_cart_rule": "Card rule",
+        "promotion_cart_rule": "Cart rule",
         "promotion_discount": "Discount",
         "promotion_discount_prices": "Discount prices",
         "promotion_discount_rule": "Discount rule",

@@ -239,6 +239,7 @@ class InfoControllerTest extends TestCase
                     'customer' => [
                         'type' => 'entity',
                         'entityClass' => CustomerDefinition::class,
+                        'entityName' => 'customer',
                     ],
                     'contextToken' => [
                         'type' => 'string',
@@ -263,6 +264,7 @@ class InfoControllerTest extends TestCase
                     'order' => [
                         'type' => 'entity',
                         'entityClass' => OrderDefinition::class,
+                        'entityName' => 'order',
                     ],
                 ],
                 'aware' => [
@@ -284,6 +286,7 @@ class InfoControllerTest extends TestCase
                     'order' => [
                         'type' => 'entity',
                         'entityClass' => OrderDefinition::class,
+                        'entityName' => 'order',
                     ],
                 ],
                 'aware' => [

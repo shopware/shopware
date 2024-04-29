@@ -35,7 +35,7 @@ check_coverage() {
     if [[ $(jq -n "$mr_coverage >= $upstream_coverage") == "true" ]]; then
         echo 'Coverage is fine'
     else
-        body="MR coverage (${mr_coverage}) is lower that upstream coverage (${upstream_coverage}). Please make sure that everything that can be covered is covered."
+        body="MR coverage (${mr_coverage}) is lower than upstream coverage (${upstream_coverage}). Please make sure that everything that can be covered is covered."
 
         echo "${body}"
 

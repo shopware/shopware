@@ -2011,5 +2011,42 @@
     "features",
     "createdAt",
     "updatedAt"
+  ],
+  "spatial_scene": [
+    "id",
+    "name",
+    "description",
+    "backgroundEnabled",
+    "backgroundColor",
+    "floorEnabled",
+    "floorColor"
+  ],
+  "spatial_scene_light": [
+    "id",
+    "sceneId",
+    "type",
+    "name",
+    "enabled",
+    "intensity",
+    "color",
+    "position",
+    "rotation"
+  ],
+  "spatial_scene_camera": [
+    "id",
+    "sceneId",
+    "type",
+    "name",
+    "position",
+    "target"
+  ],
+  "spatial_scene_object": [
+    "id",
+    "sceneId",
+    "mediaId",
+    "name",
+    "position",
+    "rotation",
+    "scale"
   ]
 }

@@ -287,11 +287,17 @@ shopware:
     cart:
         compress: false
         expire_days: 120
-        redis_url: false
+        storage:
+            # supported types: mysql, redis
+            type: "mysql"
+            # config:
+                # dsn: 'redis://localhost'
 
     number_range:
-        increment_storage: "SQL"
-        redis_url: false
+        # supported types: mysql, redis
+        increment_storage: "mysql"
+        # config:
+            # dsn: 'redis://localhost'
 
     sales_channel_context:
         expire_days: 120

@@ -453,7 +453,7 @@
 
         <service id="shopware.cart.redis" class="Redis">
             <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
-            <argument>%shopware.cart.redis_url%</argument>
+            <argument>%shopware.cart.storage.config.dsn%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Command\CartMigrateCommand">

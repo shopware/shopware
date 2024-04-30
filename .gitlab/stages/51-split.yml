@@ -34,7 +34,7 @@ split repository:
     matrix:
       - PACKAGE: [ 'Administration', 'Storefront', 'Core', 'Elasticsearch' ]
   script:
-    - .gitlab/bin/split.sh split_repo "${PACKAGE}"
+    - .github/bin/split.bash split_repo "${PACKAGE}"
 
 add assets to split repositories:
   extends: .split-base
@@ -59,11 +59,11 @@ add assets to split repositories:
   script:
     - >
       for package in Administration Storefront; do
-        .gitlab/bin/split.sh copy_assets "${package}"
+        .github/bin/split.bash copy_assets "${package}"
       done
-    - .gitlab/bin/split.sh check_assets
-    - .gitlab/bin/split.sh include_admin_assets
-    - .gitlab/bin/split.sh include_storefront_assets
+    - .github/bin/split.bash check_assets
+    - .github/bin/split.bash include_admin_assets
+    - .github/bin/split.bash include_storefront_assets
 
 finalize split repos (tag):
   extends: .finalize
@@ -72,15 +72,15 @@ finalize split repos (tag):
   script:
     - >
       for package in Administration Storefront Elasticsearch; do
-        .gitlab/bin/split.sh require_core_version "${package}" "${CI_COMMIT_TAG}"
+        .github/bin/split.bash require_core_version "${package}" "${CI_COMMIT_TAG}"
       done
     - >
       for package in Administration Storefront Elasticsearch; do
-        .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_TAG} (+ assets)"
+        .github/bin/split.bash commit "${package}" "${CI_COMMIT_TAG} (+ assets)"
       done
     - >
       for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh tag "${package}" "${CI_COMMIT_TAG}"
+        .github/bin/split.bash tag "${package}" "${CI_COMMIT_TAG}"
       done
 
 finalize split repos (protected branch):
@@ -90,11 +90,11 @@ finalize split repos (protected branch):
   script:
     - >
       for package in Administration Storefront Elasticsearch; do
-        .gitlab/bin/split.sh require_core_version "${package}" "dev-${CI_COMMIT_REF_NAME}"
+        .github/bin/split.bash require_core_version "${package}" "dev-${CI_COMMIT_REF_NAME}"
       done
     - >
       for package in Administration Storefront Elasticsearch; do
-        .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_REF_NAME} (+ assets)"
+        .github/bin/split.bash commit "${package}" "${CI_COMMIT_REF_NAME} (+ assets)"
       done
 
 finalize split repos (merge request):
@@ -104,13 +104,13 @@ finalize split repos (merge request):
   script:
     - >
       for package in Administration Storefront Elasticsearch; do
-          .gitlab/bin/split.sh require_core_version "${package}" "dev-tmp-${CI_COMMIT_SHORT_SHA}"
+          .github/bin/split.bash require_core_version "${package}" "dev-tmp-${CI_COMMIT_SHORT_SHA}"
       done
     - >
       for package in Administration Storefront Elasticsearch; do
-        .gitlab/bin/split.sh commit "${package}" "tmp-${CI_COMMIT_SHORT_SHA} (+ assets)"
+        .github/bin/split.bash commit "${package}" "tmp-${CI_COMMIT_SHORT_SHA} (+ assets)"
       done
     - >
       for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh branch "${package}" "tmp-${CI_COMMIT_SHORT_SHA}"
+        .github/bin/split.bash branch "${package}" "tmp-${CI_COMMIT_SHORT_SHA}"
       done

@@ -583,9 +583,24 @@
                     "type": "boolean",
                     "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
                 },
-                "redis_url": {
-                    "type": "string",
-                    "description": "The redis url to connect to. All carts will be saved in Redis instead of mysql"
+                "storage": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": ["mysql", "redis"]
+                        },
+                        "config": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "dsn": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "title": "Cart"
@@ -595,21 +610,26 @@
             "additionalProperties": false,
             "properties": {
                 "increment_storage": {
-                    "description": "The storage engine used for the increments. Note that you need to configure a `redis_url` if you want to use the `Redis` storage.",
+                    "description": "The storage engine used for the increments. Note that you need to configure also `config.dsn` if you want to use the `redis` storage.",
                     "anyOf": [
                         {
                             "type": "string",
-                            "enum": ["SQL", "Redis"]
+                            "enum": ["mysql", "redis"]
                         },
                         {
                             "type": "string"
                         }
                     ],
-                    "default": "SQL"
+                    "default": "mysql"
                 },
-                "redis_url": {
-                    "type": "string",
-                    "description": "The redis url to connect to. All number range states will be saved in Redis instead of sql"
+                "config": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "dsn": {
+                            "type": "string"
+                        }
+                    }
                 }
             },
             "title": "Number Range"

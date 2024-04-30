@@ -39,7 +39,7 @@
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="shopware.value_generator_connector" storage="SQL"/>
+            <tag name="shopware.value_generator_connector" storage="mysql"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage">
@@ -52,7 +52,7 @@
             <argument type="service" id="lock.factory"/>
             <argument type="service" id="number_range.repository"/>
 
-            <tag name="shopware.value_generator_connector" storage="Redis"/>
+            <tag name="shopware.value_generator_connector" storage="redis"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry">
@@ -62,7 +62,7 @@
 
         <service id="shopware.number_range.redis" class="Redis">
             <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
-            <argument>%shopware.number_range.redis_url%</argument>
+            <argument>%shopware.number_range.config.dsn%</argument>
         </service>
 
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"

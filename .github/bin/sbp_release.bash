@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 set -eu
 
 if [ -n "${DEBUG:-}" ]; then
@@ -14,7 +14,7 @@ PLATFORM_DIR="${CI_PROJECT_DIR:-$(pwd)}"
 PLATFORM_VERSION=${PLATFORM_TAG#v*}
 PLATFORM_MAJOR_VERSION=$(echo "${PLATFORM_VERSION}" | cut -d '.' -f1,2)
 SBP_TOKEN="${SBP_TOKEN}"
-SBP_API_URL="${CI_ENVIRONMENT_URL}"
+SBP_API_URL="${SBP_API_URL:-"${CI_ENVIRONMENT_URL}"}"
 
 SBP_VERSIONS_CACHE_FILE=$(mktemp -p "${PLATFORM_DIR}" --suffix='.json')
 

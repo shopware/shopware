@@ -39,10 +39,13 @@ class GuestWishlistPageletLoader
     {
         $page = new GuestWishlistPagelet();
 
-        $criteria = $this->createCriteria($request, $context);
+        $productsIds = $this->extractProductIds($request);
+        $criteria = $this->createCriteria($productsIds, $context);
         $this->eventDispatcher->dispatch(new GuestWishListPageletProductCriteriaEvent($criteria, $context, $request));
 
-        if (empty($criteria->getIds())) {
+        if (!empty($productsIds)) {
+            $response = $this->productListRoute->load($criteria, $context);
+        } else {
             $response = new ProductListResponse(new EntitySearchResult(
                 'wishlist',
                 0,
@@ -51,8 +54,6 @@ class GuestWishlistPageletLoader
                 $criteria,
                 $context->getContext()
             ));
-        } else {
-            $response = $this->productListRoute->load($criteria, $context);
         }
 
         $page->setSearchResult($response);
@@ -62,20 +63,33 @@ class GuestWishlistPageletLoader
         return $page;
     }
 
-    private function createCriteria(Request $request, SalesChannelContext $context): Criteria
+    /**
+     * @return array<string>
+     */
+    private function extractProductIds(Request $request): array
     {
-        $criteria = new Criteria();
-
         $productIds = $request->get('productIds', []);
 
         if (!\is_array($productIds)) {
             throw RoutingException::missingRequestParameter('productIds');
         }
 
-        $productIds = array_filter($productIds, static fn ($productId) => Uuid::isValid($productId));
+        /** @var array<string> $productIds */
+        return array_filter($productIds, static fn (string $productId) => Uuid::isValid($productId));
+    }
+
+    /**
+     * @param array<string> $productIds
+     */
+    private function createCriteria(array $productIds, SalesChannelContext $context): Criteria
+    {
+        $criteria = new Criteria();
 
         $criteria->setLimit(self::LIMIT);
-        $criteria->setIds($productIds);
+
+        if (!empty($productIds)) {
+            $criteria->setIds($productIds);
+        }
 
         $criteria->addAssociation('manufacturer')
             ->addAssociation('options.group')

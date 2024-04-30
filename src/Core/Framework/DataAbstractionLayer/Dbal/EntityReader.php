@@ -588,7 +588,10 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $fieldCriteria->setIds(\array_filter($ids));
+        if (\count($filteredIds = \array_filter($ids)) !== 0) {
+            $fieldCriteria->setIds($filteredIds);
+        }
+
         $fieldCriteria->resetSorting();
         $fieldCriteria->resetFilters();
         $fieldCriteria->resetPostFilters();
@@ -657,10 +660,12 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection,
         array $partial
     ): void {
-        // collect all ids of many to many association which already stored inside the struct instances
+        // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        $criteria->setIds($ids);
+        if (\count($ids) !== 0) {
+            $criteria->setIds($ids);
+        }
 
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
@@ -807,7 +812,9 @@ class EntityReader implements EntityReaderInterface
         }
         unset($row);
 
-        $fieldCriteria->setIds($ids);
+        if (\count($ids) !== 0) {
+            $fieldCriteria->setIds($ids);
+        }
 
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */

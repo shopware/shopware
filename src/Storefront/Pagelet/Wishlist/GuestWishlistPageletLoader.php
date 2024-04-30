@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -38,11 +39,12 @@ class GuestWishlistPageletLoader
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPagelet
     {
         $page = new GuestWishlistPagelet();
+        $criteria = new Criteria();
 
-        $criteria = $this->createCriteria($request, $context);
-        $this->eventDispatcher->dispatch(new GuestWishListPageletProductCriteriaEvent($criteria, $context, $request));
-
-        if (empty($criteria->getIds())) {
+        try {
+            $criteria = $this->createCriteria($request, $context);
+            $response = $this->productListRoute->load($criteria, $context);
+        } catch (DataAbstractionLayerException $e) {
             $response = new ProductListResponse(new EntitySearchResult(
                 'wishlist',
                 0,
@@ -51,8 +53,8 @@ class GuestWishlistPageletLoader
                 $criteria,
                 $context->getContext()
             ));
-        } else {
-            $response = $this->productListRoute->load($criteria, $context);
+        } finally {
+            $this->eventDispatcher->dispatch(new GuestWishListPageletProductCriteriaEvent($criteria, $context, $request));
         }
 
         $page->setSearchResult($response);

@@ -9,7 +9,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator"/>
 
             <tag name="kernel.event_listener" event="media.loaded" method="loaded" priority="20" />
-            <tag name="kernel.event_listener" event="partial.media.loaded" method="loaded" priority="19" />
+            <tag name="kernel.event_listener" event="media.partial_loaded" method="loaded" priority="19" />
         </service>
 
         <service class="Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder" id="Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder">

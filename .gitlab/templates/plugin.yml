@@ -338,6 +338,11 @@ template filled:
     needs: []
     tags:
       - shopware-amd64
+    variables:
+      KUBERNETES_CPU_REQUEST: "1"
+      KUBERNETES_CPU_LIMIT: "2"
+      KUBERNETES_MEMORY_REQUEST: "3Gi"
+      KUBERNETES_MEMORY_LIMIT: "6Gi"
     script:
         - *e2e-prepare
         - >

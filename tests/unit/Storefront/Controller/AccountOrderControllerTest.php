@@ -7,6 +7,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -28,6 +30,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AccountOrderController;
@@ -242,6 +245,60 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertEquals($expectedRedirectUrl, $response->getTargetUrl());
+    }
+
+    public function testTransactionsStateMachineAssociationIsLoadedOnOrderUpdate(): void
+    {
+        $container = new ContainerBuilder();
+        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
+        $container->set('router', static::createMock(RouterInterface::class));
+
+        $this->controller->setContainer($container);
+
+        $ids = new IdsCollection();
+
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext->assign([
+            'currency' => (new CurrencyEntity())->assign([
+                'id' => $ids->get('currency'),
+            ]),
+        ]);
+
+        $criteria = new Criteria([$orderId = Uuid::randomHex()]);
+        $criteria->addAssociation('transactions.stateMachineState');
+
+        $order = (new OrderEntity())->assign([
+            '_uniqueIdentifier' => Uuid::randomHex(),
+            'currencyId' => $ids->get('currency'),
+            'deliveries' => new OrderDeliveryCollection(),
+        ]);
+        $transactionMock = $this->createMock(OrderTransactionEntity::class);
+        $transactionMock->method('getStateMachineState')->willReturn($this->createMock(StateMachineStateEntity::class));
+
+        // Mock the OrderEntity with transactions
+        $orderMock = $this->createMock(OrderEntity::class);
+        $orderMock->method('getCurrencyId')->willReturn('currency_id');
+        $orderMock->method('getTransactions')->willReturn(new OrderTransactionCollection([$transactionMock]));
+
+        $orders = new OrderCollection([$order]);
+
+        $accountRouteResponse = new OrderRouteResponse(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                1,
+                $orders,
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $this->orderRouteMock->expects(static::once())
+            ->method('load')
+            ->with($request = new Request(), $salesChannelContext, $criteria)
+        ->willReturn($accountRouteResponse);
+
+        $this->controller->updateOrder($orderId, $request, $salesChannelContext);
     }
 }
 

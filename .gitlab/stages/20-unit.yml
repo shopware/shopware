@@ -201,7 +201,13 @@ PHP unit coverage:
     - when: always
   before_script:
     - !reference [.scripts, init, composer]
+    - mkdir -p coverage || true
   script:
+    - PHP_COVERAGE_OPTIONS=""
+    - >
+      if [[ $CI_PIPELINE_SOURCE == "schedule" ]]; then
+         PHP_COVERAGE_OPTIONS="--coverage-html coverage_tmp/"
+      fi
     - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
     - php $PHP_OPTIONS vendor/bin/phpunit
       --configuration phpunit.xml.dist
@@ -209,7 +215,7 @@ PHP unit coverage:
       --log-junit phpunit.junit.xml
       --testsuite unit
       --coverage-text
-      --coverage-html coverage_tmp/
+      $PHP_COVERAGE_OPTIONS
       --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
   after_script:
     - >

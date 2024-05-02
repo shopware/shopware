@@ -1,3 +1,4 @@
+import type { Toast } from '@shopware-ag/meteor-component-library/dist/esm/components/feedback-indicator/mt-toast/mt-toast';
 import template from './sw-admin.html.twig';
 
 const { Component } = Shopware;
@@ -20,9 +21,11 @@ Component.register('sw-admin', {
 
     data(): {
         channel: BroadcastChannel | null,
+        toasts: Toast[],
         } {
         return {
             channel: null,
+            toasts: [],
         };
     },
 
@@ -33,6 +36,16 @@ Component.register('sw-admin', {
     },
 
     created() {
+        Shopware.ExtensionAPI.handle('toastDispatch', (toast) => {
+            this.toasts = [
+                {
+                    id: Shopware.Utils.createId(),
+                    ...toast,
+                },
+                ...this.toasts,
+            ];
+        });
+
         this.channel = new BroadcastChannel('session_channel');
         this.channel.onmessage = (event) => {
             const data = event.data as { inactive?: boolean };
@@ -59,6 +72,10 @@ Component.register('sw-admin', {
     methods: {
         onUserActivity() {
             this.userActivityService.updateLastUserActivity();
+        },
+
+        onRemoveToast(id: number) {
+            this.toasts = this.toasts.filter((toast) => toast.id !== id);
         },
     },
 });

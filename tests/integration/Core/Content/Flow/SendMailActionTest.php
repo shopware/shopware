@@ -130,7 +130,7 @@ class SendMailActionTest extends TestCase
 
         if ($hasOrderSettingAttachment) {
             $event->getContext()->addExtension(
-                MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
+                SendMailAction::MAIL_CONFIG_EXTENSION,
                 new MailSendSubscriberConfig(
                     false,
                     $documentIds,
@@ -259,7 +259,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -321,7 +321,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -395,7 +395,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -470,7 +470,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -595,7 +595,7 @@ class SendMailActionTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $context->addExtension(MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+        $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
 
         $mailTemplateId = $this->retrieveMailTemplateId();
 
@@ -680,7 +680,7 @@ class SendMailActionTest extends TestCase
         $mailTemplateId = $this->retrieveMailTemplateId();
 
         $context->addExtension(
-            MailSendSubscriberConfig::MAIL_CONFIG_EXTENSION,
+            SendMailAction::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 false,
                 [],

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -157,7 +158,7 @@ SQL;
         $connection->insert('event_action', [
             'id' => Uuid::randomBytes(),
             'event_name' => 'user.recovery.request',
-            'action_name' => 'action.mail.send',
+            'action_name' => SendMailAction::ACTION_NAME,
             'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);

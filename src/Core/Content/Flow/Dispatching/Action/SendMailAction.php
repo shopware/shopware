@@ -11,7 +11,6 @@ use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
-use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -35,7 +34,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('services-settings')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
-    final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
+    final public const ACTION_NAME = 'action.mail.send';
     final public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
 
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
@@ -60,7 +59,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     public static function getName(): string
     {
-        return 'action.mail.send';
+        return self::ACTION_NAME;
     }
 
     /**

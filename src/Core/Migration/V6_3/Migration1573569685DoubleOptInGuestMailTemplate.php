@@ -5,7 +5,7 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
-use Shopware\Core\Content\MailTemplate\MailTemplateActions;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -182,7 +182,7 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
             [
                 'id' => Uuid::randomBytes(),
                 'event_name' => DoubleOptInGuestOrderEvent::EVENT_NAME,
-                'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
+                'action_name' => SendMailAction::ACTION_NAME,
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($templateTypeId),
                 ], \JSON_THROW_ON_ERROR),

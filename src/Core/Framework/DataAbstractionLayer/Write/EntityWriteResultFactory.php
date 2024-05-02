@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -413,6 +414,14 @@ class EntityWriteResultFactory
                     json_encode($command->getPayload(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR)
                 );
                 $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
+
+                if (isset($writeResults[$uniqueId]) && $command instanceof ChangeSetAware) {
+                    $changeSet = $writeResults[$uniqueId]->getChangeSet();
+
+                    if ($changeSet instanceof ChangeSet) {
+                        $command->getChangeSet()->merge($changeSet);
+                    }
+                }
 
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),

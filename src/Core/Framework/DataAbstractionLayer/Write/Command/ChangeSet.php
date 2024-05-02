@@ -74,6 +74,13 @@ class ChangeSet extends Struct
         return \array_key_exists($property, $this->after) || $this->isDelete;
     }
 
+    public function merge(ChangeSet $changeSet): void
+    {
+        $this->after = array_merge($this->after, $changeSet->after);
+        $this->state = array_merge($this->state, $changeSet->state);
+        $this->isDelete = $this->isDelete || $changeSet->isDelete;
+    }
+
     public function getApiAlias(): string
     {
         return 'dal_change_set';

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -41,6 +42,10 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 return $this->decorated->aggregate($definition, $criteria, $context);
             }
 
+            if (\count($criteria->getAggregations()) === 0) {
+                return new AggregationResultCollection();
+            }
+
             $search = $this->createSearch($definition, $criteria, $context);
 
             $this->eventDispatcher->dispatch(
@@ -52,11 +57,15 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
+                'track_total_hits' => false,
                 'body' => $searchArray,
                 'search_type' => $this->searchType,
             ]);
 
             $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+
+            $this->eventDispatcher->dispatch(new ElasticsearchEntityAggregatorSearchedEvent($result, $search, $definition, $criteria, $context));
+
             $result->addState(self::RESULT_STATE);
 
             return $result;

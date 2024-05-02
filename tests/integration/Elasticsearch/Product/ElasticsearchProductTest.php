@@ -332,6 +332,7 @@ class ElasticsearchProductTest extends TestCase
             $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
             $criteria->setLimit(1);
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
             static::assertCount(1, $products->getIds());
@@ -2791,73 +2792,17 @@ class ElasticsearchProductTest extends TestCase
                         'type' => 'object',
                         'dynamic' => true,
                     ],
-                    'test_select' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'test_html' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'test_text' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'test_unmapped' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
+                    'test_select' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'test_html' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'test_text' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'test_unmapped' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
                     'testFloatingField' => [
                         'type' => 'double',
                     ],
-                    'testField' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'a' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'b' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
-                    'c' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => ['type' => 'text'],
-                            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-                        ],
-                    ],
+                    'testField' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'a' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'b' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
+                    'c' => AbstractElasticsearchDefinition::KEYWORD_FIELD + AbstractElasticsearchDefinition::SEARCH_FIELD,
                 ],
             ];
         }

@@ -311,6 +311,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="shopware.elasticsearch.logger" />
+            <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
             <tag name="messenger.message_handler"/>

@@ -35,7 +35,7 @@ class ChangeSet extends Struct
 
         // validate data types
         foreach ($changes as $property => $after) {
-            $before = $state[$property];
+            $before = (string) $state[$property];
             $string = (string) $after;
             if ($string === $before) {
                 continue;

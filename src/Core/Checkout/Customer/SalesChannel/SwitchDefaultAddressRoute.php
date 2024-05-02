@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerDefaultBillingAddressSetEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerDefaultShippingAddressSetEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultBillingAddressEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerSetDefaultShippingAddressEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -70,6 +72,19 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         }
 
         $this->customerRepository->update([$data], $context->getContext());
+
+        switch ($type) {
+            case self::TYPE_BILLING:
+                $event = new CustomerDefaultBillingAddressSetEvent($context, $customer, $addressId);
+                $this->eventDispatcher->dispatch($event);
+
+                break;
+            default:
+                $event = new CustomerDefaultShippingAddressSetEvent($context, $customer, $addressId);
+                $this->eventDispatcher->dispatch($event);
+
+                break;
+        }
 
         return new NoContentResponse();
     }

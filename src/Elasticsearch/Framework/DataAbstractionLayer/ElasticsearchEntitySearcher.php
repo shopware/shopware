@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -63,16 +64,26 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 )
             );
 
-            $search = $this->convertSearch($criteria, $definition, $context, $search);
+            $searchBody = $this->convertSearch($criteria, $definition, $context, $search);
+
+            $trackTotalHits = $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT;
 
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
-                'track_total_hits' => true,
-                'body' => $search,
+                'track_total_hits' => $trackTotalHits,
+                'body' => $searchBody,
                 'search_type' => $this->searchType,
             ]);
 
             $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+
+            $this->eventDispatcher->dispatch(new ElasticsearchEntitySearcherSearchedEvent(
+                $result,
+                $search,
+                $definition,
+                $criteria,
+                $context
+            ));
 
             $result->addState(self::RESULT_STATE);
 
@@ -121,9 +132,12 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return $array;
         }
 
-        $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
+        if ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT) {
+            $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
-        $search->addAggregation($aggregation);
+            $search->addAggregation($aggregation);
+        }
+
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
         $array['timeout'] = $this->timeout;

@@ -22,9 +22,12 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -46,6 +49,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     private IndicesNamespace&MockObject $indices;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
@@ -54,6 +59,7 @@ class ElasticsearchIndexerTest extends TestCase
         $this->indexCreator = $this->createMock(IndexCreator::class);
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
         $this->client = $this->createMock(Client::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $this->helper->method('allowIndexing')->willReturn(true);
 
@@ -108,7 +114,8 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateWithMessage(): void
     {
-        $indexer = $this->getIndexer();
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatched = false;
 
         $query = $this->createMock(IterableQuery::class);
         $query->method('fetch')->willReturn(['1', '2']);
@@ -117,6 +124,13 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
+            $eventDispatched = true;
+            static::assertEquals($query, $event->iterator);
+        });
+
+        $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);
+
         $offset = new IndexerOffset(['product'], null);
 
         $msg = $indexer->iterate($offset);
@@ -124,6 +138,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertInstanceOf(ElasticsearchIndexingMessage::class, $msg);
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $msg->getContext()->getLanguageId());
         static::assertSame(['1', '2'], $msg->getData()->getIds());
+        static::assertTrue($eventDispatched);
     }
 
     public function testIterateWithUnknownDefinition(): void
@@ -300,7 +315,13 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testIterateWithProductEntity(): void
     {
-        $indexer = $this->getIndexer();
+        $eventDispatched = false;
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function () use (&$eventDispatched): void {
+            $eventDispatched = true;
+        });
+
+        $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);
 
         $this->connection
             ->expects(static::once())
@@ -314,6 +335,7 @@ class ElasticsearchIndexerTest extends TestCase
         $entities = ['product'];
 
         $indexer->iterate(null, $entities);
+        static::assertTrue($eventDispatched);
     }
 
     public function testIterateWithProductAndCategoryEntities(): void
@@ -360,9 +382,10 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer->iterate(null, $entities);
     }
 
-    private function getIndexer(?LoggerInterface $logger = null): ElasticsearchIndexer
+    private function getIndexer(?LoggerInterface $logger = null, ?EventDispatcherInterface $eventDispatcher = null): ElasticsearchIndexer
     {
         $logger ??= new NullLogger();
+        $eventDispatcher ??= $this->eventDispatcher;
 
         return new ElasticsearchIndexer(
             $this->connection,
@@ -372,6 +395,7 @@ class ElasticsearchIndexerTest extends TestCase
             $this->iteratorFactory,
             $this->client,
             $logger,
+            $eventDispatcher,
             1,
         );
     }

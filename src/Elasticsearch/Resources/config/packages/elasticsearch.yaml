@@ -24,6 +24,7 @@ elasticsearch:
             'mapping.total_fields.limit': 50000
             'mapping.nested_fields.limit': 500
             'mapping.nested_objects.limit': 1000000
+            max_result_window: 10000
         analysis:
             normalizer:
                 sw_lowercase_normalizer:
@@ -49,6 +50,7 @@ elasticsearch:
         'mapping.total_fields.limit': 50000
         'mapping.nested_fields.limit': 500
         'mapping.nested_objects.limit': 1000000
+        max_result_window: 10000
     analysis:
         normalizer:
             sw_lowercase_normalizer:

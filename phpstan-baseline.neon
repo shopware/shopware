@@ -6246,41 +6246,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/AbstractElasticsearchSearchHydrator.php
 
 		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:extractHits\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:extractHits\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:getTotalValue\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:hydrate\\(\\) has parameter \\$result with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:sortByIdArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:sortByIdArray\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\ElasticsearchEntitySearchHydrator\\:\\:sortByIdArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearchHydrator.php
-
-		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchDateHistogramAggregation\\:\\:getArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php

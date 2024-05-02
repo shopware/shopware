@@ -4,7 +4,7 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
-use Shopware\Core\Content\MailTemplate\MailTemplateActions;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -92,7 +92,7 @@ SQL;
             $sql,
             [
                 'event_name' => ContactFormEvent::EVENT_NAME,
-                'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
+                'action_name' => SendMailAction::ACTION_NAME,
             ]
         )->fetchOne();
 

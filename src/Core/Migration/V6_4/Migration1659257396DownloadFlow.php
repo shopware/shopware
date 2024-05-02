@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
@@ -166,7 +167,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
                     'flow_id' => $flowId,
                     'rule_id' => null,
                     'parent_id' => $ruleSequenceId,
-                    'action_name' => 'action.mail.send',
+                    'action_name' => SendMailAction::ACTION_NAME,
                     'position' => 2,
                     'true_case' => 1,
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -214,7 +215,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
         if ($mailTemplateId !== null) {
             $sequenceConfig[] = [
                 'id' => Uuid::randomHex(),
-                'actionName' => 'action.mail.send',
+                'actionName' => SendMailAction::ACTION_NAME,
                 'config' => sprintf(
                     '{"recipient": {"data": [], "type": "default"}, "mailTemplateId": "%s", "documentTypeIds": []}',
                     Uuid::fromBytesToHex($mailTemplateId)

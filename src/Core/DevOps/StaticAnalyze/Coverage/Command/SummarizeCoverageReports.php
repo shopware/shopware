@@ -42,7 +42,7 @@ class SummarizeCoverageReports extends Command
         $jsCoveragePerArea = [];
 
         foreach ($finder->in($this->projectDir . '/coverage/php')->depth(0)->directories() as $dir) {
-            // We need to create a new Instance of Finder every time, because Symfony Finder doesn't reset it's internal state
+            // We need to create a new Instance of Finder every time, because Symfony Finder doesn't reset its internal state
             $finder = new Finder();
             $xmlFiles = $finder->in($dir->getRealPath())->files()->name('cobertura.xml')->getIterator();
             $xmlFiles->rewind();

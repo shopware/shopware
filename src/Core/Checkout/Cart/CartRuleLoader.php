@@ -287,6 +287,12 @@ class CartRuleLoader implements ResetInterface
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $totalCartNetAmount -= $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
         }
+
+        // Fix for correct behavior, if $totalCartNetAmount is smaller than 0 (e.g. because of extensions).
+        if($totalCartNetAmount < 0) {
+            $totalCartNetAmount = 0;
+        }
+        
         $taxState = $this->detectTaxType($context, $totalCartNetAmount);
         $previous = $context->getTaxState();
         if ($taxState === $previous) {

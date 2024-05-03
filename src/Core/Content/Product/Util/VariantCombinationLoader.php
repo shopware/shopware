@@ -34,7 +34,7 @@ class VariantCombinationLoader
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
         $combinations = FetchModeHelper::groupUnique($combinations);
-
+        /** @var array<string, array{options: string, productNumber: string, productStates: string}> $combinations */
         foreach ($combinations as &$combination) {
             $combination['options'] = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
         }

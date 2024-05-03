@@ -46,13 +46,18 @@ class ElasticsearchException extends HttpException
      */
     public static function indexingError(array $items): self
     {
-        $message = \PHP_EOL . implode(\PHP_EOL, array_column($items, 'reason'));
+        $esErrors = \PHP_EOL . implode(\PHP_EOL, array_column($items, 'reason'));
+
+        $exceptionMessage = 'Following errors occurred while indexing: {{ messages }}';
+        if (\in_array('mapper_parsing_exception', array_column($items, 'type'), true)) {
+            $exceptionMessage = 'Some fields are mapped to incorrect types. Please reset the index and rebuild it. Full errors: {{ messages }}';
+        }
 
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INDEXING_ERROR,
-            'Following errors occurred while indexing: {{ messages }}',
-            ['messages' => $message]
+            $exceptionMessage,
+            ['messages' => $esErrors]
         );
     }
 

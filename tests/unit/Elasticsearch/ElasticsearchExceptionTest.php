@@ -43,6 +43,18 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    public function testIndexingErrorWhenFieldsMappedIncorrectly(): void
+    {
+        $exception = ElasticsearchException::indexingError([
+            ['reason' => 'foo', 'type' => 'mapper_parsing_exception'],
+            ['reason' => 'bar'],
+        ]);
+
+        static::assertSame('ELASTICSEARCH__INDEXING_ERROR', $exception->getErrorCode());
+        static::assertSame("Some fields are mapped to incorrect types. Please reset the index and rebuild it. Full errors: \nfoo\nbar", $exception->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
     public function testNestedAggregationMissingInFilterAggregation(): void
     {
         $exception = ElasticsearchException::nestedAggregationMissingInFilterAggregation('foo');

@@ -9,12 +9,16 @@ class FetchModeHelper
 {
     /**
      * User-land implementation of PDO::FETCH_KEY_PAIR
+     *
+     * @param array<array<string>> $result
+     *
+     * @return array<string, string>
      */
     public static function keyPair(array $result): array
     {
         $firstRow = current($result);
         if (empty($firstRow)) {
-            return $result;
+            return [];
         }
 
         [$keyName, $valueName] = array_keys($firstRow);
@@ -27,12 +31,19 @@ class FetchModeHelper
 
     /**
      * User-land implementation of PDO::FETCH_GROUP
+     *
+     * @phpstan-template CReturn
+     *
+     * @param list<array<string, string|null>> $result
+     * @param callable(array<string, string|null>):CReturn|null $mapper
+     *
+     * @return ($mapper is callable ? array<string, list<CReturn>> : array<string, list<array<string, string|null>>>)
      */
-    public static function group(array $result): array
+    public static function group(array $result, ?callable $mapper = null): array
     {
         $firstRow = current($result);
         if (empty($firstRow)) {
-            return $result;
+            return [];
         }
 
         $dataKeys = array_keys($firstRow);
@@ -43,7 +54,7 @@ class FetchModeHelper
             $index = $row[$groupKey];
             unset($row[$groupKey]);
 
-            $rows[$index][] = $row;
+            $rows[$index][] = $mapper ? $mapper($row) : $row;
         }
 
         return $rows;
@@ -51,12 +62,16 @@ class FetchModeHelper
 
     /**
      * User-land implementation of PDO::FETCH_GROUP|PDO::FETCH_UNIQUE
+     *
+     * @param list<array<string, string|null>> $result
+     *
+     * @return array<string, array<string, string|null>>
      */
     public static function groupUnique(array $result): array
     {
         $firstRow = current($result);
         if (empty($firstRow)) {
-            return $result;
+            return [];
         }
 
         $dataKeys = array_keys($firstRow);

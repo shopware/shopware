@@ -135,12 +135,10 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $grouped = FetchModeHelper::group($grouped);
+        $grouped = FetchModeHelper::group($grouped, static fn ($row) => $row['id']);
 
         $filters = [];
         foreach ($grouped as $options) {
-            $options = array_column($options, 'id');
-
             $filters[] = new OrFilter([
                 new EqualsAnyFilter('product.optionIds', $options),
                 new EqualsAnyFilter('product.propertyIds', $options),

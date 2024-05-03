@@ -133,14 +133,22 @@ export default {
         onSaveCustomField(field = this.currentCustomField) {
             this.removeEmptyProperties(field.config);
 
-            return this.customFieldRepository.save(field).finally(() => {
-                this.currentCustomField = null;
+            return this.customFieldRepository.save(field)
+                .catch((error) => {
+                    const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
 
-                // Wait for modal to be closed
-                this.$nextTick(() => {
-                    this.loadCustomFields();
+                    this.createNotificationError({
+                        message: errorMessage,
+                    });
+                })
+                .finally(() => {
+                    this.currentCustomField = null;
+
+                    // Wait for modal to be closed
+                    this.$nextTick(() => {
+                        this.loadCustomFields();
+                    });
                 });
-            });
         },
 
         onInlineEditCancel(customField) {

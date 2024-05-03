@@ -112,7 +112,10 @@ class MailAttachmentsBuilder
             ]
         );
 
-        return array_column(FetchModeHelper::groupUnique($documents), 'doc_id');
+        /** @var array<string, array{doc_type: string, doc_id: string}> $unique */
+        $unique = FetchModeHelper::groupUnique($documents);
+
+        return array_column($unique, 'doc_id');
     }
 
     /**

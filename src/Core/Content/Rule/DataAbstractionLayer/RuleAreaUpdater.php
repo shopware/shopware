@@ -193,7 +193,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     /**
      * @param array<string> $ids
      *
-     * @return array<string, string[][]>
+     * @return array<string, array<array<string>>>
      */
     private function getAreas(array $ids, CompiledFieldCollection $associationFields): array
     {
@@ -218,7 +218,10 @@ class RuleAreaUpdater implements EventSubscriberInterface
             ArrayParameterType::STRING
         );
 
-        return FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
+        /** @var array<string, array<array<string>>> $result */
+        $result = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
+
+        return $result;
     }
 
     private function addSelect(QueryBuilder $query, AssociationField $associationField): void

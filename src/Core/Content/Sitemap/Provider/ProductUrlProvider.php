@@ -66,6 +66,7 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.detail.page', $context, $this->connection);
 
+        /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
 
         $urls = [];
@@ -99,6 +100,9 @@ class ProductUrlProvider extends AbstractUrlProvider
         return new UrlResult($urls, $nextOffset);
     }
 
+    /**
+     * @return list<array{id: string, created_at: string, updated_at: string}>
+     */
     private function getProducts(SalesChannelContext $context, int $limit, ?int $offset): array
     {
         $lastId = null;
@@ -143,9 +147,15 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
 
-        return $query->executeQuery()->fetchAllAssociative();
+        /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
+        $result = $query->executeQuery()->fetchAllAssociative();
+
+        return $result;
     }
 
+    /**
+     * @return array<string>
+     */
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array
     {
         $salesChannelId = $salesChannelContext->getSalesChannel()->getId();

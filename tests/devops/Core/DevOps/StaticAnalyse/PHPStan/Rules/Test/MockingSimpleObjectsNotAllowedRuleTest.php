@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
+namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Test;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
@@ -17,21 +17,21 @@ class MockingSimpleObjectsNotAllowedRuleTest extends RuleTestCase
 {
     public function testRule(): void
     {
-        $this->analyse([__DIR__ . '/data/MockingSimpleObjects/shopware-unit-test.php'], [
+        $this->analyse([__DIR__ . '/../data/MockingSimpleObjects/shopware-unit-test.php'], [
             [
                 'Mocking of Shopware\Core\Checkout\Order\OrderEntity is not allowed. The object is very basic and can be constructed',
                 16,
             ],
         ]);
 
-        $this->analyse([__DIR__ . '/data/MockingSimpleObjects/commercial-unit-test.php'], [
+        $this->analyse([__DIR__ . '/../data/MockingSimpleObjects/commercial-unit-test.php'], [
             [
                 'Mocking of Shopware\Core\Checkout\Order\OrderEntity is not allowed. The object is very basic and can be constructed',
                 16,
             ],
         ]);
 
-        $this->analyse([__DIR__ . '/data/MockingSimpleObjects/parent-class-test.php'], [
+        $this->analyse([__DIR__ . '/../data/MockingSimpleObjects/parent-class-test.php'], [
             [
                 'Mocking of Shopware\Core\Checkout\Order\OrderEntity is not allowed. The object is very basic and can be constructed',
                 14,

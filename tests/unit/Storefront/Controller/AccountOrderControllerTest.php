@@ -96,7 +96,8 @@ class AccountOrderControllerTest extends TestCase
 
         // Ensure flash massage is shown
         static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
-        static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
+        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertEquals('http://localhost/account/order', $response->headers->get('Location'));
     }
 
     public function testEditOrderInvalidUuid(): void
@@ -122,7 +123,8 @@ class AccountOrderControllerTest extends TestCase
 
         // Ensure flash massage is shown
         static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_NOT_FOUND', $this->controller->flash);
-        static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
+        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertEquals('http://localhost/account/order', $response->headers->get('Location'));
     }
 
     public function testOrderAlreadyPaid(): void
@@ -177,7 +179,8 @@ class AccountOrderControllerTest extends TestCase
 
         // Ensure flash massage is shown
         static::assertEquals('danger error.CHECKOUT__ORDER_ORDER_ALREADY_PAID', $this->controller->flash);
-        static::assertEquals(new RedirectResponse('http://localhost/account/order'), $response);
+        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertEquals('http://localhost/account/order', $response->headers->get('Location'));
     }
 
     public function testCancelOrderRedirectsToCorrectRouteForLoggedInCustomer(): void

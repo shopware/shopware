@@ -109,6 +109,25 @@ export const getFlowId = async (eventName: string, adminApiContext: AdminApiCont
     return result.data[0];
 };
 
+export const getMediaId = async (fileName: string, adminApiContext: AdminApiContext): Promise<string> => {
+    const resp = await adminApiContext.post('./search/media', {
+        data: {
+            limit: 1,
+            filter: [
+                {
+                    type: 'equals',
+                    field: 'fileName',
+                    value: fileName,
+                },
+            ],
+        },
+    });
+
+    const result = (await resp.json()) as { data: { id: string }[]; total: number };
+    await expect(result.total).toBe(1);
+    return result.data[0].id;
+};
+
 export const getOrderTransactionId = async (orderId: string, adminApiContext: AdminApiContext): Promise<{ id: string }> =>{
     const orderTransactionResponse = await adminApiContext.get(`./order/${orderId}/transactions?_response`, {});
         await expect(orderTransactionResponse.ok()).toBeTruthy();

@@ -27,7 +27,8 @@ class UpdateController extends AbstractController
         private readonly RecoveryManager $recoveryManager,
         private readonly ReleaseInfoProvider $releaseInfoProvider,
         private readonly FlexMigrator $flexMigrator,
-        private readonly StreamedCommandResponseGenerator $streamedCommandResponseGenerator
+        private readonly StreamedCommandResponseGenerator $streamedCommandResponseGenerator,
+        private readonly ProjectComposerJsonUpdater $projectComposerJsonUpdater
     ) {
     }
 
@@ -82,7 +83,7 @@ class UpdateController extends AbstractController
         $pluginCompat = new PluginCompatibility($composerJsonPath, $version);
         $pluginCompat->removeIncompatible();
 
-        ProjectComposerJsonUpdater::update($composerJsonPath, $version);
+        $this->projectComposerJsonUpdater->update($composerJsonPath, $version);
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),

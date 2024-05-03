@@ -44,6 +44,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $this->createMock(StreamedCommandResponseGenerator::class),
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
 
         $controller->setContainer($this->getContainer());
@@ -68,6 +69,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $this->createMock(StreamedCommandResponseGenerator::class),
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
@@ -91,6 +93,7 @@ class UpdateControllerTest extends TestCase
             $this->getReleaseInfoProvider(),
             $this->createMock(FlexMigrator::class),
             $this->createMock(StreamedCommandResponseGenerator::class),
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
@@ -135,6 +138,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $flexMigrator,
             $this->createMock(StreamedCommandResponseGenerator::class),
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
 
         $controller->setContainer($this->getContainer());
@@ -170,6 +174,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
@@ -206,6 +211,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
@@ -260,6 +266,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
@@ -267,10 +274,6 @@ class UpdateControllerTest extends TestCase
         $request->query->set('shopwareVersion', '6.4.15.0');
         $request->setSession(new Session(new MockArraySessionStorage()));
         $response = $controller->run($request);
-
-        /** @var array{require: array<string, string>} $json */
-        $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('6.4.15.0', $json['require']['shopware/core']);
 
         static::assertInstanceOf(StreamedResponse::class, $response);
     }
@@ -318,6 +321,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
@@ -325,11 +329,6 @@ class UpdateControllerTest extends TestCase
         $request->query->set('shopwareVersion', '6.5.0.0-rc1');
         $request->setSession(new Session(new MockArraySessionStorage()));
         $response = $controller->run($request);
-
-        /** @var array{minimum-stability: string, require: array<string, string>} $json */
-        $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('6.5.0.0-rc1', $json['require']['shopware/core']);
-        static::assertSame('RC', $json['minimum-stability']);
 
         static::assertInstanceOf(StreamedResponse::class, $response);
     }
@@ -393,16 +392,13 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
         $response = $controller->run($request);
-
-        /** @var array{require: array<string, string>} $json */
-        $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame('dev-trunk as 6.5.9.9', $json['require']['shopware/core']);
 
         static::assertInstanceOf(StreamedResponse::class, $response);
 
@@ -448,6 +444,7 @@ class UpdateControllerTest extends TestCase
             $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
+            $this->createMock(ProjectComposerJsonUpdater::class),
         );
         $controller->setContainer($this->getContainer());
 

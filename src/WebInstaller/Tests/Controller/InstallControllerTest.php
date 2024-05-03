@@ -36,7 +36,7 @@ class InstallControllerTest extends TestCase
         $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
         $responseGenerator->method('runJSON')->willReturn(new StreamedResponse());
 
-        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class));
+        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class), $this->createMock(ProjectComposerJsonUpdater::class));
         $controller->setContainer($this->getContainer());
 
         $response = $controller->index();
@@ -71,7 +71,7 @@ class InstallControllerTest extends TestCase
             ])
             ->willReturn(new StreamedResponse());
 
-        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class));
+        $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class), $this->createMock(ProjectComposerJsonUpdater::class));
         $controller->setContainer($this->getContainer());
 
         $request = new Request();

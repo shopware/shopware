@@ -1,4 +1,28 @@
 # 6.7.0.0
+## Introduced in 6.6.1.0
+## TreeUpdater::batchUpdate
+
+We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
+If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
+```php
+<?php
+
+class CustomTreeUpdater extends TreeUpdater
+{
+    public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
+    {
+        parent::batchUpdate($updateIds, $entity, $context, $recursive);
+    }
+}
+```
+## \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
+`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
+
+## \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
+`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
+## Replace `isEmailUsed` with `isEmailAlreadyInUse`:
+* Replace `isEmailUsed` with `isEmailAlreadyInUse` in `sw-users-permission-user-detail`.
+
 
 ## Introduced in 6.6.0.0
 

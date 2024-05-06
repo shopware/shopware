@@ -1,8 +1,9 @@
 ---
 title: Fix cart address state validation
-issue: NEXT-00000
+issue: NEXT-36023
 author: Alexander Bischko
 author_email: alexander@bischko.de
+author_github: divide29
 ---
 # Core
-* Fixed misplaced `getActiveShippingAddress()` and `getActiveBillingAddress()` in the Cart AddressValidator
+* Changed `AddressValidator` to use misplaced `getActiveShippingAddress()` and `getActiveBillingAddress()` correctly

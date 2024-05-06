@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\DevOps\Docs\Command\App;
+namespace Shopware\Tests\DevOps\Core\DevOps\Docs\Command\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**

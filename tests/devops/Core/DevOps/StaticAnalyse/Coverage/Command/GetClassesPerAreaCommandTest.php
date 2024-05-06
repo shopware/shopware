@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
+namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\Coverage\Command;
 
-use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
@@ -11,12 +10,10 @@ use Shopware\Core\DevOps\DevOps;
 use Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetClassesPerAreaCommand;
 use Shopware\Core\Framework\Framework;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\System\System;
 use Shopware\Elasticsearch\Elasticsearch;
 use Shopware\Storefront\Storefront;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -31,8 +28,8 @@ class GetClassesPerAreaCommandTest extends TestCase
     #[After]
     public function cleanUp(): void
     {
+        $projectDir = $_SERVER['PROJECT_ROOT'];
         $filesystem = new Filesystem();
-        $projectDir = $this->getProjectDir();
 
         $finder = new Finder();
         $phpunitFiles = $finder->in($projectDir)
@@ -41,6 +38,15 @@ class GetClassesPerAreaCommandTest extends TestCase
             ->name('phpunit.*.xml');
 
         $filesystem->remove($phpunitFiles);
+    }
+
+    protected function setUp(): void
+    {
+        $projectDir = $_SERVER['PROJECT_ROOT'];
+
+        if (!file_exists($projectDir . '/vendor/shopware/core') || !file_exists($projectDir . '/vendor/shopware/platform')) {
+            static::markTestSkipped('This test expects shopware installed over composer and does not work with the git setup');
+        }
     }
 
     public function testGetClasses(): void
@@ -107,7 +113,7 @@ class GetClassesPerAreaCommandTest extends TestCase
         }
 
         foreach ($areas as $area => $classes) {
-            $phpunitFile = $this->getProjectDir() . '/phpunit.' . $area . '.xml';
+            $phpunitFile = $_SERVER['PROJECT_ROOT'] . '/phpunit.' . $area . '.xml';
             $coveredFiles = $this->getCoveredFiles($phpunitFile);
             foreach ($classes as $class) {
                 static::assertContains((new \ReflectionClass($class))->getFileName(), $coveredFiles);
@@ -127,29 +133,11 @@ class GetClassesPerAreaCommandTest extends TestCase
      */
     private function runCommand(array $parameters): string
     {
-        $projectDir = $this->getProjectDir();
+        $tester = new CommandTester(new GetClassesPerAreaCommand($_SERVER['PROJECT_ROOT']));
 
-        $getClassesCommand = new GetClassesPerAreaCommand($projectDir);
-        $definition = $getClassesCommand->getDefinition();
-        $input = new ArrayInput(
-            $parameters,
-            $definition
-        );
-        $input->getOptions();
-        $output = new BufferedOutput();
+        $tester->execute($parameters);
 
-        $refMethod = ReflectionHelper::getMethod(GetClassesPerAreaCommand::class, 'execute');
-        $refMethod->invoke($getClassesCommand, $input, $output);
-
-        return $output->fetch();
-    }
-
-    private function getProjectDir(): string
-    {
-        $vendorDir = key(ClassLoader::getRegisteredLoaders());
-        static::assertIsString($vendorDir);
-
-        return \dirname($vendorDir);
+        return $tester->getDisplay();
     }
 
     /**

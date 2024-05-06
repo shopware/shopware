@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -19,6 +20,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -56,10 +58,16 @@ class AccountOrderControllerTest extends TestCase
 
     private MockObject&AccountEditOrderPageLoader $accountEditOrderPageLoaderMock;
 
+    private MockObject&AbstractHandlePaymentMethodRoute $handlePaymentRouteMock;
+
+    private MockObject&OrderService $orderServiceMock;
+
     protected function setUp(): void
     {
         $this->orderRouteMock = $this->createMock(AbstractOrderRoute::class);
         $this->accountEditOrderPageLoaderMock = $this->createMock(AccountEditOrderPageLoader::class);
+        $this->handlePaymentRouteMock = $this->createMock(AbstractHandlePaymentMethodRoute::class);
+        $this->orderServiceMock = $this->createPartialMock(OrderService::class, ['__construct']);
 
         $this->controller = new AccountOrderControllerTestClass(
             $this->createMock(AccountOrderPageLoader::class),
@@ -67,13 +75,13 @@ class AccountOrderControllerTest extends TestCase
             $this->createMock(AbstractContextSwitchRoute::class),
             $this->createMock(AbstractCancelOrderRoute::class),
             $this->createMock(AbstractSetPaymentOrderRoute::class),
-            $this->createMock(AbstractHandlePaymentMethodRoute::class),
+            $this->handlePaymentRouteMock,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountOrderDetailPageLoader::class),
             $this->orderRouteMock,
             $this->createMock(SalesChannelContextServiceInterface::class),
             $this->createMock(SystemConfigService::class),
-            $this->createMock(OrderService::class)
+            $this->orderServiceMock,
         );
     }
 
@@ -253,8 +261,8 @@ class AccountOrderControllerTest extends TestCase
     public function testTransactionsStateMachineAssociationIsLoadedOnOrderUpdate(): void
     {
         $container = new ContainerBuilder();
-        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
-        $container->set('router', static::createMock(RouterInterface::class));
+        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('router', $this->createMock(RouterInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -267,21 +275,22 @@ class AccountOrderControllerTest extends TestCase
             ]),
         ]);
 
-        $criteria = new Criteria([$orderId = Uuid::randomHex()]);
+        $criteria = new Criteria([$ids->get('order')]);
         $criteria->addAssociation('transactions.stateMachineState');
 
-        $order = (new OrderEntity())->assign([
-            '_uniqueIdentifier' => Uuid::randomHex(),
-            'currencyId' => $ids->get('currency'),
-            'deliveries' => new OrderDeliveryCollection(),
-        ]);
-        $transactionMock = $this->createMock(OrderTransactionEntity::class);
-        $transactionMock->method('getStateMachineState')->willReturn($this->createMock(StateMachineStateEntity::class));
+        $stateMachineState = new StateMachineStateEntity();
+        $stateMachineState->setTechnicalName(OrderTransactionStates::STATE_CANCELLED);
+
+        $transaction = new OrderTransactionEntity();
+        $transaction->setId($ids->get('transaction'));
+        $transaction->setStateMachineState($stateMachineState);
 
         // Mock the OrderEntity with transactions
-        $orderMock = $this->createMock(OrderEntity::class);
-        $orderMock->method('getCurrencyId')->willReturn('currency_id');
-        $orderMock->method('getTransactions')->willReturn(new OrderTransactionCollection([$transactionMock]));
+        $order = new OrderEntity();
+        $order->setId($ids->get('order'));
+        $order->setCurrencyId($ids->get('currency'));
+        $order->setDeliveries(new OrderDeliveryCollection());
+        $order->setTransactions(new OrderTransactionCollection([$transaction]));
 
         $orders = new OrderCollection([$order]);
 
@@ -291,17 +300,24 @@ class AccountOrderControllerTest extends TestCase
                 1,
                 $orders,
                 null,
-                new Criteria(),
-                Context::createDefaultContext()
+                $criteria,
+                $salesChannelContext->getContext()
             )
         );
 
-        $this->orderRouteMock->expects(static::once())
+        $this->orderRouteMock
+            ->expects(static::once())
             ->method('load')
             ->with($request = new Request(), $salesChannelContext, $criteria)
-        ->willReturn($accountRouteResponse);
+            ->willReturn($accountRouteResponse);
 
-        $this->controller->updateOrder($orderId, $request, $salesChannelContext);
+        $this->handlePaymentRouteMock
+            ->expects(static::once())
+            ->method('load')
+            ->with(static::isInstanceOf(Request::class), $salesChannelContext)
+            ->willReturn(new HandlePaymentMethodRouteResponse(new RedirectResponse('http://doesnotexist.com')));
+
+        $this->controller->updateOrder($ids->get('order'), $request, $salesChannelContext);
     }
 }
 

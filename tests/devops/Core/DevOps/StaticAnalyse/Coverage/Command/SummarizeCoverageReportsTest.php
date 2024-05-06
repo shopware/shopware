@@ -1,15 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
+namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\Coverage\Command;
 
-use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\SummarizeCoverageReports;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -23,7 +20,7 @@ class SummarizeCoverageReportsTest extends TestCase
     public function copyFixtures(): void
     {
         $filesystem = new Filesystem();
-        $projectDir = $this->getProjectDir();
+        $projectDir = $_SERVER['PROJECT_ROOT'];
 
         $filesystem->mirror(__DIR__ . '/_fixtures/coverage', $projectDir . '/coverage');
     }
@@ -32,7 +29,7 @@ class SummarizeCoverageReportsTest extends TestCase
     public function deleteTestFiles(): void
     {
         $filesystem = new Filesystem();
-        $projectDir = $this->getProjectDir();
+        $projectDir = $_SERVER['PROJECT_ROOT'];
 
         $filesystem->remove($projectDir . '/coverage');
         $filesystem->remove($projectDir . '/coverageSummary.html');
@@ -41,9 +38,9 @@ class SummarizeCoverageReportsTest extends TestCase
 
     public function testSummarize(): void
     {
-        $this->runCommand([]);
+        $this->runCommand();
 
-        $projectDir = $this->getProjectDir();
+        $projectDir = $_SERVER['PROJECT_ROOT'];
 
         static::assertFileExists($projectDir . '/coverageSummary.json');
         static::assertFileExists($projectDir . '/coverageSummary.html');
@@ -109,31 +106,12 @@ class SummarizeCoverageReportsTest extends TestCase
         ], $coverageReport['js']);
     }
 
-    /**
-     * @param mixed[] $parameters
-     */
-    private function runCommand(array $parameters): string
+    private function runCommand(): string
     {
-        $getClassesCommand = new SummarizeCoverageReports($this->getProjectDir(), new Environment(new ArrayLoader()));
-        $definition = $getClassesCommand->getDefinition();
-        $input = new ArrayInput(
-            $parameters,
-            $definition
-        );
-        $input->getOptions();
-        $output = new BufferedOutput();
+        $tester = new CommandTester(new SummarizeCoverageReports($_SERVER['PROJECT_ROOT'], new Environment(new ArrayLoader())));
 
-        $refMethod = ReflectionHelper::getMethod(SummarizeCoverageReports::class, 'execute');
-        $refMethod->invoke($getClassesCommand, $input, $output);
+        $tester->execute([]);
 
-        return $output->fetch();
-    }
-
-    private function getProjectDir(): string
-    {
-        $vendorDir = key(ClassLoader::getRegisteredLoaders());
-        static::assertIsString($vendorDir);
-
-        return \dirname($vendorDir);
+        return $tester->getDisplay();
     }
 }

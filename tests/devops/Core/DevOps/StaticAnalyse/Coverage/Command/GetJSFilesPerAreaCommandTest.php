@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
+namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\Coverage\Command;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetJSFilesPerAreaCommand;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
@@ -67,18 +65,10 @@ class GetJSFilesPerAreaCommandTest extends TestCase
      */
     private function runCommand(array $parameters): string
     {
-        $getClassesCommand = new GetJSFilesPerAreaCommand();
-        $definition = $getClassesCommand->getDefinition();
-        $input = new ArrayInput(
-            $parameters,
-            $definition
-        );
-        $input->getOptions();
-        $output = new BufferedOutput();
+        $tester = new CommandTester(new GetJSFilesPerAreaCommand());
 
-        $refMethod = ReflectionHelper::getMethod(GetJSFilesPerAreaCommand::class, 'execute');
-        $refMethod->invoke($getClassesCommand, $input, $output);
+        $tester->execute($parameters);
 
-        return $output->fetch();
+        return $tester->getDisplay();
     }
 }

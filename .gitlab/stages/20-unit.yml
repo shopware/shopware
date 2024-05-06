@@ -91,7 +91,7 @@ PHP integration:
       --configuration phpunit.xml.dist
       --log-junit phpunit.junit.xml
       --exclude-group=needsWebserver,skip-paratest,not-deterministic
-      --testsuite integration
+      --testsuite integration,devops
       --order-by default
 
 PHP bench:

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 set -eu
 
 if [ -n "${DEBUG:-}" ]; then
@@ -19,7 +19,7 @@ TRACE="${TRACE:-}"
 TASK="${1}"
 PLATFORM_TAG="${2}"
 PLATFORM_DIR="${CI_PROJECT_DIR:-$(pwd)}"
-GITHUB_SYNC_TOKEN="${GITHUB_SYNC_TOKEN}"
+GITHUB_SYNC_TOKEN="${GITHUB_SYNC_TOKEN:-"${GITHUB_TOKEN}"}"
 REPOSITORY_API_URL='https://api.github.com/repos/shopware/shopware'
 
 print_usage() {

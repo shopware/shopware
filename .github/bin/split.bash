@@ -1,11 +1,4 @@
-#!/usr/bin/env sh
-set -eu
-
-if [ -n "${DEBUG:-}" ]; then
-    set -x
-fi
-
-PLATFORM_DIR="${CI_PROJECT_DIR:-$(pwd)}"
+#!/usr/bin/env bash
 
 # Transforms input into lowercase-only.
 #
@@ -75,8 +68,6 @@ admin_assets_list() {
   cat <<EOF | tr -d '[:blank:]'
     ${PLATFORM_DIR}/repos/administration/Resources/public/static/js/app.js
     ${PLATFORM_DIR}/repos/administration/Resources/public/static/css/app.css
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
-    ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
 EOF
 }
 
@@ -93,8 +84,16 @@ EOF
 # Checks whether all mandatory assets have been generated and copied to the
 # correct repository.
 check_assets() {
-  stat -t $(admin_assets_list) > /dev/null
-  stat -t $(storefront_assets_list) > /dev/null
+  local package=${1:-""}
+
+
+  if [[ ${package} == "" || ${package,,} == "storefront" ]]; then
+    stat -t $(storefront_assets_list) > /dev/null
+  fi
+
+  if [[ ${package} == "" || ${package,,} == "administration" ]]; then
+    stat -t $(admin_assets_list) > /dev/null
+  fi
 }
 
 # Removes certain asset-related entries from the admin .gitignore.
@@ -113,8 +112,18 @@ require_core_version() {
   local package="${1}"
   local package_lower=$(lowercase "${package}")
   local version="${2}"
+  local type="${3:-tag}"
 
   if [ "${package_lower}" != "core" ]; then
+    if [[ $type != "tag" ]]; then
+      # version like add dev at the end
+      if grep -q -E '^[0-9]'; then
+        version="${version}-dev"
+      else
+        version="dev-${version}"
+      fi
+    fi
+
     composer -d "${PLATFORM_DIR}/repos/${package_lower}" require "shopware/core:${version}" --no-update --no-install
   fi
 }
@@ -183,4 +192,33 @@ push() {
   fi
 }
 
-"$@"
+include_assets() {
+  local package="$1"
+
+  if [[ ${package,,} == "administration" || ${package,,} == "storefront" ]]; then
+    copy_assets $package
+  fi
+
+  check_assets $package
+
+  if [[ ${package,,} == "administration" ]]; then
+    include_admin_assets
+  fi
+
+  if [[ ${package,,} == "storefront" ]]; then
+    include_storefront_assets
+  fi
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -o errexit
+    set -o pipefail
+
+    if [ -n "${DEBUG:-}" ]; then
+        set -x
+    fi
+
+    PLATFORM_DIR="${CI_PROJECT_DIR:-$(dirname $(dirname $(dirname ${BASH_SOURCE[0]})))}"
+
+    "$@"
+fi

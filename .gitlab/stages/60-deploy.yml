@@ -2,23 +2,23 @@
 # requires /.gitlab/base.yml
 
 Publish entity-schema-types NPM package:
-    extends: .base-with-node
-    stage: deploy
-    needs: []
-    rules:
-      - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
-    before_script:
-      - !reference [ .scripts, init, composer ]
-      - !reference [ .scripts, init, npm, admin ]
-      - composer run admin:generate-entity-schema-types
-    script:
-      - echo -e "\e[0Ksection_start:$(date +%s):generate_entityschema[collapsed=false]\r\e[0KGenerate EntitySchema"
-      - cd src/Administration/Resources/app/administration
-      - npm run generate-entity-schema-package
-      - echo -e "\e[0Ksection_end:`date +%s`:generate_entityschema\r\e[0K"
-      - cd ./entity-schema-types
-      - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-      - npm publish --access public
+  extends: .base-with-node
+  stage: deploy
+  needs: []
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  before_script:
+    - !reference [.scripts, init, composer]
+    - !reference [.scripts, init, npm, admin]
+    - composer run admin:generate-entity-schema-types
+  script:
+    - echo -e "\e[0Ksection_start:$(date +%s):generate_entityschema[collapsed=false]\r\e[0KGenerate EntitySchema"
+    - cd src/Administration/Resources/app/administration
+    - npm run generate-entity-schema-package
+    - echo -e "\e[0Ksection_end:`date +%s`:generate_entityschema\r\e[0K"
+    - cd ./entity-schema-types
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+    - npm publish --access public
 
 .push split repositories:
   stage: deploy
@@ -27,20 +27,20 @@ Publish entity-schema-types NPM package:
   image:
     name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   needs:
-    - job: 'split repository'
+    - job: "split repository"
       artifacts: false
-    - job: 'finalize split repos (tag)'
+    - job: "finalize split repos (tag)"
       optional: true
-    - job: 'finalize split repos (protected branch)'
+    - job: "finalize split repos (protected branch)"
       optional: true
-    - job: 'finalize split repos (merge request)'
+    - job: "finalize split repos (merge request)"
       optional: true
   rules: &rules-push-split-repositories
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*split::skip.*/'
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /.*split::skip.*/"
       when: never # Pushing split repositories is impossible without creating them first
-    - !reference [ .rules, skip-in-merge-train ]
-    - !reference [ .rules, skip ]
-    - if: !reference [ .rules, split, rule-scheduled-or-tag ]
+    - !reference [.rules, skip-in-merge-train]
+    - !reference [.rules, skip]
+    - if: !reference [.rules, split, rule-scheduled-or-tag]
   variables:
     REMOTE_BASE_URL: "/dev/null"
     GIT_STRATEGY: clone
@@ -49,24 +49,24 @@ Publish entity-schema-types NPM package:
     - >
       for package in Administration Storefront Core Elasticsearch; do
         if [ "${CI_PIPELINE_SOURCE}" = 'schedule' ] && [ "${CI_COMMIT_TAG}" = '' ]; then
-          .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_BRANCH}"
+          .github/bin/split.bash push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_BRANCH}"
         else
-          .gitlab/bin/split.sh push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_TAG:-tmp-${CI_COMMIT_SHORT_SHA}}"
+          .github/bin/split.bash push "${package}" "${REMOTE_BASE_URL}" "${CI_COMMIT_TAG:-tmp-${CI_COMMIT_SHORT_SHA}}"
         fi
       done
 
 push split repositories (gitlab):
-  extends: '.push split repositories'
+  extends: ".push split repositories"
   rules:
     - *rules-push-split-repositories
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/'
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /.*split::all.*/"
       when: manual # Allow pushing test-tags & -branches to internal repositories
   environment:
-    name: 'Gitlab - Manyrepos'
-    url: 'https://gitlab.shopware.com/shopware/6/product/many-repositories'
+    name: "Gitlab - Manyrepos"
+    url: "https://gitlab.shopware.com/shopware/6/product/many-repositories"
   variables:
     REMOTE_BASE_URL: "https://bot:${GITLAB_MANYREPO_SYNC_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories"
-    GITLAB_HOST: 'gitlab.shopware.com'
+    GITLAB_HOST: "gitlab.shopware.com"
     GITLAB_TOKEN: "${CI_GITLAB_API_TOKEN}"
     CI_COMMENT_MESSAGE: |
       The following testing branches have been created for you:
@@ -95,83 +95,83 @@ push split repositories (gitlab):
       fi
 
 push split repositories (github):
-  extends: '.push split repositories'
+  extends: ".push split repositories"
   environment:
-    name: 'Github'
-    url: 'https://github.com/shopware'
+    name: "Github"
+    url: "https://github.com/shopware"
   variables:
     REMOTE_BASE_URL: "https://${GITHUB_SYNC_USER}:${GITHUB_SYNC_TOKEN}@github.com/shopware"
 
 deploy to cloud staging:
-    stage: deploy
-    rules:
-      - !reference [ .rules, skip ]
-      - if: '$CI_COMMIT_BRANCH =~ /^6\.*/ && ($CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*run_scheduled*/)'
-        variables:
-          VERSION_ORIGIN_REF: ''
-          CUSTOM_VERSION: 'shopware/platform:${CI_COMMIT_BRANCH}-dev as 6.6.x-dev;swag/saas-rufus:dev-trunk;shopware/commercial:dev-trunk;'
-      - !reference [ .rules, scheduled ]
-    variables:
-      VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
-      CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.6.x-dev;swag/saas-rufus:dev-trunk;shopware/commercial:dev-trunk;'
-      CI_FAST_DOWNSTREAM: 1
-      CI_SKIP_INSTANCE_CREATING: 1
-    inherit:
-      default: false
+  stage: deploy
+  rules:
+    - !reference [.rules, skip]
+    - if: '$CI_COMMIT_BRANCH =~ /^6\.*/ && ($CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*run_scheduled*/)'
       variables:
-        - VERSION_ORIGIN_REF
-        - CUSTOM_VERSION
-        - CI_FAST_DOWNSTREAM
-        - CI_SKIP_INSTANCE_CREATING
-    trigger:
-      project: shopware/6/product/saas
-      branch: trunk
-      strategy: depend
+        VERSION_ORIGIN_REF: ""
+        CUSTOM_VERSION: "shopware/platform:${CI_COMMIT_BRANCH}-dev as 6.6.x-dev;swag/saas-rufus:dev-trunk;shopware/commercial:dev-trunk;"
+    - !reference [.rules, scheduled]
+  variables:
+    VERSION_ORIGIN_REF: "$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID"
+    CUSTOM_VERSION: "shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.6.x-dev;swag/saas-rufus:dev-trunk;shopware/commercial:dev-trunk;"
+    CI_FAST_DOWNSTREAM: 1
+    CI_SKIP_INSTANCE_CREATING: 1
+  inherit:
+    default: false
+    variables:
+      - VERSION_ORIGIN_REF
+      - CUSTOM_VERSION
+      - CI_FAST_DOWNSTREAM
+      - CI_SKIP_INSTANCE_CREATING
+  trigger:
+    project: shopware/6/product/saas
+    branch: trunk
+    strategy: depend
 
 Publish SBP platform release:
   extends: .base-no-setup
   stage: deploy
-  needs: [ "Prepare SBP platform release" ]
+  needs: ["Prepare SBP platform release"]
   environment:
-    name: 'SBP - Production'
+    name: "SBP - Production"
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: manual
   before_script: []
   script:
-    - .gitlab/bin/sbp_release.sh publish "$CI_COMMIT_TAG"
+    - .github/bin/sbp_release.bash publish "$CI_COMMIT_TAG"
 
 Publish SBP staging platform release:
   extends: .base-no-setup
   stage: deploy
-  needs: [ "Prepare SBP staging platform release" ]
+  needs: ["Prepare SBP staging platform release"]
   environment:
-    name: 'SBP - Staging'
+    name: "SBP - Staging"
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: manual
   before_script: []
   script:
-    - .gitlab/bin/sbp_release.sh publish "$CI_COMMIT_TAG"
+    - .github/bin/sbp_release.bash publish "$CI_COMMIT_TAG"
 
 Publish Github platform release:
   extends: .base-no-setup
   stage: deploy
   environment:
-    name: 'Github'
-    url: 'https://github.com/shopware'
-  needs: [ "Draft Github platform release", "push split repositories (github)" ]
+    name: "Github"
+    url: "https://github.com/shopware"
+  needs: ["Draft Github platform release", "push split repositories (github)"]
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: manual
   before_script: []
   script:
-    - .gitlab/bin/create_github_release.sh publish "$CI_COMMIT_TAG"
+    - .github/bin/create_github_release.bash publish "$CI_COMMIT_TAG"
 
 Post Slack Release message:
   extends: .base-no-setup
   stage: deploy
-  needs: [ "Prepare SBP platform release" ]
+  needs: ["Prepare SBP platform release"]
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: manual
@@ -185,8 +185,8 @@ Update Release schedule:
   stage: deploy
   needs: []
   rules:
-    - !reference [ .rules, scheduled ]
+    - !reference [.rules, scheduled]
   variables:
-    CI_UPDATE_RELEASE_SCHEDULE: 'true'
+    CI_UPDATE_RELEASE_SCHEDULE: "true"
   trigger:
     project: product-operations/maintenance

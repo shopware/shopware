@@ -2,7 +2,7 @@ name: Generate Release Info
 
 on:
   release:
-    types: [published,edited]
+    types: [published,edited] # edited does not trigger if it's not published yet
   workflow_dispatch:
 
 permissions:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   release:
       runs-on: ubuntu-latest
+      if: github.repository == 'shopware/shopware'
       steps:
         - name: Checkout repository
           uses: actions/checkout@v4
@@ -117,3 +118,35 @@ jobs:
             -H "Content-Type: application/json" \
             https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
             -d '{"ref": "trunk"}'
+  
+  publish-sbp-release:
+    if: github.repository == 'shopware/shopware'
+    strategy:
+      matrix:
+        sbp-environment: [staging, production]
+    env:
+      SBP_API_URL: ${{ secrets[format('sbp_api_url_{0}', matrix.sbp-environment)] }}
+      SBP_TOKEN: ${{ secrets[format('sbp_api_token_{0}', matrix.sbp-environment)] }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Publish sbp release (Dry run)
+        env:
+          DRY_RUN: 1
+        run: |
+          bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
+      - name: Publish sbp release
+        if: github.ref_type == 'tag' && github.ref_protected
+        run: |
+          bash .github/bin/sbp_release.bash publish "${{ github.ref_name }}"
+
+  post-slack-release-message:
+    if: github.ref_type == 'tag' && github.ref_protected && github.repository == 'shopware/shopware' && github.event.action == 'published'
+    needs: publish-sbp-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post slack message
+        run: |
+            SLACK_PAYLOAD=$(jq --null-input --arg version "${{ github.ref_name }}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
+            echo curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"

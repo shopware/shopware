@@ -1,3 +1,82 @@
+# 6.6.1.0
+## Accessibility: No empty nav element in top-bar
+There will be no empty `<nav>` tag anymore on single language and single currency shops so accessibility tools will not be confused by it.
+
+On shops with only one language and one currency the blocks `layout_header_top_bar_language` or `layout_header_top_bar_currency` will not be rendered anymore.
+
+If you still need to add content to the `<div class="top-bar d-none d-lg-block">` you should extend the new block `layout_header_top_bar_inner`.
+
+If you add `<nav>` tags always ensure they are only rendered if they contain navigation links.
+## EntityIndexingMessage::isFullIndexing
+
+We added a new `isFullIndexing` flag to the `EntityIndexingMessage` class. 
+When entities will be updated, the flag is marked with `false`. It will be marked with `true` via `bin/console dal:refresh:index` or other APIs which triggers a full re-index.
+This enhancement allows developers to specify whether a full re-indexing is required or just a single entity was updated inside the stack
+
+```
+<?php
+
+class Indexer extends ...
+{
+    public function index(EntityIndexingMessage $message) 
+    { 
+        $message->isFullIndexing()
+    }
+}
+```
+
+We also added a new optional (hidden) parameter `bool $recursive` to `TreeUpdater::batchUpdate`. This parameter will be introduced in the next major version. 
+If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
+Within the 6.6 release, the parameter is optional and defaults to `true`. It will be changed to `false` in the next major version.
+```php
+<?php
+
+class CustomTreeUpdater extends TreeUpdater
+{
+    public function batchUpdate(array $updateIds, string $entity, Context $context/*, bool $recursive = false*/): void
+    {
+        $recursive = func_get_arg(3) ?? true;
+        
+        parent::batchUpdate($updateIds, $entity, $context, $recursive);
+    }
+}
+```
+## HMAC JWT keys
+
+Usage of normal RSA JWT keys is deprecated. And will be removed with Shopware 6.7.0.0. Please use the new HMAC JWT keys instead using configuration:
+
+```yaml
+shopware:
+    api:
+        jwt_key:
+              use_app_secret: true
+```
+
+Also make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate an valid secret.
+
+Changing this will invalidate all existing tokens and require a re-login for all users and all integrations.
+## Local app manifest
+
+In app's development, it's usually necessary to have a different configuration or urls in the manifest file. For e.g, on the production app, the manifest file should have the production endpoints and the setup's secret should not be set, in development, we can set a secret and use local environment endpoints.
+
+This change allows you to create a local manifest file that overriding the real's manifest.
+
+All you have to do is create a `manifest.local.xml` and place it in the root of the app's directory. 
+
+_Hint: The local manifest file should be ignored on the actual app's repository_
+## Configure Fastly as media proxy
+When you are using Fastly as a media proxy, you should configure this inside shopware, to make sure that the media urls are purged correctly.
+Enabling Fastly as a media proxy can be done by setting the `shopware.cdn.fastly` configuration (for example with an env variable):
+
+```yaml
+shopware:
+    fastly:
+        api_key: '%env(FASTLY_API_KEY)%'
+```
+## Sync option for CLI theme commands
+
+The `theme:compile` and `theme:change ` command now accept `--sync` option to compile themes synchronously. The `--sync` option is useful for CI/CD pipelines, when at runtime themes should be compiled async, but during the build process you want sync generation.
+
 # 6.6.0.0
 
 ## Configure Fastly as media proxy

@@ -53,7 +53,7 @@ class UserController extends AbstractController
             throw new ExpectedUserHttpException();
         }
         $criteria = new Criteria([$userId]);
-        $criteria->addAssociation('aclRoles');
+        $criteria->addAssociations(['aclRoles', 'avatarMedia']);
 
         $user = $this->userRepository->search($criteria, $context)->first();
         if (!$user) {

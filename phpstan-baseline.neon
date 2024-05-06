@@ -1841,11 +1841,6 @@ parameters:
 			path: src/Core/Content/Test/Flow/Dispatching/FlowBuilderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:createOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Api\\\\ImportExportFileApiTest\\:\\:prepareImportExportFileTestData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Api/ImportExportFileApiTest.php

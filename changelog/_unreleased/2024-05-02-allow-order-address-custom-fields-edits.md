@@ -1,6 +1,6 @@
 ---
 title: Allow order address custom fields edits
-issue: NEXT-00000
+issue: NEXT-36024
 author: Yannick Van Velthoven
 author_email: yannick.vanvelthoven@meteor.be
 author_github: yannick-meteor

@@ -7,7 +7,6 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -144,7 +143,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
         $this->newsletterRecipientRepository->upsert([$data], $context->getContext());
 
-        $recipient = $this->getNewsletterRecipient('email', $data['email'], $context->getContext());
+        $recipient = $this->getNewsletterRecipient('email', $data['email'], $context);
 
         if (!$this->isNewsletterDoi($context)) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
@@ -249,15 +248,16 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         ];
     }
 
-    private function getNewsletterRecipient(string $identifier, string $value, Context $context): NewsletterRecipientEntity
+    private function getNewsletterRecipient(string $identifier, string $value, SalesChannelContext $context): NewsletterRecipientEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter($identifier, $value));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()));
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
         /** @var NewsletterRecipientEntity|null $newsletterRecipient */
-        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
+        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$newsletterRecipient) {
             throw NewsletterException::recipientNotFound($identifier, $value);

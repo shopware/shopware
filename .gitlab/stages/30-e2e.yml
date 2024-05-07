@@ -116,7 +116,7 @@ Changed E2E:
 acceptance:
   extends:
     - .long-running
-  image: mcr.microsoft.com/playwright:v1.41.1-jammy
+  image: mcr.microsoft.com/playwright:v1.44.0-jammy
   needs: [build image]
   tags:
     - shopware-amd64
@@ -157,15 +157,19 @@ acceptance:
   script:
     - cd tests/acceptance
     - npm ci
-    - npx playwright install --with-deps
     - npx playwright test --workers=1 --project=${ACCEPTANCE_PROJECT}
-  after_script: []
+  after_script:
+    - |
+      echo "Link to HTML report"
+      echo "-------------------------------------------------------------------------------------------------------------------------------------------------------"
+      echo "https://shopware.pages.apps.shopware.io/-/6/product/$CI_PROJECT_NAME/-/jobs/$CI_JOB_ID/artifacts/tests/acceptance/playwright-report/index.html"
+      echo "-------------------------------------------------------------------------------------------------------------------------------------------------------"
   artifacts:
     expire_in: 1 day
     when: always
     paths:
       - $CI_PROJECT_DIR/tests/acceptance/test-results/*
-      - $CI_PROJECT_DIR/tests/acceptance/test-results/playwright-report/*
+      - $CI_PROJECT_DIR/tests/acceptance/playwright-report/*
 
 install test:
   extends: acceptance

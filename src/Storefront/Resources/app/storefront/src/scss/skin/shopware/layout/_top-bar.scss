@@ -6,20 +6,19 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
 */
 
 .top-bar-nav-btn.btn {
-    color: $body-color;
-    font-weight: $font-weight-normal;
-    padding: 0;
-    border: 0 none;
+    --#{$prefix}btn-focus-box-shadow: #{$input-btn-focus-box-shadow};
+    --#{$prefix}btn-color: #{$body-color};
+    --#{$prefix}btn-font-weight: #{$font-weight-normal};
+    --#{$prefix}btn-border-width: 0;
+    --#{$prefix}btn-border-color: transparent;
+    --#{$prefix}btn-padding-x: 0;
+    --#{$prefix}btn-padding-y: 0;
 
     &:hover {
         &,
         .icon {
             color: $primary;
         }
-    }
-
-    &:focus {
-        box-shadow: none;
     }
 }
 

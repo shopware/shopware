@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressCountryRegionMissing
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressCountryRegionMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -24,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 
 /**
  * @internal
@@ -46,12 +45,20 @@ class AddressValidatorTest extends TestCase
     {
         $cart = new Cart('test');
         $cart->add((new LineItem('a', 'test'))->setStates([State::IS_DOWNLOAD]));
-        $context = $this->createMock(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
         $country->setActive(true);
         $country->setShippingAvailable(false);
+
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            $country,
+        );
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -60,9 +67,6 @@ class AddressValidatorTest extends TestCase
             Context::createDefaultContext()
         );
         $this->repository->method('searchIds')->willReturn($idSearchResult);
-
-        $shippingLocation = new ShippingLocation($country, null, null);
-        $context->method('getShippingLocation')->willReturn($shippingLocation);
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
@@ -80,12 +84,21 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithOnlyPhysicalItems(): void
     {
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
         $country->setActive(true);
         $country->setShippingAvailable(true);
+
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            $country,
+        );
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -94,11 +107,6 @@ class AddressValidatorTest extends TestCase
             Context::createDefaultContext()
         );
         $this->repository->method('searchIds')->willReturn($idSearchResult);
-
-        $shippingLocation = new ShippingLocation($country, null, null);
-        $context->method('getShippingLocation')->willReturn($shippingLocation);
-
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
@@ -109,12 +117,21 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithOnlyDownloadItems(): void
     {
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_DOWNLOAD]));
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
         $country->setActive(true);
         $country->setShippingAvailable(false);
+
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            $country,
+        );
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -123,11 +140,6 @@ class AddressValidatorTest extends TestCase
             Context::createDefaultContext()
         );
         $this->repository->method('searchIds')->willReturn($idSearchResult);
-
-        $shippingLocation = new ShippingLocation($country, null, null);
-        $context->method('getShippingLocation')->willReturn($shippingLocation);
-
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_DOWNLOAD]));
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
@@ -138,8 +150,7 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithoutSalutation(): void
     {
         $cart = new Cart('test');
-
-        $context = $this->createMock(SalesChannelContext::class);
+        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -172,7 +183,19 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            $country,
+            $countryState,
+            null,
+            null,
+            null,
+            $customer,
+        );
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -181,11 +204,6 @@ class AddressValidatorTest extends TestCase
             Context::createDefaultContext()
         );
         $this->repository->method('searchIds')->willReturn($idSearchResult);
-
-        $shippingLocation = new ShippingLocation($country, null, null);
-        $context->method('getShippingLocation')->willReturn($shippingLocation);
-
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
@@ -197,8 +215,7 @@ class AddressValidatorTest extends TestCase
     public function testValidateAddressWithoutState(): void
     {
         $cart = new Cart('test');
-
-        $context = $this->createMock(SalesChannelContext::class);
+        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -233,7 +250,19 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            $country,
+            $countryState,
+            null,
+            null,
+            null,
+            $customer,
+        );
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -242,11 +271,6 @@ class AddressValidatorTest extends TestCase
             Context::createDefaultContext()
         );
         $this->repository->method('searchIds')->willReturn($idSearchResult);
-
-        $shippingLocation = new ShippingLocation($country, null, null);
-        $context->method('getShippingLocation')->willReturn($shippingLocation);
-
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
@@ -259,8 +283,7 @@ class AddressValidatorTest extends TestCase
     public function testValidateAddressWithState(): void
     {
         $cart = new Cart('test');
-
-        $context = $this->createMock(SalesChannelContext::class);
+        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -296,7 +319,19 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context->expects($this->once())->method('getCustomer')->willReturn($customer);
+        $context = Generator::createSalesChannelContext(
+            null,
+            null,
+            null,
+            null,
+            null,
+            $country,
+            $countryState,
+            null,
+            null,
+            null,
+            $customer,
+        );
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -305,11 +340,6 @@ class AddressValidatorTest extends TestCase
             Context::createDefaultContext()
         );
         $this->repository->method('searchIds')->willReturn($idSearchResult);
-
-        $shippingLocation = new ShippingLocation($country, null, null);
-        $context->method('getShippingLocation')->willReturn($shippingLocation);
-
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);

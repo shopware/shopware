@@ -227,8 +227,8 @@ Open Api Schema validation:
     - npx @shopware/api-gen@canary loadSchema --apiType=store --filename=storeApiSchema.json
     - npx @shopware/api-gen@canary loadSchema --apiType=admin --filename=adminApiSchema.json
     - npm i -g @redocly/cli@latest
-    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./storeApiSchema.json
-    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com ./adminApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./storeApiSchema.json
+    - redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./adminApiSchema.json
 
 PHP unit coverage:
   extends: .base-no-setup

@@ -2871,16 +2871,6 @@ parameters:
 			path: src/Core/Framework/Api/Acl/Role/AclRoleEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiSchemaBuilder\\:\\:createSecurity\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiSchemaBuilder.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$security has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiSchemaBuilder.php
-
-		-
 			message: "#^Cannot cast PhpParser\\\\Node\\\\Expr\\|PhpParser\\\\Node\\\\Name to string\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Command/DumpClassSchemaCommand.php

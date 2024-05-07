@@ -155,7 +155,7 @@
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
         "twig/twig": "^3.8.0",
-        "zircote/swagger-php": "^4.5.1"
+        "zircote/swagger-php": "^4.9.2"
     },
     "require-dev": {
         "ext-tokenizer": "*",

@@ -35,7 +35,10 @@
                                 "$ref": "#/components/schemas/CustomerAddress"
                             },
                             "state": {
-                                "$ref": "#/components/schemas/State"
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         }
                     },

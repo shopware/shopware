@@ -92,9 +92,13 @@
                             },
                             "listPrice": {
                                 "oneOf": [
-                                    { "$ref": "#/components/schemas/ListPrice" }
-                                ],
-                                "nullable": true
+                                    {
+                                        "$ref": "#/components/schemas/ListPrice"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
                             },
                             "quantity": {
                                 "type": "number"
@@ -103,9 +107,11 @@
                                 "oneOf": [
                                     {
                                         "$ref": "#/components/schemas/ReferencePrice"
+                                    },
+                                    {
+                                        "type": "null"
                                     }
-                                ],
-                                "nullable": true
+                                ]
                             },
                             "regulationPrice": {
                                 "type": "object",
@@ -176,7 +182,6 @@
                     "removable": {
                         "type": "boolean"
                     },
-                    "requirement": {},
                     "stackable": {
                         "type": "boolean"
                     },

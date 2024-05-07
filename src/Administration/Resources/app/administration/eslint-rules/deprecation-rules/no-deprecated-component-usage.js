@@ -9,6 +9,7 @@ const { handleMtSwitch } = require("./no-deprecated-component-usage-checks/mt-sw
 const { handleMtNumberField } = require("./no-deprecated-component-usage-checks/mt-number-field.check");
 const { handleMtCheckbox } = require("./no-deprecated-component-usage-checks/mt-checkbox.check");
 const { handleMtTabs } = require("./no-deprecated-component-usage-checks/mt-tabs.check");
+const { handleMtSelect } = require("./no-deprecated-component-usage-checks/mt-select.check");
 
 /* eslint-disable max-len */
 
@@ -55,6 +56,8 @@ module.exports = {
                     handleMtCheckbox(context, node);
                     // Handle mt-tabs
                     handleMtTabs(context, node);
+                    // Handle mt-select
+                    handleMtSelect(context, node);
                 },
             }
         )

@@ -50,7 +50,7 @@ const missingTests = [
     'src/app/component/form/sw-field-copyable/index.js',
     'src/app/component/form/sw-gtc-checkbox/index.js',
     'src/app/component/form/sw-maintain-currencies-modal/index.js',
-    'src/app/component/form/sw-select-field/index.js',
+    'src/app/component/form/sw-select-field-deprecated/index.js',
     'src/app/component/form/sw-select-number-field/index.js',
     'src/app/component/form/sw-select-option/index.js',
     'src/app/component/form/sw-tagged-field/index.js',

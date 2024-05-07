@@ -89,6 +89,7 @@
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
     </php>
     <testsuites>
+        <!-- Legacy -->
         <testsuite name="administration">
             <directory>src/Administration/Test</directory>
         </testsuite>
@@ -97,9 +98,6 @@
         </testsuite>
         <testsuite name="content">
             <directory>src/Core/Content/Test</directory>
-        </testsuite>
-        <testsuite name="devops">
-            <directory>tests/devops</directory>
         </testsuite>
         <testsuite name="framework">
             <directory>src/Core/Framework/Test</directory>
@@ -114,15 +112,20 @@
         <testsuite name="system">
             <directory>src/Core/System/Test</directory>
         </testsuite>
+        <!-- new Structure -->
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
         <testsuite name="integration">
             <directory>tests/integration</directory>
         </testsuite>
+        <testsuite name="devops">
+            <directory>tests/devops</directory>
+        </testsuite>
         <testsuite name="migration-tests">
             <directory>tests/migration</directory>
         </testsuite>
+        <!-- Paratest -->
         <testsuite name="paratest">
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>

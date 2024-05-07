@@ -72,7 +72,7 @@ PHP integration:
     REDIS_URL: redis://redis:6379
   rules:
     # do not run in merge trains - PHP Full should cover all tests
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
       when: never
     - !reference [.rules, skip]
     - !reference [.rules, run]
@@ -94,6 +94,45 @@ PHP integration:
       --testsuite integration,devops
       --order-by default
 
+PHP legacy:
+    extends: .base-no-setup
+    stage: unit
+    timeout: 30m
+    needs: []
+    services:
+      - name: mariadb:10.11
+        alias: database
+        entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+      - name: redis:7.0
+        alias: redis
+    variables:
+        APP_ENV: "test"
+        FEATURE_ALL: "major"
+        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+        REDIS_URL: redis://redis:6379
+    rules:
+        # do not run in merge trains
+        - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
+          when: never
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run ]
+        - changes:
+            - '**/*.php'
+            - '**/*.xml'
+            - 'composer.json'
+    before_script:
+        - !reference [.scripts, init, composer]
+        - mkdir -p config/jwt || true
+        - "rm -Rf /var/www/html/public || true"
+        - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+        - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+    script:
+      - php vendor/bin/phpunit
+        --configuration phpunit.xml.dist
+        --log-junit phpunit.junit.xml
+        --testsuite administration,storefront,content,framework,migration,system
+        --order-by default
+
 PHP bench:
     extends: .base-no-setup
     stage: unit
@@ -114,7 +153,7 @@ PHP bench:
         MYSQL_CMD: 'mariadbd'
     rules:
         # do not run in merge trains
-        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+        - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
           when: never
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
@@ -164,7 +203,7 @@ Open Api Schema validation:
         PROJECT_ROOT: /var/www/html
   rules:
     # do not run in merge trains
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
       when: never
     - !reference [.rules, skip]
     - !reference [.rules, run]

@@ -242,6 +242,7 @@ E2E Changed install NL scenarios:
   dependencies: [ Build ]
   services:
     -   name: mysql:8.0
+        pull_policy: always
         alias: database
   variables:
     APP_ENV: e2e

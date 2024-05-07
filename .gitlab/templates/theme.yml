@@ -44,7 +44,7 @@ variables:
         value: mysqld
         description: 'Copy from $MYSQL8_CMD for mysql >= 8'
     MYSQL8_CMD:
-        value: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+        value: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --mysql-native-password=FORCE --sql-require-primary-key=ON'
         description: 'mysql 8 needs a special auth option to work with shopware/platform'
     BROWSER:
         value: chrome
@@ -126,6 +126,7 @@ default:
     services:
         - name: mysql:8.0
           alias: database
+          pull_policy: always
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     tags:
       - shopware

@@ -51,14 +51,7 @@ class AddressValidatorTest extends TestCase
         $country->setActive(true);
         $country->setShippingAvailable(false);
 
-        $context = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $country,
-        );
+        $context = Generator::createSalesChannelContext(country: $country);
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -91,14 +84,7 @@ class AddressValidatorTest extends TestCase
         $country->setActive(true);
         $country->setShippingAvailable(true);
 
-        $context = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $country,
-        );
+        $context = Generator::createSalesChannelContext(country: $country);
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -124,14 +110,7 @@ class AddressValidatorTest extends TestCase
         $country->setActive(true);
         $country->setShippingAvailable(false);
 
-        $context = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $country,
-        );
+        $context = Generator::createSalesChannelContext(country: $country);
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -183,19 +162,7 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $country,
-            $countryState,
-            null,
-            null,
-            null,
-            $customer,
-        );
+        $context = Generator::createSalesChannelContext(country: $country, state: $countryState, customer: $customer);
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -209,7 +176,8 @@ class AddressValidatorTest extends TestCase
         $this->validator->validate($cart, $errorCollection, $context);
 
         static::assertEquals(1, $errorCollection->count());
-        static::assertEquals(BillingAddressSalutationMissingError::class, get_class($errorCollection->first()));
+        // @phpstan-ignore-next-line > Object will not be null since there is an object in the collection
+        static::assertEquals(BillingAddressSalutationMissingError::class, \get_class($errorCollection->first()));
     }
 
     public function testValidateAddressWithoutState(): void
@@ -250,19 +218,7 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $country,
-            $countryState,
-            null,
-            null,
-            null,
-            $customer,
-        );
+        $context = Generator::createSalesChannelContext(country: $country, state: $countryState, customer: $customer);
 
         $idSearchResult = new IdSearchResult(
             1,
@@ -276,8 +232,10 @@ class AddressValidatorTest extends TestCase
         $this->validator->validate($cart, $errorCollection, $context);
 
         static::assertEquals(2, $errorCollection->count());
-        static::assertEquals(BillingAddressCountryRegionMissingError::class, get_class($errorCollection->first()));
-        static::assertEquals(ShippingAddressCountryRegionMissingError::class, get_class($errorCollection->last()));
+        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
+        static::assertEquals(BillingAddressCountryRegionMissingError::class, \get_class($errorCollection->first()));
+        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
+        static::assertEquals(ShippingAddressCountryRegionMissingError::class, \get_class($errorCollection->last()));
     }
 
     public function testValidateAddressWithState(): void
@@ -319,19 +277,7 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::createSalesChannelContext(
-            null,
-            null,
-            null,
-            null,
-            null,
-            $country,
-            $countryState,
-            null,
-            null,
-            null,
-            $customer,
-        );
+        $context = Generator::createSalesChannelContext(country: $country, state: $countryState, customer: $customer);
 
         $idSearchResult = new IdSearchResult(
             1,

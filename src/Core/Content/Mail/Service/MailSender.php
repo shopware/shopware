@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -20,7 +21,8 @@ class MailSender extends AbstractMailSender
      */
     public function __construct(
         private readonly MailerInterface $mailer,
-        private readonly SystemConfigService $configService
+        private readonly SystemConfigService $configService,
+        private readonly int $maxContentLength,
     ) {
     }
 
@@ -37,6 +39,7 @@ class MailSender extends AbstractMailSender
         $failedRecipients = [];
 
         $disabled = $this->configService->get(self::DISABLE_MAIL_DELIVERY);
+
         if ($disabled) {
             return;
         }
@@ -44,6 +47,10 @@ class MailSender extends AbstractMailSender
         $deliveryAddress = $this->configService->getString('core.mailerSettings.deliveryAddress');
         if ($deliveryAddress !== '') {
             $email->addBcc($deliveryAddress);
+        }
+
+        if ($this->maxContentLength > 0 && \strlen($email->getBody()->toString()) > $this->maxContentLength) {
+            throw MailException::mailBodyTooLong($this->maxContentLength);
         }
 
         try {

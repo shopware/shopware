@@ -27,6 +27,7 @@
         <service id="Shopware\Core\Content\Mail\Service\MailSender" public="true">
             <argument type="service" id="mailer.mailer"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%shopware.mail.max_body_length%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">

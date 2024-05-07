@@ -501,6 +501,7 @@ shopware:
             FRAMEWORK__API_INVALID_ASSOCIATION: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
             FRAMEWORK__INVALID_SYNC_OPERATION: notice
+            FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

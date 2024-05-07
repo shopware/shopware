@@ -500,6 +500,7 @@ shopware:
             CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
             FRAMEWORK__API_INVALID_ASSOCIATION: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
+            FRAMEWORK__INVALID_SYNC_OPERATION: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

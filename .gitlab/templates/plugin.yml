@@ -144,7 +144,7 @@ workflow:
 default:
     image: $DEV_IMAGE
     tags:
-      - shopware
+      - shopware-amd64
     services:
         - name: "$MYSQL_IMAGE"
           alias: database

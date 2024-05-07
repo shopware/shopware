@@ -3,7 +3,7 @@
 .split-base:
   stage: split
   tags:
-    - shopware
+    - shopware-amd64
   image:
     name: gitlab.shopware.com:5005/infrastructure/docker-base/ci
   variables:

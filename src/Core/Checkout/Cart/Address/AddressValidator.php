@@ -79,12 +79,12 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
         if ($customer->getActiveBillingAddress()->getCountry()?->getForceStateInRegistration()) {
             if (!$customer->getActiveBillingAddress()->getCountryState()) {
-                $errors->add(new BillingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
+                $errors->add(new BillingAddressCountryRegionMissingError($customer->getActiveBillingAddress()));
             }
         }
 
         if ($customer->getActiveShippingAddress()->getCountry()?->getForceStateInRegistration()) {
-            if (!$customer->getActiveBillingAddress()->getCountryState()) {
+            if (!$customer->getActiveShippingAddress()->getCountryState()) {
                 $errors->add(new ShippingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
             }
         }

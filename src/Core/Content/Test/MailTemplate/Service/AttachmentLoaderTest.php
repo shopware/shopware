@@ -86,8 +86,11 @@ class AttachmentLoaderTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId);
 
-        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->getSuccess()->first();
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context);
+        $errors = $result->getErrors();
+        static::assertEmpty($errors, 'Invoice generation failed: ' . array_pop($errors)?->getMessage());
 
+        $document = $result->getSuccess()->first();
         static::assertNotNull($document);
 
         $attachments = $this->attachmentLoader->load([$document->getId()], Context::createDefaultContext());

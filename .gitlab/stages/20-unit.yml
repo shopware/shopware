@@ -198,6 +198,7 @@ PHP Full:
   services:
     - name: $MYSQL_IMAGE
       alias: database
+      pull_policy: always
       entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
     - name: opensearchproject/opensearch:2.2.0
       alias: elasticsearch
@@ -241,7 +242,7 @@ PHP Full:
           - "latest"
           - "php8.3"
         FEATURE_ALL: ["false", "major"]
-        MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON"
+        MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --mysql-native-password=FORCE --sql-require-primary-key=ON"
       - MYSQL_IMAGE: mysql:8.0.17
       - MYSQL_IMAGE: mariadb:10.11
       - MYSQL_IMAGE: mariadb:10.11

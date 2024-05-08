@@ -81,7 +81,6 @@ class PromotionProcessor implements CartProcessorInterface
                 return;
             }
 
-
             // calculate the whole cart with the
             // new list of created promotion discount line items
             $items = new LineItemCollection($discountLineItems);

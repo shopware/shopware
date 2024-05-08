@@ -254,6 +254,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->mockResetLimiter([
                 RateLimiter::GUEST_LOGIN => 1,
             ]),
+            $this->getContainer()->get('event_dispatcher'),
         );
 
         $order = $this->createCustomerWithOrder();

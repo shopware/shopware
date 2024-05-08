@@ -36,6 +36,9 @@ export default {
 
     data() {
         return {
+            /**
+             * @deprecated tag:v6.7.0 - will be removed, use customer.orderTotalValue instead
+             */
             orderAmount: 0,
             orderCount: 0,
             customerLanguage: null,
@@ -71,11 +74,6 @@ export default {
 
         orderCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.filter('exceptCancelledOrder', [
-                Criteria.not('AND', [
-                    Criteria.equals('stateMachineState.technicalName', 'cancelled'),
-                ]),
-            ], Criteria.sum('orderAmount', 'amountTotal')));
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
 
             return criteria;
@@ -121,7 +119,6 @@ export default {
         createdComponent() {
             this.orderRepository.search(this.orderCriteria).then((response) => {
                 this.orderCount = response.total;
-                this.orderAmount = response.aggregations.orderAmount.sum;
             });
         },
     },

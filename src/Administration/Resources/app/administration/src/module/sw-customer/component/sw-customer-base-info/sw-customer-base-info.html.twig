@@ -299,7 +299,7 @@
             </dt>
             {# price aggregations do not support currencies yet, see NEXT-5069 #}
             <dd class="sw-customer-base__label-turnover">
-                {{ currencyFilter(orderAmount, 'EUR') }}
+                {{ currencyFilter(customer.orderTotalAmount, 'EUR') }}
             </dd>
         </sw-description-list>
         {% endblock %}

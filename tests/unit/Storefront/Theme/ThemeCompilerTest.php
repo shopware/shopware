@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
@@ -26,6 +27,7 @@ use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -35,6 +37,7 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Storefront\Theme\ThemeScripts;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\AsyncPlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\NotFoundPlugin\NotFoundPlugin;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestTheme;
@@ -82,6 +85,7 @@ class ThemeCompilerTest extends TestCase
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
             new MessageBus(),
+            new StaticSystemConfigService(),
             0,
             false
         );
@@ -359,12 +363,14 @@ PHP_EOL;
     public function testCompileWithoutAssets(): void
     {
         $resolver = $this->createMock(ThemeFileResolver::class);
-        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection([new File('js/storefront/storefront.js', [], 'storefront')]), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
         $importer = $this->createMock(ThemeFileImporter::class);
 
         $fs = new Filesystem(new MemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
+
+        $systemConfig = new StaticSystemConfigService();
 
         $compiler = new ThemeCompiler(
             $fs,
@@ -380,6 +386,7 @@ PHP_EOL;
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
             new MessageBus(),
+            $systemConfig,
             0,
             false
         );
@@ -404,6 +411,8 @@ PHP_EOL;
             false,
             Context::createDefaultContext()
         );
+
+        static::assertEquals(['js/storefront/storefront.js'], $systemConfig->get(ThemeScripts::SCRIPT_FILES_CONFIG_KEY . '.9a11a759d278b4a55cb5e2c3414733c1'));
 
         static::assertTrue($fs->has('theme/9a11a759d278b4a55cb5e2c3414733c1'));
     }
@@ -441,6 +450,7 @@ PHP_EOL;
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
             new MessageBus(),
+            new StaticSystemConfigService(),
             0,
             false
         );
@@ -501,6 +511,7 @@ PHP_EOL;
             __DIR__,
             $scssCompiler,
             new MessageBus(),
+            new StaticSystemConfigService(),
             0,
             false
         );
@@ -553,6 +564,9 @@ PHP_EOL;
         $pathBuilder->method('generateNewPath')->willReturn('new');
         $pathBuilder->expects(static::never())->method('saveSeed');
 
+        $systemConfigMock = $this->createMock(SystemConfigService::class);
+        $systemConfigMock->expects(static::never())->method('delete');
+
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
@@ -567,6 +581,7 @@ PHP_EOL;
             __DIR__,
             $scssCompiler,
             new MessageBus(),
+            $systemConfigMock,
             0,
             false
         );
@@ -650,6 +665,7 @@ PHP_EOL;
             __DIR__,
             $scssCompiler,
             $messageBusMock,
+            new StaticSystemConfigService(),
             900,
             false
         );
@@ -716,6 +732,7 @@ PHP_EOL;
             $projectDir,
             $scssCompiler,
             new MessageBus(),
+            new StaticSystemConfigService(),
             0,
             false
         );

@@ -49,7 +49,6 @@ async function createWrapper() {
                     create: () => ({
                         search: () => Promise.resolve({
                             total: 2,
-                            aggregations: { orderAmount: { sum: 29.68 } },
                         }),
                         get: () => Promise.resolve(),
                     }),
@@ -72,6 +71,7 @@ async function createWrapper() {
                         distinguishableName: 'Payment test',
                     },
                 },
+                orderTotalAmount: 29.68,
             },
             customerEditMode: false,
             isLoading: false,

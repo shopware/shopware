@@ -548,4 +548,73 @@ describe('core/service/extension-api-data.service.ts', () => {
         });
         expect(clonedValue.mediaCollection.context.auth).toBeUndefined();
     });
+
+    it('should not update value after component gets unmounted', async () => {
+        const wrapper = mount({
+            template: '<h1>jest</h1>',
+            data() {
+                return {
+                    count: 42,
+                };
+            },
+        });
+
+        // Assert before publish
+        expect(wrapper.vm.count).toBe(42);
+
+        jest.spyOn(window, 'addEventListener').mockImplementationOnce((event, handler) => {
+            const data = {
+                _type: 'datasetUpdate',
+                _data: {
+                    id: 'jest',
+                    data: 1337,
+                },
+                _callbackId: Shopware.Utils.createId(),
+            };
+
+            handler({ data: JSON.stringify(data) });
+        });
+
+        publishData({
+            id: 'jest',
+            path: 'count',
+            scope: wrapper.vm,
+        });
+
+        await flushPromises();
+
+        // Assert after publish
+        let publishedDataSets = getPublishedDataSets();
+        expect(publishedDataSets).toHaveLength(1);
+        expect(publishedDataSets[0].data).toBe(1337);
+
+        // Assert after publish
+        expect(wrapper.vm.count).toBe(1337);
+
+        // Destroy component
+        wrapper.unmount();
+        await flushPromises();
+
+        jest.spyOn(window, 'addEventListener').mockImplementationOnce((event, handler) => {
+            const data = {
+                _type: 'datasetUpdate',
+                _data: {
+                    id: 'jest',
+                    data: 1338,
+                },
+                _callbackId: Shopware.Utils.createId(),
+            };
+
+            handler({ data: JSON.stringify(data) });
+        });
+
+        // Change value in wrapper that is already destroyed
+        wrapper.vm.count = 1338;
+
+        await flushPromises();
+
+        // Assert in publishedDataSets that it was removed
+        publishedDataSets = getPublishedDataSets();
+        expect(publishedDataSets).toHaveLength(0);
+    });
 });

@@ -46,25 +46,53 @@ Component.register('sw-cms-el-location-renderer', {
         element(): void {
             this.$emit('element-update', this.element);
         },
+
+        elementData: {
+            handler(): void {
+                this.updatePublishData();
+            },
+            deep: true,
+        },
     },
 
     created(): void {
         this.createdComponent();
     },
 
+    data(): {
+        unpublishData: null | (() => void);
+        unpublishDataWithElementId: null | (() => void);
+        } {
+        return {
+            unpublishData: null,
+            unpublishDataWithElementId: null,
+        };
+    },
+
     methods: {
         createdComponent(): void {
             this.initElementConfig(this.elementData.name);
+            this.updatePublishData();
+        },
+
+        updatePublishData() {
+            if (this.unpublishData) {
+                this.unpublishData();
+            }
+
+            if (this.unpublishDataWithElementId) {
+                this.unpublishDataWithElementId();
+            }
 
             // This is just for avoiding breaking changes for older implementations.
             // The important part is the publisher with the element id.
-            Shopware.ExtensionAPI.publishData({
+            this.unpublishData = Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
                 path: 'element',
                 scope: this,
             });
 
-            Shopware.ExtensionAPI.publishData({
+            this.unpublishDataWithElementId = Shopware.ExtensionAPI.publishData({
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 id: `${this.publishingKey}__${this.element.id}`,
                 path: 'element',

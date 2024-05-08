@@ -155,45 +155,54 @@ Shopware.Component.register('sw-iframe-renderer', {
     watch: {
         extension: {
             immediate: true,
-            handler(extension) {
-                if (!extension || !this.extensionIsApp) {
+            handler() {
+                this.signIframeSrc();
+            },
+        },
+        locationId() {
+            this.signIframeSrc();
+        },
+    },
+
+    methods: {
+        signIframeSrc() {
+            if (!this.extension || !this.extensionIsApp) {
+                return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+            this.extensionSdkService.signIframeSrc(this.extension.name, this.iFrameSrc).then((response) => {
+                const uri = (response as { uri?: string})?.uri;
+
+                if (!uri) {
                     return;
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                this.extensionSdkService.signIframeSrc(extension.name, this.iFrameSrc).then((response) => {
-                    const uri = (response as { uri?: string})?.uri;
+                // add information from query with hash, pathname and queries
+                const urlObject = new URL(uri);
+                const hash = this.$route.query[this.locationIdHashQueryKey];
+                const pathname = this.$route.query[this.locationIdPathnameQueryKey];
+                const searchParams = this.$route.query[this.locationIdSearchParamsQueryKey];
 
-                    if (!uri) {
-                        return;
-                    }
+                if (hash) {
+                    urlObject.hash = hash as string;
+                }
 
-                    // add information from query with hash, pathname and queries
-                    const urlObject = new URL(uri);
-                    const hash = this.$route.query[this.locationIdHashQueryKey];
-                    const pathname = this.$route.query[this.locationIdPathnameQueryKey];
-                    const searchParams = this.$route.query[this.locationIdSearchParamsQueryKey];
+                if (pathname) {
+                    urlObject.pathname = pathname as string;
+                }
 
-                    if (hash) {
-                        urlObject.hash = hash as string;
-                    }
+                if (searchParams) {
+                    const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
 
-                    if (pathname) {
-                        urlObject.pathname = pathname as string;
-                    }
+                    parsedSearchParams.forEach(([key, value]) => {
+                        urlObject.searchParams.append(key, value);
+                    });
+                }
 
-                    if (searchParams) {
-                        const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
-
-                        parsedSearchParams.forEach(([key, value]) => {
-                            urlObject.searchParams.append(key, value);
-                        });
-                    }
-
-                    this.signedIframeSrc = urlObject.toString();
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
-                }).catch(() => {});
-            },
+                this.signedIframeSrc = urlObject.toString();
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+            }).catch(() => {});
         },
     },
 });

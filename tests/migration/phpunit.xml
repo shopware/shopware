@@ -8,9 +8,12 @@
          convertDeprecationsToExceptions="false">
     <coverage cacheDirectory="../../var/cache/phpunit/" includeUncoveredFiles="true">
         <include >
-            <directory suffix=".php">../../src/Core/Migration</directory>
-            <directory suffix=".php">../../src/Administration/Migration</directory>
-            <directory suffix=".php">../../src/Storefront/Migration</directory>
+            <directory suffix=".php">../../src/Core/Migration/V6_6</directory>
+            <directory suffix=".php">../../src/Core/Migration/V6_7</directory>
+            <directory suffix=".php">../../src/Administration/Migration/V6_6</directory>
+            <directory suffix=".php">../../src/Administration/Migration/V6_7</directory>
+            <directory suffix=".php">../../src/Storefront/Migration/V6_6</directory>
+            <directory suffix=".php">../../src/Storefront/Migration/V6_7</directory>
         </include>
       </coverage>
     <php>

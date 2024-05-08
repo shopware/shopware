@@ -4834,10 +4834,7 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/LockValidatorTest.php
 
-		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterExtensionTest.php
+
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Filesystem\\\\Adapter\\\\MemoryAdapterFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -6823,16 +6820,6 @@ parameters:
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Storefront\\\\Controller\\\\AddressControllerTest\\:\\:createCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/Storefront/Controller/AddressControllerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) with null will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_5/Migration1670090989AddIndexOrderOrderNumberTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with false will always evaluate to true\\.$#"
-			count: 1
-			path: tests/migration/Core/V6_5/Migration1673263104RemoveCartNameColumnTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"

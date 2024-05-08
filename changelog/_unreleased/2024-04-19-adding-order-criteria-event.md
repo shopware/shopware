@@ -1,6 +1,6 @@
 ---
 title: Adding order criteria event
-issue: NEXT-000
+issue: NEXT-36064
 author: Tomislav Odovic
 author_email: odovictoma@gmail.com
 author_github: odovictoma

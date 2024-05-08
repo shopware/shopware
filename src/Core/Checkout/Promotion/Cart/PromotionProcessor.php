@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
@@ -71,6 +72,15 @@ class PromotionProcessor implements CartProcessorInterface
 
             /** @var LineItemCollection $discountLineItems */
             $discountLineItems = $data->get(self::DATA_KEY);
+
+            if ($toCalculate->getPrice()->getTotalPrice() === 0.0) {
+                $toCalculate->addErrors(
+                    new PromotionsOnCartPriceZeroError($discountLineItems->fmap(fn($lineItem) => $lineItem->getLabel()))
+                );
+
+                return;
+            }
+
 
             // calculate the whole cart with the
             // new list of created promotion discount line items

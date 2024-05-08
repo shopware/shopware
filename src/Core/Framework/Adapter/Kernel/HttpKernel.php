@@ -48,7 +48,9 @@ class HttpKernel extends SymfonyHttpKernel
             return parent::handle($request, $type, $catch);
         }
 
-        $request = $this->requestTransformer->transform($request);
+        if (!$request->attributes->has('sw-skip-transformer')) {
+            $request = $this->requestTransformer->transform($request);
+        }
 
         $redirect = $this->canonicalRedirectService->getRedirect($request);
 

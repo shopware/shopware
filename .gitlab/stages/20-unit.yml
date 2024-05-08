@@ -302,7 +302,7 @@ PHP Full:
         - "**/Resources/views/*.html.twig"
         - "**/*.{php,xml,yaml,json,js,twig}"
         - "adr/*"
-        - .gitlab/stages/02-unit.yml
+        - .gitlab/stages/20-unit.yml
   parallel:
     matrix:
       - MYSQL_IMAGE: mysql:8
@@ -312,6 +312,7 @@ PHP Full:
         FEATURE_ALL: ["false", "major"]
         MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON"
       - MYSQL_IMAGE: mysql:8.0.36
+      - MYSQL_IMAGE: mysql:8.4
       - MYSQL_IMAGE: mariadb:10.11
       - MYSQL_IMAGE: mariadb:10.11
         PREFER_LOWEST: "prefer lowest"

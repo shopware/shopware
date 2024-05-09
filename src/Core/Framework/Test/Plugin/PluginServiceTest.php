@@ -72,6 +72,23 @@ class PluginServiceTest extends TestCase
         static::assertSame('https://www.test.com/support', $plugin->getSupportLink());
     }
 
+    public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void
+    {
+        $this->pluginService = $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            __DIR__ . '/_fixture/root-plugin',
+            $this->pluginRepo,
+            $this->getContainer()->get('language.repository'),
+            $this->getContainer()->get(PluginFinder::class)
+        );
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $plugin = $this->fetchSwagTestPluginEntity(baseClass: 'Swag\RootTest\RootPlugin');
+
+        static::assertSame('Root test plugin', $plugin->getTranslated()['label']);
+    }
+
     public function testRefreshPluginWithoutExtraLabelProperty(): void
     {
         $errors = $this->pluginService->refreshPlugins($this->context, new NullIO());
@@ -264,13 +281,13 @@ class PluginServiceTest extends TestCase
         static::assertSame('MIT', $plugin->getLicense());
     }
 
-    private function fetchSwagTestPluginEntity(?Context $context = null): PluginEntity
+    private function fetchSwagTestPluginEntity(?Context $context = null, $baseClass = SwagTestPlugin::class): PluginEntity
     {
         if ($context === null) {
             $context = $this->context;
         }
 
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', SwagTestPlugin::class));
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('baseClass', $baseClass));
 
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo

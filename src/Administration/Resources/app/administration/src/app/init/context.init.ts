@@ -37,6 +37,10 @@ export default function initializeContext(): void {
         return Shopware.Context.app.config.version ?? '';
     });
 
+    Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
+        return (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
+    });
+
     Shopware.ExtensionAPI.handle('contextModuleInformation', (_, additionalInformation) => {
         const extension = Object.values(Shopware.State.get('extensions'))
             .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));

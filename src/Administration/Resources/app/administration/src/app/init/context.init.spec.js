@@ -1,5 +1,14 @@
 import initContext from 'src/app/init/context.init';
-import { getCurrency, getEnvironment, getLocale, getShopwareVersion, getModuleInformation, getAppInformation, getUserInformation } from '@shopware-ag/meteor-admin-sdk/es/context';
+import {
+    getCurrency,
+    getEnvironment,
+    getLocale,
+    getShopwareVersion,
+    getModuleInformation,
+    getAppInformation,
+    getUserInformation,
+    getUserTimezone,
+} from '@shopware-ag/meteor-admin-sdk/es/context';
 import extensionsStore from '../state/extensions.store';
 
 describe('src/app/init/context.init.ts', () => {
@@ -64,6 +73,22 @@ describe('src/app/init/context.init.ts', () => {
                 version: '0.0.0',
                 type: 'app',
             }));
+        });
+    });
+
+    it('should return user timezone', async () => {
+        Shopware.State.commit('setCurrentUser', {
+            timeZone: 'Europe/Berlin',
+        });
+        await getUserTimezone().then((timezone) => {
+            expect(timezone).toBe('Europe/Berlin');
+        });
+
+        Shopware.State.commit('setCurrentUser', {
+            timeZone: undefined,
+        });
+        await getUserTimezone().then((timezone) => {
+            expect(timezone).toBe('UTC');
         });
     });
 

@@ -3,60 +3,57 @@
 namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\Datadog;
 
 use PHPUnit\Event\Code\Phpt;
+use PHPUnit\Event\Code\Throwable;
 use PHPUnit\Event\Telemetry\Duration;
 use PHPUnit\Event\Telemetry\GarbageCollectorStatus;
 use PHPUnit\Event\Telemetry\HRTime;
 use PHPUnit\Event\Telemetry\Info;
 use PHPUnit\Event\Telemetry\MemoryUsage;
 use PHPUnit\Event\Telemetry\Snapshot;
-use PHPUnit\Event\Test\Skipped;
+use PHPUnit\Event\Test\Errored;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\PHPUnit\Extension\Common\TimeKeeper;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayload;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayloadCollection;
-use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestSkippedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestErroredSubscriber;
 
 /**
  * @internal
  */
-#[CoversClass(TestSkippedSubscriber::class)]
-class TestSkippedSubscriberTest extends TestCase
+#[CoversClass(TestErroredSubscriber::class)]
+class TestErroredSubscriberTest extends TestCase
 {
-    public function testNotifyWithFeatureFlagSkippedEvent(): void
+    public function testNotifyWithErroredEvent(): void
     {
-        $skipped = new DatadogPayloadCollection();
-
-        $event = $this->buildEvent('Skipping feature test for flag');
-        $subscriber = new TestSkippedSubscriber(new TimeKeeper(), $skipped);
-
-        $subscriber->notify($event);
-
-        static::assertEmpty($skipped);
-    }
-
-    public function testNotifyWithLegitSkippedEvent(): void
-    {
-        $skipped = new DatadogPayloadCollection();
-
         $expected = new DatadogPayload(
             'phpunit',
-            'phpunit,test:skipped',
-            'Test Skipped (fakeFile)',
+            'phpunit,test:errored',
+            'Test Errored (fakeFile)' . \PHP_EOL . 'blabla',
             'PHPUnit',
             'fakeFile',
-            0.0
+            0.0,
         );
 
-        $event = $this->buildEvent('');
-        $subscriber = new TestSkippedSubscriber(new TimeKeeper(), $skipped);
+        $errored = new DatadogPayloadCollection();
+        $event = $this->buildEvent(
+            new Throwable(
+                TestErroredSubscriberTest::class,
+                'blabla',
+                '',
+                '',
+                null
+            )
+        );
+
+        $subscriber = new TestErroredSubscriber(new TimeKeeper(), $errored);
 
         $subscriber->notify($event);
 
-        static::assertEquals($expected, $skipped->first());
+        static::assertEquals($expected, $errored->first());
     }
 
-    private function buildEvent(string $message): Skipped
+    private function buildEvent(Throwable $throwable): Errored
     {
         $time = HRTime::fromSecondsAndNanoseconds(0, 0);
         $duration = Duration::fromSecondsAndNanoseconds(0, 0);
@@ -77,6 +74,10 @@ class TestSkippedSubscriberTest extends TestCase
         );
         $snap = new Snapshot($time, $memory, $memory, $gc);
 
-        return new Skipped(new Info($snap, $duration, $memory, $duration, $memory), new Phpt('fakeFile'), $message);
+        return new Errored(
+            new Info($snap, $duration, $memory, $duration, $memory),
+            new Phpt('fakeFile'),
+            $throwable
+        );
     }
 }

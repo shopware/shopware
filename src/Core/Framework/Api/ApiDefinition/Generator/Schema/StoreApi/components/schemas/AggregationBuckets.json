@@ -1,0 +1,214 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "AggregationEntity": {
+                "title": "AggregationEntity",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Give your aggregation an identifier, so you can find it easier",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "The type of aggregation",
+                        "type": "string",
+                        "enum": ["entity"]
+                    },
+                    "field": {
+                        "description": "The field you want to aggregate over.",
+                        "type": "string"
+                    },
+                    "definition": {
+                        "description": "The entity definition e.g \"product_manufacturer\".",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "field",
+                    "definition"
+                ]
+            },
+            "AggregationFilter": {
+                "title": "AggregationFilter",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Give your aggregation an identifier, so you can find it easier",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "The type of aggregation",
+                        "type": "string",
+                        "enum": ["filter"]
+                    },
+                    "filter": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Filters"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "filter"
+                ]
+            },
+            "AggregationTerms": {
+                "title": "AggregationTerms",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Give your aggregation an identifier, so you can find it easier",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "The type of aggregation",
+                        "type": "string",
+                        "enum": ["terms"]
+                    },
+                    "field": {
+                        "description": "The field you want to aggregate over.",
+                        "type": "string"
+                    },
+                    "limit": {
+                        "description": "The number of terms to return",
+                        "type": "number"
+                    },
+                    "sort": {
+                        "type": "array",
+                        "description": "Sorting the aggregation result.",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Sort"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "field"
+                ]
+            },
+            "AggregationHistogram": {
+                "title": "AggregationHistogram",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Give your aggregation an identifier, so you can find it easier",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "The type of aggregation",
+                        "type": "string",
+                        "enum": ["histogram"]
+                    },
+                    "field": {
+                        "description": "The field you want to aggregate over.",
+                        "type": "string"
+                    },
+                    "interval": {
+                        "description": "The interval of the histogram",
+                        "type": "number"
+                    },
+                    "format": {
+                        "description": "The format of the histogram",
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "description": "The timezone of the histogram",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "field"
+                ]
+            },
+            "AggregationRange": {
+                "title": "AggregationRange",
+                "description": "For more information, see [Aggregations Reference > Range Aggregation](https:\/\/developer.shopware.com\/docs\/resources\/references\/core-reference\/dal-reference\/aggregations-reference.html#range-aggregations)",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "description": "Give your aggregation an identifier, so you can find it easier",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "The type of aggregation",
+                        "type": "string",
+                        "enum": ["range"]
+                    },
+                    "field": {
+                        "description": "The field you want to aggregate over.",
+                        "type": "string"
+                    },
+                    "ranges": {
+                        "description": "The ranges of the aggregation",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "anyOf": [
+                                {
+                                    "type": "object",
+                                    "title": "From and to",
+                                    "properties": {
+                                        "from": {
+                                            "type": "number",
+                                            "description": "The lower bound of the range"
+                                        },
+                                        "to": {
+                                            "type": "number",
+                                            "description": "The upper bound of the range"
+                                        }
+                                    },
+                                    "required": [
+                                        "from",
+                                        "to"
+                                    ]
+                                },
+                                {
+                                    "type": "object",
+                                    "title": "From only",
+                                    "properties": {
+                                        "from": {
+                                            "type": "string",
+                                            "description": "The lower bound of the range"
+                                        }
+                                    },
+                                    "required": [
+                                        "from"
+                                    ]
+                                },
+                                {
+                                    "type": "object",
+                                    "title": "To only",
+                                    "properties": {
+                                        "to": {
+                                            "type": "string",
+                                            "description": "The upper bound of the range"
+                                        }
+                                    },
+                                    "required": [
+                                        "to"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "field",
+                    "ranges"
+                ]
+            }
+        }
+    }
+}

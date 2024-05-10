@@ -11,6 +11,18 @@
                 "summary": "Fetch currencies",
                 "description": "Perform a filtered search for currencies.",
                 "operationId": "readCurrency",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": false,
                     "content": {

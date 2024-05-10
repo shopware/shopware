@@ -10,6 +10,18 @@
                 "summary": "Search for products",
                 "description": "Performs a search for products which can be used to display a product listing.",
                 "operationId": "searchPage",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {

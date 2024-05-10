@@ -51,6 +51,18 @@
                 "summary": "Fetch a wishlist",
                 "description": "Fetch a customer's wishlist. Products on the wishlist can be filtered using a criteria object.\n\n    **Important constraints**\n\n    * Anonymous (not logged-in) customers can not have wishlists.\n    * The wishlist feature has to be activated.",
                 "operationId": "readCustomerWishlist",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": false,
                     "content": {

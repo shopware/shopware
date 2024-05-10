@@ -1,0 +1,50 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CustomerAddressRead": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "readOnly": true
+                    },
+                    "customerId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "countryState": {
+                        "$ref": "#/components/schemas/CountryState",
+                        "nullable": true
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
+                },
+                "required": [
+                    "customerId",
+                    "createdAt",
+                    "updatedAt",
+                    "country",
+                    "salutation"
+                ]
+            }
+        }
+    }
+}

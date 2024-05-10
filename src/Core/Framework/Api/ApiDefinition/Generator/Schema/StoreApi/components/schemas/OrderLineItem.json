@@ -1,0 +1,116 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OrderLineItem": {
+                "type": "object",
+                "properties": {
+                    "properties": {
+                        "apiAlias": {
+                            "type": "string",
+                            "enum": ["order_line_item"]
+                        },
+                        "extensions": {
+                            "type": "object"
+                        },
+                        "payload": {
+                            "type": "object",
+                            "properties": {
+                                "categoryIds": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "readOnly": true
+                                },
+                                "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "readOnly": true
+                                },
+                                "customFields": { "type": "object" },
+                                "features": {
+                                    "type": "array"
+                                },
+                                "isCloseout": { "type": "boolean" },
+                                "isNew": {
+                                    "type": "boolean"
+                                },
+                                "manufacturerId": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "markAsTopseller": { "type": "boolean" },
+                                "optionIds": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "readOnly": true
+                                },
+                                "options": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PropertyGroupOption"
+                                    }
+                                },
+                                "parentId": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "productNumber": { "type": "string" },
+                                "propertyIds": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "readOnly": true
+                                },
+                                "purchasePrices": {
+                                    "type": "string"
+                                },
+                                "releaseDate": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                },
+                                "stock": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                },
+                                "streamIds": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "readOnly": true
+                                },
+                                "tagIds": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "readOnly": true
+                                },
+                                "taxId": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                }
+                            }
+                        },
+                        "priceDefinition": {
+                            "$ref": "#/components/schemas/PriceDefinition"
+                        },
+                        "translated": { "type": "object" }
+                    }
+                }
+            }
+        }
+    }
+}

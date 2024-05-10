@@ -12,6 +12,10 @@
                         "description": "Search result page",
                         "type": "integer"
                     },
+                    "term": {
+                        "description": "Search term",
+                        "type": "string"
+                    },
                     "limit": {
                         "description": "Number of items per result page",
                         "type": "integer"
@@ -20,22 +24,60 @@
                         "type": "array",
                         "description": "List of filters to restrict the search result. For more information, see [Search Queries > Filter](https:\/\/shopware.stoplight.io\/docs\/store-api\/docs\/concepts\/search-queries.md#filter)",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string"
+                            "anyOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/SimpleFilter"
                                 },
-                                "field": {
-                                    "type": "string"
+                                {
+                                    "$ref": "#\/components\/schemas\/EqualsFilter"
                                 },
-                                "value": {
-                                    "type": "string"
+                                {
+                                    "$ref": "#\/components\/schemas\/MultiNotFilter"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/RangeFilter"
                                 }
-                            },
-                            "required": [
-                                "type",
-                                "field",
-                                "value"
+                            ]
+                        }
+                    },
+                    "ids": {
+                        "type": "array",
+                        "description": "List of ids to search for",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "query": {
+                        "type": "array",
+                        "description": "List of queries to restrict the search result. For more information, see [Search Queries > Query](https:\/\/shopware.stoplight.io\/docs\/store-api\/docs\/concepts\/search-queries.md#query)",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Query"
+                        }
+                    },
+                    "associations": {
+                        "type": "array",
+                        "description": "Associations to include. For more information, see [Search Queries > Associations](https:\/\/shopware.stoplight.io\/docs\/store-api\/cf710bf73d0cd-search-queries#associations)",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Association"
+                        }
+                    },
+                    "post-filter": {
+                        "type": "array",
+                        "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https:\/\/shopware.stoplight.io\/docs\/store-api\/docs\/concepts\/search-queries.md#post-filter)",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/SimpleFilter"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/EqualsFilter"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/MultiNotFilter"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/RangeFilter"
+                                }
                             ]
                         }
                     },
@@ -43,74 +85,18 @@
                         "type": "array",
                         "description": "Sorting in the search result.",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "field": {
-                                    "type": "string"
-                                },
-                                "order": {
-                                    "type": "string"
-                                },
-                                "naturalSorting": {
-                                    "type": "boolean"
-                                }
-                            },
-                            "required": [
-                                "field"
-                            ]
+                            "$ref": "#\/components\/schemas\/Sort"
                         }
-                    },
-                    "post-filter": {
-                        "type": "array",
-                        "description": "Filters that applied without affecting aggregations. For more information, see [Search Queries > Post Filter](https:\/\/shopware.stoplight.io\/docs\/store-api\/docs\/concepts\/search-queries.md#post-filter)",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string"
-                                },
-                                "field": {
-                                    "type": "string"
-                                },
-                                "value": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "type",
-                                "field",
-                                "value"
-                            ]
-                        }
-                    },
-                    "associations": {
-                        "type": "object",
-                        "description": "Used to fetch associations which are not fetched by default."
                     },
                     "aggregations": {
+                        "$ref": "#\/components\/schemas\/Aggregations"
+                    },
+                    "fields": {
                         "type": "array",
-                        "description": "Used to perform aggregations on the search result. For more information, see [Search Queries > Aggregations](https:\/\/shopware.stoplight.io\/docs\/store-api\/docs\/concepts\/search-queries.md#aggregations)",
+                        "description": "Fields which should be returned in the search result.",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "description": "Give your aggregation an identifier, so you can find it easier",
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "description": "The type of aggregation",
-                                    "type": "string"
-                                },
-                                "field": {
-                                    "description": "The field you want to aggregate over.",
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "name",
-                                "type",
-                                "field"
-                            ]
+                            "type": "string",
+                            "description": "Name of a field"
                         }
                     },
                     "grouping": {
@@ -121,25 +107,324 @@
                             "description": "Name of a field"
                         }
                     },
-                    "fields": {
-                        "type": "array",
-                        "description": "Fields which should be returned in the search result.",
-                        "items": {
-                            "type": "string",
-                            "description": "Name of a field"
-                        }
-                    },
                     "total-count-mode": {
-                        "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
-                        "type": "string",
-                        "default": "none",
-                        "enum": [
-                            "none",
-                            "exact",
-                            "next-pages"
+                        "$ref": "#\/components\/schemas\/TotalCountMode"
+                    },
+                    "includes": {
+                        "$ref": "#\/components\/schemas\/Include"
+                    }
+                }
+            },
+            "Association": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#\/components\/schemas\/Criteria"
+                }
+            },
+            "Include": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Aggregations": {
+                "type": "array",
+                "items": {
+                    "anyOf": [
+                        {
+                            "$ref": "#\/components\/schemas\/AggregationMetrics"
+                        },
+                        {
+                            "title": "AggregationEntity",
+                            "allOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/AggregationEntity"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/SubAggregations"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "AggregationFilter",
+                            "allOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/AggregationFilter"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/SubAggregations"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "AggregationTerms",
+                            "allOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/AggregationTerms"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/SubAggregations"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "AggregationHistogram",
+                            "allOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/AggregationHistogram"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/SubAggregations"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "AggregationRange",
+                            "allOf": [
+                                {
+                                    "$ref": "#\/components\/schemas\/AggregationRange"
+                                },
+                                {
+                                    "$ref": "#\/components\/schemas\/SubAggregations"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "SubAggregations": {
+                "type": "object",
+                "properties": {
+                    "aggregation": {
+                        "anyOf": [
+                            {
+                                "$ref": "#\/components\/schemas\/AggregationMetrics"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/AggregationEntity"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/AggregationFilter"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/AggregationTerms"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/AggregationHistogram"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/AggregationRange"
+                            }
                         ]
                     }
                 }
+            },
+            "TotalCountMode": {
+                "description": "Whether the total for the total number of hits should be determined for the search query. none = disabled total count, exact = calculate exact total amount (slow), next-pages = calculate only for next page (fast)",
+                "type": "string",
+                "default": "none",
+                "enum": [
+                    "none",
+                    "exact",
+                    "next-pages"
+                ]
+            },
+            "Query": {
+                "type": "object",
+                "properties": {
+                    "score": {
+                        "type": "number"
+                    },
+                    "query": {
+                        "oneOf": [
+                            {
+                                "$ref": "#\/components\/schemas\/SimpleFilter"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/EqualsFilter"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/MultiNotFilter"
+                            },
+                            {
+                                "$ref": "#\/components\/schemas\/RangeFilter"
+                            }
+                        ]
+                    }
+                },
+                "additionalProperties": true
+            },
+            "Sort": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    },
+                    "order": {
+                        "type": "string",
+                        "enum": [
+                            "ASC",
+                            "DESC"
+                        ]
+                    },
+                    "naturalSorting": {
+                        "type": "boolean"
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "field",
+                    "order"
+                ]
+            },
+            "Filters": {
+                "type": "array",
+                "items": {
+                    "anyOf": [
+                        {
+                            "$ref": "#\/components\/schemas\/SimpleFilter"
+                        },
+                        {
+                            "$ref": "#\/components\/schemas\/EqualsFilter"
+                        },
+                        {
+                            "$ref": "#\/components\/schemas\/MultiNotFilter"
+                        },
+                        {
+                            "$ref": "#\/components\/schemas\/RangeFilter"
+                        }
+                    ]
+                }
+            },
+            "SimpleFilter": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "contains",
+                            "equalsAny",
+                            "prefix",
+                            "suffix"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "field",
+                    "value"
+                ]
+            },
+            "EqualsFilter": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "equals"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "type",
+                    "field",
+                    "value"
+                ]
+            },
+            "MultiNotFilter": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "multi",
+                            "not"
+                        ]
+                    },
+                    "operator": {
+                        "type": "string",
+                        "enum": [
+                            "AND",
+                            "and",
+                            "OR",
+                            "or"
+                        ]
+                    },
+                    "queries": {
+                        "$ref": "#\/components\/schemas\/Filters"
+                    }
+                },
+                "required": [
+                    "type",
+                    "operator",
+                    "queries"
+                ]
+            },
+            "RangeFilter": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "range"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    },
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "gte": {
+                                "type": "number"
+                            },
+                            "gt": {
+                                "type": "number"
+                            },
+                            "lte": {
+                                "type": "number"
+                            },
+                            "lt": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "type",
+                    "field",
+                    "parameters"
+                ]
             }
         }
     }

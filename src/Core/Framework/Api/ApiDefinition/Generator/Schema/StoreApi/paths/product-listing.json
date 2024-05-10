@@ -10,6 +10,15 @@
                 "operationId": "readProductListing",
                 "parameters": [
                     {
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "Identifier of a category.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "sw-include-seo-urls",
                         "in": "header",
                         "description": "Determines if the response must contain a SeoUrl entity for a product entity",
@@ -19,12 +28,13 @@
                         }
                     },
                     {
-                        "name": "categoryId",
-                        "in": "path",
-                        "description": "Identifier of a category.",
-                        "required": true,
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     }
                 ],

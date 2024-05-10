@@ -1,0 +1,37 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartDeliveryPosition": {
+                "type": "object",
+                "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
+                "properties": {
+                    "deliveryDate": {
+                        "type": "object",
+                        "properties": {
+                            "earliest": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "latest": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        }
+                    },
+                    "identifier": {
+                        "type": "string"
+                    },
+                    "lineItem": {
+                        "$ref": "#/components/schemas/LineItem"
+                    },
+                    "price": {
+                        "$ref": "#/components/schemas/CalculatedPrice"
+                    }
+                }
+            }
+        }
+    }
+}

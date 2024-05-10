@@ -10,6 +10,18 @@
                 "summary": "Fetch sitemaps",
                 "description": "Fetches a list of compressed sitemap files, which are often used by search engines.",
                 "operationId": "readSitemap",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Returns a list of available sitemaps.",

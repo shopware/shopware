@@ -163,17 +163,10 @@ class OrderService
 
     public function isPaymentChangeableByTransactionState(OrderEntity $order): bool
     {
-        if ($order->getTransactions() === null) {
+        $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        if (!$state) {
             return true;
         }
-
-        $transaction = $order->getTransactions()->last();
-
-        if ($transaction === null || $transaction->getStateMachineState() === null) {
-            return true;
-        }
-
-        $state = $transaction->getStateMachineState()->getTechnicalName();
 
         if (\in_array($state, self::ALLOWED_TRANSACTION_STATES, true)) {
             return true;

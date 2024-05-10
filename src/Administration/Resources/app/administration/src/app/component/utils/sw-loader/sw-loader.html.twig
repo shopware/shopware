@@ -25,22 +25,13 @@
     v-on="$listeners"
 >
     <template
-        v-for="(index, name) in $slots"
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
     >
         <slot
             :name="name"
+            v-bind="data || {}"
         >
         </slot>
     </template>
-
-    <template
-        v-for="(index, name) in $scopedSlots"
-        #[name]="data">
-        <slot
-            :name="name"
-            v-bind="data"
-        >
-        </slot>
-    </template>
-    <slot></slot>
 </sw-loader-deprecated>

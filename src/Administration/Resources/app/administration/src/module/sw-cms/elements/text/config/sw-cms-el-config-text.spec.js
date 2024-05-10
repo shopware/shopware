@@ -22,6 +22,7 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item', { sync: true }),
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                 'sw-text-editor': {

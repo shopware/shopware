@@ -49,6 +49,7 @@ async function createWrapper() {
 
             stubs: {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-multi-select': await wrapTestComponent('sw-multi-select'),

@@ -71,6 +71,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-alert': true,
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                     'sw-extension-component-section': true,
                     'sw-help-center': true,

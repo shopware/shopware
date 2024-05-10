@@ -80,6 +80,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-alert': true,
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                     'sw-ignore-class': true,
                     'sw-extension-component-section': true,

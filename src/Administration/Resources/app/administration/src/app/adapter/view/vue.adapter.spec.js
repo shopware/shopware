@@ -647,7 +647,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-textarea',
                 'mt-url-field',
                 'mt-icon',
-                'mt-tabs',
                 'mt-data-table',
                 'mt-pagination',
                 'mt-skeleton-bar',

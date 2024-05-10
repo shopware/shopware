@@ -1,11 +1,10 @@
 import { MtCard } from '@shopware-ag/meteor-component-library';
 import template from './mt-card.html.twig';
 
+
+// Use the compatConfig from the Shopware object and disable all compatibilities
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-MtCard.compatConfig = {
-    INSTANCE_LISTENERS: false,
-    INSTANCE_ATTRS_CLASS_STYLE: false,
-};
+MtCard.compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
 
 /**
  * @package admin

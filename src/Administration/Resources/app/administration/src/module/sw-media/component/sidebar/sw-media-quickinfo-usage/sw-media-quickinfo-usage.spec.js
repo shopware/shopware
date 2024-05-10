@@ -39,6 +39,17 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                     'sw-icon': true,
                     'sw-alert': true,
                 },
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => {
+                                    return Promise.resolve([]);
+                                },
+                            };
+                        },
+                    },
+                },
             },
         });
 
@@ -80,6 +91,19 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
     });
 
     it('should be correct show all of media in used information', async () => {
+        wrapper.vm.productRepository.search = jest.fn(() => Promise.resolve([
+            { id: 'a', translated: { name: 'Product Media Test' } },
+        ]));
+        wrapper.vm.categoryRepository.search = jest.fn(() => Promise.resolve([
+            { id: 'b', translated: { name: 'Category Media Test' } },
+        ]));
+        wrapper.vm.landingPageRepository.search = jest.fn(() => Promise.resolve([
+            { id: 'c', translated: { name: 'Landing Page Media Test' } },
+        ]));
+        wrapper.vm.cmsPageRepository.search = jest.fn(() => Promise.resolve([
+            { id: 'd', name: 'CMS Page Media Test' },
+        ]));
+
         register('sw-settings-user', moduleMock);
         const avatarUserMock = { username: 'abc123' };
 
@@ -132,6 +156,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 cmsPages: [cmsPageMock],
             }),
         });
+        await wrapper.vm.loadSlotConfigAssociations();
 
         const usages = wrapper.vm.getUsages;
         expect(usages.some((usage) => usage.name === avatarUserMock.username)).toBeTruthy();
@@ -146,5 +171,10 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         expect(usages.some((usage) => usage.name === cmsBlockMock.section.page.translated.name)).toBeTruthy();
         expect(usages.some((usage) => usage.name === cmsSectionMock.page.translated.name)).toBeTruthy();
         expect(usages.some((usage) => usage.name === cmsPageMock.translated.name)).toBeTruthy();
+        expect(usages.some((usage) => usage.name === documentBaseConfigMock.name)).toBeTruthy();
+        expect(usages.some((usage) => usage.name === 'Product Media Test')).toBeTruthy();
+        expect(usages.some((usage) => usage.name === 'Category Media Test')).toBeTruthy();
+        expect(usages.some((usage) => usage.name === 'Landing Page Media Test')).toBeTruthy();
+        expect(usages.some((usage) => usage.name === 'CMS Page Media Test')).toBeTruthy();
     });
 });

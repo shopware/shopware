@@ -49,6 +49,7 @@
       },
       "usage": {
         "tooltipFoundInProducts": "Gefunden in Produkten",
+        "tooltipFoundInLandingPages": "Gefunden in Landingpages",
         "tooltipFoundInCategories": "Gefunden in Kategorien",
         "tooltipFoundInManufacturers": "Gefunden in Herstellern",
         "tooltipFoundInMailTemplate": "Gefunden in E-Mail-Templates",

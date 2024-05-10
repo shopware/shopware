@@ -60,6 +60,14 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-checkbox />
             </template>`
+        },
+        {
+            name: '"mt-textarea" usage is allowed',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <mt-textarea />
+            </template>`
         }
     ],
     invalid: [
@@ -341,6 +349,34 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-select-field" is deprecated. Please use "mt-select" instead.',
+            }]
+        },
+        {
+            name: '"sw-textarea-field" usage is not allowed',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <sw-textarea-field />
+</template>`,
+            output: `
+<template>
+    <!-- TODO Codemod: Converted from sw-textarea-field - please check if everything works correctly -->
+    <mt-textarea />
+</template>`,
+            errors: [{
+                message: '"sw-textarea-field" is deprecated. Please use "mt-textarea" instead.',
+            }]
+        },
+        {
+            name: '"sw-textarea-field" usage is not allowed [disableFix]',
+            filename: 'test.html.twig',
+            options: ['disableFix'],
+            code: `
+<template>
+    <sw-textarea-field />
+</template>`,
+            errors: [{
+                message: '"sw-textarea-field" is deprecated. Please use "mt-textarea" instead.',
             }]
         },
     ]

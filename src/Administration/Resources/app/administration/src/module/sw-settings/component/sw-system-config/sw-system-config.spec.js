@@ -40,6 +40,7 @@ async function createWrapper(defaultValues = {}) {
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated', { sync: true }),

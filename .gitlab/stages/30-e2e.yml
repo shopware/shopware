@@ -149,6 +149,10 @@ acceptance:
     DATABASE_URL: mysql://root:app@database:3306/root
     APP_URL: http://shopware.test:8000
     ACCEPTANCE_PROJECT: Platform
+    KUBERNETES_SERVICE_CPU_REQUEST: "500m"
+    KUBERNETES_SERVICE_CPU_LIMIT: "2"
+    KUBERNETES_SERVICE_MEMORY_REQUEST: "512Mi"
+    KUBERNETES_SERVICE_MEMORY_LIMIT: "2Gi"
   before_script: []
   script:
     - cd tests/acceptance

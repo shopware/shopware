@@ -41,7 +41,9 @@ test('@update: Update a shop', async ({ page, adminApiContext }) => {
 
     await page.getByRole('button', { name: 'Open Administration' }).click();
 
-    await expect(page.getByText('6.6.9999999.9999999 Developer Version')).toBeVisible();
+    await expect(page.getByText('6.6.9999999.9999999 Developer Version')).toBeVisible({
+        timeout: 60000,
+    });
 
     // test admin login
 

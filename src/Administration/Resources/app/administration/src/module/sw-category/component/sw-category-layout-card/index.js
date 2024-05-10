@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import template from './sw-category-layout-card.html.twig';
 import './sw-category-layout-card.scss';
 
@@ -91,6 +92,30 @@ export default {
 
         closeLayoutModal() {
             this.showLayoutSelectionModal = false;
+        },
+
+        hasCmsPageOverrides() {
+            let overrideCount = 0;
+            if (!this.cmsPage || !this.cmsPage.sections) {
+                return false;
+            }
+
+            this.cmsPage.sections.forEach((section) => {
+                if (!section.blocks) {
+                    return;
+                }
+                section.blocks.forEach((block) => {
+                    if (!block.slots) {
+                        return;
+                    }
+                    block.slots.forEach((slot) => {
+                        if (!isEqual(slot.originalConfig, slot.config)) {
+                            overrideCount += 1;
+                        }
+                    });
+                });
+            });
+            return overrideCount > 0;
         },
     },
 };

@@ -81,6 +81,13 @@
                     @click="openLayoutModal"
                 >
                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
+                    <sw-icon
+                        v-if="hasCmsPageOverrides()"
+                        v-tooltip="{ message: 'Content was customized on this category. Changing the layout will reset to the content from the new layout.'}"
+                        name="regular-lightbulb"
+                        size="16"
+                        color="#f39c12"
+                    />
                 </sw-button>
                 {% endblock %}
 

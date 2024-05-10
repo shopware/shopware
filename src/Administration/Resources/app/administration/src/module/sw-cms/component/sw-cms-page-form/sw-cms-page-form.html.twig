@@ -138,7 +138,6 @@
                         :key="blockIndex"
                         class="sw-cms-page-form__element-config"
                     >
-
                         <template v-if="displayNotification(section, block)">
                             <sw-alert variant="info">
                                 {{ $tc('sw-cms.blocks.blockDisableState') }}
@@ -152,7 +151,23 @@
                             :element="element"
                             :element-data="cmsElements[element.type]"
                             @element-update="elementUpdate"
-                        />
+                        >
+                            <template #additional>
+                                <sw-button
+                                    v-if="getIsOverridden(element)"
+                                    size="small"
+                                    class="sw-cms-page-form__overwrite-reset"
+                                    square
+                                    @click="clearOverride(element)"
+                                >
+                                    <sw-icon
+                                        v-tooltip="{ message: 'Reset to content from layout' }"
+                                        name="regular-trash"
+                                        small
+                                    />
+                                </sw-button>
+                            </template>
+                        </component>
                         {% endblock %}
                     </div>
                     {% endblock %}

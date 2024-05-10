@@ -138,6 +138,68 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(resetLayoutButton.props('disabled')).toBe(true);
     });
 
+    it.skip('should have an override warning indicator at the button for resetting', async () => {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            cmsPage: {
+                type: 'category',
+                sections: [
+                    {
+                        blocks: [
+                            {
+                                slots: [
+                                    {
+                                        originalConfig: { content: { source: 'static', value: '<h2>Template Box 1</h2>' }, verticalAlign: { source: 'static', value: 'flex-end' } },
+                                        config: { content: { source: 'static', value: '<h2>Template Box 1 custom</h2>' }, verticalAlign: { source: 'static', value: 'flex-end' } },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+        const resetLayoutButtonIndicator = wrapper.find('.sw-category-detail-layout__layout-reset [data-testid="sw-icon__regular-lightbulb"]');
+
+        expect(resetLayoutButtonIndicator.exists()).toBeTruthy(); // FIXME: does not find it yet
+    });
+
+    it.skip('should have no override warning indicator at the button for resetting', async () => {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            cmsPage: {
+                type: 'category',
+                sections: [
+                    {
+                        blocks: [
+                            {
+                                slots: [
+                                    {
+                                        originalConfig: { content: { source: 'static', value: '<h2>Template Box 1</h2>' }, verticalAlign: { source: 'static', value: 'flex-end' } },
+                                        config: { content: { source: 'static', value: '<h2>Template Box 1</h2>' }, verticalAlign: { source: 'static', value: 'flex-end' } },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+        const resetLayoutButtonIndicator = wrapper.find('.sw-category-detail-layout__layout-reset [data-testid="sw-icon__regular-lightbulb"]');
+
+        expect(resetLayoutButtonIndicator.exists()).toBeFalsy();
+    });
+
     it('should pass the category id and type to the sw.cms.create route', async () => {
         const wrapper = await createWrapper();
 

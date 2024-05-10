@@ -5,6 +5,10 @@
     class="sw-cms-el-config-text__tabs"
     default-item="content"
 >
+    <template #additional>
+        <slot name="additional">
+        </slot>
+    </template>
 
     <template #default="{ active }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

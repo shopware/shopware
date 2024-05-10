@@ -361,7 +361,7 @@ Component.register('sw-text-editor', {
         value: {
             handler() {
                 if (this.$refs.textEditor && this.value !== this.$refs.textEditor.innerHTML) {
-                    this.$refs.textEditor.innerHTML = '';
+                    this.$refs.textEditor.innerHTML = this.value;
                     this.content = this.value;
                     this.isEmpty = this.emptyCheck(this.content);
                     this.placeholderVisible = this.isEmpty;

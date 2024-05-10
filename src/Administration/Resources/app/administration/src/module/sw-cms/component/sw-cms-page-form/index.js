@@ -1,6 +1,9 @@
+import { isEqual } from 'lodash';
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
 import CMS from '../../constant/sw-cms.constant';
+
+const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @private
@@ -125,6 +128,15 @@ export default {
             const isBlockDisplay = !(Object.values(block?.visibility).indexOf(true) > -1);
 
             return isSectionDisplay || isBlockDisplay;
+        },
+
+        getIsOverridden(slot) {
+            const result = !isEqual(slot.originalConfig, slot.config);
+            return result;
+        },
+
+        clearOverride(slot) {
+            slot.config = cloneDeep(slot.originalConfig);
         },
     },
 };

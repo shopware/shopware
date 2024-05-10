@@ -169,4 +169,11 @@
         align-items: center;
         justify-content: flex-end;
     }
+
+    &__overwrite-reset {
+        height: 32px;
+        position: absolute; // FIXME: overlaps sometimes
+        right: 0;
+        top: 10px;
+    }
 }

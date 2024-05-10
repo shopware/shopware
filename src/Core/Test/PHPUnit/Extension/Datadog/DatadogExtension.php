@@ -6,14 +6,15 @@ use PHPUnit\Runner\Extension\Extension;
 use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
 use PHPUnit\TextUI\Configuration\Configuration;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\Common\TimeKeeper;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Gateway\DatadogGateway;
+use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestErroredSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestFailedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestFinishedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestPreparedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestRunnerExecutionFinishedSubscriber;
-use Shopware\Core\Test\PHPUnit\Extension\Datadog\Subscriber\TestSkippedSubscriber;
 
 /**
  * @internal
@@ -34,17 +35,17 @@ class DatadogExtension implements Extension
         $timeKeeper = new TimeKeeper();
         $failedTests = new DatadogPayloadCollection();
         $slowTests = new DatadogPayloadCollection();
-        $skippedTests = new DatadogPayloadCollection();
+        $erroredTests = new DatadogPayloadCollection();
 
         $facade->registerSubscribers(
             new TestPreparedSubscriber($timeKeeper),
             new TestFailedSubscriber($timeKeeper, $failedTests),
             new TestFinishedSubscriber($timeKeeper, $slowTests),
-            new TestSkippedSubscriber($timeKeeper, $skippedTests),
+            new TestErroredSubscriber($timeKeeper, $erroredTests),
             new TestRunnerExecutionFinishedSubscriber(
                 $failedTests,
                 $slowTests,
-                $skippedTests,
+                $erroredTests,
                 new DatadogGateway(self::GATEWAY_URL)
             ),
         );
@@ -52,6 +53,8 @@ class DatadogExtension implements Extension
 
     private function isEnabled(): bool
     {
-        return isset($_SERVER['DATADOG_API_KEY'], $_SERVER['CI_COMMIT_REF_NAME']) && $_SERVER['CI_COMMIT_REF_NAME'] === 'trunk';
+        return EnvironmentHelper::hasVariable('DATADOG_API_KEY')
+            && (EnvironmentHelper::getVariable('CI_COMMIT_REF_NAME') === 'trunk'
+                || EnvironmentHelper::getVariable('CI_MERGE_REQUEST_EVENT_TYPE') === 'merge_train');
     }
 }

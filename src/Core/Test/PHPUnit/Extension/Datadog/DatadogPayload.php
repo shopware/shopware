@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Test\PHPUnit\Extension\Datadog;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -32,6 +33,21 @@ class DatadogPayload
             'service' => $this->service,
             'test-description' => $this->testDescription,
             'test-duration' => $this->testDuration,
+            'test-build' => $this->getTestBuild(),
         ];
+    }
+
+    /**
+     * @return string the gitlab pipeline from where this log was generated
+     */
+    private function getTestBuild(): string
+    {
+        if (empty(EnvironmentHelper::getVariable('CI_PROJECT_URL'))) {
+            return 'unavailable';
+        }
+
+        $buildNumber = !empty(EnvironmentHelper::getVariable('CI_JOB_ID')) ? EnvironmentHelper::getVariable('CI_JOB_ID') : EnvironmentHelper::getVariable('CI_BUILD_ID');
+
+        return EnvironmentHelper::getVariable('CI_PROJECT_URL') . '/builds/' . $buildNumber;
     }
 }

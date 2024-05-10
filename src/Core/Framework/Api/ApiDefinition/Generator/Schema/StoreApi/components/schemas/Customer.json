@@ -1,0 +1,25 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Customer": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["customer"]
+                    },
+                    "activeBillingAddress": {
+                        "$ref": "#/components/schemas/CustomerAddress"
+                    },
+                    "activeShippingAddress": {
+                        "$ref": "#/components/schemas/CustomerAddress"
+                    }
+                },
+                "required": ["activeBillingAddress", "activeShippingAddress"]
+            }
+        }
+    }
+}

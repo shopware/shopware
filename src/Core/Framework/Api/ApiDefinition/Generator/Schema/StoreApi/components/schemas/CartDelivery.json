@@ -1,0 +1,58 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CartDelivery": {
+                "type": "object",
+                "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
+                "properties": {
+                    "deliveryDate": {
+                        "type": "object",
+                        "properties": {
+                            "earliest": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "latest": {
+                                "type": "string",
+                                "format": "date-time"
+                            }
+                        }
+                    },
+                    "location": {
+                        "type": "object",
+                        "properties": {
+                            "apiAlias": {
+                                "type": "string",
+                                "enum": ["cart_delivery_shipping_location"]
+                            },
+                            "country": {
+                                "$ref": "#/components/schemas/Country"
+                            },
+                            "address": {
+                                "$ref": "#/components/schemas/CustomerAddress"
+                            },
+                            "state": {
+                                "$ref": "#/components/schemas/State"
+                            }
+                        }
+                    },
+                    "positions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CartDeliveryPosition"
+                        }
+                    },
+                    "shippingCosts": {
+                        "$ref": "#/components/schemas/CalculatedPrice"
+                    },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethod"
+                    }
+                }
+            }
+        }
+    }
+}

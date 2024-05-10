@@ -1,0 +1,55 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CustomerAddress": {
+                "type": "object",
+                "properties": {
+                    "salutationId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "zipcode": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "company": {
+                        "type": "string"
+                    },
+                    "street": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "type": "string"
+                    },
+                    "additionalAddressLine1": {
+                        "type": "string"
+                    },
+                    "additionalAddressLine2": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -13,6 +13,16 @@
                 "operationId": "readShippingMethod",
                 "parameters": [
                     {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
                         "name": "onlyAvailable",
                         "in": "query",
                         "description": "List only available shipping methods. This filters shipping methods methods which can not be used in the actual context because of their availability rule.",
@@ -41,23 +51,30 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "total": {
-                                            "description": "Total amount",
-                                            "type": "integer"
-                                        },
-                                        "aggregations": {
-                                            "description": "aggregation result",
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "total": {
+                                                    "description": "Total amount",
+                                                    "type": "integer"
+                                                },
+                                                "aggregations": {
+                                                    "description": "aggregation result",
+                                                    "type": "object"
+                                                },
+                                                "elements": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/ShippingMethod"
+                                                    }
+                                                }
+                                            },
                                             "type": "object"
                                         },
-                                        "elements": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/ShippingMethod"
-                                            }
+                                        {
+                                            "$ref": "#/components/schemas/EntitySearchResult"
                                         }
-                                    },
-                                    "type": "object"
+                                    ]
                                 }
                             }
                         }

@@ -1,0 +1,36 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "AggregationMetrics": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "avg",
+                            "count",
+                            "max",
+                            "min",
+                            "stats",
+                            "sum"
+                        ]
+                    },
+                    "field": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "field"
+                ]
+            }
+        }
+    }
+}

@@ -29,7 +29,7 @@ class ScriptApiRoute
     ) {
     }
 
-    #[Route(path: '/api/script/{hook}', name: 'api.script_endpoint', methods: ['POST'], requirements: ['hook' => '.+'])]
+    #[Route(path: '/api/script/{hook}', name: 'api.script_endpoint', methods: ['POST', 'GET'], requirements: ['hook' => '.+'])]
     public function execute(string $hook, Request $request, Context $context): Response
     {
         //  blog/update =>  blog-update

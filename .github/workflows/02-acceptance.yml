@@ -2,6 +2,7 @@ name: Playwright Tests
 on:
   push:
     branches: [ trunk ]
+  workflow_dispatch:
 
 permissions:
   packages: write
@@ -31,6 +32,7 @@ jobs:
         with:
           php-version: 8.2
           coverage: none
+          extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
       - uses: actions/setup-node@v4
         with:
           node-version: 20

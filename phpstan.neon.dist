@@ -86,6 +86,7 @@ parameters:
                 - src/**/*Test.php
                 - tests/performance/**/*Bench.php
                 - tests/unit/**/*Test.php
+                - tests/devops/**/*Test.php
                 - tests/integration/**/*Test.php
                 - tests/integration/**/*TestCase.php
 

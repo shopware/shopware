@@ -242,19 +242,17 @@ export default class VueAdapter extends ViewAdapter {
             'MtTextarea',
             'MtUrlField',
             'MtIcon',
-            'MtTabs',
             'MtDataTable',
             'MtPagination',
             'MtSkeletonBar',
+            'MtToast',
         ];
 
-        // Disable instance listeners for meteor components
-        if (Shopware.Feature.isActive('v6.7.0.0')) {
-            meteorComponents.forEach((componentName) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                MeteorImport[componentName].compatConfig = Shopware.compatConfig;
-            });
-        }
+        // Disable compat for meteor components
+        meteorComponents.forEach((componentName) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, max-len
+            MeteorImport[componentName].compatConfig = Object.fromEntries(Object.keys(Shopware.compatConfig).map(key => [key, false]));
+        });
 
         meteorComponents.forEach((componentName) => {
             const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);

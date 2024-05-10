@@ -143,7 +143,10 @@ class ProductCategoryDenormalizer
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 
-        return FetchModeHelper::groupUnique($rows);
+        /** @var array<string, array<string, string>> $unique */
+        $unique = FetchModeHelper::groupUnique($rows);
+
+        return $unique;
     }
 
     /**

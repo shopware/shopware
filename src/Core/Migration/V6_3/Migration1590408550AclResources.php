@@ -64,7 +64,10 @@ class Migration1590408550AclResources extends MigrationStep
                     ON `role`.id = `resource`.acl_role_id
         ');
 
-        return FetchModeHelper::group($roles);
+        /** @var array<string, array{priv: string}> $grouped */
+        $grouped = FetchModeHelper::group($roles);
+
+        return $grouped;
     }
 
     private function tableExists(Connection $connection, string $table): bool

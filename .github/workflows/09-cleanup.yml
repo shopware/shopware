@@ -2,7 +2,7 @@ name: Delete old container images
 
 on:
   schedule:
-    - cron: '1 0 * * 1'  # the first day of the month
+    - cron: '0 1 * * *' # every day at 01:00
   workflow_dispatch:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
         with:
           image-names: ${{ github.event.repository.name }}/ci-e2e
           skip-tags: latest, trunk, main, master, v*
-          cut-off: one week ago UTC
+          cut-off: two days ago UTC
           keep-at-least: 1
           account-type: personal
           token: ${{ secrets.GITHUB_TOKEN }}

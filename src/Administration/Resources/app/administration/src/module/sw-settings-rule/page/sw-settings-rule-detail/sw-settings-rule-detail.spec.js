@@ -213,6 +213,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                     'sw-language-switch': await wrapTestComponent('sw-language-switch'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),

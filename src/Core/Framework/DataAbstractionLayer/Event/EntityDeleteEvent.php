@@ -3,17 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -90,17 +84,18 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
         $ids = [];
 
         foreach ($this->getCommands() as $entityWriteResult) {
-            $definition = $entityWriteResult->getDefinition();
-
-            if ($definition->getEntityName() !== $entity) {
+            if ($entityWriteResult->getEntityName() !== $entity) {
                 continue;
             }
 
-            $primaryKeys = $definition->getPrimaryKeys()->filter(static fn (Field $field) => !$field instanceof VersionField
-                && !$field instanceof ReferenceVersionField
-                && $field instanceof StorageAware);
+            $primaryKeys = $entityWriteResult->getDecodedPrimaryKey();
 
-            $ids[] = $this->getCommandPrimaryKey($entityWriteResult, $primaryKeys);
+            if (\count($primaryKeys) === 1) {
+                $ids[] = reset($primaryKeys);
+                continue;
+            }
+
+            $ids[] = $primaryKeys;
         }
 
         return $this->ids[$entity] = $ids;
@@ -133,32 +128,5 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
         foreach ($this->errorCallbacks as $callback) {
             $callback();
         }
-    }
-
-    /**
-     * @return array<string, string>|string
-     */
-    private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields): array|string
-    {
-        $primaryKey = $command->getPrimaryKey();
-
-        $data = [];
-
-        if ($fields->count() === 1) {
-            /** @var StorageAware $field */
-            $field = $fields->first();
-
-            return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
-        }
-
-        foreach ($fields as $field) {
-            if (!$field instanceof StorageAware) {
-                continue;
-            }
-
-            $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
-        }
-
-        return $data;
     }
 }

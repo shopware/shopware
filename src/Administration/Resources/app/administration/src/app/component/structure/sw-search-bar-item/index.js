@@ -171,7 +171,7 @@ Component.register('sw-search-bar-item', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

@@ -59,7 +59,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if ($command->getDefinition()->getClass() !== ShippingMethodDefinition::class) {
+            if ($command->getEntityName() !== ShippingMethodDefinition::ENTITY_NAME) {
                 continue;
             }
 

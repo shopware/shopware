@@ -148,6 +148,7 @@ async function createWrapper(privileges = []) {
                 'sw-number-field': true,
                 'sw-one-to-many-grid': true,
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'router-link': true,
                 'router-view': true,

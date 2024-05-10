@@ -119,7 +119,7 @@ Component.register('sw-sales-channel-menu', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

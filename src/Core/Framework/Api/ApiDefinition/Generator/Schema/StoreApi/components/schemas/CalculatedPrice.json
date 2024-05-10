@@ -80,13 +80,28 @@
                         "format": "^[0-9a-f]{32}$",
                         "nullable": true
                     },
-
                     "apiAlias": {
                         "type": "string",
                         "enum": ["calculated_price"]
+                    },
+
+                    "taxRules": {
+                        "type": "array",
+                        "description": "Currently active tax rules and/or rates",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "taxRate": {
+                                    "type": "number",
+                                    "format": "float"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     }
                 },
-
                 "required": [
                     "apiAlias",
                     "hasRange",

@@ -74,7 +74,7 @@ Component.register('sw-select-result', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.destroyedComponent();
     },
 

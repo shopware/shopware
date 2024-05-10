@@ -403,7 +403,7 @@ class EntityWriteResultFactory
 
                 if (!$field instanceof Field) {
                     throw DataAbstractionLayerException::fieldByStorageNameNotFound(
-                        $command->getDefinition()->getEntityName(),
+                        $command->getEntityName(),
                         $command->getStorageName()
                     );
                 }

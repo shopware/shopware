@@ -79,8 +79,8 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch ($command->getDefinition()::class) {
-                case PromotionDefinition::class:
+            switch ($command->getEntityName()) {
+                case PromotionDefinition::ENTITY_NAME:
                     $promotionId = $command->getPrimaryKey()['id'];
 
                     try {
@@ -98,7 +98,7 @@ class PromotionValidator implements EventSubscriberInterface
 
                     break;
 
-                case PromotionDiscountDefinition::class:
+                case PromotionDiscountDefinition::ENTITY_NAME:
                     $discountId = $command->getPrimaryKey()['id'];
 
                     try {
@@ -142,13 +142,13 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch ($command->getDefinition()::class) {
-                case PromotionDefinition::class:
+            switch ($command->getEntityName()) {
+                case PromotionDefinition::ENTITY_NAME:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
 
                     break;
 
-                case PromotionDiscountDefinition::class:
+                case PromotionDiscountDefinition::ENTITY_NAME:
                     $discountIds[] = $command->getPrimaryKey()['id'];
 
                     break;

@@ -26,7 +26,6 @@ Component.register('sw-range-filter', {
         isShowDivider: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

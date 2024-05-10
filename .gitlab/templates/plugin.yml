@@ -97,7 +97,7 @@ workflow:
         echo "Checking out ${MERGE_REF_PATH::-4}merge"
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
-  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail -n 1 | cut -d '/' -f 3)"
   - >
     if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
         PLATFORM_VERSION='6.6.99.99';
@@ -191,7 +191,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.26
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.43
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
@@ -203,7 +203,6 @@ build and validate zip:
     before_script:
       - *setup_platform_and_plugin_files
     script:
-        - source /root/.bashrc # Workaround until Gitlab fixes the Gitlab Kubernetes runner
         - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --git-commit "${CI_COMMIT_SHA}"
         - mv ${PLUGIN_NAME}-${CI_COMMIT_SHA}.zip ${PLUGIN_NAME}.zip
         - shopware-cli extension validate "${PLUGIN_NAME}.zip"
@@ -338,6 +337,11 @@ template filled:
     needs: []
     tags:
       - shopware-amd64
+    variables:
+      KUBERNETES_CPU_REQUEST: "1"
+      KUBERNETES_CPU_LIMIT: "2"
+      KUBERNETES_MEMORY_REQUEST: "3Gi"
+      KUBERNETES_MEMORY_LIMIT: "6Gi"
     script:
         - *e2e-prepare
         - >
@@ -397,7 +401,7 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.26
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.43
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     variables:
         GIT_STRATEGY: none

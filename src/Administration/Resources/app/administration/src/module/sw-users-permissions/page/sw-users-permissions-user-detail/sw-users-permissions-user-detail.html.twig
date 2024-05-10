@@ -135,8 +135,9 @@
                             :allow-multi-select="false"
                             :source-context="user"
                             :disabled="!acl.can('users_and_permissions.editor')"
-                            variant="regular"
                             default-folder="user"
+                            @media-drop="onDropMedia"
+                            @media-upload-sidebar-open="onOpenMedia"
                             @media-upload-remove-image="onUnlinkLogo"
                         />
                         {% endblock %}
@@ -324,6 +325,18 @@
             </div>
             {% endblock %}
         </sw-card-view>
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_user_detail_grid_inner_slot_media_modal %}
+        <sw-media-modal-v2
+            v-if="showMediaModal"
+            :allow-multi-select="false"
+            :initial-folder-id="mediaDefaultFolderId"
+            entity-context="user"
+            @modal-close="showMediaModal = false"
+            @media-modal-selection-change="onMediaSelectionChange"
+        />
+        {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_user_detail_grid_inner_slot_delete_modal %}

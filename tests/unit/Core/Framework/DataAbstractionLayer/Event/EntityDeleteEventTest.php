@@ -37,7 +37,7 @@ class EntityDeleteEventTest extends TestCase
 
         $command = new DeleteCommand(
             $registry->getByEntityName('product'),
-            ['id' => $ids->get('p1')],
+            ['id' => $ids->getBytes('p1')],
             new EntityExistence('product', ['id' => $ids->get('p1')], true, true, true, [])
         );
 
@@ -69,7 +69,7 @@ class EntityDeleteEventTest extends TestCase
 
         $command = new DeleteCommand(
             $registry->getByEntityName('product'),
-            ['id' => $ids->get('p1')],
+            ['id' => $ids->getBytes('p1')],
             new EntityExistence('product', ['id' => $ids->get('p1')], true, true, true, [])
         );
 

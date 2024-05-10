@@ -21,6 +21,7 @@ async function createWrapper() {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'router-view': true,
             },
         },
@@ -39,8 +40,7 @@ describe('src/module/sw-settings-usage-data/page/sw-settings-usage-data', () => 
         wrapper = await createWrapper();
         await flushPromises();
 
-        const swTabs = await wrapTestComponent('sw-tabs');
-        const tabs = wrapper.findComponent(swTabs);
+        const tabs = wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' });
         expect(tabs.isVisible()).toBe(true);
         expect(tabs.vm.positionIdentifier).toBe('sw-settings-usage-data');
     });

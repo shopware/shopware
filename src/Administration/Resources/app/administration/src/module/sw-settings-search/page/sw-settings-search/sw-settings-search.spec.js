@@ -92,6 +92,7 @@ async function createWrapper() {
                 `,
                 },
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),

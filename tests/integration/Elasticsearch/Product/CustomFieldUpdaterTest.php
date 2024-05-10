@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
@@ -36,12 +36,25 @@ class CustomFieldUpdaterTest extends TestCase
 
     private ElasticsearchOutdatedIndexDetector $indexDetector;
 
+    private IdsCollection $ids;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->ids = new IdsCollection();
+
         $this->client = $this->getContainer()->get(Client::class);
         $this->indexDetector = $this->getContainer()->get(ElasticsearchOutdatedIndexDetector::class);
+    }
+
+    protected function tearDown(): void
+    {
+        $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
+
+        $customFieldRepository->delete([
+            ['id' => $this->ids->get('custom-field-set-1')],
+        ], Context::createDefaultContext());
     }
 
     public function testCreateIndices(): void
@@ -71,6 +84,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $customFieldRepository->create([
             [
+                'id' => $this->ids->get('custom-field-set-1'),
                 'name' => 'swag_example_set',
                 'config' => [
                     'label' => [
@@ -114,11 +128,9 @@ class CustomFieldUpdaterTest extends TestCase
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
 
-        $id = Uuid::randomHex();
-
         $customFieldRepository->create([
             [
-                'id' => $id,
+                'id' => $this->ids->get('custom-field-set-1'),
                 'name' => 'swag_example_set',
                 'config' => [
                     'label' => [
@@ -141,7 +153,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $customFieldRepository->update([
             [
-                'id' => $id,
+                'id' => $this->ids->get('custom-field-set-1'),
                 'relations' => [[
                     'entityName' => 'product',
                 ]],
@@ -156,6 +168,7 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $properties);
         $properties = $properties[Defaults::LANGUAGE_SYSTEM]['properties'];
         static::assertIsArray($properties);
+
         static::assertArrayHasKey('test_later_created_field', $properties);
         static::assertSame('long', $properties['test_later_created_field']['type']);
 

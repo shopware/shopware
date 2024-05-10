@@ -287,11 +287,17 @@ shopware:
     cart:
         compress: false
         expire_days: 120
-        redis_url: false
+        storage:
+            # supported types: mysql, redis
+            type: "mysql"
+            # config:
+                # dsn: 'redis://localhost'
 
     number_range:
-        increment_storage: "SQL"
-        redis_url: false
+        # supported types: mysql, redis
+        increment_storage: "mysql"
+        # config:
+            # dsn: 'redis://localhost'
 
     sales_channel_context:
         expire_days: 120
@@ -413,6 +419,7 @@ shopware:
             CHECKOUT__DUPLICATE_SHIPPING_METHOD_TECHNICAL_NAME: notice
             CHECKOUT__DUPLICATE_PAYMENT_METHOD_TECHNICAL_NAME: notice
             CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE: notice
+            CHECKOUT__CART_LINE_ITEM_TYPE_NOT_UPDATABLE: notice
             DOCUMENT__INVALID_DOCUMENT_ID: notice
             DOCUMENT__INVALID_GENERATOR_TYPE: notice
             DOCUMENT__ORDER_NOT_FOUND: notice
@@ -492,6 +499,9 @@ shopware:
             FRAMEWORK__INVALID_TEMPLATE_SYNTAX: notice
             CONTENT__DELETION_DEFAULT_CMS_PAGE: notice
             FRAMEWORK__API_INVALID_ASSOCIATION: notice
+            ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
+            FRAMEWORK__INVALID_SYNC_OPERATION: notice
+            FRAMEWORK__INVALID_SALES_CHANNEL_MAPPING: notice
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'

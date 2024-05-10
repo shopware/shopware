@@ -162,6 +162,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function fetch(array $ids, Context $context): array
     {
         $data = $this->fetchProducts($ids, $context);
+
+        if (empty($data)) {
+            return [];
+        }
+
         $documents = [];
 
         $groupIds = [];

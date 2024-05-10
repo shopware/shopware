@@ -39,7 +39,7 @@ class SystemDefaultValidator implements EventSubscriberInterface
         $writeCommands = $event->getCommands();
 
         foreach ($writeCommands as $command) {
-            if ($command->getDefinition()->getClass() === ImportExportProfileDefinition::class
+            if ($command->getEntityName() === ImportExportProfileDefinition::ENTITY_NAME
                 && $command instanceof DeleteCommand
             ) {
                 $ids[] = $command->getPrimaryKey()['id'];
@@ -52,6 +52,11 @@ class SystemDefaultValidator implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @param string[] $ids
+     *
+     * @return string[]
+     */
     private function filterSystemDefaults(array $ids): array
     {
         if (empty($ids)) {

@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Services\ProjectComposerJsonUpdater;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
@@ -34,7 +36,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
 
     public function testUpdate(): void
     {
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.4.18.0'
         );
@@ -53,7 +55,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
 
     public function testUpdateWithRC(): void
     {
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.4.18.0-rc1'
         );
@@ -75,7 +77,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
     {
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.5.0.0';
 
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.4.18.0-rc1'
         );
@@ -100,7 +102,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.5.0.0';
         $_SERVER['SW_RECOVERY_NEXT_BRANCH'] = 'main';
 
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.4.18.0-rc1'
         );
@@ -125,7 +127,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.5.0.0';
         $_SERVER['SW_RECOVERY_NEXT_BRANCH'] = '6.5.0.0';
 
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.4.18.0-rc1'
         );
@@ -154,7 +156,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.6.0.0'
         );
@@ -166,6 +168,62 @@ class ProjectComposerJsonUpdaterTest extends TestCase
                 'require' => [
                     'shopware/core' => '6.6.0.0',
                     'symfony/runtime' => '>=5',
+                ],
+            ],
+            $composerJson
+        );
+    }
+
+    public function testUpdateConflictPackageGetsAdded(): void
+    {
+        file_put_contents($this->json, json_encode([
+            'require' => [
+                'shopware/core' => '1.2.3',
+                'symfony/runtime' => '^5.0|^6.0',
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getVersionResponse()])))->update(
+            $this->json,
+            '6.6.0.0'
+        );
+
+        $composerJson = json_decode((string) file_get_contents($this->json), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            [
+                'require' => [
+                    'shopware/core' => '6.6.0.0',
+                    'symfony/runtime' => '>=5',
+                    'shopware/conflicts' => '>=2.0.0',
+                ],
+            ],
+            $composerJson
+        );
+    }
+
+    public function testUpdateConflictPackageGetsAddedUsesOlderVersionWhenConstraintDoesNotMatch(): void
+    {
+        file_put_contents($this->json, json_encode([
+            'require' => [
+                'shopware/core' => '1.2.3',
+                'symfony/runtime' => '^5.0|^6.0',
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getVersionResponse()])))->update(
+            $this->json,
+            '6.4.0.0'
+        );
+
+        $composerJson = json_decode((string) file_get_contents($this->json), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            [
+                'require' => [
+                    'shopware/core' => '6.4.0.0',
+                    'symfony/runtime' => '>=5',
+                    'shopware/conflicts' => '>=1.0.0',
                 ],
             ],
             $composerJson
@@ -186,7 +244,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
         ];
         $_SERVER['SW_RECOVERY_REPOSITORY'] = json_encode($customRepo);
 
-        ProjectComposerJsonUpdater::update(
+        (new ProjectComposerJsonUpdater(new MockHttpClient([$this->getEmptyVersionsResponse()])))->update(
             $this->json,
             '6.4.18.0-rc1'
         );
@@ -207,5 +265,45 @@ class ProjectComposerJsonUpdaterTest extends TestCase
             ],
             $composerJson
         );
+    }
+
+    private function getEmptyVersionsResponse(): MockResponse
+    {
+        $json = <<<JSON
+{
+    "packages": {
+        "shopware/conflicts": [
+        ]
+    }
+}
+JSON;
+
+        return new MockResponse($json);
+    }
+
+    private function getVersionResponse(): MockResponse
+    {
+        $json = <<<JSON
+{
+    "packages": {
+        "shopware/conflicts": [
+          {
+            "version": "2.0.0",
+            "require": {
+                "shopware/core": ">=6.6.0"
+            }
+          },
+          {
+            "version": "1.0.0",
+            "require": {
+                "shopware/core": "*"
+            }
+          }
+        ]
+    }
+}
+JSON;
+
+        return new MockResponse($json);
     }
 }

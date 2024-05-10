@@ -94,7 +94,6 @@ Component.register('sw-tree', {
         searchable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -136,7 +135,6 @@ Component.register('sw-tree', {
         disableContextMenu: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -146,7 +144,6 @@ Component.register('sw-tree', {
         bindItemsToFolder: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -156,7 +153,6 @@ Component.register('sw-tree', {
         sortable: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -166,7 +162,6 @@ Component.register('sw-tree', {
         checkItemsInitial: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -176,7 +171,6 @@ Component.register('sw-tree', {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -186,7 +180,6 @@ Component.register('sw-tree', {
         allowCreateCategories: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
@@ -196,7 +189,6 @@ Component.register('sw-tree', {
         initiallyExpandedRoot: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
@@ -289,7 +281,7 @@ Component.register('sw-tree', {
         this.createdComponent();
     },
 
-    destroyed() {
+    unmounted() {
         this.$emit('checked-elements-count', 0);
     },
 

@@ -162,7 +162,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     continue;
                 }
                 $command->setFailed(false);
-                $current = $command->getDefinition()->getEntityName();
+                $current = $command->getEntityName();
 
                 if ($current !== $previous) {
                     $executeInserts();
@@ -170,7 +170,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $previous = $current;
 
                 try {
-                    $definition = $command->getDefinition();
+                    $definition = $this->definitionInstanceRegistry->getByEntityName($command->getEntityName());
                     $table = $definition->getEntityName();
 
                     if ($command instanceof DeleteCommand) {
@@ -414,7 +414,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $types = [];
 
         $query = new QueryBuilder($this->connection);
-        $query->update('`' . $command->getDefinition()->getEntityName() . '`');
+        $query->update('`' . $command->getEntityName() . '`');
 
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
@@ -490,7 +490,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function generateChangeSets(array $commands): void
     {
         $primaryKeys = [];
-        $definitions = [];
 
         foreach ($commands as $command) {
             if (!$command instanceof ChangeSetAware || !$command instanceof WriteCommand) {
@@ -501,10 +500,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            $entity = $command->getDefinition()->getEntityName();
+            $entity = $command->getEntityName();
 
             $primaryKeys[$entity][] = $command->getPrimaryKey();
-            $definitions[$entity] = $command->getDefinition();
         }
 
         if (empty($primaryKeys)) {
@@ -515,10 +513,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($primaryKeys as $entity => $ids) {
             $query = $this->connection->createQueryBuilder();
 
-            $definition = $definitions[$entity];
-
             $query->addSelect('*');
-            $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
+            $query->from(EntityDefinitionQueryHelper::escape($entity));
 
             $this->addPrimaryCondition($query, $ids);
 
@@ -534,7 +530,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 continue;
             }
 
-            $entity = $command->getDefinition()->getEntityName();
+            $entity = $command->getEntityName();
 
             $command->setChangeSet(
                 $this->calculateChangeSet($command, $states[$entity])

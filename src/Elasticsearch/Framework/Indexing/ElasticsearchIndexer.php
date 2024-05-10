@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -36,6 +38,7 @@ class ElasticsearchIndexer
         private readonly IteratorFactory $iteratorFactory,
         private readonly Client $client,
         private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly int $indexingBatchSize
     ) {
     }
@@ -109,7 +112,10 @@ class ElasticsearchIndexer
 
         $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition(), $offset->getLastId(), $this->indexingBatchSize);
 
-        $ids = $iterator->fetch();
+        $event = new ElasticsearchIndexIteratorEvent($definition, $iterator);
+        $this->eventDispatcher->dispatch($event);
+
+        $ids = $event->iterator->fetch();
 
         if (empty($ids)) {
             if (!$offset->hasNextDefinition()) {
@@ -223,6 +229,11 @@ class ElasticsearchIndexer
             if (!$iterator) {
                 $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
             }
+
+            $event = new ElasticsearchIndexIteratorEvent($definition, $iterator);
+            $this->eventDispatcher->dispatch($event);
+
+            $iterator = $event->iterator;
 
             // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
             if ($hasAlias) {

@@ -77,7 +77,7 @@ Component.register('sw-search-preferences-modal', {
         this.mountedComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.beforeDestroyComponent();
     },
 

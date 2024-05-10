@@ -75,7 +75,7 @@ export default {
         },
 
         isDisabled() {
-            return true; // TODO use ACL here with NEXT-1653
+            return true;
         },
 
         userRepository() {
@@ -92,17 +92,6 @@ export default {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        userMediaCriteria() {
-            if (this.user.id) {
-                // ???
-                // ToDo: If SwSidebarMedia has the new data handling, change this too
-                // return CriteriaFactory.equals('userId', this.user.id);
-                return null;
-            }
-
-            return null;
         },
 
         languageId() {
@@ -188,6 +177,10 @@ export default {
         beforeMountComponent() {
             this.userPromise.then((user) => {
                 this.user = user;
+
+                if (this.user.avatarId) {
+                    this.loadMediaItem(this.user.avatarId);
+                }
             });
         },
 
@@ -361,11 +354,15 @@ export default {
             });
         },
 
-        setMediaItem({ targetId }) {
-            this.mediaRepository.get(targetId).then((response) => {
-                this.avatarMediaItem = response;
+        loadMediaItem(targetId) {
+            this.mediaRepository.get(targetId).then((media) => {
+                this.avatarMediaItem = media;
             });
+        },
+
+        setMediaItem({ targetId }) {
             this.user.avatarId = targetId;
+            this.loadMediaItem(targetId);
         },
 
         onDropMedia(mediaItem) {

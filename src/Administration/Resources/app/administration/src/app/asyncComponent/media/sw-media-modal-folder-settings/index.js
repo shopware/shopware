@@ -252,10 +252,6 @@ export default {
         async onClickSave() {
             this.mediaFolder.configurationId = this.configuration.id;
 
-            // if the config is created all properties that are null won't be sent to the server
-            // this leads to setting default values for this properties on the server side
-            // these properties are null because the value of an unchecked checkbox is null
-            // ToDo fix this with NEXT-1544
             if (this.configuration.keepAspectRatio === null) {
                 this.configuration.keepAspectRatio = false;
             }

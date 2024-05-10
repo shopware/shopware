@@ -8,14 +8,21 @@ Jest (Administration):
   stage: unit
   needs: []
   services: []
+  variables:
+    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_LIMIT: "2"
+    KUBERNETES_MEMORY_REQUEST: "3Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
   before_script:
     - !reference [.scripts, init, composer]
     - !reference [.scripts, init, npm, admin]
     - composer run admin:generate-entity-schema-types
+  tags:
+    - shopware-amd64
   script:
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - npm --prefix $ADMIN_PATH run unit-setup
-    - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
+    - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=2 | grep -A 5 -E '^(All files|Fail|    )'
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
@@ -37,7 +44,7 @@ Jest (Storefront):
     - !reference [.scripts, init, npm, storefront]
   script:
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
-    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% | grep -A 5 -E '^(All files|Fail|    )'
+    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=2 | grep -A 5 -E '^(All files|Fail|    )'
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
@@ -51,6 +58,8 @@ PHP integration:
   stage: unit
   needs: []
   timeout: 30m
+  tags:
+    - shopware-amd64
   services:
     - name: mariadb:10.11
       alias: database
@@ -72,7 +81,7 @@ PHP integration:
     REDIS_URL: redis://redis:6379
   rules:
     # do not run in merge trains - PHP Full should cover all tests
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
       when: never
     - !reference [.rules, skip]
     - !reference [.rules, run]
@@ -91,44 +100,83 @@ PHP integration:
       --configuration phpunit.xml.dist
       --log-junit phpunit.junit.xml
       --exclude-group=needsWebserver,skip-paratest,not-deterministic
-      --testsuite integration
+      --testsuite integration,devops
+      --order-by default
+
+PHP legacy:
+  extends: .base-no-setup
+  stage: unit
+  timeout: 30m
+  needs: []
+  services:
+    - name: mariadb:10.11
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+    - name: redis:7.0
+      alias: redis
+  variables:
+    APP_ENV: "test"
+    FEATURE_ALL: "major"
+    GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+    REDIS_URL: redis://redis:6379
+  rules:
+    # do not run in merge trains
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
+      when: never
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - changes:
+        - "**/*.php"
+        - "**/*.xml"
+        - "composer.json"
+  before_script:
+    - !reference [.scripts, init, composer]
+    - mkdir -p config/jwt || true
+    - "rm -Rf /var/www/html/public || true"
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  script:
+    - php vendor/bin/phpunit
+      --configuration phpunit.xml.dist
+      --log-junit phpunit.junit.xml
+      --testsuite administration,storefront,content,framework,migration,system
       --order-by default
 
 PHP bench:
-    extends: .base-no-setup
-    stage: unit
-    tags:
-      - shopware-amd64
-    timeout: 30m
-    allow_failure: true
-    needs: []
-    services:
-        -   name: mariadb:11.0
-            alias: database
-            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: redis:7.0
-            alias: redis
-    variables:
-        APP_ENV: "dev"
-        REDIS_URL: redis://redis:6379
-        MYSQL_CMD: 'mariadbd'
-    rules:
-        # do not run in merge trains
-        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
-          when: never
-        - !reference [ .rules, skip ]
-        - !reference [ .rules, run ]
-        - changes:
-            - '**/*.php'
-            - '**/*.xml'
-            - 'composer.json'
+  extends: .base-no-setup
+  stage: unit
+  tags:
+    - shopware-amd64
+  timeout: 30m
+  allow_failure: true
+  needs: []
+  services:
+    - name: mariadb:11.0
+      alias: database
+      entrypoint: ["sh", "-c", "docker-entrypoint.sh $MYSQL_CMD"]
+    - name: redis:7.0
+      alias: redis
+  variables:
+    APP_ENV: "dev"
+    REDIS_URL: redis://redis:6379
+    MYSQL_CMD: "mariadbd"
+  rules:
+    # do not run in merge trains
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
+      when: never
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - changes:
+        - "**/*.php"
+        - "**/*.xml"
+        - "composer.json"
 
-    before_script:
-        - !reference [ .scripts, init, composer ]
-        - mkdir -p config/jwt || true
-    script:
-        - php vendor/bin/phpbench run
-            --report=compressed
+  before_script:
+    - !reference [.scripts, init, composer]
+    - mkdir -p config/jwt || true
+  script:
+    - php vendor/bin/phpbench run
+      --report=compressed
 
 Open Api Schema validation:
   extends: .base-no-setup
@@ -154,17 +202,12 @@ Open Api Schema validation:
         ]
     - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
       alias: shopware.test
-      entrypoint:
-        [
-          "sh",
-          "-c",
-          "bin/console system:generate-jwt && /entrypoint"
-        ]
+      entrypoint: ["sh", "-c", "bin/console system:generate-jwt && /entrypoint"]
       variables:
         PROJECT_ROOT: /var/www/html
   rules:
     # do not run in merge trains
-    - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || $CI_COMMIT_REF_PROTECTED == "true"'
       when: never
     - !reference [.rules, skip]
     - !reference [.rules, run]
@@ -201,7 +244,13 @@ PHP unit coverage:
     - when: always
   before_script:
     - !reference [.scripts, init, composer]
+    - mkdir -p coverage || true
   script:
+    - PHP_COVERAGE_OPTIONS=""
+    - >
+      if [[ $CI_PIPELINE_SOURCE == "schedule" ]]; then
+         PHP_COVERAGE_OPTIONS="--coverage-html coverage_tmp/"
+      fi
     - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
     - php $PHP_OPTIONS vendor/bin/phpunit
       --configuration phpunit.xml.dist
@@ -209,7 +258,7 @@ PHP unit coverage:
       --log-junit phpunit.junit.xml
       --testsuite unit
       --coverage-text
-      --coverage-html coverage_tmp/
+      $PHP_COVERAGE_OPTIONS
       --coverage-cobertura cobertura.xml | grep -v -E '^Shopware\\|^  Methods:' # do not output covered files lines
   after_script:
     - >
@@ -261,6 +310,8 @@ PHP migration coverage:
 PHP Full:
   extends: .long-running
   stage: unit
+  tags:
+    - shopware-amd64
   services:
     - name: $MYSQL_IMAGE
       alias: database
@@ -296,7 +347,7 @@ PHP Full:
         - "**/Resources/views/*.html.twig"
         - "**/*.{php,xml,yaml,json,js,twig}"
         - "adr/*"
-        - .gitlab/stages/02-unit.yml
+        - .gitlab/stages/20-unit.yml
   parallel:
     matrix:
       - MYSQL_IMAGE: mysql:8
@@ -306,9 +357,13 @@ PHP Full:
         FEATURE_ALL: ["false", "major"]
         MYSQL_CMD: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON"
       - MYSQL_IMAGE: mysql:8.0.36
+      - MYSQL_IMAGE: mysql:8.4
       - MYSQL_IMAGE: mariadb:10.11
       - MYSQL_IMAGE: mariadb:10.11
         PREFER_LOWEST: "prefer lowest"
+        # Don't run devops tests with lowest dependencies, as phpstan has known issues with mismatched in installed package versions: https://github.com/phpstan/phpdoc-parser/issues/188
+        # Also running devops tests don't provide value with prefer lowest, as the scripts are always executed with the latest dependencies
+        TEST_SUITES: "administration storefront content framework profiling system unit integration migration migration-tests"
       - MYSQL_IMAGE: mariadb:10.11
         ONLY_CORE: "only core"
         TEST_SUITES: "content framework profiling system integration migration"
@@ -421,7 +476,7 @@ Jest Coverage per Area (Storefront):
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$STOREFRONT_PATH/src" -r -p 'src' -i "$STOREFRONT_PATH/src/main.js")
-    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% --collectCoverageFrom="${JS_FILES}" --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Storefront/$PRODUCT_AREA
+    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=4 --collectCoverageFrom="${JS_FILES}" --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Storefront/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
@@ -451,7 +506,7 @@ Jest Coverage per Area (Administration):
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
     - npm --prefix "$ADMIN_PATH" run unit-setup
-    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
+    - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=1 --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   coverage: "//" # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:

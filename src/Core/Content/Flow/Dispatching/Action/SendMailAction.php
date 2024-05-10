@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
@@ -125,6 +126,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $flow->getData(MailAware::SALES_CHANNEL_ID));
+        $data->set('languageId', $flow->getData(LanguageAware::LANGUAGE_ID));
 
         $data->set('templateId', $mailTemplate->getId());
         $data->set('customFields', $mailTemplate->getCustomFields());

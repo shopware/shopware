@@ -134,8 +134,8 @@ class EntityDeleteSubscriberTest extends TestCase
             $definition,
             [
                 'id' => $productId,
-                'versionId' => Defaults::LIVE_VERSION,
-                'nonStorageAwarePrimaryKey' => 'this-will-be-ignored',
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
             $this->createMock(EntityExistence::class)
         );
@@ -218,8 +218,8 @@ class EntityDeleteSubscriberTest extends TestCase
             $definition,
             [
                 'id' => $productId,
-                'versionId' => Defaults::LIVE_VERSION,
-                'nonStorageAwarePrimaryKey' => 'this-will-be-ignored',
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
             $this->createMock(EntityExistence::class)
         );
@@ -290,8 +290,8 @@ class EntityDeleteSubscriberTest extends TestCase
             $definition,
             [
                 'id' => Uuid::randomBytes(),
-                'versionId' => Defaults::LIVE_VERSION,
-                'nonStorageAwarePrimaryKey' => 'this-will-be-ignored',
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'nonStorageAwarePrimaryKey' => Uuid::randomBytes(),
             ],
             $this->createMock(EntityExistence::class)
         );

@@ -36,6 +36,9 @@ export default {
 
     data() {
         return {
+            /*
+             * @deprecated tag:v6.7.0 - identifier will be removed
+             */
             identifier: '',
             isEditing: false,
             isLoading: true,
@@ -52,7 +55,7 @@ export default {
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier),
+            title: this.$createTitle(this.orderIdentifier),
         };
     },
 

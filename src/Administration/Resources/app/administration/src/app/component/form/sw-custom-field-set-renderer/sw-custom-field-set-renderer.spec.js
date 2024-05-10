@@ -21,6 +21,7 @@ async function createWrapper(props) {
                 'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
                 'sw-label': await wrapTestComponent('sw-label'),
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),

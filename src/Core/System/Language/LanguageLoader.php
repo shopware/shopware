@@ -33,6 +33,9 @@ class LanguageLoader implements LanguageLoaderInterface
             ->executeQuery()
             ->fetchAllAssociative();
 
-        return FetchModeHelper::groupUnique($data);
+        /** @var LanguageData $grouped */
+        $grouped = FetchModeHelper::groupUnique($data);
+
+        return $grouped;
     }
 }

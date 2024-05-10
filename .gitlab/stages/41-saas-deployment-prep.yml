@@ -38,6 +38,8 @@ compile deployment info:
     - *rules_deployment_preparation
   variables:
     CI_CURRENT_MAJOR_ALIAS: '6.6.x-dev'
+    GITLAB_HOST: 'gitlab.shopware.com'
+    GITLAB_TOKEN: '${CI_GITLAB_API_TOKEN}'
   script:
     - .gitlab/bin/compile_deployment_info.sh deployment_env "${CI_PREPARE_SAAS_DEPLOYMENT_EXTENSION_UPDATES}" | tee deployment.env
   artifacts:

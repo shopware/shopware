@@ -99,7 +99,7 @@
         "ramsey/uuid": "^4.7",
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
-        "shopware/conflicts": ">=0.1.7",
+        "shopware/conflicts": ">=0.1.20",
         "shyim/opensearch-php-dsl": "^1.0.5",
         "squirrelphp/twig-php-syntax": "^1.7.0",
         "symfony/asset": "~7.0.0",
@@ -226,6 +226,7 @@
         "e2e:sdk-plugin:plugin-to-fixture": " ",
         "e2e:sdk-plugin:prepare-plugin": " ",
         "e2e:setup": "Installs a clean shopware instance for E2E environment and launches 'e2e:prepare'",
+        "e2e:vue3": "Launches the Cypress E2E test-suite UI with the Vue3 feature flag enabled",
         "e2e:web-update:open": " ",
         "e2e:web-update:prepare": " ",
         "e2e:web-update:start": " ",
@@ -237,8 +238,6 @@
         "eslint:e2e": "Codestyle checks all E2E JS/TS files",
         "eslint:e2e:fix": "Codestyle checks all E2E JS/TS files and fixes them if possible",
         "eslint:storefront": "Codestyle checks all Storefront JS/TS files",
-        "ludtwig:storefront":  "Codestyle checks for all Storefront twig files using ludtwig",
-        "ludtwig:storefront:fix":  "Auto-fixes all fixable twig codestyle in Storefront",
         "framework:schema:dump": " ",
         "hook:pre-commit": " ",
         "hook:pre-commit:install": " ",
@@ -253,6 +252,9 @@
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
         "locust:init": " ",
         "locust:run": " ",
+        "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
+        "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
+        "make:coverage": "Generate test coverage files for current branch",
         "npm:admin": " ",
         "npm:admin:bin": " ",
         "npm:admin:check-license": "Check thrid-party dependency licenses for administration",
@@ -266,20 +268,23 @@
         "paratest": " ",
         "phpbench": " ",
         "phpstan": "Launches the PHP static analysis tool",
+        "phpstan-errors-by-area": "Shows the ignored errors defined in the phpstan-baseline.neon by area",
+        "phpstan-v66-errors-by-area": "Shows the ignored errors for versio 6.6 defined in the phpstan-v66-baseline.neon by area",
         "phpunit": "Launches the PHP unit test-suite",
         "post-install-cmd": " ",
         "post-update-cmd": " ",
         "reset": "Resets this Shopware instance, without composer and npm install. (Faster reset if no dependencies changed)",
         "setup": "Resets and re-installs this Shopware instance",
-        "static-analyze": " ",
+        "static-analyze": "Launches the PHP Stan static analysis tool",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
-        "stylelint": " ",
-        "stylelint:admin": " ",
-        "stylelint:storefront": " ",
+        "stylelint": "Codestyle checks all SCSS files of Administration and Storefront",
+        "stylelint:admin": "Code Style checks for all Admin SCSS files",
+        "stylelint:admin:fix": "Code Style checks for all Admin SCSS files and fixes them if possible",
+        "stylelint:storefront": "Code Style checks for all Storefront SCSS files",
+        "stylelint:storefront:fix": "Code Style checks for all Storefront SCSS files and fixes them if possible",
         "watch:admin": "Enables hot module reloading for the Admin",
-        "watch:storefront": "Enables hot module reloading for the Storefront",
-        "make:coverage": "Generate test coverage files for current branch"
+        "watch:storefront": "Enables hot module reloading for the Storefront"
     },
     "scripts": {
         "admin:code-mods": "@npm:admin run code-mods --",
@@ -335,10 +340,6 @@
             "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"
         ],
-        "e2e:vue3": [
-            "Composer\\Config::disableProcessTimeout",
-            "export CYPRESS_VUE3=\"true\"; export CYPRESS_grepTags=\"VUE3\"; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
-        ],
         "e2e:percy": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
         ],
@@ -368,6 +369,10 @@
             "@setup",
             "@init:e2e",
             "@e2e:prepare"
+        ],
+        "e2e:vue3": [
+            "Composer\\Config::disableProcessTimeout",
+            "export CYPRESS_VUE3=\"true\"; export CYPRESS_grepTags=\"VUE3\"; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
         ],
         "e2e:web-update:open": [
             "Composer\\Config::disableProcessTimeout",
@@ -413,8 +418,6 @@
         "eslint:e2e": "@npm:e2e run lint",
         "eslint:e2e:fix": "@npm:e2e run lint:fix",
         "eslint:storefront": "@npm:storefront run lint:js",
-        "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
-        "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",
         "hook:pre-commit": [
             "bin/pre-commit"
@@ -451,6 +454,11 @@
         "lint:snippets": "@php bin/shopware snippets:validate",
         "locust:init": "php src/Core/DevOps/Locust/setup.php",
         "locust:run": "cd src/Core/DevOps/Locust && locust",
+        "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
+        "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
+        "make:coverage": [
+            "@php bin/console make:coverage $(git diff --name-only origin/trunk -- \"*.php\" | grep -vE 'Test\\.php$' | sed 's/.*/\"&\"/' | tr '\\n' ' ')"
+        ],
         "npm:admin": "@npm:admin:bin npm",
         "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:admin:check-license": "export ALLOWED_LICENSES=\"$(sed -z 's/\\n/;/g' .allowed-licenses)\"; cd src/Administration/Resources/app/administration; bash -c \"node_modules/.bin/license-checker-rseidelsohn --onlyAllow \\\"$ALLOWED_LICENSES\\\" --excludePrivatePackages\"",
@@ -532,9 +540,6 @@
             "@php bin/console feature:dump",
             "@php bin/console theme:dump",
             "@npm:storefront run hot-proxy"
-        ],
-        "make:coverage": [
-            "@php bin/console make:coverage $(git diff --name-only origin/trunk -- \"*.php\" | grep -vE 'Test\\.php$' | sed 's/.*/\"&\"/' | tr '\\n' ' ')"
         ]
     },
     "autoload": {

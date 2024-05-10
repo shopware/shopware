@@ -8,8 +8,13 @@ COMMERCIAL_REMOTE_URL=${2:-"https://gitlab.shopware.com/shopware/6/product/comme
 COMMERCIAL_VERSION="$(echo ${PLATFORM_TAG} | cut -d '.' -f2,3,4)"
 COMMERCIAL_TAG="v${COMMERCIAL_VERSION}"
 
-# get the first saas branch, that contains the $PLATFORM_TAG
-BRANCH=$(git branch --contains tags/$PLATFORM_TAG | grep saas/ | sort | head -n 1)
+# get the first branch, that contains the $PLATFORM_TAG
+BRANCH=$(git branch --contains "${PLATFORM_TAG}" | tr -d '[:blank:]' | grep -E '(^saas/|^next-.*release)' | sort | head -n 1)
+
+if [ -z "${BRANCH}" ]; then
+    echo "Didn't find a branch containing the ${PLATFORM_TAG} tag."
+    exit 1
+fi
 
 # clone the matching commercial branch
 echo "Clone commercial branch '${BRANCH}' from $COMMERCIAL_REMOTE_URL"

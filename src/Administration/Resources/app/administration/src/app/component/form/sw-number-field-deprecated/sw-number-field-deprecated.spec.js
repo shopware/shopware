@@ -56,8 +56,6 @@ describe('app/component/form/sw-number-field-deprecated', () => {
         await input.setValue('');
         await input.trigger('change');
 
-        // console.log(wrapper.emitted()); TODO: somehow the events are emitted twice
-
         // expect 0
         expect(wrapper.emitted('update:value')[2]).toEqual([0]);
         expect(input.element.value).toBe('0');

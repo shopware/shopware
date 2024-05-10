@@ -9,10 +9,10 @@ test('Shop administrator should be able to upload an image to the product galler
 }) => {
 
     const imageId = idProvider.getIdPair().id;
-    const imageName = `image-${imageId}`;
+    const imageName = `image-${ imageId }`;
 
     await shopAdmin.goesTo(adminProductDetailPage);
-    await shopAdmin.attemptsTo(UploadImage(imageId, imageName));
+    await shopAdmin.attemptsTo(UploadImage(imageName));
     await shopAdmin.attemptsTo(SaveProduct());
 
     //Assertions

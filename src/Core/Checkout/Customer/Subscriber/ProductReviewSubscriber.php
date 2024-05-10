@@ -41,7 +41,7 @@ class ProductReviewSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            if ($command->getDefinition()->getEntityName() !== ProductReviewDefinition::ENTITY_NAME) {
+            if ($command->getEntityName() !== ProductReviewDefinition::ENTITY_NAME) {
                 continue;
             }
 

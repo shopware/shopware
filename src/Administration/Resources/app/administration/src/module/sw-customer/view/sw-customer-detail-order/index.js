@@ -26,8 +26,6 @@ export default {
             activeCustomer: this.customer,
             orders: null,
             term: '',
-            // todo after NEXT-2291: to be removed if new emptyState-Splashscreens are implemented
-            orderIcon: 'regular-shopping-bag',
             sortBy: 'orderDateTime',
             sortDirection: 'DESC',
         };

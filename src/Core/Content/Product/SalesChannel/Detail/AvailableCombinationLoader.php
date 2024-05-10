@@ -94,6 +94,9 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
 
-        return FetchModeHelper::groupUnique($combinations);
+        /** @var array<string, array{options: string, available: int, productNumber: string}> $unique */
+        $unique = FetchModeHelper::groupUnique($combinations);
+
+        return $unique;
     }
 }

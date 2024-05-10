@@ -14,6 +14,7 @@ async function createWrapper(customConfig = {}) {
             stubs: {
                 'sw-loader': true,
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
             },
             provide: {},
@@ -165,6 +166,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                 stubs: {
                     'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 },
             },
@@ -199,6 +201,7 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
                 stubs: {
                     'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 },
             },

@@ -33,7 +33,6 @@ Component.register('sw-single-select', {
             required: true,
             type: Array,
         },
-        // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
@@ -46,7 +45,6 @@ Component.register('sw-single-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },

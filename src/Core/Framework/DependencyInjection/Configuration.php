@@ -536,7 +536,18 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
-                ->scalarNode('redis_url')->end()
+                ->scalarNode('redis_url')->end() // @deprecated tag:v6.7.0 - will be removed
+                ->arrayNode('storage')
+                    ->children()
+                        ->enumNode('type')
+                            ->values(['mysql', 'redis'])
+                            ->defaultValue('mysql')
+                            ->end()
+                        ->arrayNode('config')
+                            ->children()
+                                ->scalarNode('dsn')->end()
+                            ->end()
+                    ->end()
             ->end();
 
         return $rootNode;
@@ -549,8 +560,15 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-            ->scalarNode('increment_storage')->end()
-            ->scalarNode('redis_url')->end()
+            ->enumNode('increment_storage')
+                ->values(['SQL', 'mysql', 'Redis', 'redis']) // @deprecated tag:v6.7.0 - only "mysql" and "redis" are allowed
+                ->defaultValue('mysql')
+                ->end()
+            ->scalarNode('redis_url')->end() // @deprecated tag:v6.7.0 - will be removed
+            ->arrayNode('config')
+                ->children()
+                    ->scalarNode('dsn')->end()
+                ->end()
             ->end();
 
         return $rootNode;

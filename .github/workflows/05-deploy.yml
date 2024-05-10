@@ -12,6 +12,7 @@ permissions:
 jobs:
   release-schedule:
     runs-on: ubuntu-latest
+    if: github.repository == 'shopware/shopware'
     steps:
       - uses: actions/checkout@v4
         with:

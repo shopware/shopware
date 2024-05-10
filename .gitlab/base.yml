@@ -26,6 +26,18 @@ variables:
   PHP_MEMORY_LIMIT: 2g
   SHOPWARE_ES_INDEX_PREFIX: sw
   SHOPWARE_HTTP_CACHE_ENABLED: 0
+  KUBERNETES_CPU_REQUEST: "250m"
+  KUBERNETES_CPU_LIMIT: "1"
+  KUBERNETES_MEMORY_REQUEST: "1Gi"
+  KUBERNETES_MEMORY_LIMIT: "4Gi"
+  KUBERNETES_HELPER_CPU_REQUEST: "250m"
+  KUBERNETES_HELPER_CPU_LIMIT: "250m"
+  KUBERNETES_HELPER_MEMORY_REQUEST: "250Mi"
+  KUBERNETES_HELPER_MEMORY_LIMIT: "1Gi"
+  KUBERNETES_SERVICE_CPU_REQUEST: "250m"
+  KUBERNETES_SERVICE_CPU_LIMIT: "250m"
+  KUBERNETES_SERVICE_MEMORY_REQUEST: "250Mi"
+  KUBERNETES_SERVICE_MEMORY_LIMIT: "1Gi"
 
 # for jobs which should run on each MR/Pipeline
 .base:
@@ -96,6 +108,12 @@ variables:
     - if: !reference [.rules, long-running-allow-failure, if]
       allow_failure: true
     - !reference [.rules, long-running]
+  variables:
+    KUBERNETES_CPU_REQUEST: "1"
+    KUBERNETES_CPU_LIMIT: "2"
+    KUBERNETES_MEMORY_REQUEST: "3Gi"
+    KUBERNETES_MEMORY_LIMIT: "6Gi"
+
 
 # sames as .long-running just without initializing shopware and starting a web server
 .long-running-no-setup:

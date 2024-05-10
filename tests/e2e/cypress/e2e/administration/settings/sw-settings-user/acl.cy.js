@@ -17,6 +17,10 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'viewer',
             },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -63,6 +67,14 @@ describe('User: Test acl privileges', () => {
             },
             {
                 key: 'users_and_permissions',
+                role: 'editor',
+            },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
                 role: 'editor',
             },
         ]).then(() => {
@@ -143,6 +155,14 @@ describe('User: Test acl privileges', () => {
             },
             {
                 key: 'users_and_permissions',
+                role: 'editor',
+            },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
                 role: 'editor',
             },
         ]).then(() => {
@@ -227,6 +247,18 @@ describe('User: Test acl privileges', () => {
                 key: 'users_and_permissions',
                 role: 'creator',
             },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
+                role: 'editor',
+            },
+            {
+                key: 'media',
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -296,6 +328,22 @@ describe('User: Test acl privileges', () => {
             },
             {
                 key: 'users_and_permissions',
+                role: 'deleter',
+            },
+            {
+                key: 'media',
+                role: 'viewer',
+            },
+            {
+                key: 'media',
+                role: 'editor',
+            },
+            {
+                key: 'media',
+                role: 'creator',
+            },
+            {
+                key: 'media',
                 role: 'deleter',
             },
         ]).then(() => {

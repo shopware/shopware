@@ -146,7 +146,7 @@ class EntityDeletedEventHelperTest extends TestCase
             $entityDefinition,
             [
                 'id' => Uuid::fromHexToBytes($id),
-                'non_storage_aware_primary_key' => 'this-will-be-ignored',
+                'non_storage_aware_primary_key' => Uuid::randomBytes(),
                 'storage_aware_primary_key' => Uuid::fromHexToBytes($id),
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],

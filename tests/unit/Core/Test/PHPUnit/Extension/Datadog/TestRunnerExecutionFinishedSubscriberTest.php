@@ -34,7 +34,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
     {
         $failed = new DatadogPayloadCollection();
         $slow = new DatadogPayloadCollection();
-        $skipped = new DatadogPayloadCollection();
+        $errored = new DatadogPayloadCollection();
 
         $event = $this->buildEvent();
         $this->gateway
@@ -45,7 +45,7 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
         $runner = new TestRunnerExecutionFinishedSubscriber(
             $failed,
             $slow,
-            $skipped,
+            $errored,
             $this->gateway
         );
 
@@ -56,57 +56,41 @@ class TestRunnerExecutionFinishedSubscriberTest extends TestCase
     {
         $failed = new DatadogPayloadCollection();
         $slow = new DatadogPayloadCollection();
-        $skipped = new DatadogPayloadCollection();
+        $errored = new DatadogPayloadCollection();
         $eventId = 'Shopware\\Tests\\DevOps\\Core\\Test\\AFakeTest::testNothing';
 
-        $failed->set($eventId, new DatadogPayload(
+        $failedPayload = new DatadogPayload(
             'phpunit',
             'phpunit,test:failed',
             'Failed: (' . $eventId . ')',
             'PHPUnit',
             $eventId,
             0.0
-        ));
+        );
 
-        $slow->set($eventId, new DatadogPayload(
+        $slowPayload = new DatadogPayload(
             'phpunit',
             'phpunit,test:slow',
             'Slow test: (' . $eventId . ')',
             'PHPUnit',
             $eventId,
             1.4308640000000001
-        ));
+        );
+
+        $failed->set($eventId, $failedPayload);
+        $slow->set($eventId, $slowPayload);
 
         $event = $this->buildEvent();
 
         $this->gateway
             ->expects(static::once())
             ->method('sendLogs')
-            ->with(
-                [
-                    [
-                        'ddsource' => 'phpunit',
-                        'ddtags' => 'phpunit,test:failed',
-                        'message' => 'Failed: (' . $eventId . ')',
-                        'service' => 'PHPUnit',
-                        'test-description' => $eventId,
-                        'test-duration' => 0.0,
-                    ],
-                    [
-                        'ddsource' => 'phpunit',
-                        'ddtags' => 'phpunit,test:slow',
-                        'message' => 'Slow test: (' . $eventId . ')',
-                        'service' => 'PHPUnit',
-                        'test-description' => $eventId,
-                        'test-duration' => 1.4308640000000001,
-                    ],
-                ]
-            );
+            ->with([$failedPayload->serialize(), $slowPayload->serialize()]);
 
         $runner = new TestRunnerExecutionFinishedSubscriber(
             $failed,
             $slow,
-            $skipped,
+            $errored,
             $this->gateway
         );
 

@@ -45,6 +45,9 @@ async function createWrapper(privileges = [], options = {
                 userService: {
                     getUser: () => Promise.resolve({ data: {} }),
                 },
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => Promise.resolve('1234'),
+                },
                 userValidationService: {},
                 integrationService: {},
                 repositoryFactory: {
@@ -80,6 +83,14 @@ async function createWrapper(privileges = [], options = {
                                     0,
                                 )),
                                 get: () => Promise.resolve(),
+                            };
+                        }
+
+                        if (entityName === 'media') {
+                            return {
+                                get: () => Promise.resolve({
+                                    id: '2142',
+                                }),
                             };
                         }
 
@@ -137,12 +148,12 @@ async function createWrapper(privileges = [], options = {
                 'sw-data-grid': {
                     props: ['dataSource'],
                     template: `
-<div>
-  <template v-for="item in dataSource">
-      <slot name="actions" v-bind="{ item }"></slot>
-  </template>
-</div>
-                `,
+                        <div>
+                            <template v-for="item in dataSource">
+                                <slot name="actions" v-bind="{ item }"></slot>
+                            </template>
+                        </div>
+                    `,
                 },
                 'sw-context-menu-item': true,
                 'sw-empty-state': true,
@@ -469,5 +480,39 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         await flushPromises();
 
         expect(wrapper.vm.user.password).toBeUndefined();
+    });
+
+    it('should update data onDropMedia item', async () => {
+        const mediaId = '2142';
+        const mediaItem = { id: mediaId };
+
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        wrapper.vm.onDropMedia(mediaItem);
+        await flushPromises();
+
+        expect(wrapper.vm.user.avatarId).toBe(mediaId);
+        expect(wrapper.vm.user.avatarMedia.id).toBe(mediaId);
+        expect(wrapper.vm.mediaItem.id).toBe(mediaId);
+    });
+
+    it('should set media data', async () => {
+        const mediaId = '2142';
+        const mediaItem = { id: mediaId };
+
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        expect(wrapper.vm.mediaDefaultFolderId).toBe('1234');
+
+        wrapper.vm.onMediaSelectionChange([mediaItem]);
+        await flushPromises();
+
+        expect(wrapper.vm.mediaItem.id).toBe(mediaId);
+        expect(wrapper.vm.user.avatarId).toBe(mediaId);
+        expect(wrapper.vm.user.avatarMedia.id).toBe(mediaId);
     });
 });

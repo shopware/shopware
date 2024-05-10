@@ -8,9 +8,19 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @deprecated tag:v6.7.0 - reason:becomes-internal - Will be internal in v6.7.0
+ */
 #[Package('administration')]
 class SnippetFinder implements SnippetFinderInterface
 {
+    /**
+     * @internal
+     */
+    public const ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS = [
+        'sw-flow-custom-event',
+    ];
+
     /**
      * @internal
      */
@@ -76,19 +86,14 @@ class SnippetFinder implements SnippetFinderInterface
     /**
      * @return array<int, string>
      */
-    private function findSnippetFiles(?string $locale = null, bool $withPlugins = true): array
+    private function findSnippetFiles(string $locale, bool $withPlugins = true): array
     {
         $finder = (new Finder())
             ->files()
             ->in(__DIR__ . '/../../*/Resources/app/administration/src/')
             ->exclude('node_modules')
             ->ignoreUnreadableDirs();
-
-        if ($locale) {
-            $finder->name(sprintf('%s.json', $locale));
-        } else {
-            $finder->name('/[a-z]{2}-[A-Z]{2}\.json/');
-        }
+        $finder->name(sprintf('%s.json', $locale));
 
         if ($withPlugins) {
             $finder->in($this->getPluginPaths());
@@ -114,10 +119,6 @@ class SnippetFinder implements SnippetFinderInterface
         $snippets = [[]];
 
         foreach ($files as $file) {
-            if (is_file($file) === false) {
-                continue;
-            }
-
             $content = file_get_contents($file);
             if ($content !== false) {
                 $snippets[] = json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
@@ -125,7 +126,6 @@ class SnippetFinder implements SnippetFinderInterface
         }
 
         $snippets = array_replace_recursive(...$snippets);
-
         ksort($snippets);
 
         return $snippets;
@@ -147,16 +147,17 @@ class SnippetFinder implements SnippetFinderInterface
             ['code' => $locale]
         );
 
-        $snippets = [];
-        foreach ($result as $data) {
-            $decodedSnippet = json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR);
-            $this->validateAppSnippets($existingSnippets, $decodedSnippet);
-            $decodedSnippet = $this->sanitizeAppSnippets($decodedSnippet);
+        $decodedSnippets = array_map(
+            fn ($data) => json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR),
+            $result
+        );
 
-            $snippets = [...$snippets, ...$decodedSnippet];
-        }
+        $appSnippets = array_replace_recursive([], ...$decodedSnippets);
+        $appSnippets = $this->sanitizeAppSnippets($appSnippets);
 
-        return $snippets;
+        $this->validateAppSnippets($existingSnippets, $appSnippets);
+
+        return $appSnippets;
     }
 
     /**
@@ -167,8 +168,9 @@ class SnippetFinder implements SnippetFinderInterface
     {
         $existingSnippetKeys = array_keys($existingSnippets);
         $appSnippetKeys = array_keys($appSnippets);
+        $duplicatedKeys = $this->getInvalidIntersections($existingSnippetKeys, $appSnippetKeys);
 
-        if ($duplicatedKeys = array_intersect($existingSnippetKeys, $appSnippetKeys)) {
+        if (!empty($duplicatedKeys)) {
             throw SnippetException::duplicatedFirstLevelKey($duplicatedKeys);
         }
     }
@@ -196,5 +198,25 @@ class SnippetFinder implements SnippetFinderInterface
         }
 
         return $sanitizedSnippets;
+    }
+
+    /**
+     * @param list<string> $snippetKeys
+     * @param list<string> $additionalSnippetKeys
+     *
+     * @return list<string>
+     */
+    private function getInvalidIntersections(array $snippetKeys, array $additionalSnippetKeys): array
+    {
+        $intersections = array_intersect($snippetKeys, $additionalSnippetKeys);
+
+        if (empty($intersections)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $intersections,
+            fn ($key) => !\in_array($key, self::ALLOWED_INTERSECTING_FIRST_LEVEL_SNIPPET_KEYS, true)
+        ));
     }
 }

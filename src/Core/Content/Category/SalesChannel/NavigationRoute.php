@@ -137,7 +137,10 @@ class NavigationRoute extends AbstractNavigationRoute
             throw CategoryException::categoryNotFound($activeId);
         }
 
-        return FetchModeHelper::groupUnique($result);
+        /** @var array<string, CategoryMetaInformation> $result */
+        $result = FetchModeHelper::groupUnique($result);
+
+        return $result;
     }
 
     /**

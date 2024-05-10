@@ -57,6 +57,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
+        /** @var array<array<string>> $rules $rules */
         $rules = FetchModeHelper::group($conditions);
 
         $update = new RetryableQuery(

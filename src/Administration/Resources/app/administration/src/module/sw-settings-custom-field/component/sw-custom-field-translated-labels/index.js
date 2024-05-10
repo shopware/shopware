@@ -17,7 +17,6 @@ export default {
     ],
 
     props: {
-        // FIXME: add type to locales
         // eslint-disable-next-line vue/require-prop-types
         locales: {
             required: true,

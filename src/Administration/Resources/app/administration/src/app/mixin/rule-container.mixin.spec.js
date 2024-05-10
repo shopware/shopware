@@ -142,6 +142,4 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
 
         expect(onAddPlaceholderMock).toHaveBeenCalled();
     });
-
-    // TODO: Add more component tests
 });

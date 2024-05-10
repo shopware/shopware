@@ -61,6 +61,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
         $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
 
+        /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
 
         $urls = [];
@@ -94,6 +95,9 @@ class CategoryUrlProvider extends AbstractUrlProvider
         return new UrlResult($urls, $nextOffset);
     }
 
+    /**
+     * @return list<array{id: string, created_at: string, updated_at: string}>
+     */
     private function getCategories(SalesChannelContext $context, int $limit, ?int $offset): array
     {
         $lastId = null;
@@ -135,9 +139,15 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
 
-        return $query->executeQuery()->fetchAllAssociative();
+        /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
+        $result = $query->executeQuery()->fetchAllAssociative();
+
+        return $result;
     }
 
+    /**
+     * @return array<string>
+     */
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array
     {
         $salesChannelId = $salesChannelContext->getSalesChannel()->getId();

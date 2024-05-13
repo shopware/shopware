@@ -1,6 +1,6 @@
 ---
 title: Add database profiler on CLI if "--profile" option is used.
-issue: NEXT-00000
+issue: NEXT-36088
 author: Andreas Allacher
 author_email: andreas.allacher@massiveart.com
 author_github: @AndreasA

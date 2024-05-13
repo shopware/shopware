@@ -119,6 +119,10 @@ export default {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
+        isHeadless() {
+            return this.salesChannel && this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
+        },
+
         storefrontSalesChannelDomainCriteria() {
             const criteria = new Criteria(1, 25);
 
@@ -509,7 +513,7 @@ export default {
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true || this.isProductComparison) {
+            if (this.salesChannel.active !== true || this.isProductComparison || this.isHeadless) {
                 return;
             }
 

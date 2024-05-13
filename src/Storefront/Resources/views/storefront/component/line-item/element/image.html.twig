@@ -15,7 +15,7 @@
                 {% endblock %}
             {% else %}
                 {% set attributes = attributes|merge({
-                    alt: (lineItem.cover.translated.alt ?: ''),
+                    alt: (lineItem.cover.translated.alt ?: label),
                     loading: 'lazy'
                 }) %}
 
@@ -32,7 +32,7 @@
         {% else %}
             {% if fallbackIcon %}
                 {% block component_line_item_image_fallback_icon %}
-                    <div class="line-item-img line-item-icon">
+                    <div class="line-item-img line-item-icon" aria-hidden="true">
                         {% sw_include '@Storefront/storefront/utilities/icon.html.twig' with {
                             name: fallbackIcon
                         } %}
@@ -50,9 +50,11 @@
     {% endset %}
 
     {% if lineItemLink %}
-        <a href="{{ lineItemLink }}"
-           class="line-item-img-link"
-           title="{{ label }}"
+        <a
+            href="{{ lineItemLink }}"
+            class="line-item-img-link"
+            title="{{ label }}"
+            tabindex="-1"
             {% if lineItemModalLink %}
                 data-ajax-modal="modal"
                 data-modal-class="quickview-modal"

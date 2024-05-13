@@ -28,7 +28,8 @@
 
             {% block component_line_item_remove_button %}
                 <button type="submit"
-                        title="{{ 'checkout.removeLineItem'|trans|striptags }}"
+                        aria-label="{{ 'checkout.removeLineItem'|trans({ '%lineItemLabel%': label })|striptags }}"
+                        title="{{ 'global.default.remove'|trans }}"
                         data-product-id="{{ lineItem.id }}"
                         class="btn btn-light btn-sm line-item-remove-button">
                     {% sw_icon 'x' style { size: 'sm' } %}

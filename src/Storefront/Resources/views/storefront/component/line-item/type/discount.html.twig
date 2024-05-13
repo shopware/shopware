@@ -1,3 +1,6 @@
+{% set label = lineItem.label|trans|sw_sanitize %}
+{% set label = label !== '' ? label : lineItem.label %}
+
 {% if displayMode is not defined %}
     {% set displayMode = 'default' %}
 {% endif %}

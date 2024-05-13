@@ -370,7 +370,7 @@
     "proceedToCheckout": "Go to checkout",
     "quantityTimes": "x",
     "priceUnitName": "Content:",
-    "removeLineItem": "Remove product",
+    "removeLineItem": "Remove %lineItemLabel% from shopping cart",
     "subtotalAmount": "Subtotal",
     "summaryHeader": "Summary",
     "lineItemContainerHeadline": "Product bundle contains",

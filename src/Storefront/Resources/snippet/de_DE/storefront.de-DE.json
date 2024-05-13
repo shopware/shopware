@@ -370,7 +370,7 @@
     "proceedToCheckout": "Zur Kasse",
     "quantityTimes": "x",
     "priceUnitName": "Inhalt:",
-    "removeLineItem": "Produkt entfernen",
+    "removeLineItem": "Entferne %lineItemLabel% aus dem Warenkorb",
     "subtotalAmount": "Zwischensumme",
     "summaryHeader": "Zusammenfassung",
     "lineItemContainerHeadline": "Produkt-Bundle enthält",

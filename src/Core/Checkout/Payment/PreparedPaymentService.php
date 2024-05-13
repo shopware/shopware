@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, use `PaymentProcessor` instead
+ */
 #[Package('checkout')]
 class PreparedPaymentService
 {

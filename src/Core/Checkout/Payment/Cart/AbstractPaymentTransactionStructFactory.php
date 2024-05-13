@@ -22,5 +22,11 @@ abstract class AbstractPaymentTransactionStructFactory
 
     abstract public function recurring(OrderTransactionEntity $orderTransaction, OrderEntity $order): RecurringPaymentTransactionStruct;
 
-    abstract public function build(string $orderTransactionId, ?string $returnUrl = null): PaymentTransactionStruct;
+    /**
+     * @deprecated tag:v6.7.0 - will be abstract, implementation is in `PaymentTransactionStructFactory`
+     */
+    public function build(string $orderTransactionId, ?string $returnUrl = null): PaymentTransactionStruct
+    {
+        return new PaymentTransactionStruct($orderTransactionId, $returnUrl);
+    }
 }

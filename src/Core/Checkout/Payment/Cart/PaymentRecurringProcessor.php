@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, use `PaymentProcessor` instead
+ */
 #[Package('checkout')]
 class PaymentRecurringProcessor
 {

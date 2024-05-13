@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, use `PaymentProcessor` instead
+ */
 #[Package('checkout')]
 class PaymentTransactionChainProcessor
 {

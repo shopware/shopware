@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -42,6 +43,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly PreparedPaymentService $preparedPaymentService,
+        private readonly PaymentProcessor $paymentProcessor,
         private readonly TaxProviderProcessor $taxProviderProcessor,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
     ) {
@@ -68,7 +70,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);
 
-        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context));
+        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', fn () => $this->paymentProcessor->validate($calculatedCart, $data, $context));
 
         $orderId = Profiler::trace('checkout-order::order-persist', fn () => $this->orderPersister->persist($calculatedCart, $context));
 
@@ -112,6 +114,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
         $this->cartPersister->delete($context->getToken(), $context);
 
+        // @deprecated tag:v6.7.0 - remove post payment completely
         try {
             Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
                 $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);

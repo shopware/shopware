@@ -57,6 +57,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">

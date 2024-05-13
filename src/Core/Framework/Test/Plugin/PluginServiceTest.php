@@ -281,7 +281,7 @@ class PluginServiceTest extends TestCase
         static::assertSame('MIT', $plugin->getLicense());
     }
 
-    private function fetchSwagTestPluginEntity(?Context $context = null, $baseClass = SwagTestPlugin::class): PluginEntity
+    private function fetchSwagTestPluginEntity(?Context $context = null, string $baseClass = SwagTestPlugin::class): PluginEntity
     {
         if ($context === null) {
             $context = $this->context;

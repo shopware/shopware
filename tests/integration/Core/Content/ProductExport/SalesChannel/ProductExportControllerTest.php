@@ -168,7 +168,7 @@ class ProductExportControllerTest extends TestCase
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExportDe->getAccessKey(), $productExportDe->getFileName()));
 
         $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
-
+        static::assertNotNull($client->getResponse()->headers->get('Last-Modified'));
         static::assertCount(4, $csvRows);
         static::assertEquals('SwagTheme DE Test', $csvRows[1]);
     }

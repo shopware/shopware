@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
-use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+// BC checker does not understand duplicate class declarations.
+// Comment out the following code for tag:v6.7.0 and replace the existing class
+/*
 #[Package('checkout')]
 class DebitPayment extends DefaultPayment
 {
@@ -17,5 +18,15 @@ class DebitPayment extends DefaultPayment
         $this->transactionStateHandler->process($transaction->getOrderTransactionId(), $context);
 
         return null;
+    }
+}
+*/
+
+#[Package('checkout')]
+class DebitPayment extends DefaultPayment
+{
+    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
+    {
+        $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
     }
 }

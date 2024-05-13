@@ -2,6 +2,9 @@
 title: Improve payment handlers & general payment process
 issue: NEXT-31047
 ---
+# Core
+* Added new `AbstractPaymentHandler` to replace all existing payment handler interfaces
+* Deprecated `AsyncPaymentHandlerInterface`, `PreparedPaymentHandlerInterface`, `SyncPaymentHandlerInterface`, `RefundPaymentHandlerInterface`, `RecurringPaymentHandlerInterface`
 ___
 # Next Major Version Changes
 ## Prepared payments: Capture removed

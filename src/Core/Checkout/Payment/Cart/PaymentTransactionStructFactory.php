@@ -39,4 +39,9 @@ class PaymentTransactionStructFactory extends AbstractPaymentTransactionStructFa
     {
         return new PaymentTransactionStruct($orderTransactionId, $returnUrl);
     }
+
+    public function refund(string $refundId, string $orderTransactionId): RefundPaymentTransactionStruct
+    {
+        return new RefundPaymentTransactionStruct($refundId, $orderTransactionId);
+    }
 }

@@ -43,4 +43,14 @@ abstract class AbstractPaymentTransactionStructFactory
     {
         return new PaymentTransactionStruct($orderTransactionId, $returnUrl);
     }
+
+    /**
+     * @deprecated tag:v6.7.0 - will be abstract, implementation is in `PaymentTransactionStructFactory`
+     *
+     * @phpstan-ignore-next-line
+     */
+    public function refund(string $refundId, string $orderTransactionId): RefundPaymentTransactionStruct
+    {
+        return new RefundPaymentTransactionStruct($refundId, $orderTransactionId);
+    }
 }

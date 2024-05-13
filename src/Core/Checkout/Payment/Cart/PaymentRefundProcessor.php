@@ -5,7 +5,9 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
@@ -23,14 +25,15 @@ class PaymentRefundProcessor
     public function __construct(
         private readonly Connection $connection,
         private readonly OrderTransactionCaptureRefundStateHandler $stateHandler,
-        private readonly PaymentHandlerRegistry $paymentHandlerRegistry
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
+        private readonly AbstractPaymentTransactionStructFactory $transactionStructFactory,
     ) {
     }
 
     public function processRefund(string $refundId, Context $context): void
     {
         $result = $this->connection->createQueryBuilder()
-            ->select('refund.id', 'state.technical_name', 'transaction.payment_method_id')
+            ->select('refund.id', 'state.technical_name', 'transaction.payment_method_id', 'transaction.id as transaction_id')
             ->from('order_transaction_capture_refund', self::TABLE_ALIAS)
             ->innerJoin(self::TABLE_ALIAS, 'state_machine_state', 'state', 'refund.state_id = state.id')
             ->innerJoin(self::TABLE_ALIAS, 'order_transaction_capture', 'capture', 'capture.id = refund.capture_id')
@@ -48,16 +51,30 @@ class PaymentRefundProcessor
             throw PaymentException::refundInvalidTransition($refundId, $result['technical_name']);
         }
 
+        $orderTransactionId = Uuid::fromBytesToHex($result['transaction_id']);
         $paymentMethodId = Uuid::fromBytesToHex($result['payment_method_id']);
-        $refundHandler = $this->paymentHandlerRegistry->getRefundPaymentHandler($paymentMethodId);
+        $refundHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethodId);
 
-        if (!$refundHandler instanceof RefundPaymentHandlerInterface) {
+        if ($refundHandler instanceof RefundPaymentHandlerInterface) {
+            try {
+                $refundHandler->refund($refundId, $context);
+
+                return;
+            } catch (PaymentException $e) {
+                $this->stateHandler->fail($refundId, $context);
+
+                throw $e;
+            }
+        }
+
+        if (!$refundHandler instanceof AbstractPaymentHandler || !$refundHandler->supports(PaymentHandlerType::REFUND, $paymentMethodId, $context)) {
             throw PaymentException::unknownRefundHandler($refundId);
         }
 
         try {
-            $refundHandler->refund($refundId, $context);
-        } catch (PaymentException $e) {
+            $struct = $this->transactionStructFactory->refund($refundId, $orderTransactionId);
+            $refundHandler->refund($struct, $context);
+        } catch (\Throwable $e) {
             $this->stateHandler->fail($refundId, $context);
 
             throw $e;

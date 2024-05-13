@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment\Handler;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
@@ -15,9 +16,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
-use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -56,7 +55,9 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @param class-string<PaymentHandlerInterface> $handlerClass
+     * @param class-string<PaymentHandlerInterface|AbstractPaymentHandler> $handlerClass
+     *
+     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetHandler(string $handlerName, string $handlerClass): void
@@ -67,7 +68,9 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
+     *
+     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -83,7 +86,9 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
+     *
+     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -99,7 +104,9 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
+     *
+     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -115,7 +122,9 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
-     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     * @param array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>> $handlerInstances
+     *
+     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
      */
     #[DataProvider('paymentMethodDataProvider')]
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -130,23 +139,18 @@ class PaymentHandlerRegistryTest extends TestCase
         }
     }
 
-    /**
-     * @param array<string, mixed> $appPaymentData
-     * @param class-string<object> $expectedHandler
-     */
-    #[DataProvider('appPaymentMethodUrlProvider')]
-    public function testAppResolve(array $appPaymentData, string $expectedHandler): void
+    public function testAppResolve(): void
     {
-        $appPaymentData = \array_merge([
+        $appPaymentData = [
             'id' => Uuid::randomHex(),
-            'identifier' => $expectedHandler,
-            'appName' => $expectedHandler,
+            'identifier' => 'apptest',
+            'appName' => 'apptest',
             'payUrl' => null,
             'finalizeUrl' => null,
             'validateUrl' => null,
             'captureUrl' => null,
             'refundUrl' => null,
-        ], $appPaymentData);
+        ];
 
         $paymentMethod = $this->getPaymentMethod('refundable');
         $appPaymentData['paymentMethodId'] = $paymentMethod->getId();
@@ -155,28 +159,30 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $handler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
 
-        static::assertInstanceOf($expectedHandler, $handler);
+        static::assertInstanceOf(AppPaymentHandler::class, $handler);
     }
 
     /**
-     * @return array<string, array<string|class-string<PaymentHandlerInterface>|array<class-string<PaymentHandlerInterface>>>>
+     * @return array<string, array<string|class-string<PaymentHandlerInterface|AbstractPaymentHandler>|array<class-string<PaymentHandlerInterface|AbstractPaymentHandler>>>>
+     *
+     * @phpstan-ignore-next-line PaymentHandlerInterface is supported until 6.7
      */
     public static function paymentMethodDataProvider(): array
     {
         return [
             'app async' => [
                 'app\\testPayments_async',
-                AppAsyncPaymentHandler::class,
+                AppPaymentHandler::class,
                 [AsynchronousPaymentHandlerInterface::class],
             ],
             'app sync with payurl' => [
                 'app\\testPayments_syncTracked',
-                AppSyncPaymentHandler::class,
+                AppPaymentHandler::class,
                 [SynchronousPaymentHandlerInterface::class],
             ],
             'app sync' => [
                 'app\\testPayments_sync',
-                AppSyncPaymentHandler::class,
+                AppPaymentHandler::class,
                 [SynchronousPaymentHandlerInterface::class],
             ],
             'normal async' => [
@@ -205,20 +211,6 @@ class PaymentHandlerRegistryTest extends TestCase
                 [RefundPaymentHandlerInterface::class],
             ],
         ];
-    }
-
-    /**
-     * @return array<array<array<string>|bool|string>>
-     */
-    public static function appPaymentMethodUrlProvider(): iterable
-    {
-        yield [[], AppSyncPaymentHandler::class];
-        yield [['payUrl' => 'https://foo.bar/pay'], AppSyncPaymentHandler::class];
-        yield [['finalizeUrl' => 'https://foo.bar/finalize'], AppAsyncPaymentHandler::class];
-        yield [['payUrl' => 'https://foo.bar/pay', 'finalizeUrl' => 'https://foo.bar/finalize'], AppAsyncPaymentHandler::class];
-        yield [['validateUrl' => 'https://foo.bar/validate', 'captureUrl' => 'https://foo.bar/capture'], AppPaymentHandler::class];
-        yield [['refundUrl' => 'https://foo.bar/refund'], AppPaymentHandler::class];
-        yield [['payUrl' => 'https://foo.bar/pay', 'finalizeUrl' => 'https://foo.bar/finalize', 'validateUrl' => 'https://foo.bar/validate', 'captureUrl' => 'https://foo.bar/capture', 'refundUrl' => 'https://foo.bar/refund'], AppPaymentHandler::class];
     }
 
     private function getPaymentMethod(string $handler): PaymentMethodEntity

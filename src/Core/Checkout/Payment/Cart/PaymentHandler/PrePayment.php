@@ -6,14 +6,23 @@ use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
+// BC checker does not understand duplicate class declarations.
+// Comment out the following code for tag:v6.7.0 and replace the existing class
+/*
 #[Package('checkout')]
 class PrePayment extends DefaultPayment
 {
-    public function supports(string $paymentMethodId, Context $context): array
+    public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
     {
-        return [PaymentHandlerType::RECURRING];
+        return $type === PaymentHandlerType::RECURRING;
     }
+}
+*/
 
+// @phpstan-ignore-next-line
+#[Package('checkout')]
+class PrePayment extends DefaultPayment implements RecurringPaymentHandlerInterface
+{
     public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
     {
     }

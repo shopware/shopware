@@ -6,8 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
-use Shopware\Core\Framework\App\Payment\Response\AsyncPayResponse;
+use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +25,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $transactionId = $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => StateMachineTransitionActions::ACTION_PAID_PARTIALLY,
         ]);
@@ -43,7 +42,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => StateMachineTransitionActions::ACTION_FAIL,
         ]);
@@ -61,7 +60,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => StateMachineTransitionActions::ACTION_FAIL,
             'message' => self::ERROR_MESSAGE,
@@ -80,7 +79,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'message' => self::ERROR_MESSAGE,
         ]);
@@ -98,7 +97,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $transactionId = $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
             'status' => '',
         ]);
@@ -115,7 +114,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -135,7 +134,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -180,7 +179,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -202,7 +201,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -238,7 +237,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'status' => StateMachineTransitionActions::ACTION_AUTHORIZE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
@@ -280,7 +279,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'status' => StateMachineTransitionActions::ACTION_CANCEL,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
@@ -298,7 +297,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
@@ -316,7 +315,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $data = $this->prepareTransaction();
 
-        $response = (new AsyncFinalizeResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'status' => '',
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
@@ -337,7 +336,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $transactionId = $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $response = (new AsyncPayResponse())->assign([
+        $response = (new PaymentResponse())->assign([
             'redirectUrl' => self::REDIRECT_URL,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));

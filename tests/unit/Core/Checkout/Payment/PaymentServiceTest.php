@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -33,6 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(PaymentService::class)]
 class PaymentServiceTest extends TestCase
 {
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testFinalize(): void
     {
         $transactionId = Uuid::randomHex();

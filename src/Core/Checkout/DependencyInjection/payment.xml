@@ -85,6 +85,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor" public="true">
@@ -121,30 +122,35 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
 
             <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
 
             <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
 
             <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
 
             <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
 
             <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifierSubscriber">

@@ -85,7 +85,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
     /**
      * @var EntityRepository<OrderTransactionCollection>
      */
-    private EntityRepository $orderTransactionRepository;
+    protected EntityRepository $orderTransactionRepository;
 
     private EntityRepository $orderTransactionCaptureRepository;
 

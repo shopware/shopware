@@ -43,6 +43,9 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront',
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\MainModule',
 
+        // Abstract internal class is not understood
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Response\\\\AbstractResponse',
+
         // Removed property, which was unintentionally added
         'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
 

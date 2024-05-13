@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -153,13 +154,14 @@ class PaymentRefundProcessorTest extends TestCase
 
         $handlerRegistryMock = $this->createMock(PaymentHandlerRegistry::class);
         $handlerRegistryMock
-            ->method('getRefundPaymentHandler')
+            ->method('getPaymentMethodHandler')
             ->willReturn($handlerMock);
 
         $processor = new PaymentRefundProcessor(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
-            $handlerRegistryMock
+            $handlerRegistryMock,
+            $this->getContainer()->get(PaymentTransactionStructFactory::class),
         );
 
         $refund = (new OrderTransactionCaptureRefundBuilder(

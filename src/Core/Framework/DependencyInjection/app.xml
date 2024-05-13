@@ -195,10 +195,7 @@
             <argument type="service" id="order_transaction_capture_refund.repository"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.payment.method.sync"/>
-            <tag name="shopware.payment.method.async"/>
-            <tag name="shopware.payment.method.prepared"/>
-            <tag name="shopware.payment.method.refund"/>
+            <tag name="shopware.payment.method"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">

@@ -67,7 +67,7 @@ class PaymentRecurringProcessor
                 return;
             }
 
-            if (!\in_array(PaymentHandlerType::RECURRING, $paymentHandler->supports($transaction->getPaymentMethodId(), $context), true)) {
+            if (!$paymentHandler->supports(PaymentHandlerType::RECURRING, $transaction->getPaymentMethodId(), $context)) {
                 throw PaymentException::paymentTypeUnsupported($transaction->getPaymentMethodId(), PaymentHandlerType::RECURRING);
             }
 

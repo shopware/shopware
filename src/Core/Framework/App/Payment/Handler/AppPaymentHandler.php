@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
@@ -64,38 +65,22 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
     ) {
     }
 
-    public function supports(string $paymentMethodId, Context $context): array
+    public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
     {
+        $requiredUrl = match ($type) {
+            PaymentHandlerType::REFUND => 'refund_url',
+            PaymentHandlerType::RECURRING => 'recurring_url',
+        };
+
         $result = $this->connection->createQueryBuilder()
-            ->select('
-                id,
-                refund_url,
-                recurring_url
-            ')
+            ->select($requiredUrl)
             ->from('app_payment_method')
-            ->where('payment_method.id = :paymentMethodId')
+            ->where('payment_method_id = :paymentMethodId')
             ->setParameter('paymentMethodId', Uuid::fromHexToBytes($paymentMethodId))
             ->executeQuery()
-            ->fetchAssociative();
+            ->fetchOne();
 
-        if (!$result) {
-            return [];
-        }
-
-        if (!isset($result['id'])) {
-            return [];
-        }
-
-        $supported = [];
-        if ($result['refund_url']) {
-            $supported[] = PaymentHandlerType::REFUND;
-        }
-
-        if ($result['recurring_url']) {
-            $supported[] = PaymentHandlerType::RECURRING;
-        }
-
-        return $supported;
+        return (bool) $result;
     }
 
     public function validate(Cart $cart, RequestDataBag $dataBag, SalesChannelContext $context): Struct
@@ -134,7 +119,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $captureUrl = $appPaymentMethod->getCaptureUrl();
         if ($captureUrl) {
             $response = $this->requestAppServer($captureUrl, PaymentResponse::class, $payload, $app, $context);
-            $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
+            $this->transitionState($orderTransaction->getId(), $response, $context);
         }
 
         $payUrl = $appPaymentMethod->getPayUrl();
@@ -147,7 +132,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
                 $response->assign(['status' => StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED]);
             }
 
-            $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
+            $this->transitionState($orderTransaction->getId(), $response, $context);
 
             if ($response->getRedirectUrl()) {
                 return new RedirectResponse($response->getRedirectUrl());
@@ -185,10 +170,10 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
             $response->assign(['status' => StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED]);
         }
 
-        $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
+        $this->transitionState($orderTransaction->getId(), $response, $context);
     }
 
-    public function refund(Request $request, RefundPaymentTransactionStruct $transaction, Context $context): void
+    public function refund(RefundPaymentTransactionStruct $transaction, Context $context): void
     {
         $criteria = new Criteria([$transaction->getRefundId()]);
         $criteria->addAssociation('stateMachineState');
@@ -207,8 +192,8 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
             return;
         }
 
-        $transaction = $refund->getTransactionCapture()->getTransaction();
-        $paymentMethod = $this->getAppPaymentMethod($transaction);
+        $orderTransaction = $refund->getTransactionCapture()->getTransaction();
+        $paymentMethod = $this->getAppPaymentMethod($orderTransaction);
         $app = $this->getApp($paymentMethod);
 
         $refundUrl = $paymentMethod->getRefundUrl();
@@ -218,8 +203,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
 
         $payload = $this->buildRefundPayload($refund, $refund->getTransactionCapture()->getTransaction()->getOrder());
         $response = $this->requestAppServer($refundUrl, RefundResponse::class, $payload, $app, $context);
-
-        $this->transitionOrderTransaction($transaction->getId(), $response, $context);
+        $this->transitionState($transaction->getRefundId(), $response, $context, OrderTransactionCaptureRefundDefinition::ENTITY_NAME);
     }
 
     public function recurring(PaymentTransactionStruct $transaction, Context $context): void
@@ -240,7 +224,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $payload = $this->buildPayload($orderTransaction, $order, recurring: $transaction->getRecurring());
         $response = $this->requestAppServer($recurringUrl, PaymentResponse::class, $payload, $app, $context);
 
-        $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
+        $this->transitionState($orderTransaction->getId(), $response, $context);
     }
 
     /**
@@ -262,7 +246,7 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         $captureUrl = $appPaymentMethod->getCaptureUrl();
         if ($captureUrl) {
             $response = $this->requestAppServer($captureUrl, CaptureResponse::class, $payload, $app, $context->getContext());
-            $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context->getContext());
+            $this->transitionState($orderTransaction->getId(), $response, $context->getContext());
         }
     }
 
@@ -289,19 +273,25 @@ class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymen
         return $response;
     }
 
-    private function transitionOrderTransaction(string $orderTransactionId, AbstractResponse $response, Context $context): void
+    private function transitionState(string $entityId, AbstractResponse $response, Context $context, string $entityName = OrderTransactionDefinition::ENTITY_NAME): void
     {
-        if ($response instanceof PaymentResponse && $response->getStatus()) {
-            $this->stateMachineRegistry->transition(
-                new Transition(
-                    OrderTransactionDefinition::ENTITY_NAME,
-                    $orderTransactionId,
-                    $response->getStatus(),
-                    'stateId'
-                ),
-                $context
-            );
+        if (!$response instanceof PaymentResponse && !$response instanceof RefundResponse && !$response instanceof CaptureResponse) {
+            return;
         }
+
+        if ($response->getStatus() === null) {
+            return;
+        }
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                $entityName,
+                $entityId,
+                $response->getStatus(),
+                'stateId'
+            ),
+            $context
+        );
     }
 
     private function getOrderTransaction(string $orderTransactionId, Context $context): OrderTransactionEntity

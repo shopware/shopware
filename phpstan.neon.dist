@@ -72,6 +72,9 @@ parameters:
         - src/Core/Test/Stub/Redis/RedisCompatibility.php
         - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
 
+        # tag:v6.7.0 - does not fully understand overwrite multiple definitions of DefaultPayment
+        - src/Core/Checkout/Payment/Cart/PaymentHandler/DebitPayment.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution

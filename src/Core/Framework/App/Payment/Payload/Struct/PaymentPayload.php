@@ -36,7 +36,7 @@ class PaymentPayload implements PaymentPayloadInterface
         protected OrderEntity $order,
         protected array $requestData = [],
         protected ?string $returnUrl = null,
-        protected ?Struct $preOrderPaymentStruct = null,
+        protected ?Struct $validateStruct = null,
         protected ?RecurringDataStruct $recurring = null,
     ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
@@ -70,9 +70,9 @@ class PaymentPayload implements PaymentPayloadInterface
         return $this->returnUrl;
     }
 
-    public function getPreOrderPaymentStruct(): ?Struct
+    public function getValidateStruct(): ?Struct
     {
-        return $this->preOrderPaymentStruct;
+        return $this->validateStruct;
     }
 
     public function getRecurring(): ?RecurringDataStruct

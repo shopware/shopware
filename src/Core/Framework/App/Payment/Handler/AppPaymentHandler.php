@@ -31,9 +31,11 @@ use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -61,7 +63,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
         return [PaymentHandlerType::REFUND, PaymentHandlerType::REFUND];
     }
 
-    public function validate(Request $request, Cart $cart, SalesChannelContext $context): Struct
+    public function validate(Cart $cart, RequestDataBag $dataBag, SalesChannelContext $context): Struct
     {
         $appPaymentMethod = $context->getPaymentMethod()->getAppPaymentMethod();
         if ($appPaymentMethod === null) {
@@ -75,7 +77,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
 
         $app = $this->getApp($appPaymentMethod);
 
-        $payload = $this->buildValidatePayload($cart, $request, $context);
+        $payload = $this->buildValidatePayload($cart, $dataBag, $context);
         $response = $this->requestAppServer($validateUrl, ValidateResponse::class, $payload, $app, $context->getContext());
 
         return new ArrayStruct($response->getPreOrderPayment());
@@ -226,8 +228,17 @@ class AppPaymentHandler extends AbstractPaymentHandler
     private function getOrderTransaction(string $orderTransactionId, Context $context): OrderTransactionEntity
     {
         $criteria = new Criteria([$orderTransactionId]);
+        $criteria->addAssociation('order.orderCustomer.customer');
+        $criteria->addAssociation('order.orderCustomer.salutation');
+        $criteria->addAssociation('order.language');
+        $criteria->addAssociation('order.currency');
+        $criteria->addAssociation('order.deliveries.shippingOrderAddress.country');
+        $criteria->addAssociation('order.billingAddress.country');
+        $criteria->addAssociation('order.lineItems');
         $criteria->addAssociation('order');
+        $criteria->addAssociation('stateMachineState');
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
+        $criteria->addSorting(new FieldSorting('createdAt'));
 
         /** @var OrderTransactionEntity|null $orderTransaction */
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
@@ -279,11 +290,11 @@ class AppPaymentHandler extends AbstractPaymentHandler
         );
     }
 
-    protected function buildValidatePayload(Cart $cart, Request $request, SalesChannelContext $context): ValidatePayload
+    protected function buildValidatePayload(Cart $cart, RequestDataBag $dataBag, SalesChannelContext $context): ValidatePayload
     {
         return new ValidatePayload(
             $cart,
-            $request->request->all(),
+            $dataBag->all(),
             $context,
         );
     }

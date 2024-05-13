@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ class PaymentException extends HttpException
     final public const PAYMENT_SYNC_PROCESS_INTERRUPTED = 'CHECKOUT__SYNC_PAYMENT_PROCESS_INTERRUPTED';
     final public const PAYMENT_TOKEN_EXPIRED = 'CHECKOUT__PAYMENT_TOKEN_EXPIRED';
     final public const PAYMENT_TOKEN_INVALIDATED = 'CHECKOUT__PAYMENT_TOKEN_INVALIDATED';
+    final public const PAYMENT_TYPE_UNSUPPORTED = 'CHECKOUT__PAYMENT_TYPE_UNSUPPORTED';
     final public const PAYMENT_UNKNOWN_PAYMENT_METHOD = 'CHECKOUT__UNKNOWN_PAYMENT_METHOD';
     final public const PAYMENT_REFUND_UNKNOWN_ERROR = 'CHECKOUT__REFUND_UNKNOWN_ERROR';
     final public const PAYMENT_REFUND_UNKNOWN_HANDLER_ERROR = 'CHECKOUT__REFUND_UNKNOWN_HANDLER_ERROR';
@@ -208,6 +210,19 @@ class PaymentException extends HttpException
                 'token' => $token,
             ],
             $e
+        );
+    }
+
+    public static function paymentTypeUnsupported(string $paymentMethodId, PaymentHandlerType $paymentHandlerType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PAYMENT_TYPE_UNSUPPORTED,
+            'The payment method with id {{ paymentMethodId }} does not support the payment handler type {{ paymentHandlerType }}.',
+            [
+                'paymentMethodId' => $paymentMethodId,
+                'paymentHandlerType' => $paymentHandlerType,
+            ],
         );
     }
 

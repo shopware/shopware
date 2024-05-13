@@ -2,24 +2,19 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,7 +38,6 @@ class PaymentProcessor
 {
     /**
      * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
-     * @param EntityRepository<OrderCollection> $orderRepository
      *
      * @internal
      */
@@ -55,12 +49,10 @@ class PaymentProcessor
         private readonly OrderTransactionStateHandler $transactionStateHandler,
         private readonly LoggerInterface $logger,
         private readonly AbstractPaymentTransactionStructFactory $paymentTransactionStructFactory,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly RouterInterface $router,
         private readonly SystemConfigService $systemConfigService,
         private readonly PaymentService $paymentService,
-        private readonly PaymentRecurringProcessor $recurringProcessor,
     ) {
     }
 
@@ -184,31 +176,6 @@ class PaymentProcessor
         }
     }
 
-    public function recurring(string $orderId, Context $context): void
-    {
-        $transaction = $this->getCurrentOrderTransaction($orderId, $context);
-
-        try {
-            $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($transaction->getPaymentMethodId());
-            if (!$paymentHandler) {
-                throw PaymentException::unknownPaymentMethodById($transaction->getPaymentMethodId());
-            }
-
-            // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
-            if (!$paymentHandler instanceof AbstractPaymentHandler) {
-                $this->recurringProcessor->processRecurring($orderId, $context);
-            }
-
-            $struct = $this->paymentTransactionStructFactory->build($transaction->getId());
-            $paymentHandler->recurring($struct, $context);
-        } catch (PaymentException $e) {
-            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transaction->getId(), 'exceptionMessage' => $e->getMessage()]);
-            $this->transactionStateHandler->fail($transaction->getId(), $context);
-
-            throw $e;
-        }
-    }
-
     private function getCurrentOrderTransaction(string $orderId, Context $context): OrderTransactionEntity
     {
         $criteria = new Criteria();
@@ -217,7 +184,7 @@ class PaymentProcessor
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
         $criteria->setLimit(1);
 
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
+        $transaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
 
         if (!$transaction) {
             throw PaymentException::invalidOrder($orderId);
@@ -249,25 +216,5 @@ class PaymentProcessor
         $parameter = ['_sw_payment_token' => $token];
 
         return $this->router->generate('payment.finalize.transaction', $parameter, UrlGeneratorInterface::ABSOLUTE_URL);
-    }
-
-    private function getPaymentHandlerFromSalesChannelContext(SalesChannelContext $salesChannelContext): AbstractPaymentHandler|PaymentHandlerInterface|null
-    {
-        $paymentMethod = $salesChannelContext->getPaymentMethod();
-
-        if (($appPaymentMethod = $paymentMethod->getAppPaymentMethod()) && $appPaymentMethod->getApp()) {
-            return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
-        }
-
-        $criteria = new Criteria();
-        $criteria->setTitle('prepared-payment-handler');
-        $criteria->addAssociation('app');
-        $criteria->addFilter(new EqualsFilter('paymentMethodId', $paymentMethod->getId()));
-
-        /** @var AppPaymentMethodEntity $appPaymentMethod */
-        $appPaymentMethod = $this->appPaymentMethodRepository->search($criteria, $salesChannelContext->getContext())->first();
-        $paymentMethod->setAppPaymentMethod($appPaymentMethod);
-
-        return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
     }
 }

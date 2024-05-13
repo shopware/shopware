@@ -115,6 +115,8 @@ class TokenStruct extends Struct
 
     /**
      * @deprecated tag:v6.7.0 - return type will be Throwable
+     *
+     * @phpstan-ignore-next-line nothing to throw for extended types
      */
     public function getException(): ?\Exception
     {
@@ -123,6 +125,8 @@ class TokenStruct extends Struct
 
     /**
      * @deprecated tag:v6.7.0 - param `exception` will be of type Throwable
+     *
+     * @phpstan-ignore-next-line nothing to throw for extended types
      */
     public function setException(?\Exception $exception): void
     {

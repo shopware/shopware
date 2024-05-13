@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntit
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -45,6 +46,11 @@ class PreparedPaymentService
         RequestDataBag $dataBag,
         SalesChannelContext $salesChannelContext
     ): ?Struct {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         try {
             $paymentHandler = $this->getPaymentHandlerFromSalesChannelContext($salesChannelContext);
             if (!$paymentHandler) {
@@ -71,6 +77,11 @@ class PreparedPaymentService
         SalesChannelContext $salesChannelContext,
         ?Struct $preOrderStruct
     ): void {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'The payment process via interfaces is deprecated, extend the `AbstractPaymentHandler` instead',
+        );
+
         try {
             $transaction = $this->getTransaction($order, $salesChannelContext);
             if ($transaction === null) {

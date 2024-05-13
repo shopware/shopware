@@ -52,12 +52,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
@@ -91,11 +89,13 @@
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor" public="true">
             <argument type="service" id="order.repository"/>
+            <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256">
@@ -108,6 +108,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">
+            <argument type="tagged_locator" tag="shopware.payment.method"/>
             <argument type="tagged_locator" tag="shopware.payment.method.sync"/>
             <argument type="tagged_locator" tag="shopware.payment.method.async"/>
             <argument type="tagged_locator" tag="shopware.payment.method.prepared"/>

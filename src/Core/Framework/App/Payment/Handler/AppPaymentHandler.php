@@ -2,39 +2,43 @@
 
 namespace Shopware\Core\Framework\App\Payment\Handler;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Checkout\Payment\Cart\RefundPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Payment\AppPaymentException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
+use Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\RefundPayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\ValidatePayload;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
-use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
+use Shopware\Core\Framework\App\Payment\Response\CaptureResponse;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
-use Shopware\Core\Framework\App\Payment\Response\RecurringPayResponse;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -44,23 +48,54 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @deprecated tag:v6.7.0 - reason:class-hierarchy-change - will no longer implement `PreparedPaymentHandlerInterface` (just implemented for compatibility reasons with `capture` call)
+ *
  * @internal only for use by the app-system
  */
 #[Package('core')]
-class AppPaymentHandler extends AbstractPaymentHandler
+class AppPaymentHandler extends AbstractPaymentHandler implements PreparedPaymentHandlerInterface
 {
     public function __construct(
         private readonly StateMachineRegistry $stateMachineRegistry,
         private readonly PaymentPayloadService $payloadService,
         private readonly EntityRepository $refundRepository,
         private readonly EntityRepository $orderTransactionRepository,
-        private readonly OrderConverter $orderConverter,
+        private readonly Connection $connection,
     ) {
     }
 
-    public function supports(Context $context): array
+    public function supports(string $paymentMethodId, Context $context): array
     {
-        return [PaymentHandlerType::REFUND, PaymentHandlerType::REFUND];
+        $result = $this->connection->createQueryBuilder()
+            ->select('
+                id,
+                refund_url,
+                recurring_url
+            ')
+            ->from('app_payment_method')
+            ->where('payment_method.id = :paymentMethodId')
+            ->setParameter('paymentMethodId', Uuid::fromHexToBytes($paymentMethodId))
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if (!$result) {
+            return [];
+        }
+
+        if (!isset($result['id'])) {
+            return [];
+        }
+
+        $supported = [];
+        if ($result['refund_url']) {
+            $supported[] = PaymentHandlerType::REFUND;
+        }
+
+        if ($result['recurring_url']) {
+            $supported[] = PaymentHandlerType::RECURRING;
+        }
+
+        return $supported;
     }
 
     public function validate(Cart $cart, RequestDataBag $dataBag, SalesChannelContext $context): Struct
@@ -86,10 +121,15 @@ class AppPaymentHandler extends AbstractPaymentHandler
     public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct = null): ?RedirectResponse
     {
         $orderTransaction = $this->getOrderTransaction($transaction->getOrderTransactionId(), $context);
+        $order = $orderTransaction->getOrder();
+        if (!$order) {
+            throw AppException::invalidTransaction($transaction->getOrderTransactionId());
+        }
+
         $appPaymentMethod = $this->getAppPaymentMethod($orderTransaction);
         $app = $this->getApp($appPaymentMethod);
 
-        $payload = $this->buildPayload($orderTransaction, $orderTransaction->getOrder(), $request->request->all(), $transaction->getReturnUrl(), new ArrayStruct(), $transaction->getRecurring());
+        $payload = $this->buildPayload($orderTransaction, $order, $request->request->all(), $transaction->getReturnUrl(), new ArrayStruct(), $transaction->getRecurring());
 
         $captureUrl = $appPaymentMethod->getCaptureUrl();
         if ($captureUrl) {
@@ -101,6 +141,12 @@ class AppPaymentHandler extends AbstractPaymentHandler
         if ($payUrl) {
             /** @var PaymentResponse $response */
             $response = $this->requestAppServer($payUrl, PaymentResponse::class, $payload, $app, $context);
+
+            // @deprecated tag:v6.7.0 - remove complete if statement, there are no default payment states for app payments anymore
+            if (!Feature::isActive('v6.7.0.0') && $response->getRedirectUrl() && !$response->getStatus()) {
+                $response->assign(['status' => StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED]);
+            }
+
             $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
 
             if ($response->getRedirectUrl()) {
@@ -118,17 +164,27 @@ class AppPaymentHandler extends AbstractPaymentHandler
         unset($queryParameters['_sw_payment_token']);
 
         $orderTransaction = $this->getOrderTransaction($transaction->getOrderTransactionId(), $context);
+        $order = $orderTransaction->getOrder();
+        if (!$order) {
+            throw AppException::invalidTransaction($transaction->getOrderTransactionId());
+        }
         $paymentMethod = $this->getAppPaymentMethod($orderTransaction);
         $app = $this->getApp($paymentMethod);
 
-        $payload = $this->buildPayload($orderTransaction, $orderTransaction->getOrder(), $queryParameters, recurring: $transaction->getRecurring());
+        $payload = $this->buildPayload($orderTransaction, $order, $queryParameters, recurring: $transaction->getRecurring());
 
         $url = $paymentMethod->getFinalizeUrl();
         if ($url === null) {
-            throw AppPaymentException::interrupted('Finalize URL not defined');
+            throw AppException::interrupted('Finalize URL not defined');
         }
 
-        $response = $this->requestAppServer($url, AsyncFinalizeResponse::class, $payload, $app, $context);
+        $response = $this->requestAppServer($url, PaymentResponse::class, $payload, $app, $context);
+
+        // @deprecated tag:v6.7.0 - remove complete if statement, there are no default payment states for app payments anymore
+        if (!Feature::isActive('v6.7.0.0') && !$response->getStatus()) {
+            $response->assign(['status' => StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED]);
+        }
+
         $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
     }
 
@@ -169,6 +225,10 @@ class AppPaymentHandler extends AbstractPaymentHandler
     public function recurring(PaymentTransactionStruct $transaction, Context $context): void
     {
         $orderTransaction = $this->getOrderTransaction($transaction->getOrderTransactionId(), $context);
+        $order = $orderTransaction->getOrder();
+        if (!$order) {
+            throw AppException::invalidTransaction($transaction->getOrderTransactionId());
+        }
         $paymentMethod = $this->getAppPaymentMethod($orderTransaction);
         $app = $this->getApp($paymentMethod);
 
@@ -177,16 +237,39 @@ class AppPaymentHandler extends AbstractPaymentHandler
             return;
         }
 
-        $payload = $this->buildPayload($orderTransaction, $orderTransaction->getOrder(), recurring: $transaction->getRecurring());
-        $response = $this->requestAppServer($recurringUrl, RecurringPayResponse::class, $payload, $app, $context);
+        $payload = $this->buildPayload($orderTransaction, $order, recurring: $transaction->getRecurring());
+        $response = $this->requestAppServer($recurringUrl, PaymentResponse::class, $payload, $app, $context);
 
         $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context);
     }
 
     /**
+     * @deprecated tag:v6.7.0 - will be removed
+     */
+    public function capture(PreparedPaymentTransactionStruct $transaction, RequestDataBag $requestDataBag, SalesChannelContext $context, Struct $preOrderPaymentStruct): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Capture payments are no longer supported, use `pay` instead'
+        );
+
+        $orderTransaction = $this->getOrderTransaction($transaction->getOrderTransaction()->getId(), $context->getContext());
+        $appPaymentMethod = $this->getAppPaymentMethod($orderTransaction);
+        $app = $this->getApp($appPaymentMethod);
+
+        $payload = $this->buildCapturePayload($transaction, $preOrderPaymentStruct);
+
+        $captureUrl = $appPaymentMethod->getCaptureUrl();
+        if ($captureUrl) {
+            $response = $this->requestAppServer($captureUrl, CaptureResponse::class, $payload, $app, $context->getContext());
+            $this->transitionOrderTransaction($orderTransaction->getId(), $response, $context->getContext());
+        }
+    }
+
+    /**
      * @template T of AbstractResponse
      *
-     * @param class-string<AbstractResponse> $responseClass
+     * @param class-string<T> $responseClass
      *
      * @return T
      */
@@ -197,14 +280,10 @@ class AppPaymentHandler extends AbstractPaymentHandler
         AppEntity $app,
         Context $context
     ): AbstractResponse {
-        try {
-            $response = $this->payloadService->request($url, $payload, $app, $responseClass, $context);
-        } catch (\Throwable $exception) {
-            throw AppPaymentException::interrupted($exception->getMessage());
-        }
+        $response = $this->payloadService->request($url, $payload, $app, $responseClass, $context);
 
-        if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw AppPaymentException::interrupted($response->getMessage() ?? 'Payment was reported as failed.');
+        if ($response->getErrorMessage()) {
+            throw AppException::interrupted($response->getErrorMessage());
         }
 
         return $response;
@@ -244,7 +323,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         if (!$orderTransaction) {
-            throw AppPaymentException::invalidTransaction($orderTransactionId);
+            throw AppException::invalidTransaction($orderTransactionId);
         }
 
         return $orderTransaction;
@@ -253,7 +332,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
     private function getAppPaymentMethod(OrderTransactionEntity $orderTransaction): AppPaymentMethodEntity
     {
         if ($orderTransaction->getPaymentMethod()?->getAppPaymentMethod() === null) {
-            throw AppPaymentException::interrupted('Loaded data invalid');
+            throw AppException::interrupted('Loaded data invalid');
         }
 
         return $orderTransaction->getPaymentMethod()->getAppPaymentMethod();
@@ -262,7 +341,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
     private function getApp(AppPaymentMethodEntity $appPaymentMethod): AppEntity
     {
         if (!$appPaymentMethod->getApp()) {
-            throw AppPaymentException::interrupted('Loaded data invalid');
+            throw AppException::interrupted('Loaded data invalid');
         }
 
         return $appPaymentMethod->getApp();
@@ -282,7 +361,7 @@ class AppPaymentHandler extends AbstractPaymentHandler
         return new PaymentPayload($transaction, $order, $requestData, $returnUrl, $preOrderPayment, $recurring);
     }
 
-    protected function buildRefundPayload(OrderTransactionCaptureRefundEntity $refund, OrderEntity $order): RefundPayload
+    private function buildRefundPayload(OrderTransactionCaptureRefundEntity $refund, OrderEntity $order): RefundPayload
     {
         return new RefundPayload(
             $refund,
@@ -290,12 +369,22 @@ class AppPaymentHandler extends AbstractPaymentHandler
         );
     }
 
-    protected function buildValidatePayload(Cart $cart, RequestDataBag $dataBag, SalesChannelContext $context): ValidatePayload
+    private function buildValidatePayload(Cart $cart, RequestDataBag $dataBag, SalesChannelContext $context): ValidatePayload
     {
         return new ValidatePayload(
             $cart,
             $dataBag->all(),
             $context,
+        );
+    }
+
+    protected function buildCapturePayload(PreparedPaymentTransactionStruct $transaction, Struct $preOrderPaymentStruct): CapturePayload
+    {
+        return new CapturePayload(
+            $transaction->getOrderTransaction(),
+            $transaction->getOrder(),
+            $preOrderPaymentStruct,
+            $transaction->getRecurring()
         );
     }
 }

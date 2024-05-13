@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
-use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -62,7 +62,7 @@ class CheckoutControllerTest extends TestCase
 
     private OrderService&MockObject $orderServiceMock;
 
-    private PaymentService&MockObject $paymentServiceMock;
+    private PaymentProcessor&MockObject $paymentServiceMock;
 
     private OffcanvasCartPageLoader&MockObject $offcanvasCartPageLoaderMock;
 
@@ -79,7 +79,7 @@ class CheckoutControllerTest extends TestCase
         $this->confirmPageLoaderMock = $this->createMock(CheckoutConfirmPageLoader::class);
         $this->finishPageLoaderMock = $this->createMock(CheckoutFinishPageLoader::class);
         $this->orderServiceMock = $this->createMock(OrderService::class);
-        $this->paymentServiceMock = $this->createMock(PaymentService::class);
+        $this->paymentServiceMock = $this->createMock(PaymentProcessor::class);
         $this->offcanvasCartPageLoaderMock = $this->createMock(OffcanvasCartPageLoader::class);
         $this->configMock = $this->createMock(SystemConfigService::class);
         $this->logoutRouteMock = $this->createMock(AbstractLogoutRoute::class);

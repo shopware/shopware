@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -85,6 +86,11 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orders.id', $orderId));
 
-        return $this->currencyRepository->searchIds($criteria, $context)->firstId();
+        $id = $this->currencyRepository->searchIds($criteria, $context)->firstId();
+        if (!$id) {
+            throw PaymentException::invalidOrder($orderId);
+        }
+
+        return $id;
     }
 }

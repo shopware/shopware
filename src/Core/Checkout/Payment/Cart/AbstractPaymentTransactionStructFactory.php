@@ -14,16 +14,30 @@ abstract class AbstractPaymentTransactionStructFactory
 {
     abstract public function getDecorated(): AbstractPaymentTransactionStructFactory;
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
     abstract public function sync(OrderTransactionEntity $orderTransaction, OrderEntity $order): SyncPaymentTransactionStruct;
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
     abstract public function async(OrderTransactionEntity $orderTransaction, OrderEntity $order, string $returnUrl): AsyncPaymentTransactionStruct;
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
     abstract public function prepared(OrderTransactionEntity $orderTransaction, OrderEntity $order): PreparedPaymentTransactionStruct;
 
+    /**
+     * @deprecated tag:v6.7.0 - will be removed, use `build` instead
+     */
     abstract public function recurring(OrderTransactionEntity $orderTransaction, OrderEntity $order): RecurringPaymentTransactionStruct;
 
     /**
      * @deprecated tag:v6.7.0 - will be abstract, implementation is in `PaymentTransactionStructFactory`
+     *
+     * @phpstan-ignore-next-line
      */
     public function build(string $orderTransactionId, ?string $returnUrl = null): PaymentTransactionStruct
     {

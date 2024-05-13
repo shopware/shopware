@@ -7,8 +7,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
-class PrePayment extends DefaultPayment implements RecurringPaymentHandlerInterface
+class PrePayment extends DefaultPayment
 {
+    public function supports(string $paymentMethodId, Context $context): array
+    {
+        return [PaymentHandlerType::RECURRING];
+    }
+
     public function captureRecurring(RecurringPaymentTransactionStruct $transaction, Context $context): void
     {
     }

@@ -32,7 +32,7 @@ class DefaultPayment extends AbstractPaymentHandler
         return null;
     }
 
-    public function supports(Context $context): array
+    public function supports(string $paymentMethodId, Context $context): array
     {
         return [];
     }

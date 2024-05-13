@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.7.0 - will be removed, extend AbstractPaymentHandler instead. Capture is now included into `pay`
+ */
 #[Package('checkout')]
 interface PreparedPaymentHandlerInterface extends PaymentHandlerInterface
 {

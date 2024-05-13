@@ -6,11 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
@@ -18,14 +17,12 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInt
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RecurringPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\RecurringPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
-use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
-use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
@@ -33,7 +30,6 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,6 +98,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testPaymentRegistry(): void
     {
         $registry = new PaymentHandlerRegistry(
+            $this->registerHandler(AbstractPaymentHandler::class),
             $this->registerHandler(SynchronousPaymentHandlerInterface::class),
             $this->registerHandler(AsynchronousPaymentHandlerInterface::class),
             $this->registerHandler(PreparedPaymentHandlerInterface::class),
@@ -109,6 +106,16 @@ class PaymentHandlerRegistryTest extends TestCase
             $this->registerHandler(RecurringPaymentHandlerInterface::class),
             $this->connection,
         );
+
+        $abstract = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
+        static::assertInstanceOf(AbstractPaymentHandler::class, $abstract);
+
+        $foo = $registry->getPaymentMethodHandler(Uuid::randomHex());
+        static::assertNull($foo);
+
+        if (Feature::isActive('v6.7.0.0')) {
+            return;
+        }
 
         $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
         static::assertInstanceOf(SynchronousPaymentHandlerInterface::class, $sync);
@@ -132,6 +139,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testPaymentRegistryWithoutServices(): void
     {
         $registry = new PaymentHandlerRegistry(
+            new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
@@ -163,9 +171,10 @@ class PaymentHandlerRegistryTest extends TestCase
     {
         $registry = new PaymentHandlerRegistry(
             new ServiceLocator([
-                SynchronousPaymentHandlerInterface::class => fn () => new class() {
+                AbstractPaymentHandler::class => fn () => new class() {
                 },
             ]),
+            new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
@@ -173,8 +182,8 @@ class PaymentHandlerRegistryTest extends TestCase
             $this->connection,
         );
 
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
-        static::assertNull($sync);
+        $handler = $registry->getPaymentMethodHandler($this->ids->get(AbstractPaymentHandler::class));
+        static::assertNull($handler);
     }
 
     public function testRegistryWithNonRegisteredPaymentHandler(): void
@@ -187,16 +196,20 @@ class PaymentHandlerRegistryTest extends TestCase
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
+            new ServiceLocator([]),
             $this->connection,
         );
 
-        $sync = $registry->getSyncPaymentHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
+        $sync = $registry->getPaymentMethodHandler($this->ids->get(SynchronousPaymentHandlerInterface::class));
         static::assertNull($sync);
     }
 
     public function testRegistryWithMismatchedExpectedType(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $registry = new PaymentHandlerRegistry(
+            new ServiceLocator([]),
             $this->registerHandler(AsynchronousPaymentHandlerInterface::class),
             new ServiceLocator([]),
             new ServiceLocator([]),
@@ -217,13 +230,7 @@ class PaymentHandlerRegistryTest extends TestCase
             ->method('select')
             ->with('
                 payment_method.handler_identifier,
-                app_payment_method.id as app_payment_method_id,
-                app_payment_method.pay_url,
-                app_payment_method.finalize_url,
-                app_payment_method.capture_url,
-                app_payment_method.validate_url,
-                app_payment_method.refund_url,
-                app_payment_method.recurring_url
+                app_payment_method.id as app_payment_method_id
             ')
             ->willReturnSelf();
 
@@ -269,95 +276,11 @@ class PaymentHandlerRegistryTest extends TestCase
             new ServiceLocator([]),
             new ServiceLocator([]),
             new ServiceLocator([]),
+            new ServiceLocator([]),
             $connection,
         );
 
         $registry->getPaymentMethodHandler($uuid, 'foo');
-    }
-
-    /**
-     * @param array<string> $urls
-     * @param class-string<PaymentHandlerInterface>|null $expectedResult
-     */
-    #[DataProvider('appPaymentMethodUrlProvider')]
-    public function testRegistryAppPaymentMethodResolve(array $urls, ?string $testedType, ?string $expectedResult): void
-    {
-        $result = $this->createMock(Result::class);
-        $result
-            ->method('fetchAssociative')
-            ->willReturn(['handler_identifier' => $testedType, 'app_payment_method_id' => 'foo', ...$urls]);
-
-        $qb = $this->createMock(QueryBuilder::class);
-        $qb->method('select')->willReturnSelf();
-        $qb->method('from')->willReturnSelf();
-        $qb->method('leftJoin')->willReturnSelf();
-        $qb->method('andWhere')->willReturnSelf();
-        $qb->method('setParameter')->willReturnSelf();
-        $qb->method('executeQuery')->willReturn($result);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->method('createQueryBuilder')
-            ->willReturn($qb);
-
-        $sync = new AppSyncPaymentHandler(
-            $this->createMock(OrderTransactionStateHandler::class),
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(PaymentPayloadService::class),
-            $this->createMock(EntityRepository::class),
-        );
-
-        $async = new AppAsyncPaymentHandler(
-            $this->createMock(OrderTransactionStateHandler::class),
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(PaymentPayloadService::class),
-            $this->createMock(EntityRepository::class),
-        );
-
-        $registry = new PaymentHandlerRegistry(
-            new ServiceLocator([
-                AppSyncPaymentHandler::class => fn () => $sync,
-            ]),
-            new ServiceLocator([
-                AppAsyncPaymentHandler::class => fn () => $async,
-            ]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            new ServiceLocator([]),
-            $connection,
-        );
-
-        $handler = $registry->getPaymentMethodHandler(Uuid::randomHex(), $testedType);
-
-        if ($expectedResult === null) {
-            static::assertNull($handler);
-
-            return;
-        }
-
-        static::assertInstanceOf($expectedResult, $handler);
-    }
-
-    /**
-     * @return \Generator
-     */
-    public static function appPaymentMethodUrlProvider(): iterable
-    {
-        yield [[], null, AppSyncPaymentHandler::class];
-
-        yield [['finalize_url' => 'https://example.com'], AsynchronousPaymentHandlerInterface::class, AsynchronousPaymentHandlerInterface::class];
-        yield [[], AsynchronousPaymentHandlerInterface::class, SynchronousPaymentHandlerInterface::class];
-
-        yield [['capture_url' => 'https://example.com', 'validate_url' => 'https://example.com'], PreparedPaymentHandlerInterface::class, PreparedPaymentHandlerInterface::class];
-        yield [['capture_url' => 'https://example.com'], PreparedPaymentHandlerInterface::class, null];
-        yield [['validate_url' => 'https://example.com'], PreparedPaymentHandlerInterface::class, null];
-        yield [[], PreparedPaymentHandlerInterface::class, null];
-
-        yield [['refund_url' => 'https://example.com'], RefundPaymentHandlerInterface::class, RefundPaymentHandlerInterface::class];
-        yield [[], RefundPaymentHandlerInterface::class, null];
-
-        yield [['recurring_url' => 'https://example.com'], RecurringPaymentHandlerInterface::class, RecurringPaymentHandlerInterface::class];
-        yield [[], RecurringPaymentHandlerInterface::class, null];
     }
 
     /**
@@ -368,6 +291,17 @@ class PaymentHandlerRegistryTest extends TestCase
     private function registerHandler(string $handler): ServiceLocator
     {
         $class = match ($handler) {
+            AbstractPaymentHandler::class => new class() extends AbstractPaymentHandler {
+                public function supports(string $paymentMethodId, Context $context): array
+                {
+                    return [];
+                }
+
+                public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
+                {
+                    return null;
+                }
+            },
             SynchronousPaymentHandlerInterface::class => new class() implements SynchronousPaymentHandlerInterface {
                 public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
                 {

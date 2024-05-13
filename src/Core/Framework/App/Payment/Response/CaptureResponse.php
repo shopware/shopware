@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
 /**
+ * @deprecated tag:v6.7.0 - will be removed
+ *
  * @internal only for use by the app-system
  */
 #[Package('core')]
@@ -17,28 +20,31 @@ class CaptureResponse extends AbstractResponse
      */
     protected string $status = StateMachineTransitionActions::ACTION_PAID;
 
-    /**
-     * This message is not used on successful outcomes.
-     * The message should be provided on failure.
-     * Payment will fail if provided.
-     */
-    protected ?string $message = null;
-
     public function getStatus(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Payment flow `capture` will be removed'
+        );
+
         return $this->status;
     }
 
-    public function getMessage(): ?string
+    public function getErrorMessage(): ?string
     {
-        return $this->message;
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            'Payment flow `capture` will be removed'
+        );
 
-    public function validate(string $transactionId): void
-    {
-        // no status & message = open
-        // message = fail
-        // status = status
-        // message & status = fail
+        if (parent::getErrorMessage()) {
+            return parent::getErrorMessage();
+        }
+
+        if ($this->status === StateMachineTransitionActions::ACTION_FAIL) {
+            return 'Payment was reported as failed.';
+        }
+
+        return null;
     }
 }

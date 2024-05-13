@@ -3,7 +3,11 @@
 namespace Shopware\Core\Framework\App\Payment\Response;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
+/**
+ * @internal
+ */
 #[Package('checkout')]
 class PaymentResponse extends AbstractResponse
 {
@@ -15,13 +19,6 @@ class PaymentResponse extends AbstractResponse
     protected ?string $status = null;
 
     /**
-     * This message is not used on successful outcomes.
-     * The message should be provided on failure.
-     * Payment will fail if provided.
-     */
-    protected ?string $message = null;
-
-    /**
      * This is the URL the user is redirected to after the app has received the order data.
      */
     protected ?string $redirectUrl = null;
@@ -31,17 +28,21 @@ class PaymentResponse extends AbstractResponse
         return $this->status;
     }
 
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
     public function getRedirectUrl(): ?string
     {
         return $this->redirectUrl;
     }
 
-    public function validate(string $transactionId): void
+    public function getErrorMessage(): ?string
     {
+        if (parent::getErrorMessage()) {
+            return parent::getErrorMessage();
+        }
+
+        if ($this->status === StateMachineTransitionActions::ACTION_FAIL) {
+            return 'Payment was reported as failed.';
+        }
+
+        return null;
     }
 }

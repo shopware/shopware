@@ -14,6 +14,8 @@ class DebitPayment extends DefaultPayment
 {
     public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
     {
-        $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
+        $this->transactionStateHandler->process($transaction->getOrderTransactionId(), $context);
+
+        return null;
     }
 }

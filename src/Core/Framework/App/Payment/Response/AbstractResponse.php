@@ -11,22 +11,29 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 abstract class AbstractResponse extends Struct
 {
+    /**
+     * This message is not used on successful outcomes.
+     * The message should be provided on failure.
+     * Payment will fail if provided.
+     */
+    protected ?string $message = null;
+
     final public function __construct()
     {
     }
 
-    abstract public function validate(string $transactionId): void;
+    public function getErrorMessage(): ?string
+    {
+        return $this->message;
+    }
 
     /**
      * @param array<string, mixed> $data
      */
-    public static function create(?string $transactionId, array $data): static
+    public static function create(array $data): static
     {
         $response = new static();
         $response->assign($data);
-        if ($transactionId) {
-            $response->validate($transactionId);
-        }
 
         return $response;
     }

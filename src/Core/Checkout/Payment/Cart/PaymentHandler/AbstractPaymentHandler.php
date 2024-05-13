@@ -19,7 +19,7 @@ abstract class AbstractPaymentHandler
     /**
      * @return PaymentHandlerType[]
      */
-    abstract public function supports(Context $context): array;
+    abstract public function supports(string $paymentMethodId, Context $context): array;
 
     abstract public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse;
 

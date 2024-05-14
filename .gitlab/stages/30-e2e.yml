@@ -153,6 +153,7 @@ acceptance:
     KUBERNETES_SERVICE_CPU_LIMIT: "2"
     KUBERNETES_SERVICE_MEMORY_REQUEST: "512Mi"
     KUBERNETES_SERVICE_MEMORY_LIMIT: "2Gi"
+    PHP_OPCACHE_VALIDATE_TIMESTAMPS: 1
   before_script: []
   script:
     - cd tests/acceptance

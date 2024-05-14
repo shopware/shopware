@@ -15,9 +15,10 @@ x-service: &service
         # TEST_WEB_INSTALLER: 1
         # SHOPWARE_SKIP_WEBINSTALLER: 0
         # SHOPWARE_DISABLE_UPDATE_CHECK: '0'
-        # SW_RECOVERY_NEXT_VERSION: 6.6.9999999.9999999
-        # SW_RECOVERY_NEXT_BRANCH: dev-trunk
+        SW_RECOVERY_NEXT_VERSION: 6.6.9999999.9999999
+        SW_RECOVERY_NEXT_BRANCH: dev-trunk
         SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "custom/packages/*", "options": { "symlink": true } }'
+        PHP_OPCACHE_VALIDATE_TIMESTAMPS: 1
     networks:
         - local
 

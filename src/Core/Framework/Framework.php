@@ -4,10 +4,13 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
@@ -35,9 +38,11 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
@@ -107,6 +112,8 @@ class Framework extends Bundle
         }
 
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
+        $container->addCompilerPass(new AttributeEntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);

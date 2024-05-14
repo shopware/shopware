@@ -2,8 +2,12 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
 #[Package('core')]

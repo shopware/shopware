@@ -9,6 +9,14 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\System\Currency\MyEntity" public="true">
+            <tag name="shopware.entity" />
+        </service>
+
+        <service id="Shopware\Core\System\Currency\MySub" public="true">
+            <tag name="shopware.entity" />
+        </service>
+
         <service id="Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

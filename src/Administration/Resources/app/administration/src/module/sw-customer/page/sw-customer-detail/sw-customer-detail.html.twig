@@ -26,21 +26,21 @@
     <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_detail_actions_edit %}
-            <span v-if="!editMode">
-                <sw-button
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('customer.editor'),
-                        showOnDisabledElements: true
-                    }"
-                    class="sw-customer-detail__open-edit-mode-action"
-                    variant="primary"
-                    :disabled="isLoading || !acl.can('customer.editor')"
-                    @click.prevent="onActivateCustomerEditMode"
-                >
-                    {{ $tc('sw-customer.detail.buttonEdit') }}
-                </sw-button>
-            </span>
+        <span v-if="!editMode">
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('customer.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-customer-detail__open-edit-mode-action"
+                variant="primary"
+                :disabled="isLoading || !acl.can('customer.editor')"
+                @click.prevent="onActivateCustomerEditMode"
+            >
+                {{ $tc('sw-customer.detail.buttonEdit') }}
+            </sw-button>
+        </span>
         {% endblock %}
 
         <span v-else>
@@ -71,21 +71,21 @@
         </span>
 
         {% block sw_customer_login_as_customer_modal %}
-            <sw-customer-login-as-customer-modal
-                v-if="showLoginAsCustomerModal"
-                @modal-close="onClickButtonCloseLoginAsCustomerModal"
-                :customer="customer"
-            />
+        <sw-customer-login-as-customer-modal
+            v-if="showLoginAsCustomerModal"
+            :customer="customer"
+            @modal-close="onClickButtonCloseLoginAsCustomerModal"
+        />
         {% endblock %}
 
         {% block sw_customer_detail_actions_storefront_customer_login %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            <sw-button
-                :disabled="isLoading"
-                @click="onClickButtonShowLoginAsCustomerModal"
-            >
-                {{ $tc('sw-customer.detail.buttonLoginAsCustomer') }}
-            </sw-button>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        <sw-button
+            :disabled="isLoading"
+            @click="onClickButtonShowLoginAsCustomerModal"
+        >
+            {{ $tc('sw-customer.detail.buttonLoginAsCustomer') }}
+        </sw-button>
         {% endblock %}
     </template>
     {% endblock %}

@@ -36,9 +36,7 @@ create_version_payload() {
   jq -nc '{
     name: env.version_name,
     parent: env.parent_id | tonumber,
-    status: {
-      name: "visible_for_manufacturers"
-    }
+    status: "visible_for_manufacturers"
   }'
 }
 
@@ -50,9 +48,7 @@ publish_version_payload() {
   jq -nc '{
     name: env.version_name,
     parent: env.parent_id | tonumber,
-    status: {
-      name: "public"
-    },
+    status: "public",
     releaseDate: env.release_date
   }'
 }

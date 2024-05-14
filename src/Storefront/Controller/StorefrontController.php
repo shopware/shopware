@@ -171,7 +171,9 @@ abstract class StorefrontController extends AbstractController
             $this->container->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
             $route,
             $attributes,
-            ['_route_params' => $routeParameters]
+            // in the case of virtual urls (localhost/de) we need to skip the request transformer matching, otherwise the virtual url (/de) is stripped out, and we cannot find any sales channel
+            // so we set the `skip-transformer` attribute, which is checked in the HttpKernel before the request transformer is set
+            ['_route_params' => $routeParameters, 'sw-skip-transformer' => true]
         );
 
         return $this->forward($route['_controller'], $attributes, $routeParameters);

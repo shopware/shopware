@@ -46,7 +46,6 @@ test('@update: Update a shop', async ({ page, adminApiContext }) => {
     });
 
     // test admin login
-
     // Wait until the page is loaded
     await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
         timeout: 60000,

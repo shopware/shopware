@@ -44,11 +44,10 @@ class Migration1687462843ProductManufacturerMediaThumbnails extends MigrationSte
                     VALUES (:folderConfigurationId, :thumbnailSizeId)
                 ');
 
+        $statement->bindValue('folderConfigurationId', $configurationId);
         foreach ($thumbnailSizeIds as $thumbnailSizeId) {
-            $statement->executeStatement([
-                'folderConfigurationId' => $configurationId,
-                'thumbnailSizeId' => $thumbnailSizeId,
-            ]);
+            $statement->bindValue('thumbnailSizeId', $thumbnailSizeId);
+            $statement->executeStatement();
         }
 
         $this->registerIndexer($connection, 'media_folder_configuration.indexer');

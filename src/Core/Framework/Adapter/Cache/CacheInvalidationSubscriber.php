@@ -128,16 +128,15 @@ class CacheInvalidationSubscriber
 
     public function invalidateSnippets(EntityWrittenContainerEvent $event): void
     {
-        if (!$this->fineGrainedCacheSnippet) {
-            $this->cacheInvalidator->invalidate(['shopware.translator']);
-
-            return;
-        }
-
         // invalidates all http cache items where the snippets used
         $snippets = $event->getEventByEntityName(SnippetDefinition::ENTITY_NAME);
 
         if (!$snippets) {
+            return;
+        }
+        if (!$this->fineGrainedCacheSnippet) {
+            $this->cacheInvalidator->invalidate(['shopware.translator']);
+
             return;
         }
 

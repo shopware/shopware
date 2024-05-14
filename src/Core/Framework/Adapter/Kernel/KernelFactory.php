@@ -49,7 +49,8 @@ class KernelFactory
         }
 
         $middlewares = [];
-        if (\PHP_SAPI !== 'cli' && $environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+        if ((\PHP_SAPI !== 'cli' || \in_array('--profile', $_SERVER['argv'] ?? [], true))
+            && $environment !== 'prod' && InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
             $middlewares = [new ProfilingMiddleware()];
         }
 

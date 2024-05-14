@@ -41,13 +41,23 @@
                     },
                     "referencePrice": {
                         "oneOf": [
-                            { "$ref": "#/components/schemas/ReferencePrice" }
-                        ],
-                        "nullable": true
+                            {
+                                "$ref": "#/components/schemas/ReferencePrice"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "listPrice": {
-                        "oneOf": [{ "$ref": "#/components/schemas/ListPrice" }],
-                        "nullable": true
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ListPrice"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "regulationPrice": {
                         "type": "object",

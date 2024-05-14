@@ -191,7 +191,7 @@
       "buttonCreateOrder": "Add order"
     },
     "loginAsCustomerModal": {
-      "modalTitle": "Select the sales channel below you wish to perform the login",
+      "modalTitle": "Select the sales channel domain to perform the login with",
       "labelCancel": "Close"
     },
     "addressForm": {

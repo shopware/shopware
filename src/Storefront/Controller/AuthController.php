@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -346,10 +346,13 @@ class AuthController extends StorefrontController
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
 
             return $this->redirectToRoute('frontend.account.home.page');
-        } catch (InvalidLoginAsCustomerTokenException) {
-            return $this->redirectToRoute('frontend.account.login.page');
-        } catch (CustomerNotFoundByIdException) {
-            return $this->redirectToRoute('frontend.account.login.page');
+        } catch (InvalidLoginAsCustomerTokenException|CustomerNotFoundByIdException) {
+            return $this->forwardToRoute(
+                'frontend.account.login.page',
+                [
+                    'loginError' => true,
+                ]
+            );
         }
     }
 }

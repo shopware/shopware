@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The required parameters are "customerId" and "salesChannelId" and "token"
  * The parameter "token" will be validated using hmac to ensure it is not guessable
  */
+#[Package('checkout')]
 abstract class AbstractLoginAsCustomerRoute
 {
     abstract public function getDecorated(): AbstractLoginAsCustomerRoute;

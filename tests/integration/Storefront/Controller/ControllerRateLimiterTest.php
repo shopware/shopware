@@ -4,9 +4,8 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginAsCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;

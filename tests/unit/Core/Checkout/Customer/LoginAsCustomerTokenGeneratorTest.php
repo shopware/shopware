@@ -2,15 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
 use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator
  */
+#[Package('checkout')]
+#[CoversClass(LoginAsCustomerTokenGenerator::class)]
 class LoginAsCustomerTokenGeneratorTest extends TestCase
 {
     private LoginAsCustomerTokenGenerator $tokenGenerator;
@@ -28,12 +31,10 @@ class LoginAsCustomerTokenGeneratorTest extends TestCase
     {
         $token = $this->tokenGenerator->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID);
 
-        $this->assertSame('88b0bd156c5b7b5e62bbad80da8c7f7195ded6f5', $token);
+        static::assertSame('88b0bd156c5b7b5e62bbad80da8c7f7195ded6f5', $token);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testValidate(): void
     {
         $this->tokenGenerator->validate('88b0bd156c5b7b5e62bbad80da8c7f7195ded6f5', self::SALES_CHANNEL_ID, self::CUSTOMER_ID);

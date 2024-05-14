@@ -14,9 +14,9 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
+use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Checkout\Customer\Exception\InvalidLoginAsCustomerTokenException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;

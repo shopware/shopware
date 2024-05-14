@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\LoginAsCustomerTokenGenerator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -143,20 +142,24 @@ class SalesChannelProxyController extends AbstractController
     public function loginAsCustomerTokenGenerate(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw RoutingException::missingRequestParameter(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
-
-        $salesChannelId = (string) $request->request->get('salesChannelId');
-
-        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
 
         if (!$request->request->has(self::CUSTOMER_ID)) {
-            throw RoutingException::missingRequestParameter(self::CUSTOMER_ID);
+            throw ApiException::customerIdParameterIsMissing();
         }
 
+        $salesChannelId = (string) $request->request->get(self::SALES_CHANNEL_ID);
+        $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
         $customerId = (string) $request->request->get('customerId');
 
-        $this->fetchCustomer($customerId, $context);
+        if (!$this->doesCustomerExist($customerId, $context)) {
+            throw ApiException::resourceNotFound('customer', ['id' => $customerId]);
+        }
+
+        if ($salesChannel->getDomains() === null || $salesChannel->getDomains()->first() === null) {
+            throw ApiException::invalidSalesChannelId($salesChannelId);
+        }
 
         $token = $this->loginAsCustomerTokenGenerator->generate($salesChannelId, $customerId);
 
@@ -170,15 +173,10 @@ class SalesChannelProxyController extends AbstractController
             ])
         );
 
-        $content = json_encode([
+        return new JsonResponse([
             'token' => $token,
             'redirectUrl' => $redirectUrlWithToken,
-        ], \JSON_THROW_ON_ERROR);
-        $response = new Response();
-        $response->headers->set('content-type', 'application/json');
-        $response->setContent($content ?: null);
-
-        return $response;
+        ]);
     }
 
     #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
@@ -287,20 +285,9 @@ class SalesChannelProxyController extends AbstractController
         return $salesChannel;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidSalesChannelIdException
-     */
-    private function fetchCustomer(string $customerId, Context $context): CustomerEntity
+    private function doesCustomerExist(string $customerId, Context $context): bool
     {
-        /** @var CustomerEntity|null $customer */
-        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->get($customerId);
-
-        if ($customer === null) {
-            throw new InvalidSalesChannelIdException($customerId);
-        }
-
-        return $customer;
+        return $this->customerRepository->searchIds(new Criteria([$customerId]), $context)->has($customerId);
     }
 
     private function getContextToken(Request $request): string

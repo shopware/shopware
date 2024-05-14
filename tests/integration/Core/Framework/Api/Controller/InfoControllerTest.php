@@ -490,9 +490,12 @@ class InfoControllerTest extends TestCase
         static::assertEquals('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
 
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertEquals(
-            'http://localhost:8000/admin/adminextensionapipluginwithlocalentrypoint/index.html',
+            $appUrl . '/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);

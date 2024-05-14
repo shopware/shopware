@@ -3,6 +3,7 @@ import './sw-media-quickinfo-usage.scss';
 
 const { Application } = Shopware;
 const types = Shopware.Utils.types;
+const { Criteria } = Shopware.Data;
 
 /**
  * @package buyers-experience
@@ -10,6 +11,10 @@ const types = Shopware.Utils.types;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    inject: [
+        'repositoryFactory',
+    ],
 
     props: {
         item: {
@@ -37,14 +42,51 @@ export default {
             paymentMethods: [],
             shippingMethods: [],
             layouts: [],
+            landingPages: [],
             isLoading: false,
         };
     },
 
     computed: {
 
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        landingPageRepository() {
+            return this.repositoryFactory.create('landing_page');
+        },
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
+        },
+
+        cmsPageRepository() {
+            return this.repositoryFactory.create('cms_page');
+        },
+
         moduleFactory() {
             return Application.getContainer('factory').module;
+        },
+
+        slotConfigCriteria() {
+            const criteria = new Criteria();
+
+            criteria.setLimit(5);
+            criteria.addFilter(Criteria.contains('slotConfig.*.media.value', this.item.id));
+            criteria.addFields('name');
+
+            return criteria;
+        },
+
+        cmsPageBlockConfigCriteria() {
+            const criteria = new Criteria();
+
+            criteria.setLimit(5);
+            criteria.addFilter(Criteria.equals('sections.blocks.slots.config.media.value', this.item.id));
+            criteria.addFields('name');
+
+            return criteria;
         },
 
         getUsages() {
@@ -89,6 +131,10 @@ export default {
                 });
             }
 
+            this.landingPages.forEach((landingPage) => {
+                usages.push(this.getLandingPageUsage(landingPage));
+            });
+
             return usages;
         },
 
@@ -108,7 +154,7 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.loadProductAssociations();
             this.loadCategoryAssociations();
             this.loadManufacturerAssociations();
@@ -118,6 +164,40 @@ export default {
             this.loadPaymentMethodAssociations();
             this.loadShippingMethodAssociations();
             this.loadLayoutAssociations();
+            await this.loadSlotConfigAssociations();
+        },
+
+        async loadSlotConfigAssociations() {
+            this.isLoading = true;
+
+            const [foundInProducts, foundInLandingPages, foundInCategories, foundInCmsPages] = await Promise.all([
+                this.productRepository.search(this.slotConfigCriteria),
+                this.landingPageRepository.search(this.slotConfigCriteria),
+                this.categoryRepository.search(this.slotConfigCriteria),
+                this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
+            ]);
+
+            foundInProducts.forEach((foundInProduct) => {
+                if (this.products && !this.products.some((productMedia) => productMedia.product.id === foundInProduct.id)) {
+                    this.products.push({ product: foundInProduct });
+                }
+            });
+
+            this.landingPages = foundInLandingPages;
+
+            foundInCategories.forEach((foundInCategory) => {
+                if (this.categories && !this.categories.some((category) => category.id === foundInCategory.id)) {
+                    this.categories.push(foundInCategory);
+                }
+            });
+
+            foundInCmsPages.forEach((foundInCmsPage) => {
+                if (this.layouts && !this.layouts.some((layout) => layout.id === foundInCmsPage.id)) {
+                    this.layouts.push(foundInCmsPage);
+                }
+            });
+
+            this.isLoading = false;
         },
 
         loadProductAssociations() {
@@ -293,6 +373,18 @@ export default {
                     id: layout.id,
                 },
                 icon: this.getIconForModule('sw-cms'),
+            };
+        },
+
+        getLandingPageUsage(landingPage) {
+            return {
+                name: landingPage.translated.name,
+                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInLandingPages'),
+                link: {
+                    name: 'sw.category.landingPageDetail',
+                    id: landingPage.id,
+                },
+                icon: this.getIconForModule('sw-category'),
             };
         },
 

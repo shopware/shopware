@@ -1,6 +1,12 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.10
+*  [NEXT-30575 - Remove HTML sanitization from mail header and mail footer fields](./changelog/release-6-5-8-10/2024-01-04-remove-html-sanitization-from-mail-header-and-mail-footer-fields.md) ([Marcus Müller](https://github.com/M-arcus))
+*  [NEXT-35318 - Add heading elements for account login page to improve accessibility & SEO](./changelog/release-6-5-8-10/2024-04-15-heading-elements-on-registration-page.md) ([Jesper Ingels](https://github.com/jesperingels))
+*  [NEXT-33694 - Change shipping method toggle in OffCanvas cart to button element](./changelog/release-6-5-8-10/2024-04-17-change-shipping-costs-toggle-to-button-element.md)
+*  [NEXT-35094 - Remove unprintable ASCII characters in media path](./changelog/release-6-5-8-10/2024-04-24-remove-unprintable-ascii-characters-in-media-path.md)
+
 ## 6.5.8.9
 *  [NEXT-32927 - Fixed switch edit mode to html doesn't save new content](./changelog/release-6-5-8-9/2024-03-21-fixed-switch-edit-mode-to-html-doesn-t-save-new-content.md)
 *  [NEXT-34914 - Form validation errors ignored by captcha](./changelog/release-6-5-8-9/2024-04-09-form-validation-errors-ignored-by-captcha.md)

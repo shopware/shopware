@@ -3,10 +3,12 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,8 +32,6 @@ class NoAssertsOnObjectsRule implements Rule
 
     /**
      * @param StaticCall $node
-     *
-     * @return string[]
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -48,7 +48,7 @@ class NoAssertsOnObjectsRule implements Rule
         }
 
         $firstArg = $node->args[0];
-        if (!$firstArg instanceof Node\Arg) {
+        if (!$firstArg instanceof Arg) {
             return [];
         }
 
@@ -56,7 +56,7 @@ class NoAssertsOnObjectsRule implements Rule
 
         foreach (self::FORBIDDEN_OBJECTS as $object => $message) {
             if ((new ObjectType($object))->isSuperTypeOf($type)->yes()) {
-                return [$message];
+                return [RuleErrorBuilder::message($message)->identifier('shopware.assertObjects')->build()];
             }
         }
 

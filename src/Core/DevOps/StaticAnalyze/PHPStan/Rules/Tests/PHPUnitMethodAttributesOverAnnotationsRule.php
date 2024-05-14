@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -23,8 +24,6 @@ class PHPUnitMethodAttributesOverAnnotationsRule implements Rule
 
     /**
      * @param ClassMethod $node
-     *
-     * @return string[]
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -62,7 +61,7 @@ class PHPUnitMethodAttributesOverAnnotationsRule implements Rule
         $pattern = '/@(' . implode('|', $annotations) . ')\s+([^\s]+)/';
 
         if (preg_match($pattern, $docComment->getText(), $matches)) {
-            return ['Please use phpunit attribute instead of annotation for: ' . $matches[1]];
+            return [RuleErrorBuilder::message('Please use phpunit attribute instead of annotation for: ' . $matches[1])->identifier('shopware.phpunitAttributes')->build()];
         }
 
         return [];

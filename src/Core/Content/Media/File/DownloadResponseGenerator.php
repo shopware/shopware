@@ -22,8 +22,19 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('buyers-experience')]
 class DownloadResponseGenerator
 {
-    final public const X_SENDFILE_DOWNLOAD_STRATEGRY = 'x-sendfile';
-    final public const X_ACCEL_DOWNLOAD_STRATEGRY = 'x-accel';
+    /**
+     * @deprecated tag:v6.7.0 - Constant will be removed, use DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY instead
+     */
+    final public const X_SENDFILE_DOWNLOAD_STRATEGRY = self::X_SENDFILE_DOWNLOAD_STRATEGY;
+    /**
+     * @deprecated tag:v6.7.0 - Constant will be removed, use DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY instead
+     */
+    final public const X_ACCEL_DOWNLOAD_STRATEGRY = self::X_ACCEL_DOWNLOAD_STRATEGY;
+
+    final public const X_SENDFILE_DOWNLOAD_STRATEGY = 'x-sendfile';
+    final public const X_ACCEL_DOWNLOAD_STRATEGY = 'x-accel';
+    final public const X_ACCEL_REDIRECT = 'X-Accel-Redirect';
+    private const EXPIRATION_TIME = '+120 minutes';
 
     /**
      * @internal
@@ -40,7 +51,7 @@ class DownloadResponseGenerator
     public function getResponse(
         MediaEntity $media,
         SalesChannelContext $context,
-        string $expiration = '+120 minutes'
+        string $expiration = self::EXPIRATION_TIME
     ): Response {
         $fileSystem = $this->getFileSystem($media);
 
@@ -65,21 +76,23 @@ class DownloadResponseGenerator
         }
 
         switch ($this->localPrivateDownloadStrategy) {
-            case self::X_SENDFILE_DOWNLOAD_STRATEGRY:
+            case self::X_SENDFILE_DOWNLOAD_STRATEGY:
                 $location = $media->getPath();
 
                 $stream = $fileSystem->readStream($location);
-                $location = \is_resource($stream) ? stream_get_meta_data($stream)['uri'] : $location;
+                if (\is_resource($stream)) {
+                    $location = stream_get_meta_data($stream)['uri'] ?? $location;
+                }
 
                 $response = new Response(null, 200, $this->getStreamHeaders($media));
-                $response->headers->set('X-Sendfile', $location);
+                $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
 
                 return $response;
-            case self::X_ACCEL_DOWNLOAD_STRATEGRY:
+            case self::X_ACCEL_DOWNLOAD_STRATEGY:
                 $location = $media->getPath();
 
                 $response = new Response(null, 200, $this->getStreamHeaders($media));
-                $response->headers->set('X-Accel-Redirect', $location);
+                $response->headers->set(self::X_ACCEL_REDIRECT, $location);
 
                 return $response;
             default:
@@ -98,13 +111,13 @@ class DownloadResponseGenerator
         );
 
         if (!$stream instanceof StreamInterface) {
-            throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
+            throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
         }
 
         $stream = $stream->detach();
 
         if (!\is_resource($stream)) {
-            throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
+            throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
         }
 
         return new StreamedResponse(function () use ($stream): void {
@@ -132,7 +145,7 @@ class DownloadResponseGenerator
      */
     private function getStreamHeaders(MediaEntity $media): array
     {
-        $filename = $media->getFilename() . '.' . $media->getFileExtension();
+        $filename = $media->getFileName() . '.' . $media->getFileExtension();
 
         return [
             'Content-Disposition' => HeaderUtils::makeDisposition(

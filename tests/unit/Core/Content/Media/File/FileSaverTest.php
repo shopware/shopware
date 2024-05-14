@@ -154,7 +154,7 @@ class FileSaverTest extends TestCase
         $file = tmpfile();
         static::assertIsResource($file);
         $tempMeta = stream_get_meta_data($file);
-        $mediaFile = new MediaFile($tempMeta['uri'], 'image/png', 'png', 0);
+        $mediaFile = new MediaFile($tempMeta['uri'] ?? '', 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 

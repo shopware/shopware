@@ -4,6 +4,8 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -34,11 +36,11 @@ class UseCLIContextRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node->name instanceof Node\Identifier || $node->name->name !== 'createDefaultContext') {
+        if (!$node->name instanceof Identifier || $node->name->name !== 'createDefaultContext') {
             return [];
         }
 
-        if (!$node->class instanceof Node\Name || $node->class->toString() !== 'Shopware\Core\Framework\Context') {
+        if (!$node->class instanceof Name || $node->class->toString() !== 'Shopware\Core\Framework\Context') {
             return [];
         }
 
@@ -52,6 +54,7 @@ class UseCLIContextRule implements Rule
                 return [
                     RuleErrorBuilder::message('Method Context::createDefaultContext() should not be used in CLI context. Use Context::createCLIContext() instead.')
                         ->line($node->getLine())
+                        ->identifier('shopware.cliContext')
                         ->build(),
                 ];
             }

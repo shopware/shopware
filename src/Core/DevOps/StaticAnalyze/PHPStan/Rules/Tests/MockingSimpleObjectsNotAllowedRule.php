@@ -13,6 +13,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -84,7 +85,9 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
         }
 
         return [
-            sprintf('Mocking of %s is not allowed. The object is very basic and can be constructed', $mockedClassString),
+            RuleErrorBuilder::message(sprintf('Mocking of %s is not allowed. The object is very basic and can be constructed', $mockedClassString))
+                ->identifier('shopware.mockingSimpleObjects')
+                ->build(),
         ];
     }
 

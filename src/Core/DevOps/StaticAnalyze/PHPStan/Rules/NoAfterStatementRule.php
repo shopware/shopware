@@ -4,8 +4,11 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -34,7 +37,7 @@ class NoAfterStatementRule implements Rule
             return [];
         }
 
-        if (!$node->name instanceof Node\Identifier) {
+        if (!$node->name instanceof Identifier) {
             return [];
         }
 
@@ -43,14 +46,14 @@ class NoAfterStatementRule implements Rule
         }
 
         $arg = $node->getArgs()[0]->value;
-        if (!$arg instanceof Node\Scalar\String_) {
+        if (!$arg instanceof String_) {
             return [];
         }
 
         $pattern = '/ALTER\s+TABLE\s+.+?\s+ADD\s+.+?\s+AFTER\s+`?[a-zA-Z0-9_]+`?/i';
 
         if (preg_match($pattern, $arg->value)) {
-            return ['Usage of ALTER TABLE .. AFTER is disallowed in migrations to avoid implicit temporary table usage.'];
+            return [RuleErrorBuilder::message('Usage of ALTER TABLE .. AFTER is disallowed in migrations to avoid implicit temporary table usage.')->identifier('shopware.afterStatement')->build()];
         }
 
         return [];

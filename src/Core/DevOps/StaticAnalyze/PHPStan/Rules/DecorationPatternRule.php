@@ -3,12 +3,15 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Stmt\Throw_;
 use PHPStan\Analyser\Scope;
 use PHPStan\BetterReflection\Reflection\Adapter\ReflectionMethod as BetterReflectionMethod;
 use PHPStan\BetterReflection\Reflection\ReflectionMethod;
 use PHPStan\Node\InClassNode;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrategy;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -102,15 +105,14 @@ class DecorationPatternRule implements Rule
 
         $doc = $node->getDocComment()?->getText() ?? '';
         if ($this->isInternal($doc)) {
-            $errors[] = 'Decoration error: Concrete class is marked as @internal. Remove `getDecorated` (if not intended that these classes can be decorated) or remove @internal annotation';
+            $errors[] = RuleErrorBuilder::message('Decoration error: Concrete class is marked as @internal. Remove `getDecorated` (if not intended that these classes can be decorated) or remove @internal annotation')->identifier('shopware.decorationPattern')->build();
         }
 
         if ($class->implementsInterface(EventSubscriberInterface::class)) {
-            $errors[] = 'Decoration error: Decoration pattern is not compatible with event subscribers. Remove `getDecorated` (if not intended that these classes can be decorated) or extract EventSubscriberInterface into own class';
+            $errors[] = RuleErrorBuilder::message('Decoration error: Decoration pattern is not compatible with event subscribers. Remove `getDecorated` (if not intended that these classes can be decorated) or extract EventSubscriberInterface into own class')->identifier('shopware.decorationPattern')->build();
         }
 
         // loop all methods and ensure that all public function also inside the parent class
-        /** @var ReflectionMethod $method */
         foreach ($class->getNativeReflection()->getMethods() as $method) {
             if (!$this->isPublic($method)) {
                 continue;
@@ -124,7 +126,7 @@ class DecorationPatternRule implements Rule
                 continue;
             }
 
-            $errors[] = \sprintf('Decoration error: Concrete class has a public method %s which is not defined in the parent class %s', $method->getName(), $parent->getName());
+            $errors[] = RuleErrorBuilder::message(\sprintf('Decoration error: Concrete class has a public method %s which is not defined in the parent class %s', $method->getName(), $parent->getName()))->identifier('shopware.decorationPattern')->build();
         }
 
         return $errors;
@@ -154,18 +156,26 @@ class DecorationPatternRule implements Rule
     }
 
     /**
-     * @return array<string>
+     * @return list<IdentifierRuleError>
      */
     private function validateAbstractClass(InClassNode $node, ClassReflection $class): array
     {
         $doc = $node->getDocComment()?->getText() ?? '';
 
         if ($this->isInternal($doc)) {
-            return ['Decoration error: Abstract class is marked as @internal, but has a decoration pattern. Remove `getDecorated` (if not intended that these classes can be decorated) or remove @internal annotation'];
+            return [
+                RuleErrorBuilder::message('Decoration error: Abstract class is marked as @internal, but has a decoration pattern. Remove `getDecorated` (if not intended that these classes can be decorated) or remove @internal annotation')
+                    ->identifier('shopware.decorationPattern')
+                    ->build(),
+            ];
         }
 
         if ($this->isFinal($class, $doc)) {
-            return ['Decoration error: Abstract class is marked as @final which makes no sense. Please remove @final state'];
+            return [
+                RuleErrorBuilder::message('Decoration error: Abstract class is marked as @final which makes no sense. Please remove @final state')
+                    ->identifier('shopware.decorationPattern')
+                    ->build(),
+            ];
         }
 
         return [];
@@ -192,7 +202,7 @@ class DecorationPatternRule implements Rule
 
         $firstStatement = ($method->getStmts() ?? [])[0];
 
-        if ($firstStatement instanceof Node\Stmt\Throw_) {
+        if ($firstStatement instanceof Throw_) {
             return true;
         }
 
